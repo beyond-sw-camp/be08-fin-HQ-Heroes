@@ -1,0 +1,25 @@
+# <타입> : <제목> 형식으로 작성하며 제목은 최대 50글자 정도로만 입력
+# 제목을 아랫줄에 작성, 제목 끝에 마침표 금지, 무엇을 했는지 명확하게 작성
+# [#2]docs: Student 모델 생성
+# 브랜치 네임 규칙 예시 : [#이슈넘버](convention): (변경 내역 및 중요 내역)
+
+################
+# 본문(추가 설명)을 아랫줄에 작성
+
+################
+
+# [ Commit convention ]
+# 🥰 Accessibility : 웹접근성 관련
+# 📬 API : 서버 API 통신
+# 🐞 BugFix : Something isn't working
+# 💻 CrossBrowsing : 브라우저 호환성
+# 🌏 Deploy : 배포 관련
+# 📃 Docs : 문서 작성 및 수정 (README.md 등)
+# ✨ Feature : 기능 개발
+# 🎨 Html&css : 마크업 & 스타일링
+# 🙋‍♂️ Question : Further information is requested
+# 🔨 Refactor : 코드 리팩토링
+# ⚙ Setting : 개발 환경 세팅
+# ✅ Test : test 관련(storybook, jest...)
+
+################
