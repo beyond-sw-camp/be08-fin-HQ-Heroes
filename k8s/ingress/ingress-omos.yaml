@@ -1,0 +1,71 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: omos-services-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, DELETE, PUT, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT, X-CustomHeader, X-Requested-With, X-Requested-By, X-Auth-Token, X-Auth-User, Content-Type, Authorization"
+spec:
+  rules:
+  - host: auth.bar.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 8080
+  - host: notice.bar.com
+    http:
+      paths:
+      - path: /api/notice
+        pathType: Prefix
+        backend:
+          service:
+            name: notice-service
+            port:
+              number: 8080
+  - host: student.bar.com
+    http:
+      paths:
+      - path: /api/student
+        pathType: Prefix
+        backend:
+          service:
+            name: student-service
+            port:
+              number: 8080
+  - host: calendar.bar.com
+    http:
+      paths:
+      - path: /api/calendar
+        pathType: Prefix
+        backend:
+          service:
+            name: calendar-service
+            port:
+              number: 8080
+  - host: notification.bar.com
+    http:
+      paths:
+      - path: /api/notification
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 8080
+  - host: frontend.bar.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
