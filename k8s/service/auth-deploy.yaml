@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: auth-label
+  template:
+    metadata:
+      labels:
+        app: auth-label
+    spec:
+      containers:
+      - name: auth
+        image: jjjwww8802/auth-service:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: DB_URL
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: DB_PASSWORD
+        - name: NAVER_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: NAVER_CLIENT_ID
+        - name: NAVER_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: NAVER_CLIENT_SECRET
+        - name: NAVER_REDIRECT_URI
+          valueFrom:
+            configMapKeyRef:
+              name: auth-config
+              key: NAVER_REDIRECT_URI
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: GOOGLE_CLIENT_ID
+        - name: GOOGLE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: GOOGLE_CLIENT_SECRET
+        - name: GOOGLE_REDIRECT_URI
+          valueFrom:
+            configMapKeyRef:
+              name: auth-config
+              key: GOOGLE_REDIRECT_URI
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: JWT_SECRET
