@@ -1,29 +1,5 @@
 <template>
     <div class="demo-app">
-        <div class="demo-app-sidebar">
-            <p-panel>
-                <template #header> 사용법 </template>
-                <div>
-                    <ul>
-                        <li>날짜를 클릭해서 이벤트를 추가할 수 있습니다.</li>
-                        <li>생성된 이벤트를 다른 날짜로 옮기거나, 당겨서 날짜를 늘릴 수 있습니다.</li>
-                        <li>클릭해서 이벤트를 삭제할 수 있습니다.</li>
-                    </ul>
-                </div>
-            </p-panel>
-            <p-panel>
-                <template #header> All Events ({{ currentEvents.length }}) </template>
-                <div>
-                    <ul>
-                        <li v-for="event in currentEvents" :key="event.id">
-                            <b>{{ event.startStr }}</b>
-                            <i>{{ event.title }}</i> - <span>{{ event.extendedProps.category }}</span>
-                        </li>
-                    </ul>
-                </div>
-            </p-panel>
-        </div>
-
         <div class="demo-app-main">
             <FullCalendar class="demo-app-calendar" :options="calendarOptions">
                 <template v-slot:eventContent="arg">
@@ -208,43 +184,3 @@ export default defineComponent({
     }
 });
 </script>
-
-<style scoped>
-.demo-app {
-    display: flex;
-    min-height: 100%;
-    font-family:
-        Arial,
-        Helvetica Neue,
-        Helvetica,
-        sans-serif;
-    font-size: 14px;
-}
-
-.demo-app-sidebar {
-    width: 300px;
-    line-height: 1.5;
-    color: #333;
-    background: #eaf9ff;
-    border-right: 1px solid #d3e2e8;
-    padding: 2em;
-}
-
-.demo-app-main {
-    flex-grow: 1;
-    padding: 3em;
-}
-
-.fc {
-    max-width: 1100px;
-    margin: 0 auto;
-}
-
-@media (prefers-color-scheme: dark) {
-    .demo-app-sidebar {
-        color: #e0e0e0; /* 다크모드일 때 글씨 색상을 밝게 설정합니다. */
-        background: #2c2c2c; /* 배경도 다크모드에 맞게 어두운 색상으로 변경합니다. */
-        border-right: 1px solid #444;
-    }
-}
-</style>

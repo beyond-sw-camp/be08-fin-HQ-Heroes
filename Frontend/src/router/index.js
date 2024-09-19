@@ -29,6 +29,11 @@ const router = createRouter({
           name: 'attendance',
           component: () => import('@/views/pages/attendance/Attendance.vue')
         },
+        {
+          path: '/feedback',
+          name: 'feedback',
+          component: () => import('@/views/pages/feedback/FeedBack.vue')
+        },
       ]
     },
     {

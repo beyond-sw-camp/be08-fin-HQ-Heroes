@@ -1,16 +1,19 @@
 <template>
-    <div class="card mb-0 bg-blue-50 mt-2">
+    <div class="card mb-0 mt-2 border dark:border-surface-700 bg-indigo-100 dark:bg-surface-700 rounded-lg">
         <div class="flex justify-between mb-0">
             <div>
                 <span class="block text-muted-color font-medium mb-4">인사팀 OO님</span>
                 <div class="text-surface-900 dark:text-surface-0 font-medium text-l">{{ currentDay }}</div>
                 <div class="text-surface-900 dark:text-surface-0 font-medium text-">09 : 00 ~ 18 : 00</div>
             </div>
-            <div class="flex items-center justify-center bg-blue-500 rounded-full" style="width: 2.5rem; height: 2.5rem">
-                <i class="pi pi-check-circle text-white !text-xl"></i>
+            <div class="flex items-center justify-center rounded-full" style="width: 2.5rem; height: 2.5rem">
+                <i class="pi pi-check-circle !text-xl"></i>
             </div>
         </div>
-        <button class="mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">출근하기</button>
+        <button class="mt-3 font-bold py-2 px-4 rounded hover:bg-indigo-400" 
+                :class="['bg-indigo-500 text-white', 'dark:bg-indigo-500 dark:text-white']">
+            출근하기
+        </button>
     </div>
 </template>
 
