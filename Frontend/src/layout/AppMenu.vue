@@ -10,7 +10,7 @@ const model = ref([
                 label: '인사',
                 icon: 'pi pi-fw pi-users',
                 items: [
-                    { label: '사람찾기', icon: 'pi pi-fw pi-search', to: '/find-people' },
+                    { label: '사람찾기', icon: 'pi pi-fw pi-search', to: '/employeeList' },
                     { label: '내 프로파일', icon: 'pi pi-fw pi-user', to: '/profile' }
                 ]
             },
@@ -65,7 +65,7 @@ const model = ref([
                 label: '평가',
                 icon: 'pi pi-fw pi-chart-bar',
                 items: [
-                    { label: '평가 수행 결과', icon: 'pi pi-fw pi-chart-line', to: '/evaluation-results' },
+                    { label: '평가 수행 결과', icon: 'pi pi-fw pi-chart-line', to: '/feedback-result' },
                     { label: '다면 평가', icon: 'pi pi-fw pi-th-large', to: '/feedback' }
                 ]
             }
