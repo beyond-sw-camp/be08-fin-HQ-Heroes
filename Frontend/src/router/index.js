@@ -34,6 +34,31 @@ const router = createRouter({
           name: 'feedback',
           component: () => import('@/views/pages/feedback/FeedBack.vue')
         },
+        {
+          path: '/apply-annual-leave',
+          name: 'apply-annual-leave',
+          component: () => import('@/views/pages/vacation/apply-annual-leave.vue')
+          },
+          {
+          path: '/approve-leave',
+          name: 'approve-leave',
+          component: () => import('@/views/pages/vacation/approve-leave.vue')
+          },
+          {
+          path: '/apply-overtime',
+          name: 'apply-overtime',
+          component: () => import('@/views/pages/overtime/apply-overtime.vue')
+          },
+          {
+          path: '/leave-status',
+          name: 'leave-status',
+          component: () => import('@/views/pages/AttendanceStatus/leave-status.vue')
+          },
+          {
+          path: '/monthly-attendance-status',
+          name: 'monthly-attendance-status',
+          component: () => import('@/views/pages/AttendanceStatus/monthly-attendance-status.vue')
+          },
       ]
     },
     {
