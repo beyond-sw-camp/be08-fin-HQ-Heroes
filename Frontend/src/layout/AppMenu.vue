@@ -65,7 +65,7 @@ const model = ref([
                 label: '평가',
                 icon: 'pi pi-fw pi-chart-bar',
                 items: [
-                    { label: '평가 수행 결과', icon: 'pi pi-fw pi-chart-line', to: '/evaluation-results' },
+                    { label: '평가 수행 결과', icon: 'pi pi-fw pi-chart-line', to: '/feedback-result' },
                     { label: '다면 평가', icon: 'pi pi-fw pi-th-large', to: '/feedback' }
                 ]
             }
