@@ -12,6 +12,8 @@ import ToastService from 'primevue/toastservice';
 import '@/assets/styles.scss';
 import '@/assets/tailwind.css';
 
+import 'primeicons/primeicons.css';            // PrimeIcons 스타일
+
 const app = createApp(App);
 const pinia = createPinia();
 

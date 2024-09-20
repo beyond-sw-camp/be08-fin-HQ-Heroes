@@ -31,8 +31,8 @@
             </div>
 
             <template #footer>
-                <Button label="Cancel" icon="pi pi-times" text @click="closeModal" />
-                <Button label="Save" icon="pi pi-check" @click="saveEvent" />
+                <Button label="닫기" icon="pi pi-times" text @click="closeModal" />
+                <Button label="저장" icon="pi pi-check" @click="saveEvent" />
             </template>
         </Dialog>
 
@@ -60,8 +60,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import FullCalendar from '@fullcalendar/vue3';
 import Panel from 'primevue/panel';
 import { defineComponent, ref } from 'vue';
-import { INITIAL_EVENTS } from '/src/views/pages/calendar/utils/data.js';
-import { createEventId } from '/src/views/pages/calendar/utils/event-utils.js';
+import { INITIAL_EVENTS } from '/src/views/pages/education/education-calendar/utils/data.js';
+import { createEventId } from '/src/views/pages/education/education-calendar/utils/event-utils.js';
 
 export default defineComponent({
     components: {
@@ -100,7 +100,7 @@ export default defineComponent({
                 end: '',
                 category: ''
             }),
-            categories: ref(['휴가', '출근', '병가', '조퇴'])
+            categories: ref(['입문', '직무', '자기개발', '윤리', '자격증'])
         };
     },
     methods: {
@@ -128,13 +128,11 @@ export default defineComponent({
                 calendarApi.unselect();
 
                 const categoryColors = {
-                    휴가: '#ffcccc',
-                    출근: '#ccffcc',
-                    병가: '#ffe6cc',
-                    조퇴: '#cce6ff',
-                    회의: '#cce6ff',
-                    마감: '#ffe6cc',
-                    리뷰: '#ffe6cc'
+                    입문: '#ffcccc',
+                    직무: '#ccffcc',
+                    자기개발: '#ffe6cc',
+                    윤리: '#cce6ff',
+                    자격증: '#cce6ff'
                 };
 
                 calendarApi.addEvent({
