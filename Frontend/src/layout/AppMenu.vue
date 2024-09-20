@@ -57,7 +57,7 @@ const model = ref([
                 label: '교육',
                 icon: 'pi pi-fw pi-book',
                 items: [
-                    { label: '교육 현황 및 교육 신청', icon: 'pi pi-fw pi-calendar-plus', to: '/education-list' },
+                    { label: '교육 현황 및 교육 신청', icon: 'pi pi-fw pi-calendar-plus', to: '/education-calendar' },
                     { label: '자격증 관리', icon: 'pi pi-fw pi-id-card', to: '/certificate-management' }
                 ]
             },
@@ -70,7 +70,7 @@ const model = ref([
                 ]
             }
         ]
-    },
+    }
 ]);
 </script>
 
