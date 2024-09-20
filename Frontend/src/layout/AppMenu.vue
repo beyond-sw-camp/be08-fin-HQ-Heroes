@@ -10,7 +10,7 @@ const model = ref([
                 label: '인사',
                 icon: 'pi pi-fw pi-users',
                 items: [
-                    { label: '사람찾기', icon: 'pi pi-fw pi-search', to: '/find-people' },
+                    { label: '사람찾기', icon: 'pi pi-fw pi-search', to: '/employeeList' },
                     { label: '내 프로파일', icon: 'pi pi-fw pi-user', to: '/profile' }
                 ]
             },
