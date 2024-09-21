@@ -74,6 +74,11 @@ const router = createRouter({
                   name: 'monthly-attendance-status',
                   component: () => import('@/views/pages/HQattendance/attendanceStatus/monthly-attendance-status.vue')
                 },
+                {
+                  path: '/salary-statement',
+                  name: 'salary-statement',
+                  component: () => import('@/views/pages/salary/salary-statement.vue')
+                }
             ]
         },
         {
