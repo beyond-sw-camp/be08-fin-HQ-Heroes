@@ -74,9 +74,14 @@ const router = createRouter({
                     component: () => import('@/views/pages/HQattendance/attendanceStatus/leave-status.vue')
                 },
                 {
-                    path: '/monthly-attendance-status',
-                    name: 'monthly-attendance-status',
-                    component: () => import('@/views/pages/HQattendance/attendanceStatus/monthly-attendance-status.vue')
+                  path: '/monthly-attendance-status',
+                  name: 'monthly-attendance-status',
+                  component: () => import('@/views/pages/HQattendance/attendanceStatus/monthly-attendance-status.vue')
+                },
+                {
+                  path: '/salary-statement',
+                  name: 'salary-statement',
+                  component: () => import('@/views/pages/salary/salary-statement.vue')
                 }
             ]
         },
