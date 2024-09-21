@@ -1,5 +1,9 @@
 import AppLayout from '@/layout/AppLayout.vue';
+import AdminLoginPage from '@/views/pages/auth/AdminLoginPage.vue';
+import LoginPage from '@/views/pages/auth/LoginPage.vue';
 import OAuth2Redirect from '@/views/pages/auth/OAuth2Redirect.vue';
+import ResetPWPage from '@/views/pages/auth/ResetPWPage.vue';
+import SignUpPage from '@/views/pages/auth/SignUpPage.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -15,9 +19,9 @@ const router = createRouter({
                     component: () => import('@/views/pages/main/MainPage.vue')
                 },
                 {
-                  path: '/employeeList',
-                  name: 'employeeList',
-                  component: () => import('@/views/pages/employeeList/EmployeeListPage.vue')
+                    path: '/employeeList',
+                    name: 'employeeList',
+                    component: () => import('@/views/pages/employeeList/EmployeeListPage.vue')
                 },
                 {
                     path: '/attendance',
@@ -40,34 +44,34 @@ const router = createRouter({
                     component: () => import('@/views/pages/education/certificate-management/CertificationList.vue')
                 },
                 {
-                  path: '/feedback',
-                  name: 'feedback',
-                  component: () => import('@/views/pages/feedback/FeedBack.vue')
+                    path: '/feedback',
+                    name: 'feedback',
+                    component: () => import('@/views/pages/feedback/FeedBackPage.vue')
                 },
                 {
-                  path: '/feedback-result',
-                  name: 'feedbackRestul',
-                  component: () => import('@/views/pages/feedback/FeedBackResult.vue')
+                    path: '/feedback-result',
+                    name: 'feedbackRestul',
+                    component: () => import('@/views/pages/feedback/FeedBackResultPage.vue')
                 },
                 {
-                  path: '/apply-annual-leave',
-                  name: 'apply-annual-leave',
-                  component: () => import('@/views/pages/HQattendance/vacation/apply-annual-leave.vue')
+                    path: '/apply-annual-leave',
+                    name: 'apply-annual-leave',
+                    component: () => import('@/views/pages/HQattendance/vacation/apply-annual-leave.vue')
                 },
                 {
-                  path: '/approve-leave',
-                  name: 'approve-leave',
-                  component: () => import('@/views/pages/HQattendance/vacation/approve-leave.vue')
+                    path: '/approve-leave',
+                    name: 'approve-leave',
+                    component: () => import('@/views/pages/HQattendance/vacation/approve-leave.vue')
                 },
                 {
-                  path: '/apply-overtime',
-                  name: 'apply-overtime',
-                  component: () => import('@/views/pages/HQattendance/overtime/apply-overtime.vue')
+                    path: '/apply-overtime',
+                    name: 'apply-overtime',
+                    component: () => import('@/views/pages/HQattendance/overtime/apply-overtime.vue')
                 },
                 {
-                  path: '/leave-status',
-                  name: 'leave-status',
-                  component: () => import('@/views/pages/HQattendance/attendanceStatus/leave-status.vue')
+                    path: '/leave-status',
+                    name: 'leave-status',
+                    component: () => import('@/views/pages/HQattendance/attendanceStatus/leave-status.vue')
                 },
                 {
                   path: '/monthly-attendance-status',
@@ -84,6 +88,22 @@ const router = createRouter({
         {
             path: '/oauth2-jwt-header',
             component: OAuth2Redirect
+        },
+        {
+            path: '/login',
+            component: LoginPage
+        },
+        {
+            path: '/admin-login',
+            component: AdminLoginPage
+        },
+        {
+            path: '/signup',
+            component: SignUpPage
+        },
+        {
+            path: '/reset-password',
+            component: ResetPWPage
         }
     ]
 });

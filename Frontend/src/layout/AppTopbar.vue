@@ -27,6 +27,9 @@ const handleLogout = async () => {
         alert(err.message);
     }
 };
+
+const goToLogin = () => router.push('/login');
+const goToSignUp = () => router.push('/signup');
 </script>
 
 <template>
@@ -107,7 +110,7 @@ const handleLogout = async () => {
                                 text: '!bg-primary !text-primary-contrast !font-medium'
                             }
                         }"
-                        @click="toggleSingInDialog"
+                        @click="goToLogin"
                     >
                         <i class="pi pi-sign-in"></i>
                         <span>로그인</span>
@@ -149,7 +152,7 @@ const handleLogout = async () => {
                                 text: '!bg-primary !text-primary-contrast !font-medium'
                             }
                         }"
-                        @click="toggleSingUpDialog"
+                        @click="goToSignUp"
                     >
                         <i class="pi pi-user-plus"></i>
                         <span>회원가입</span>
