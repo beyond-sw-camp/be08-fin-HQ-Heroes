@@ -59,6 +59,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/HQattendance/vacation/apply-annual-leave.vue')
                 },
                 {
+                    path: '/apply-non-operation-leave',
+                    name: 'apply-non-operation-leave',
+                    component: () => import('@/views/pages/HQattendance/vacation/apply-non-operation-leave.vue')
+                },
+                {
                     path: '/approve-leave',
                     name: 'approve-leave',
                     component: () => import('@/views/pages/HQattendance/vacation/approve-leave.vue')
@@ -74,14 +79,14 @@ const router = createRouter({
                     component: () => import('@/views/pages/HQattendance/attendanceStatus/leave-status.vue')
                 },
                 {
-                  path: '/monthly-attendance-status',
-                  name: 'monthly-attendance-status',
-                  component: () => import('@/views/pages/HQattendance/attendanceStatus/monthly-attendance-status.vue')
+                    path: '/monthly-attendance-status',
+                    name: 'monthly-attendance-status',
+                    component: () => import('@/views/pages/HQattendance/attendanceStatus/monthly-attendance-status.vue')
                 },
                 {
-                  path: '/salary-statement',
-                  name: 'salary-statement',
-                  component: () => import('@/views/pages/salary/salary-statement.vue')
+                    path: '/salary-statement',
+                    name: 'salary-statement',
+                    component: () => import('@/views/pages/salary/salary-statement.vue')
                 }
             ]
         },
