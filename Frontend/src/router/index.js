@@ -39,7 +39,7 @@ const router = createRouter({
                     component: () => import('@/views/pages/education/education-calendar/EducationCalendar.vue')
                 },
                 {
-                    path: '/certification',
+                    path: '/certificate-management',
                     name: 'certification',
                     component: () => import('@/views/pages/education/certificate-management/CertificationList.vue')
                 },
