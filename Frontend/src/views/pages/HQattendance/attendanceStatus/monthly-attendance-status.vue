@@ -1,5 +1,4 @@
 <script setup>
-import StudentDetailModal from '@/views/pages/studentDetail/StudentDetailModal.vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import axios from 'axios';
 import Button from 'primevue/button';

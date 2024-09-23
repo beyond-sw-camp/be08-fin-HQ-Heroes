@@ -16,22 +16,32 @@
                     <div class="time-section">
                         <div class="time-block">
                             <label for="startDate" class="label">시작 일시</label>
-                            <input type="datetime-local" id="startDate" v-model="form.startDate" class="input" />
+                            <input type="date" id="startDate" v-model="form.startDate" class="input" />
                         </div>
                         <div class="time-block">
                             <label for="endDate" class="label">종료 일시</label>
-                            <input type="datetime-local" id="endDate" v-model="form.endDate" class="input" />
+                            <input type="date" id="endDate" v-model="form.endDate" class="input" />
                         </div>
                     </div>
                 </div>
-                <!-- 코멘트 입력란 추가 -->
                 <div class="comment-section">
-                    <label for="comment" class="label">비고:</label>
-                    <textarea id="comment" v-model="form.comment" class="textarea" rows="4" placeholder="비고를 작성하세요."></textarea>
+                    <label for="comment" class="label">사유:</label>
+                    <textarea id="comment" v-model="form.comment" class="textarea" rows="4" placeholder="사유를 작성하세요."></textarea>
                 </div>
-                <!-- 제출 버튼 -->
                 <div class="button-container">
                     <button @click="submitForm" class="submit-button">제출</button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="submittedData.length > 0" class="submitted-result">
+            <div v-for="(data, index) in submittedData" :key="index" class="result-block">
+                <div class="result-card">
+                    <p><strong>결재 종류:</strong> {{ data.type }}</p>
+                    <p><strong>시작 일시:</strong> {{ data.startDate }}</p>
+                    <p><strong>종료 일시:</strong> {{ data.endDate }}</p>
+                    <p><strong>사유:</strong> {{ data.comment }}</p>
+                    <p><strong>제출 일시:</strong> {{ data.submittedAt }}</p>
                 </div>
             </div>
         </div>
@@ -43,18 +53,34 @@ export default {
     data() {
         return {
             form: {
-                type: "휴가", // 기본 선택 값
+                type: "휴가",
                 startDate: "",
                 endDate: "",
-                comment: "", // 코멘트 필드 추가
-                remainingDays: 11, // 예시 데이터
+                comment: "",
             },
+            submittedData: [],
         };
     },
     methods: {
         submitForm() {
-            // 폼 제출 로직 처리
-            console.log("제출된 폼:", this.form);
+            const submittedAt = new Date().toLocaleString(); // 현재 날짜와 시간
+
+            // 제출된 데이터를 배열의 앞에 추가
+            this.submittedData.unshift({
+                ...this.form,
+                submittedAt, // 제출된 시간 추가
+            });
+
+            // 폼을 초기화
+            this.resetForm();
+        },
+        resetForm() {
+            this.form = {
+                type: "휴가",
+                startDate: "",
+                endDate: "",
+                comment: "",
+            };
         },
     },
 };
@@ -71,7 +97,7 @@ export default {
 }
 
 .form-container {
-    border: 1px solid #ddd; /* 경계선 추가 */
+    border: 1px solid #ddd;
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 20px;
@@ -102,12 +128,12 @@ export default {
 }
 
 .comment-section {
-    margin-top: 20px; /* 코멘트 입력란 간격 추가 */
+    margin-top: 20px;
 }
 
 .button-container {
     display: flex;
-    justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
+    justify-content: flex-end;
 }
 
 .submit-button {
@@ -117,5 +143,22 @@ export default {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.submitted-result {
+    margin-top: 30px;
+}
+
+.result-block {
+    margin-bottom: 20px;
+}
+
+.result-card {
+    padding: 20px;
+    border: 1px solid #ddd;
+    background-color: #f1f8f1;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
 }
 </style>

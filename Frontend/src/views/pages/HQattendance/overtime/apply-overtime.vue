@@ -14,9 +14,23 @@
                         </div>
                     </div>
                 </div>
-                <!-- 제출 버튼 -->
+                <div class="comment-section">
+                    <label for="comment" class="label">사유:</label>
+                    <textarea id="comment" v-model="form.comment" class="textarea" rows="4" placeholder="사유를 작성하세요."></textarea>
+                </div>
                 <div class="button-container">
                     <button @click="submitForm" class="submit-button">제출</button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="submittedData.length > 0" class="submitted-result">
+            <div v-for="(data, index) in submittedData" :key="index" class="result-block">
+                <div class="result-card">
+                    <p><strong>시작 일시:</strong> {{ data.startDate }}</p>
+                    <p><strong>종료 일시:</strong> {{ data.endDate }}</p>
+                    <p><strong>사유:</strong> {{ data.comment }}</p>
+                    <p class="submitted-at"><strong>제출 일시:</strong> {{ data.submittedAt }}</p>
                 </div>
             </div>
         </div>
@@ -28,18 +42,34 @@ export default {
     data() {
         return {
             form: {
-                type: "휴가", // 기본 선택 값
                 startDate: "",
                 endDate: "",
-                comment: "", // 코멘트 필드 추가
-                remainingDays: 11, // 예시 데이터
+                comment: "",
+                remainingDays: 11,
             },
+            submittedData: [],
         };
     },
     methods: {
         submitForm() {
-            // 폼 제출 로직 처리
-            console.log("제출된 폼:", this.form);
+            const submittedAt = new Date().toLocaleString(); // 현재 날짜와 시간
+
+            // 제출된 데이터를 배열의 앞에 추가
+            this.submittedData.unshift({
+                ...this.form,
+                submittedAt, // 제출된 시간 추가
+            });
+
+            // 폼을 초기화
+            this.resetForm();
+        },
+        resetForm() {
+            this.form = {
+                startDate: "",
+                endDate: "",
+                comment: "",
+                remainingDays: 11,
+            };
         },
     },
 };
@@ -56,7 +86,7 @@ export default {
 }
 
 .form-container {
-    border: 1px solid #ddd; /* 경계선 추가 */
+    border: 1px solid #ddd;
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 20px;
@@ -68,7 +98,7 @@ export default {
     font-weight: bold;
 }
 
-.select, .input, .textarea {
+.input, .textarea {
     width: 100%;
     padding: 10px;
     margin-bottom: 20px;
@@ -87,12 +117,12 @@ export default {
 }
 
 .comment-section {
-    margin-top: 20px; /* 코멘트 입력란 간격 추가 */
+    margin-top: 20px;
 }
 
 .button-container {
     display: flex;
-    justify-content: flex-end; /* 버튼을 오른쪽으로 정렬 */
+    justify-content: flex-end;
 }
 
 .submit-button {
@@ -102,5 +132,22 @@ export default {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.submitted-result {
+    margin-top: 30px;
+}
+
+.result-block {
+    margin-bottom: 20px;
+}
+
+.result-card {
+    padding: 20px;
+    border: 1px solid #ddd;
+    background-color: #f1f8f1;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
 }
 </style>
