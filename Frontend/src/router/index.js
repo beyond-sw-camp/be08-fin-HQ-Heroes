@@ -99,7 +99,7 @@ const router = createRouter({
                     component: () => import('@/views/pages/admin/UpdateEmpInfoPage.vue')
                 },
                 {
-                    path: '/send-notifications',  // 기존 send-notification에서 복수형으로 변경
+                    path: '/send-notifications', // 기존 send-notification에서 복수형으로 변경
                     name: 'send-notifications',
                     component: () => import('@/views/pages/admin/SendNotificationPage.vue')
                 },
@@ -114,8 +114,8 @@ const router = createRouter({
                     component: () => import('@/views/pages/admin/ManageEducationPage.vue')
                 },
                 {
-                    path: '/manage-certificate',
-                    name: 'manage-certificate',
+                    path: '/manage-certifications',
+                    name: 'manage-certifications',
                     component: () => import('@/views/pages/admin/ManageCertificatePage.vue')
                 }
             ]
