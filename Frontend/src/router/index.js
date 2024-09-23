@@ -39,7 +39,7 @@ const router = createRouter({
                     component: () => import('@/views/pages/education/education-calendar/EducationCalendar.vue')
                 },
                 {
-                    path: '/certification',
+                    path: '/certificate-management',
                     name: 'certification',
                     component: () => import('@/views/pages/education/certificate-management/CertificationList.vue')
                 },
@@ -74,14 +74,14 @@ const router = createRouter({
                     component: () => import('@/views/pages/HQattendance/attendanceStatus/leave-status.vue')
                 },
                 {
-                  path: '/monthly-attendance-status',
-                  name: 'monthly-attendance-status',
-                  component: () => import('@/views/pages/HQattendance/attendanceStatus/monthly-attendance-status.vue')
+                    path: '/monthly-attendance-status',
+                    name: 'monthly-attendance-status',
+                    component: () => import('@/views/pages/HQattendance/attendanceStatus/monthly-attendance-status.vue')
                 },
                 {
-                  path: '/salary-statement',
-                  name: 'salary-statement',
-                  component: () => import('@/views/pages/salary/salary-statement.vue')
+                    path: '/salary-statement',
+                    name: 'salary-statement',
+                    component: () => import('@/views/pages/salary/salary-statement.vue')
                 }
             ]
         },
