@@ -2,8 +2,6 @@
 import { useLayout } from '@/layout/composables/layout';
 import 'primeicons/primeicons.css';
 import { ref } from 'vue';
-import SignInDialog from '@/views/pages/auth/SignInDialog.vue';
-import SignUpDialog from '@/views/pages/auth/SignUpDialog.vue';
 import { useAuthStore } from '@/stores/authStore';
 import authService from '@/service/authService';
 import router from '@/router';
@@ -12,9 +10,6 @@ const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
 
 const displaySignInDialog = ref(false);
 const displaySignUpDialog = ref(false);
-
-const toggleSingInDialog = () => (displaySignInDialog.value = !displaySignInDialog.value);
-const toggleSingUpDialog = () => (displaySignUpDialog.value = !displaySignUpDialog.value);
 
 const authStore = useAuthStore();
 

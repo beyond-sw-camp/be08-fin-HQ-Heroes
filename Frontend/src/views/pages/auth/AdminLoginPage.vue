@@ -2,12 +2,12 @@
 import { ref } from 'vue';
 import router from '@/router';
 
-const adminNo = ref('');
+const adminCode = ref('');
 const password = ref('');
 const otpCode = ref('');
 
 const handleAdminLogin = () => {
-    if (!adminNo.value || !password.value || !otpCode.value) {
+    if (!adminCode.value || !password.value || !otpCode.value) {
         alert("로그인 정보를 입력해주세요.");
         return;
     }
@@ -118,8 +118,8 @@ const goToLogin = () => router.push('/login');
                 <span class="text-muted-color font-medium">관리자 로그인</span>
             </div>
             <div>
-                <label for="adminNo" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">관리자 번호</label>
-                <InputText id="adminNo" type="text" placeholder="관리자 번호를 입력해주세요." class="w-full md:w-[30rem] mb-4" v-model="adminNo" />
+                <label for="adminCode" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">관리자 코드</label>
+                <InputText id="adminCode" type="text" placeholder="관리자 코드를 입력해주세요." class="w-full md:w-[30rem] mb-4" v-model="adminCode" />
 
                 <label for="adminPassword" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">비밀번호</label>
                 <Password id="adminPassword" v-model="password" placeholder="비밀번호를 입력해주세요." :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
