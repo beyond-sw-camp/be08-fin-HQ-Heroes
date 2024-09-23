@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import router from '@/router';
 
-const employeeNo = ref('');
+const employeeCode = ref('');
 const password = ref('');
 const checked = ref(false);
 
@@ -11,7 +11,7 @@ const goToSignUp = () => router.push('/signup');
 const goToAdminLogin = () => router.push('/admin-login')
 
 const handleLogin = () => {
-    if (!employeeNo.value || !password.value) {
+    if (!employeeCode.value || !password.value) {
         alert("로그인 정보를 입력해주세요.");
         return;
     }
@@ -112,8 +112,8 @@ const handleLogin = () => {
             </div>
 
             <div>
-                <label for="employeeNo" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">사번</label>
-                <InputText id="employeeNo" type="text" placeholder="사원 번호를 입력해주세요." class="w-full md:w-[30rem] mb-8" v-model="employeeNo" />
+                <label for="employeeCode" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">사원 코드</label>
+                <InputText id="employeeCode" type="text" placeholder="사원 코드를 입력해주세요." class="w-full md:w-[30rem] mb-8" v-model="employeeCode" />
 
                 <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">비밀번호</label>
                 <Password id="password" v-model="password" placeholder="비밀번호를 입력해주세요." :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
