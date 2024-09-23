@@ -3,6 +3,21 @@ import { ref } from 'vue';
 import AppMenuItem from './AppMenuItem.vue';
 const model = ref([
     {
+        label: '관리자',
+        items: [
+            {
+                label: '관리자 기능',
+                items: [
+                    { label: '사원 정보 수정', icon: 'pi pi-fw pi-user-edit', to: '/update-emp-info' },
+                    { label: '알림 발송', icon: 'pi pi-fw pi-bell', to: '/send-notifications' },
+                    { label: '공지 사항 관리', icon: 'pi pi-fw pi-file', to: '/manage-notices' },
+                    { label: '교육 관리', icon: 'pi pi-fw pi-book', to: '/manage-training' },
+                    { label: '자격증 관리', icon: 'pi pi-fw pi-credit-card', to: '/manage-certifications' }
+                ]
+            }
+        ]
+    },
+    {
         label: '인사시스템',
         items: [
             { label: 'Home', icon: 'pi pi-fw pi-home', to: '/' },
