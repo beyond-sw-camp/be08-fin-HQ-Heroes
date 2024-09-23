@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <header>
-      <h1><b>급여관리</b></h1>
+      <div class="title-font"><h1>급여관리</h1></div>
       <div class="year-selector">
         <label for="year">년도 선택:</label>
         <select v-model="selectedYear" id="year" @change="filterSalaries">
@@ -86,6 +86,11 @@ function selectSalary(index) {
 <style scoped>
 .container {
   padding: 20px;
+}
+
+.title-font {
+  font-size: large;
+  font-weight: bolder;
 }
 header {
   display: flex;
