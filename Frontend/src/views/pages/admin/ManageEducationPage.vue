@@ -10,13 +10,25 @@
                 </div>
                 <Button label="교육 추가" icon="pi pi-plus" class="p-button-success" @click="openAddEducationDialog" />
             </div>
-            <DataTable :value="filteredEducations" paginator :rows="10" :globalFilterFields="['educationName', 'educationCode']" dataKey="educationId" @row-click="openEducationDetail">
-                <Column field="educationCode" header="교육 코드" />
-                <Column field="educationName" header="교육명" />
-                <Column field="category" header="카테고리" />
-                <Column field="instructor" header="강사" />
-                <Column field="startDate" header="시작일" />
-                <Column field="endDate" header="종료일" />
+            <DataTable
+                :value="filteredEducations"
+                paginator
+                :rows="10"
+                :globalFilterFields="['educationName', 'educationCode']"
+                dataKey="educationId"
+                @row-click="openEducationDetail"
+                :metaKeySelection="false"
+                @rowSelect="onRowSelect"
+                @rowUnselect="onRowUnselect"
+                selectionMode="single"
+                removableSort
+            >
+                <Column field="educationCode" sortable header="교육 코드" />
+                <Column field="educationName" sortable header="교육명" />
+                <Column field="category" sortable header="카테고리" />
+                <Column field="instructor" sortable header="강사" />
+                <Column field="startDate" sortable header="시작일" />
+                <Column field="endDate" sortable header="종료일" />
             </DataTable>
         </div>
 
@@ -74,13 +86,13 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount } from 'vue';
+import Button from 'primevue/button';
+import Column from 'primevue/column';
+import DataTable from 'primevue/datatable';
+import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Dialog from 'primevue/dialog';
-import Button from 'primevue/button';
+import { onBeforeMount, ref } from 'vue';
 
 // 교육 목록 및 필터링 관련 데이터
 const educations = ref([]);

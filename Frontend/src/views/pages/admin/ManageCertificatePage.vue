@@ -10,13 +10,25 @@
                 </div>
                 <Button label="자격증 추가" icon="pi pi-plus" class="p-button-success" @click="openAddCertificationDialog" />
             </div>
-            <DataTable :value="filteredCertifications" paginator :rows="10" :globalFilterFields="['certificationName', 'certificationCode']" dataKey="certificationId" @row-click="openCertificationDetail">
-                <Column field="certificationCode" header="자격증 코드" />
-                <Column field="certificationName" header="자격증명" />
-                <Column field="category" header="카테고리" />
-                <Column field="issuer" header="발급 기관" />
-                <Column field="issueDate" header="발급일" />
-                <Column field="expiryDate" header="만료일" />
+            <DataTable
+                :value="filteredCertifications"
+                paginator
+                :rows="10"
+                :globalFilterFields="['certificationName', 'certificationCode']"
+                dataKey="certificationId"
+                @row-click="openCertificationDetail"
+                :metaKeySelection="false"
+                @rowSelect="onRowSelect"
+                @rowUnselect="onRowUnselect"
+                selectionMode="single"
+                removableSort
+            >
+                <Column field="certificationCode" sortable header="자격증 코드" />
+                <Column field="certificationName" sortable header="자격증명" />
+                <Column field="category" sortable header="카테고리" />
+                <Column field="issuer" sortable header="발급 기관" />
+                <Column field="issueDate" sortable header="발급일" />
+                <Column field="expiryDate" sortable header="만료일" />
             </DataTable>
         </div>
 
