@@ -245,17 +245,49 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
 });
+
+// 현재 날짜와 시간을 포맷하는 헬퍼 함수
+const formatDate = (date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
+// 변수 선언
+const checkInTime = ref('');
+const checkOutTime = ref('');
+const salaryDday = ref('');
+
+// 급여일을 기준으로 디데이를 계산하는 함수
+const calculateSalaryDday = () => {
+    const today = new Date();
+    const salaryDay = new Date(today.getFullYear(), today.getMonth() + 1, 25); // 예: 월급일이 매월 25일이라고 가정
+    const timeDifference = salaryDay - today;
+    const dayDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24)); // 남은 일수를 계산
+    salaryDday.value = dayDifference > 0 ? dayDifference : 0; // 남은 일수가 0일 미만일 때 처리
+};
+
+// 출근 시간과 퇴근 시간 설정 (여기서는 샘플 데이터로 사용)
+const setAttendanceTimes = () => {
+    checkInTime.value = formatDate(new Date()); // 현재 시간을 출근 시간으로 설정
+    checkOutTime.value = formatDate(new Date(new Date().setHours(new Date().getHours() + 9))); // 출근 9시간 후를 퇴근 시간으로 설정
+};
+
+// 컴포넌트가 마운트될 때 실행
+onMounted(() => {
+    setAttendanceTimes(); // 출근/퇴근 시간 설정
+    calculateSalaryDday(); // 급여일까지 남은 일수 계산
+    currentDate.value = new Date().toLocaleString(); // 현재 날짜 및 시간 업데이트
+});
 </script>
 
 <template>
     <div class="grid grid-cols-12 gap-8">
-        <!-- 기존 카드들 유지 -->
+        <!-- 출근시간 카드 -->
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
                         <span class="block text-muted-color font-medium mb-4">출근시간</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">30명</div>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ checkInTime }}</div>
                     </div>
                     <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-check-circle text-blue-500 !text-xl"></i>
@@ -265,12 +297,13 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
             </div>
         </div>
 
+        <!-- 퇴근시간 카드 -->
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
                         <span class="block text-muted-color font-medium mb-4">퇴근시간</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">1명</div>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ checkOutTime }}</div>
                     </div>
                     <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-map text-orange-500 !text-xl"></i>
@@ -280,12 +313,13 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
             </div>
         </div>
 
+        <!-- 휴가 잔여 일수 카드 -->
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
                         <span class="block text-muted-color font-medium mb-4">휴가 잔여 일수</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">3일</div>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ 3 }}일</div>
                     </div>
                     <div class="flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-folder-open text-cyan-500 !text-xl"></i>
@@ -295,12 +329,13 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
             </div>
         </div>
 
+        <!-- 급여 디데이 카드 -->
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
                         <span class="block text-muted-color font-medium mb-4">급여</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">0명</div>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ salaryDday }}일 남음</div>
                     </div>
                     <div class="flex items-center justify-center bg-purple-100 dark:bg-purple-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-envelope text-purple-500 !text-xl"></i>
