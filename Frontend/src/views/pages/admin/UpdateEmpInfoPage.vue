@@ -23,6 +23,7 @@
                 :globalFilterFields="['employeeName', 'employeeCode']"
                 selectionMode="single"
                 dataKey="employeeId"
+                @row-click="showEditDialog"
                 :metaKeySelection="false"
                 @rowSelect="onRowSelect"
                 @rowUnselect="onRowUnselect"
@@ -36,6 +37,55 @@
             </DataTable>
         </div>
     </div>
+
+    <Dialog header="직원 정보" :visible="displayEditDialog" style="width: 70%" :modal="true" :draggable="false">
+        <div class="flex flex-col p-4 bg-white shadow-md rounded-lg" v-if="selectedEmployee">
+            <div class="flex flex-row">
+                <div class="flex flex-col w-1/2 p-3 border-r">
+                    <div class="flex flex-row mb-4">
+                        <div class="w-1/2 p-2">
+                            <Image src="https://upload.wikimedia.org/wikipedia/ko/4/4a/%EC%8B%A0%EC%A7%B1%EA%B5%AC.png" alt="Profile Image" class="w-full h-auto rounded-lg shadow" preview/>
+                        </div>
+                        <div class="flex flex-col w-1/2 justify-center items-center">
+                            <Button class="p-button p-component">사진 변경</Button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <div class="flex flex-row items-center gap-2">
+                            <label class="flex justify-end items-center text-gray-600" for="selectedEmployee.employeeCode" style="width: 30%">사원 코드</label>
+                            <InputText id="selectedEmployee.employeeCode" v-model="selectedEmployee.employeeCode" class="flex-1" />
+                        </div>
+                        <div class="flex flex-row items-center gap-2">
+                            <label class="flex justify-end items-center text-gray-600" for="selectedEmployee.employeeName" style="width: 30%">이름</label>
+                            <InputText id="selectedEmployee.employeeName" v-model="selectedEmployee.employeeName" class="flex-1" />
+                        </div>
+                        <div class="flex flex-row items-center gap-2">
+                            <label class="flex justify-end items-center text-gray-600" for="selectedEmployee.department" style="width: 30%">부서</label>
+                            <InputText id="selectedEmployee.department" v-model="selectedEmployee.department" class="flex-1" />
+                        </div>
+                        <div class="flex flex-row items-center gap-2">
+                            <label class="flex justify-end items-center text-gray-600" for="selectedEmployee.teamName" style="width: 30%">팀</label>
+                            <InputText id="selectedEmployee.teamName" v-model="selectedEmployee.teamName" class="flex-1" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col w-1/2 p-3 gap-2">
+                    <p><strong>사원 코드:</strong> {{ selectedEmployee.employeeCode }}</p>
+                    <p><strong>이름:</strong> {{ selectedEmployee.employeeName }}</p>
+                    <p><strong>부서:</strong> {{ selectedEmployee.department }}</p>
+                    <p><strong>팀:</strong> {{ selectedEmployee.teamName }}</p>
+                    <p><strong>직책:</strong> {{ selectedEmployee.position }}</p>
+                    <p><strong>입사일:</strong> {{ selectedEmployee.hireDate | dateFormat }}</p>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-4">
+                <Button class="p-button p-component p-button-success" @click="saveChanges">저장</Button>
+                <Button class="p-button p-component p-button-danger" @click="hideDialog">취소</Button>
+            </div>
+        </div>
+    </Dialog>
 </template>
 
 <script setup>
@@ -44,6 +94,7 @@ import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import Dialog from 'primevue/dialog';
 
 const employees = ref([]);
 const filteredEmployees = ref([]);
@@ -97,6 +148,15 @@ function filterEmployees() {
 
         return matchesGlobalFilter && matchesDepartment && matchesTeam;
     });
+}
+
+function showEditDialog(event) {
+    selectedEmployee.value = event.data;
+    displayEditDialog.value = true;
+}
+
+function hideDialog() {
+    displayEditDialog.value = false;
 }
 
 onBeforeMount(() => {

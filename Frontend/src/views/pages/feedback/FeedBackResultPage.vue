@@ -49,13 +49,13 @@ function formatDate(date) {
 <template>
     <div class="card">
         <h2 class="font-semibold text-xl mb-4">평가 결과 목록</h2>
-        <DataTable :value="evaluations" :paginator="true" :rows="10" dataKey="evaluationId" :rowHover="true" @row-click="showEvaluationDetails">
-            <Column field="evaluationId" header="평가 번호" />
-            <Column field="evaluatorName" header="평가자 이름" />
-            <Column field="evaluatorPosition" header="평가자 직급" />
-            <Column field="evaluationType" header="평가 유형" />
-            <Column field="score" header="평가 점수" />
-            <Column field="createdAt" header="평가일" :body="(data) => formatDate(data.createdAt)" />
+        <DataTable :value="evaluations" removableSort :paginator="true" :rows="10" dataKey="evaluationId" :rowHover="true" selectionMode="single" @row-click="showEvaluationDetails" :metaKeySelection="false" @rowSelect="onRowSelect" @rowUnselect="onRowUnselect">
+            <Column field="evaluationId" sortable header="평가 번호" />
+            <Column field="evaluatorName" sortable header="평가자 이름" />
+            <Column field="evaluatorPosition" sortable header="평가자 직급" />
+            <Column field="evaluationType" sortable header="평가 유형" />
+            <Column field="score" sortable header="평가 점수" />
+            <Column field="createdAt" sortable header="평가일" :body="(data) => formatDate(data.createdAt)" />
         </DataTable>
 
         <!-- 평가 상세 정보 모달 -->
