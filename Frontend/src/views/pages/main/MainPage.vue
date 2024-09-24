@@ -1,55 +1,33 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import { ProductService } from '@/service/ProductService';
-import { onMounted, ref, watch, onUnmounted } from 'vue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
-import OverlayBadge from 'primevue/overlaybadge';
-import authService from '@/service/authService';
+import { onMounted, ref, watch } from 'vue';
 
 const alarmDisplayDialog = ref(false);
-const selectedNotification = ref(null);
+const selectedMessage = ref(null);
 const showMore = ref(false);
 
-// 샘플 알림 데이터
-const notifications = [
-    { id: 1, iconClass: 'pi pi-map text-green-500', text: '휴가 신청', bgColor: 'bg-green-100 dark:bg-green-400/10' },
-    { id: 2, iconClass: 'pi pi-folder-open text-blue-500', text: '조퇴 신청', bgColor: 'bg-blue-100 dark:bg-blue-400/10' },
-    { id: 3, iconClass: 'pi pi-envelope text-cyan-500', text: '병가 신청', bgColor: 'bg-cyan-100 dark:bg-cyan-400/10' },
-    { id: 4, iconClass: 'pi pi-check-square text-purple-500', text: '지각 신청', bgColor: 'bg-purple-100 dark:bg-purple-400/10' },
-    { id: 5, iconClass: 'pi pi-file-edit text-orange-500', text: '출결 신청', bgColor: 'bg-orange-100 dark:bg-orange-400/10' },
-  // 추가 알림 항목들...
+// 샘플 메세지 데이터
+const messages = [
+    { id: 1, sender: '홍길동', subject: '휴가 신청', content: '휴가 신청 관련 메세지 내용입니다.', status: '읽지 않음', sendTime: '2023-09-01 14:35' },
+    { id: 2, sender: '김철수', subject: '조퇴 신청', content: '조퇴 신청 관련 메세지 내용입니다.', status: '읽지 않음', sendTime: '2023-09-02 09:12' },
+    { id: 3, sender: '이영희', subject: '병가 신청', content: '병가 신청 관련 메세지 내용입니다.', status: '읽음', sendTime: '2023-09-03 16:45' },
+    { id: 4, sender: '박수빈', subject: '지각 신청', content: '지각 신청 관련 메세지 내용입니다.', status: '읽음', sendTime: '2023-09-04 08:30' },
+    { id: 5, sender: '최민호', subject: '출결 신청', content: '출결 신청 관련 메세지 내용입니다.', status: '읽지 않음', sendTime: '2023-09-05 11:20' }
 ];
 
-// 모달 열기 함수 (알림 관련)
-function openModal(notification) {
-    selectedNotification.value = notification;
-    alarmDisplayDialog.value = true;  // alarmDisplayDialog를 사용
-    document.body.classList.add('blurred-background');
-
+// 모달 열기 함수
+function openModal(message) {
+    selectedMessage.value = message;
+    alarmDisplayDialog.value = true;
 }
 
-// 모달 닫기 함수 (알림 관련)
+// 모달 닫기 함수
 function closeModal() {
-    alarmDisplayDialog.value = false;  // alarmDisplayDialog를 사용
-    selectedNotification.value = null;
-}
-
-// 승인 버튼 클릭 처리
-function approve() {
-    console.log(`승인: ${selectedNotification.value?.text}`);
-    closeModal();
-}
-
-// 거부 버튼 클릭 처리
-function reject() {
-    console.log(`거부: ${selectedNotification.value?.text}`);
-    closeModal();
-}
-
-// 더보기 버튼 클릭 처리
-function toggleShowMore() {
-    showMore.value = !showMore.value;
+    alarmDisplayDialog.value = false;
+    selectedMessage.value = null;
 }
 
 const { getPrimary, getSurface, isDarkTheme } = useLayout();
@@ -88,7 +66,7 @@ const announcements = ref([
         title: '서비스 업데이트 안내',
         content: '오는 9월 10일, 새로운 기능과 성능 개선이 포함된 서비스 업데이트가 예정되어 있습니다.',
         date: '2023-09-05'
-        },
+    },
     {
         id: 4,
         type: '긴급',
@@ -178,7 +156,6 @@ const items = ref([
 ]);
 
 onMounted(() => {
-    
     ProductService.getProductsSmall().then((data) => (products.value = data));
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
@@ -272,11 +249,12 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
 
 <template>
     <div class="grid grid-cols-12 gap-8">
+        <!-- 기존 카드들 유지 -->
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
-                        <span class="block text-muted-color font-medium mb-4">출결</span>
+                        <span class="block text-muted-color font-medium mb-4">출근시간</span>
                         <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">30명</div>
                     </div>
                     <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -286,11 +264,12 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
                 <span class="text-muted-color">{{ currentDate }}</span>
             </div>
         </div>
+
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
-                        <span class="block text-muted-color font-medium mb-4">휴가</span>
+                        <span class="block text-muted-color font-medium mb-4">퇴근시간</span>
                         <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">1명</div>
                     </div>
                     <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -300,12 +279,13 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
                 <span class="text-muted-color">{{ currentDate }}</span>
             </div>
         </div>
+
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
-                        <span class="block text-muted-color font-medium mb-4">조퇴</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">0명</div>
+                        <span class="block text-muted-color font-medium mb-4">휴가 잔여 일수</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">3일</div>
                     </div>
                     <div class="flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-folder-open text-cyan-500 !text-xl"></i>
@@ -314,11 +294,12 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
                 <span class="text-muted-color">{{ currentDate }}</span>
             </div>
         </div>
+
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
-                        <span class="block text-muted-color font-medium mb-4">병가</span>
+                        <span class="block text-muted-color font-medium mb-4">급여</span>
                         <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">0명</div>
                     </div>
                     <div class="flex items-center justify-center bg-purple-100 dark:bg-purple-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
@@ -329,6 +310,7 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
             </div>
         </div>
 
+        <!-- 공지사항 -->
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">공지사항</div>
@@ -350,17 +332,12 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
                     <!-- View 버튼 컬럼 -->
                     <Column style="width: 15%" header="View">
                         <template #body="slotProps">
-                            <Button 
-                                icon="pi pi-search" 
-                                type="button" 
-                                class="p-button-text" 
-                                @click="openDialog(slotProps.data)" 
-                            />
+                            <Button icon="pi pi-search" type="button" class="p-button-text" @click="openDialog(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
 
-                <!-- Dialog -->
+                <!-- 공지사항 Dialog -->
                 <Dialog header="공지사항" v-model:visible="displayDialog" pt:mask:class="backdrop-blur-md" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
                     <template v-if="selectedAnnouncement">
                         <p class="text-lg font-bold">{{ selectedAnnouncement.title }}</p>
@@ -373,47 +350,55 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
                 </Dialog>
             </div>
         </div>
-        <div class="col-span-12 xl:col-span-6">
-            <div :class="alarmDisplayDialog ? 'blurred-background' : ''">
-                <div class="card">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="font-semibold text-xl">알림</div>
-                        <div>
-                            <Button icon="pi pi-ellipsis-v" class="p-button-text p-button-plain p-button-rounded" @click="$refs.menu1.toggle($event)"></Button>
-                            <Menu ref="menu1" :popup="true" :model="items" class="!min-w-40"></Menu>
-                        </div>
-                    </div>
-                    <ul class="p-0 mx-0 mt-0 mb-6 list-none">
-                        <li v-for="item in notifications" :key="item.id" class="flex items-center py-2 border-b border-surface cursor-pointer" @click="openModal(item)">
-                            <div :class="['w-12 h-12 flex items-center justify-center rounded-full mr-4 shrink-0', item.bgColor]">
-                                <OverlayBadge severity="danger">
-                                    <i :class="item.iconClass" :style="{ fontSize: '1.5rem' }"></i>
-                                </OverlayBadge>
-                            </div>
-                            <span class="text-surface-900 dark:text-surface-0 leading-normal">
-                                {{ item.text }}<br>
-                            </span>
-                        </li>
-                        <!-- 더보기 버튼 -->
-                        <li v-if="!showMore" class="flex items-center py-2 cursor-pointer" @click="toggleShowMore">
-                            <div class="w-full h-12 flex items-center justify-center">
-                                <span class="text-blue-500 text-center">
-                                    더보기
-                                </span>
-                            </div>
-                        </li>
-                    </ul>
 
-                    <!-- 알림 승인/거부 모달 -->
-                    <Dialog header="승인/거부" pt:mask:class="backdrop-blur-md" v-model:visible="alarmDisplayDialog" :style="{ width: '30vw' }" modal @hide="removeBlurEffect">
-                        <p>{{ selectedNotification?.text }}</p>
-                        <div class="flex justify-end gap-2 mt-4">
-                            <Button label="승인" icon="pi pi-check" @click="approve" class="p-button-success" />
-                            <Button label="거부" icon="pi pi-times" @click="reject" class="p-button-danger" />
-                        </div>
-                    </Dialog>
-                </div>
+        <div class="col-span-12 xl:col-span-6">
+            <div class="card">
+                <div class="font-semibold text-xl mb-4">메세지</div>
+                <DataTable :value="messages" :rows="5" :paginator="true" responsiveLayout="scroll">
+                    <!-- 보낸 시간 컬럼 -->
+                    <Column field="sendTime" header="보낸 시간" style="width: 20%">
+                        <template #body="slotProps">
+                            <span>{{ slotProps.data.sendTime }}</span>
+                        </template>
+                    </Column>
+
+                    <!-- 보낸 사람 컬럼 -->
+                    <Column field="sender" header="보낸 사람" style="width: 20%">
+                        <template #body="slotProps">
+                            <span>{{ slotProps.data.sender }}</span>
+                        </template>
+                    </Column>
+
+                    <!-- 제목 컬럼 -->
+                    <Column field="subject" header="제목" style="width: 40%">
+                        <template #body="slotProps">
+                            <Button type="button" class="p-button-link p-button-text" @click="openModal(slotProps.data)">
+                                {{ slotProps.data.subject }}
+                            </Button>
+                        </template>
+                    </Column>
+
+                    <!-- 열람 상태 컬럼 -->
+                    <Column field="status" header="열람 상태" style="width: 20%">
+                        <template #body="slotProps">
+                            <span>{{ slotProps.data.status }}</span>
+                        </template>
+                    </Column>
+                </DataTable>
+
+                <!-- 메세지 상세 모달 -->
+                <Dialog header="메세지 상세 내용" v-model:visible="alarmDisplayDialog" :style="{ width: '30vw' }" modal>
+                    <template v-if="selectedMessage">
+                        <p><strong>보낸 사람:</strong> {{ selectedMessage.sender }}</p>
+                        <p><strong>보낸 시간:</strong> {{ selectedMessage.sendTime }}</p>
+                        <p><strong>제목:</strong> {{ selectedMessage.subject }}</p>
+                        <p><strong>내용:</strong> {{ selectedMessage.content }}</p>
+                    </template>
+                    <template #footer>
+                        <Button label="닫기" @click="closeModal" />
+                    </template>
+                </Dialog>
             </div>
         </div>
-    </div> 
+    </div>
 </template>
