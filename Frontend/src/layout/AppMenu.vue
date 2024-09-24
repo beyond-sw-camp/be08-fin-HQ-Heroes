@@ -46,14 +46,14 @@ const model = ref([
                     {
                         label: '연장 근로',
                         icon: 'pi pi-fw pi-clock',
-                        items: [{ label: '연장 근로 신청', icon: 'pi pi-fw pi-clock-plus', to: '/apply-overtime' }]
+                        items: [{ label: '연장 근로 신청', icon: 'pi pi-fw pi-stopwatch', to: '/apply-overtime' }]
                     },
                     {
                         label: '근태 현황',
                         icon: 'pi pi-fw pi-chart-line',
                         items: [
-                            { label: '휴가 현황', icon: 'pi pi-fw pi-calendar-check', to: '/leave-status' },
-                            { label: '월 근태 현황', icon: 'pi pi-fw pi-calendar-alt', to: '/monthly-attendance-status' }
+                            { label: '휴가 현황', icon: 'pi pi-fw pi-check-square', to: '/leave-status' },
+                            { label: '월 근태 현황', icon: 'pi pi-fw pi-calendar', to: '/monthly-attendance-status' }
                         ]
                     }
                 ]

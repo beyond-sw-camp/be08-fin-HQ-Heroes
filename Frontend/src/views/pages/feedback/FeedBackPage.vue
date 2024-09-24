@@ -116,8 +116,6 @@ function formatDate(date) {
     return `${year}/${month}/${day}`;
 }
 
-
-
 // 초기 필터 설정
 function initFilters1() {
     filters1.value = {
@@ -141,7 +139,20 @@ onBeforeMount(() => {
 <template>
     <div class="card">
         <div class="font-semibold text-xl mb-4">전체 평가 목록</div>
-        <DataTable :value="filteredEvaluations" :paginator="true" :rows="10" dataKey="evaluationId" :rowHover="true" :loading="loading1" @row-click="showEvaluationDetails">
+        <DataTable
+            :value="filteredEvaluations"
+            removableSort
+            :paginator="true"
+            :rows="10"
+            dataKey="evaluationId"
+            :rowHover="true"
+            :loading="loading1"
+            selectionMode="single"
+            @row-click="showEvaluationDetails"
+            :metaKeySelection="false"
+            @rowSelect="onRowSelect"
+            @rowUnselect="onRowUnselect"
+        >
             <template #header>
                 <div class="flex justify-between items-center">
                     <div class="flex gap-2">
@@ -153,17 +164,16 @@ onBeforeMount(() => {
                     </div>
                 </div>
             </template>
-            <Column field="evaluationId" header="평가 번호" />
-            <Column field="evaluatorName" header="평가자 이름" />
-            <Column field="evaluatorPosition" header="평가자 직급" />
-            <Column field="evaluationType" header="평가 유형" />
-            <Column field="status" header="평가 상태" :body="(data) => (data.status ? '완료' : '미완료')" />
-            <Column field="createdAt" header="평가 기한" :body="(data) => calculateDueDate(data.createdAt)" />
+            <Column field="evaluationId" sortable header="평가 번호" />
+            <Column field="evaluatorName" sortable header="평가자 이름" />
+            <Column field="evaluatorPosition" sortable header="평가자 직급" />
+            <Column field="evaluationType" sortable header="평가 유형" />
+            <Column field="status" header="평가 상태" sortable :body="(data) => (data.status ? '완료' : '미완료')" />
+            <Column field="createdAt" header="평가 기한" sortable :body="(data) => calculateDueDate(data.createdAt)" />
         </DataTable>
 
         <Dialog v-model:visible="displayDialog" modal="true" header="평가 상세" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="true" :dismissableMask="true">
             <div class="p-fluid p-d-flex p-flex-column p-ai-center p-py-3">
-                <!-- 의사소통 능력 -->
                 <div class="p-field p-col-12 p-md-6 p-d-flex p-flex-column p-ai-center mb-3">
                     <label for="communicationSkill" class="p-text-bold" style="font-size: 1.2rem">의사소통 능력</label>
                     <Rating v-model="communicationSkill" :stars="10" class="p-mt-2" />
@@ -175,32 +185,27 @@ onBeforeMount(() => {
                     <Rating v-model="leadership" :stars="10" class="p-mt-2" />
                 </div>
 
-                <!-- 팀워크 -->
                 <div class="p-field p-col-12 p-md-6 p-d-flex p-flex-column p-ai-center mb-3">
                     <label for="teamwork" class="p-text-bold" style="font-size: 1.2rem">팀워크</label>
                     <Rating v-model="teamwork" :stars="10" class="p-mt-2" />
                 </div>
 
-                <!-- 문제 해결 능력 -->
                 <div class="p-field p-col-12 p-md-6 p-d-flex p-flex-column p-ai-center mb-3">
                     <label for="problemSolving" class="p-text-bold" style="font-size: 1.2rem">문제 해결 능력</label>
                     <Rating v-model="problemSolving" :stars="10" class="p-mt-2" />
                 </div>
 
-                <!-- 책임감 -->
                 <div class="p-field p-col-12 p-md-6 p-d-flex p-flex-column p-ai-center mb-3">
                     <label for="responsibility" class="p-text-bold" style="font-size: 1.2rem">책임감</label>
                     <Rating v-model="responsibility" :stars="10" class="p-mt-2" />
                 </div>
 
-                <!-- 코멘트 -->
                 <div class="p-field p-col-12 p-md-8 p-d-flex p-flex-column p-ai-center mb-3">
                     <label for="comments" class="p-text-bold" style="font-size: 1.2rem">코멘트</label>
                     <Textarea id="comments" v-model="comments" rows="5" autoResize placeholder="코멘트를 입력하세요" class="p-mt-1" style="width: 100%; height: 150px" />
                 </div>
             </div>
 
-            <!-- Footer with Cancel and Submit buttons -->
             <div class="p-d-flex p-jc-center p-mt-3">
                 <Button label="제출" icon="pi pi-check" class="p-button-rounded p-button-primary p-mr-2" @click="submitEvaluation" />
                 <Button label="취소" icon="pi pi-times" class="p-button-text p-button-plain" @click="displayDialog = false" />
