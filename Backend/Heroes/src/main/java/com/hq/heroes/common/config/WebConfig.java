@@ -1,4 +1,4 @@
-package com.hq.heroes.auth.config;
+package com.hq.heroes.common.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

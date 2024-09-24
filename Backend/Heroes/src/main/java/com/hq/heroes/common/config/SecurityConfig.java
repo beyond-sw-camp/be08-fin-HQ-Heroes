@@ -1,4 +1,4 @@
-package com.hq.heroes.auth.config;
+package com.hq.heroes.common.config;
 
 
 import com.hq.heroes.auth.handler.CustomFormSuccessHandler;
