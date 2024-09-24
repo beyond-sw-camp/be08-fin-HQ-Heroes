@@ -1,236 +1,151 @@
-<script setup>
-// import { AttendanceService } from './service/AttendanceService';
-import { FilterMatchMode } from '@primevue/core/api';
-import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
-
-onMounted(() => {
-    AttendanceService.getStudents().then((data) => (students.value = data));
-});
-
-const toast = useToast();
-const dt = ref();
-const students = ref([]);
-const approveStudentDialog = ref(false);  // 승인 다이얼로그 변수
-const deleteStudentDialog = ref(false);
-const deleteStudentsDialog = ref(false);
-const student = ref({});
-const selectedStudents = ref([]);
-const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-});
-const submitted = ref(false);
-const attendanceStatuses = ref([
-    { label: '휴가', value: '휴가' },
-    { label: '조퇴', value: '조퇴' },
-    { label: '병가', value: '병가' }
-]);
-
-function openNew() {
-    student.value = {};
-    submitted.value = false;
-    approveStudentDialog.value = true;
-}
-
-function hideDialog() {
-    approveStudentDialog.value = false;
-    submitted.value = false;
-}
-
-function approveStudent() {
-    submitted.value = true;
-
-    if (student?.value.name?.trim()) {
-        if (student.value.id) {
-            student.value.attendanceStatus = student.value.attendanceStatus.value ? student.value.attendanceStatus.value : student.value.attendanceStatus;
-            students.value[findIndexById(student.value.id)] = student.value;
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Student Approved', life: 3000 });
-        } else {
-            student.value.id = createId();
-            students.value.push(student.value);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Student Approved', life: 3000 });
-        }
-
-        approveStudentDialog.value = false;
-        student.value = {};
-    }
-}
-
-function editStudent(stu) {
-    student.value = { ...stu };
-    approveStudentDialog.value = true;
-}
-
-function confirmDeleteStudent(stu) {
-    student.value = stu;
-    deleteStudentDialog.value = true;
-}
-
-function deleteStudent() {
-    students.value = students.value.filter((val) => val.id !== student.value.id);
-    deleteStudentDialog.value = false;
-    student.value = {};
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Student Deleted', life: 3000 });
-}
-
-function confirmApproveSelected() {
-    selectedStudents.value.forEach(stu => {
-        stu.attendanceStatus = 'Approved';  // 승인 상태로 변경
-    });
-    toast.add({ severity: 'success', summary: 'Approved', detail: 'Selected Students Approved', life: 3000 });
-    selectedStudents.value = [];
-}
-
-function findIndexById(id) {
-    return students.value.findIndex((student) => student.id === id);
-}
-
-function createId() {
-    let id = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-}
-
-function exportCSV() {
-    dt.value.exportCSV();
-}
-
-function confirmDeleteSelected() {
-    deleteStudentsDialog.value = true;
-}
-
-function deleteSelectedStudents() {
-    students.value = students.value.filter((val) => !selectedStudents.value.includes(val));
-    deleteStudentsDialog.value = false;
-    selectedStudents.value = null;
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Students Deleted', life: 3000 });
-}
-
-function getStatusLabel(status) {
-    switch (status) {
-        case '휴가':
-            return 'info';
-
-        case '조퇴':
-            return 'warning';
-
-        case '병가':
-            return 'danger';
-
-        case 'Approved':
-            return 'success';
-
-        default:
-            return null;
-    }
-}
-</script>
-
 <template>
     <div>
         <div class="card">
-            <Toolbar class="mb-6">
-                <template #start>
-                    <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Approve" icon="pi pi-check" severity="success" @click="confirmApproveSelected" :disabled="!selectedStudents || !selectedStudents.length" />
-                    <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteSelected" :disabled="!selectedStudents || !selectedStudents.length" />
-                </template>
-
-                <template #end>
-                    <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
-                </template>
-            </Toolbar>
-
             <DataTable
                 ref="dt"
-                v-model:selection="selectedStudents"
-                :value="students"
+                v-model:selection="selectedEmployees"
+                :value="employees"
                 dataKey="id"
                 :paginator="true"
                 :rows="10"
                 :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25]"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} students"
+                currentPageReportTemplate="총 {totalRecords}명의 사원 중 {first} ~ {last}명 표시"
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">Manage Attendance</h4>
+                        <h4 class="m-0">연차 관리</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
-                            <InputText v-model="filters['global'].value" placeholder="Search..." />
+                            <InputText v-model="filters['global'].value" placeholder="검색..." />
                         </IconField>
                     </div>
                 </template>
 
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                <Column field="name" header="Name" sortable style="min-width: 16rem"></Column>
-                <Column field="class" header="Class" sortable style="min-width: 10rem"></Column>
-                <Column field="attendanceStatus" header="Attendance" sortable style="min-width: 12rem">
+                <Column field="name" header="이름" sortable style="min-width: 16rem"></Column>
+                <Column field="department" header="부서" sortable style="min-width: 10rem"></Column>
+                <Column field="leaveStatus" header="상태" sortable style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Tag :value="slotProps.data.attendanceStatus" :severity="getStatusLabel(slotProps.data.attendanceStatus)" />
+                        <Tag :value="slotProps.data.leaveStatus" :severity="getStatusLabel(slotProps.data.leaveStatus)" />
                     </template>
                 </Column>
+                <Column field="approver" header="1차 결제자" sortable style="min-width: 12rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-check" outlined rounded class="mr-2" @click="editStudent(slotProps.data)" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteStudent(slotProps.data)" />
+                        <Button label="확인하기" class="confirm-button mr-2" @click="showEmployeeInfo(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="approveStudentDialog" :style="{ width: '450px' }" header="Approve Student" :modal="true">
-            <div class="flex flex-col gap-6">
+        <!-- 정보만 표시하는 다이얼로그 -->
+        <Dialog v-model:visible="infoDialog" :style="{ width: '450px' }" header="사원 정보" :modal="true">
+            <div class="flex flex-col gap-4">
                 <div>
-                    <label for="name" class="block font-bold mb-3">Name</label>
-                    <InputText id="name" v-model.trim="student.name" required="true" autofocus :invalid="submitted && !student.name" fluid />
-                    <small v-if="submitted && !student.name" class="text-red-500">Name is required.</small>
+                    <label for="name" class="block font-bold mb-2">이름</label>
+                    <p id="name">{{ employee.name }}</p>
                 </div>
                 <div>
-                    <label for="class" class="block font-bold mb-3">Class</label>
-                    <InputText id="class" v-model="student.class" required="true" fluid />
+                    <label for="department" class="block font-bold mb-2">부서</label>
+                    <p id="department">{{ employee.department }}</p>
                 </div>
                 <div>
-                    <label for="attendanceStatus" class="block font-bold mb-3">Attendance Status</label>
-                    <Select id="attendanceStatus" v-model="student.attendanceStatus" :options="attendanceStatuses" optionLabel="label" placeholder="Select a Status" fluid></Select>
+                    <label for="leaveStatus" class="block font-bold mb-2">상태</label>
+                    <p id="leaveStatus">{{ employee.leaveStatus }}</p>
+                </div>
+                <div>
+                    <label for="approver" class="block font-bold mb-2">1차 결제자</label>
+                    <p id="approver">{{ employee.approver }}</p>
                 </div>
             </div>
 
             <template #footer>
-                <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-                <Button label="Approve" icon="pi pi-check" severity="success" @click="approveStudent" />
-            </template>
-        </Dialog>
-
-        <Dialog v-model:visible="deleteStudentDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-            <div class="flex items-center gap-4">
-                <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="student"
-                    >Are you sure you want to delete <b>{{ student.name }}</b
-                    >?</span
-                >
-            </div>
-            <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteStudentDialog = false" />
-                <Button label="Yes" icon="pi pi-check" @click="deleteStudent" />
-            </template>
-        </Dialog>
-
-        <Dialog v-model:visible="deleteStudentsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-            <div class="flex items-center gap-4">
-                <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="student">Are you sure you want to delete the selected students?</span>
-            </div>
-            <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteStudentsDialog = false" />
-                <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedStudents" />
+                <Button label="닫기" icon="pi pi-times" @click="infoDialog = false" />
             </template>
         </Dialog>
     </div>
 </template>
+
+<script setup>
+import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
+import { onMounted, ref } from 'vue';
+
+// EmployeeService 주석 처리
+// import { EmployeeService } from './service/EmployeeService';
+
+onMounted(() => {
+    // 더미 데이터 추가 (나중에 실제 서비스로 교체)
+    employees.value = [
+        { id: '1', name: '홍길동', department: '인사', leaveStatus: '연차', approver: '김철수' },
+        { id: '2', name: '이몽룡', department: '경영', leaveStatus: '오후 반차', approver: '이영희' },
+        { id: '3', name: '박지민', department: 'IT', leaveStatus: '병가', approver: '최유리' },
+        { id: '4', name: '김유나', department: '재무', leaveStatus: '경조', approver: '정수현' },
+        { id: '5', name: '이재훈', department: '마케팅', leaveStatus: '가족돌봄', approver: '박지민' },
+        { id: '6', name: '하나', department: '인사', leaveStatus: '난임 치료', approver: '정우성' },
+        { id: '7', name: '서준', department: '경영', leaveStatus: '결혼 - 본인', approver: '이영희' },
+        { id: '8', name: '민서', department: 'IT', leaveStatus: '결혼 - 자녀', approver: '김철수' },
+        { id: '9', name: '상현', department: '재무', leaveStatus: '리프레시', approver: '최유리' },
+        { id: '10', name: '하람', department: '마케팅', leaveStatus: '비상', approver: '정수현' },
+    ];
+});
+
+const toast = useToast();
+const employees = ref([]);
+const employee = ref({});
+const infoDialog = ref(false);  // 정보만 표시하는 다이얼로그
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+});
+const selectedEmployees = ref([]);
+
+function showEmployeeInfo(emp) {
+    employee.value = { ...emp };
+    infoDialog.value = true;
+}
+
+function getStatusLabel(status) {
+    switch (status) {
+        case '연차':
+            return 'danger';  // 초록색
+        case '오후 반차':
+            return 'warning';  // 노란색
+        case '오전 반차':
+            return 'warning';  // 노란색
+        case '병가':
+            return 'danger';  // 빨간색
+        case '경조':
+            return 'info';    // 파란색
+        case '가족돌봄':
+            return 'info';    // 파란색
+        case '난임 치료':
+            return 'info';    // 파란색
+        case '결혼 - 본인':
+            return 'success';  // 초록색
+        case '결혼 - 자녀':
+            return 'success';  // 초록색
+        case '리프레시':
+            return 'info';    // 파란색
+        case '비상':
+            return 'danger';  // 빨간색
+        default:
+            return null;
+    }
+}
+</script>
+
+<style scoped>
+.confirm-button {
+    background-color: #28a745; /* 초록색 */
+    color: white;
+}
+.confirm-button:hover {
+    background-color: white; /* 마우스 오버 시 하얀색 */
+    color: #28a745; /* 글자색 초록색 유지 */
+    border: 1px solid #28a745; /* 초록색 테두리 */
+}
+</style>

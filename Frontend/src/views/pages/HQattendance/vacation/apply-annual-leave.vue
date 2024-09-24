@@ -1,11 +1,11 @@
 <template>
     <div class="vacation-page">
+        <h2 class="title">연차 휴가 신청</h2> <!-- 제목 추가 -->
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="form-container">
                     <label for="type" class="label">결재 종류:</label>
                     <select id="type" v-model="form.type" class="select">
-                        <option value="휴가">휴가</option>
                         <option value="연차">연차</option>
                         <option value="오후 반차">오후 반차</option>
                         <option value="오전 반차">오전 반차</option>
@@ -53,7 +53,7 @@ export default {
     data() {
         return {
             form: {
-                type: "휴가",
+                type: "연차",
                 startDate: "",
                 endDate: "",
                 comment: "",
@@ -76,7 +76,7 @@ export default {
         },
         resetForm() {
             this.form = {
-                type: "휴가",
+                type: "연차",
                 startDate: "",
                 endDate: "",
                 comment: "",
@@ -94,6 +94,11 @@ export default {
     margin: 0 auto;
     background-color: #ffffff;
     border-radius: 10px;
+}
+
+.title {
+    font-size: 24px; /* 제목 크기 */
+    font-weight: bold; /* 제목 두께 */
 }
 
 .form-container {

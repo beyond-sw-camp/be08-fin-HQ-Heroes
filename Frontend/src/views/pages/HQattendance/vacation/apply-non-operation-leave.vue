@@ -1,5 +1,6 @@
 <template>
     <div class="vacation-page">
+        <h2 class="title">비가동 신청</h2> <!-- 제목 추가 -->
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="form-container">
@@ -96,6 +97,11 @@ export default {
     margin: 0 auto;
     background-color: #ffffff;
     border-radius: 10px;
+}
+
+.title {
+    font-size: 24px; /* 제목 크기 */
+    font-weight: bold; /* 제목 두께 */
 }
 
 .form-container {
