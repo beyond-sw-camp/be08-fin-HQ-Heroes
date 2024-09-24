@@ -109,8 +109,8 @@ const router = createRouter({
                     component: () => import('@/views/pages/admin/SendNotificationPage.vue')
                 },
                 {
-                    path: '/manage-notice',
-                    name: 'manage-notice',
+                    path: '/manage-notices',
+                    name: 'manage-notices',
                     component: () => import('@/views/pages/admin/ManageNoticePage.vue')
                 },
                 {
