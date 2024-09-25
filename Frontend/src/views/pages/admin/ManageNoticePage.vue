@@ -51,7 +51,7 @@
             header="공지사항 상세" 
             :visible="viewingModal" 
             :style="{ width: '50vw' }" 
-            @update:visible="onUpdateViewingModal" 
+            @update:visible="onUpdateViewingModal"
         >
             <div class="modal-content">
                 <h3>{{ selectedNotice.title }}</h3>
