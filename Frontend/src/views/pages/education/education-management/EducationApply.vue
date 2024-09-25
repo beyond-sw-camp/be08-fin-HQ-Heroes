@@ -28,7 +28,7 @@
                 </div>
             </template>
             <template #empty> No courses found. </template>
-            <Column field="category" sortable header="카테고리" style="min-width: 7rem">
+            <Column field="category" sortable header="카테고리" style="min-width: 8rem">
                 <template #body="{ data }">
                     {{ data.category }}
                 </template>
@@ -59,7 +59,7 @@
                 </template>
             </Column>
             <!-- 신청 인원 수 / 총 인원 수 컬럼 추가 -->
-            <Column field="participants" sortable header="신청인원 / 총인원" style="min-w   idth: 10rem">
+            <Column field="participants" sortable header="신청인원 / 총인원" style="min-width: 11rem">
                 <template #body="{ data }"> {{ data.participants }} / {{ data.totalSeats }} </template>
             </Column>
             <!-- 신청 버튼 컬럼 추가 -->

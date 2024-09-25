@@ -32,37 +32,37 @@
                 </div>
             </template>
             <template #empty> No courses found. </template>
-            <Column field="category" sortable header="카테고리" style="min-width: 12rem">
+            <Column field="category" sortable header="카테고리" style="min-width: 8rem">
                 <template #body="{ data }">
                     {{ data.category }}
                 </template>
             </Column>
-            <Column field="instructorName" sortable header="강사명" style="min-width: 12rem">
+            <Column field="instructorName" sortable header="강사명" style="min-width: 7rem">
                 <template #body="{ data }">
                     {{ data.instructorName }}
                 </template>
             </Column>
-            <Column field="courseName" sortable header="강의명" style="min-width: 12rem">
+            <Column field="courseName" sortable header="강의명" style="min-width: 14rem">
                 <template #body="{ data }">
                     {{ data.courseName }}
                 </template>
             </Column>
-            <Column field="institute" sortable header="교육기관" style="min-width: 12rem">
+            <Column field="institute" sortable header="교육기관" style="min-width: 10rem">
                 <template #body="{ data }">
                     {{ data.institute }}
                 </template>
             </Column>
-            <Column field="startDate" sortable header="교육 시작일" dataType="date" style="min-width: 10rem">
+            <Column field="startDate" sortable header="교육 시작일" dataType="date" style="min-width: 8rem">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.startDate)) }}
                 </template>
             </Column>
-            <Column field="endDate" sortable header="교육 종료일" dataType="date" style="min-width: 10rem">
+            <Column field="endDate" sortable header="교육 종료일" dataType="date" style="min-width: 8rem">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.endDate)) }}
                 </template>
             </Column>
-            <Column field="status" sortable header="이수 여부" style="min-width: 10rem">
+            <Column field="status" sortable header="이수 여부" style="min-width: 6rem">
                 <template #body="{ data }">
                     {{ data.status }}
                 </template>
