@@ -22,7 +22,7 @@ public class JoinService {
 
         // Check if the email already exists
         if (userRepository.existsByEmail(email)) {
-            if (!userRepository.findByEmail(email).get().getStatus().equals(Status.N)) {
+            if (!userRepository.findByEmail(email).get().getStatus().equals(Status.INACTIVE)) {
                 throw new Exception("존재하는 회원입니다.");
             } else {
                 userRepository.deleteById(userRepository.findByEmail(email).get().getEmployeeId());
@@ -33,12 +33,12 @@ public class JoinService {
         Employee employee = new Employee();
         employee.setEmail(email);
         employee.setPassword(bCryptPasswordEncoder.encode(joinDTO.getPassword()));
-        employee.setName(joinDTO.getName());
-        employee.setStatus(Status.Y);
+        employee.setEmployeeName(joinDTO.getName());
+        employee.setStatus(Status.ACTIVE);
         employee.setRole(Role.ROLE_USER);
 
         userRepository.save(employee);
-        return employee.getName() + "님 환영합니다!";
+        return employee.getEmployeeName() + "님 환영합니다!";
     }
 
 }

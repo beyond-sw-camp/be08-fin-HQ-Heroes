@@ -40,7 +40,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = response.getEmail();
         Optional<Employee> isExist = employeeRepository.findByEmail(email);
 
-        if (isExist.isPresent() && isExist.get().getStatus() == Status.N) {
+        if (isExist.isPresent() && isExist.get().getStatus() == Status.INACTIVE) {
             employeeRepository.deleteById(isExist.get().getEmployeeId());
         }
 
@@ -60,13 +60,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if (isExist.isPresent()) {
             Employee employee = isExist.get();
-            employee.setName(response.getName());
+            employee.setEmployeeName(response.getName());
             employee.setEmail(response.getEmail());
             employeeRepository.save(employee);
         } else {
             Employee employee = new Employee();
             employee.setEmail(email);
-            employee.setName(response.getName());
+            employee.setEmployeeName(response.getName());
             employee.setPassword("OAuth2 인증 사용자");
             employeeRepository.save(employee);
         }
