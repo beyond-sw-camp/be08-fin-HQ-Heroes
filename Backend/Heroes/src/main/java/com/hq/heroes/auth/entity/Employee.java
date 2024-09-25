@@ -2,6 +2,9 @@ package com.hq.heroes.auth.entity;
 
 import com.hq.heroes.auth.entity.enums.Role;
 import com.hq.heroes.auth.entity.enums.Status;
+import com.hq.heroes.employee.entity.Job;
+import com.hq.heroes.employee.entity.Position;
+import com.hq.heroes.employee.entity.Team;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import java.util.Random;
@@ -66,6 +69,21 @@ public class Employee {
     @UpdateTimestamp
     @Column(name = "update_at")
     private Date updateAt;
+
+    // Team과의 Many-to-One 관계
+    @ManyToOne
+    @JoinColumn(name = "team_id", nullable = false)
+    private Team team;
+
+    // Position과의 Many-to-One 관계
+    @ManyToOne
+    @JoinColumn(name = "position_id", nullable = false)
+    private Position position;
+
+    // Job과의 Many-to-One 관계
+    @ManyToOne
+    @JoinColumn(name = "job_id", nullable = false)
+    private Job job;
 
     @PrePersist
     public void prePersist() {
