@@ -17,17 +17,17 @@
       />
     </div>
 
-    <div class="salary-cards">
+    <div class="flex flex-row gap-4" style="width: 100%;">
       <div v-if="filteredSalaryMonths.length > 0">
-        <div v-for="month in filteredSalaryMonths" :key="month.id" class="month-card">
-          <Card style="justify-content: space-between;">
+        <div v-for="month in filteredSalaryMonths" :key="month.id" class="flex flex-col">
+          <Card style="width: 25rem;">
             <template #header>
               <h3 style="margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem; font-size: large;">{{ month.label }} 급여</h3>
-              <div class="month-header" :class="month.statusClass">
+              <div class="col" :class="month.statusClass" style="margin-left: 1rem;">
                 <p>{{ month.date }} 지급</p>
                 <p>대상 {{ month.employeeCount }}명</p>
               </div>
-              <div class="salary-details">
+              <div class="col" style="margin-left: 1rem; margin-top: 1rem;">
                 <p>지급총액 : {{ formatCurrency(month.totalPayment) }} 원</p>
                 <p>공제총액 : {{ formatCurrency(month.totalDeductions) }} 원</p>
                 <p>실지급액 : {{ formatCurrency(month.netPayment) }} 원</p>
@@ -120,10 +120,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import Card from 'primevue/card';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
+import Card from 'primevue/card';
+import { computed, ref, watch } from 'vue';
 
 const selectedDate = ref(new Date());
 const displayModal = ref(false);
@@ -183,13 +183,6 @@ const updateDisplayModal = (value) => {
 
 .header h2 {
   margin-bottom: 0.5rem;
-}
-
-.salary-cards {
-  /* display: flex; */
-  justify-content: space-between;
-  width: auto;
-  margin-top: 2rem;
 }
 
 .month-card {
