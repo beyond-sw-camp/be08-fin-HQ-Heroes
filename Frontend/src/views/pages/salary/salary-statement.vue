@@ -18,138 +18,81 @@
     </div>
 
     <div class="salary-cards">
-      <div v-if="filteredSalaryMonths.length > 0">
-        <div v-for="month in filteredSalaryMonths" :key="month.id" class="month-card">
-          <Card style="justify-content: space-between;">
-            <template #header>
-              <h3 style="margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem; font-size: large;">{{ month.label }} 급여</h3>
-              <div class="month-header" :class="month.statusClass">
-                <p>{{ month.date }} 지급</p>
-                <p>대상 {{ month.employeeCount }}명</p>
+      <div class="grid grid-cols-12 gap-4">
+        <!-- 1월부터 12월까지 각 급여 카드 -->
+        <div v-for="month in monthsList" :key="month.id" class="col-span-12 lg:col-span-6 xl:col-span-3">
+          <div class="card mb-0 p-6 custom-box relative">
+            <div class="text-left">
+              <!-- 아이콘 박스 -->
+              <div class="flex items-center dark:bg-blue-400/10 rounded-border icon-box mb-6">
+                <i :class="month.icon" class="text-gray-400 !text-4xl"></i>
               </div>
-              <div class="salary-details">
-                <p>지급총액 : {{ formatCurrency(month.totalPayment) }} 원</p>
-                <p>공제총액 : {{ formatCurrency(month.totalDeductions) }} 원</p>
-                <p>실지급액 : {{ formatCurrency(month.netPayment) }} 원</p>
+              <!-- 텍스트 부분 (제목 및 카운트) -->
+              <span class="block text-muted-color font-medium mb-4 text-base">{{ month.label }} 급여</span>
+              <div class="text-surface-900 dark:text-surface-0 font-medium text-lg">
+                총 지급액: {{ formatCurrency(month.totalPayment) }}
+              </div>
+              <div class="text-surface-900 dark:text-surface-0 font-medium text-lg">
+                공제액: {{ formatCurrency(month.totalDeductions) }}
+              </div>
+              <div class="text-surface-900 dark:text-surface-0 font-medium text-lg">
+                실지급액: {{ formatCurrency(month.netPayment) }}
               </div>
               <Button
-              label="급여입력보기"
-              class="p-button-secondary"
-              style="margin-left:0.7rem; margin-top: 1rem; width: 95%;"
-              @click="() => { showSalaryModal(month); }"
+                label="급여내역보기"
+                class="p-button-secondary"
+                style="margin-left:0.7rem; margin-top: 1rem; width: 95%;"
+                @click="() => { showSalaryModal(month); }"
               />
-            </template>
-          </Card>
-        </div>
-      </div>
-
-      <div v-else>
-        <div class="month-card" v-for="month in placeholderMonths" :key="month.id">
-          <Card>
-            <template #header>
-              <h3>{{ month.label }} 급여</h3>
-            </template>
-            <div class="month-header">
-              <p>{{ month.date }} 지급</p>
-              <p>대상 {{ month.employeeCount }}명</p>
             </div>
-            <div class="salary-details">
-              <p>지급총액 : {{ formatCurrency(month.totalPayment) }} 원</p>
-              <p>공제총액 : {{ formatCurrency(month.totalDeductions) }} 원</p>
-              <p>실지급액 : {{ formatCurrency(month.netPayment) }} 원</p>
-            </div>
-            <Button label="급여입력보기" class="p-button-secondary" disabled />
-          </Card>
+          </div>
         </div>
       </div>
     </div>
 
-    <Dialog 
-      header="급여 상세" 
-      v-model:visible="displayModal" 
+    <Dialog
+      header="급여 상세"
+      v-model:visible="displayModal"
       :style="{ width: '50vw' }"
     >
       <div class="salary-modal">
-        <div class="modal-header">
-          <h2>이달의 총 급여액</h2>
-          <p>급여지급일 : {{ selectedMonth.date }}</p>
-          <div class="summary-details">
-            <div>
-              <span>총급여액 : </span>{{ formatCurrency(selectedMonth.totalPayment) }} 원
-            </div>
-            <div>
-              <span>공제액 : </span>{{ formatCurrency(selectedMonth.totalDeductions) }} 원
-            </div>
-            <div>
-              <span>실지급액 : </span>{{ formatCurrency(selectedMonth.netPayment) }} 원
-            </div>
-          </div>
-        </div>
-
-        <div class="work-time">
-          <h4>근무시간</h4>
-          <p>근무시간 마감기간 : {{ selectedMonth.date }}</p>
-          <p>일반근로 : {{ selectedMonth.normalWorkHours }} 시간</p>
-          <p>연장근로 : {{ selectedMonth.extraWorkHours }} 시간</p>
-          <p>야간근로 : {{ selectedMonth.nightWorkHours }} 시간</p>
-        </div>
-
-        <div class="salary-details-section">
-          <div class="payment-info">
-            <h4>지급내역</h4>
-            <p>기준급: {{ formatCurrency(selectedMonth.baseSalary) }} 원</p>
-            <p>총 지급액: {{ formatCurrency(selectedMonth.totalPayment) }} 원</p>
-          </div>
-
-          <div class="deduction-info">
-            <h4>공제내역</h4>
-            <p>국민연금: {{ formatCurrency(selectedMonth.nationalPension) }} 원</p>
-            <p>건강보험: {{ formatCurrency(selectedMonth.healthInsurance) }} 원</p>
-            <p>고용보험: {{ formatCurrency(selectedMonth.employmentInsurance) }} 원</p>
-            <p>장기요양보험료: {{ formatCurrency(selectedMonth.longTermCareInsurance) }} 원</p>
-            <p>소득세: {{ formatCurrency(selectedMonth.incomeTax) }} 원</p>
-            <p>지방소득세: {{ formatCurrency(selectedMonth.localIncomeTax) }} 원</p>
-          </div>
-        </div>
-
-        <Button label="급여명세서 보내기" class="p-button-primary" @click="sendPayStatement" />
+        <!-- 선택한 급여의 상세 내역 표시 -->
+        <h3>{{ selectedMonth?.label }} 급여 상세 내역</h3>
+        <p>총 지급액: {{ formatCurrency(selectedMonth?.totalPayment) }}</p>
+        <p>공제액: {{ formatCurrency(selectedMonth?.totalDeductions) }}</p>
+        <p>실지급액: {{ formatCurrency(selectedMonth?.netPayment) }}</p>
       </div>
     </Dialog>
-
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import Card from 'primevue/card';
-import Button from 'primevue/button';
+import { ref } from 'vue';
 import Calendar from 'primevue/calendar';
+import Button from 'primevue/button';
 
+// 달력 관련 설정
 const selectedDate = ref(new Date());
 const displayModal = ref(false);
 const selectedMonth = ref(null);
-
-const salaryMonths = ref([
-  { id: 1, label: '1월', date: '2024-01-31', employeeCount: 10, totalPayment: 3000000, totalDeductions: 500000, netPayment: 2500000, baseSalary: 2000000, normalWorkHours: 160, extraWorkHours: 10, nightWorkHours: 5, nationalPension: 30000, healthInsurance: 15000, employmentInsurance: 5000, longTermCareInsurance: 2000, incomeTax: 50000, localIncomeTax: 5000, year: 2024 },
-  { id: 2, label: '2월', date: '2024-02-29', employeeCount: 10, totalPayment: 3100000, totalDeductions: 520000, netPayment: 2580000, baseSalary: 2000000, normalWorkHours: 160, extraWorkHours: 12, nightWorkHours: 6, nationalPension: 31000, healthInsurance: 15000, employmentInsurance: 5000, longTermCareInsurance: 2000, incomeTax: 60000, localIncomeTax: 6000, year: 2024 },
-]);
-
-const placeholderMonths = ref([
-  { id: 1, label: '1월', date: '2024-01-31', employeeCount: 0, totalPayment: 0, totalDeductions: 0, netPayment: 0 },
-  { id: 2, label: '2월', date: '2024-02-29', employeeCount: 0, totalPayment: 0, totalDeductions: 0, netPayment: 0 }
-]);
-
 const currentYear = new Date().getFullYear();
 const yearRange = `${1900}:${currentYear}`;
 
-const filteredSalaryMonths = computed(() => {
-  const selectedYear = selectedDate.value.getFullYear();
-  return salaryMonths.value.filter(month => month.year === selectedYear);
-});
-
-watch(selectedDate, () => {
-  console.log("Selected Year:", selectedDate.value.getFullYear());
-});
+// 1월부터 12월까지의 급여 카드 리스트
+const monthsList = ref([
+  { id: 1, label: '1월', icon: 'pi pi-calendar', totalPayment: 3000000, totalDeductions: 500000, netPayment: 2500000 },
+  { id: 2, label: '2월', icon: 'pi pi-calendar', totalPayment: 3100000, totalDeductions: 520000, netPayment: 2580000 },
+  { id: 3, label: '3월', icon: 'pi pi-calendar', totalPayment: 3200000, totalDeductions: 540000, netPayment: 2660000 },
+  { id: 4, label: '4월', icon: 'pi pi-calendar', totalPayment: 3300000, totalDeductions: 560000, netPayment: 2740000 },
+  { id: 5, label: '5월', icon: 'pi pi-calendar', totalPayment: 3400000, totalDeductions: 580000, netPayment: 2820000 },
+  { id: 6, label: '6월', icon: 'pi pi-calendar', totalPayment: 3500000, totalDeductions: 600000, netPayment: 2900000 },
+  { id: 7, label: '7월', icon: 'pi pi-calendar', totalPayment: 3600000, totalDeductions: 620000, netPayment: 2980000 },
+  { id: 8, label: '8월', icon: 'pi pi-calendar', totalPayment: 3700000, totalDeductions: 640000, netPayment: 3060000 },
+  { id: 9, label: '9월', icon: 'pi pi-calendar', totalPayment: 3800000, totalDeductions: 660000, netPayment: 3140000 },
+  { id: 10, label: '10월', icon: 'pi pi-calendar', totalPayment: 3900000, totalDeductions: 680000, netPayment: 3220000 },
+  { id: 11, label: '11월', icon: 'pi pi-calendar', totalPayment: 4000000, totalDeductions: 700000, netPayment: 3300000 },
+  { id: 12, label: '12월', icon: 'pi pi-calendar', totalPayment: 4100000, totalDeductions: 720000, netPayment: 3380000 },
+]);
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('ko-KR', {
@@ -158,21 +101,14 @@ const formatCurrency = (value) => {
   }).format(value);
 };
 
+// 선택된 급여 정보를 모달에 표시
 const showSalaryModal = (selectedSalary) => {
   selectedMonth.value = selectedSalary;
   displayModal.value = true;
 };
 
-const sendPayStatement = () => {
-  alert('급여명세서를 보냈습니다.');
-};
-
 const updateSelectedYear = () => {
   console.log("Selected Year:", selectedDate.value.getFullYear());
-};
-
-const updateDisplayModal = (value) => {
-  displayModal.value = value;
 };
 </script>
 
@@ -181,62 +117,45 @@ const updateDisplayModal = (value) => {
   padding: 2rem;
 }
 
-.header h2 {
-  margin-bottom: 0.5rem;
-}
-
 .salary-cards {
-  /* display: flex; */
-  justify-content: space-between;
-  width: auto;
   margin-top: 2rem;
 }
 
-.month-card {
-  width: 35%;
-  margin-bottom: 1rem;
+.custom-box {
+  border-radius: 10px;
+  background-color: #ffffff;
 }
 
-.month-header {
-  margin-left: 1rem;
-  margin-bottom: 1rem;
+.icon-box {
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
 }
 
-.pending {
-  background-color: #f2dede;
+.text-muted-color {
+  color: #6b7280;
+}
+
+.text-surface-900 {
+  color: #1f2937;
+}
+
+.dark .text-surface-0 {
+  color: #f9fafb;
+}
+
+.mb-6 {
+  margin-bottom: 30px;
+}
+
+.text-left {
+  text-align: left;
 }
 
 .salary-modal {
   padding: 1.5rem;
-}
-
-.salary-details {
-  margin-left: 1rem;
-}
-
-.modal-header {
-  background-color: #e6f7ff;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-.summary-details {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-}
-
-.work-time,
-.salary-details-section {
-  margin-top: 1rem;
-}
-
-.salary-details-section {
-  display: flex;
-  justify-content: space-between;
-}
-
-.payment-info, .deduction-info {
-  width: 48%;
 }
 </style>
