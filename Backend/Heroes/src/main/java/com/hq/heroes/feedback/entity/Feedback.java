@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -37,7 +36,7 @@ public class Feedback {
     private Employee evaluator;
 
     @Column(name = "score", nullable = false, precision = 3, scale = 2)
-    private BigDecimal score;
+    private double score;
 
     @Column(name = "comments", columnDefinition = "TEXT")
     private String comments;
