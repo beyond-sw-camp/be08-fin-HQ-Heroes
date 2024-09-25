@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Employee employee = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-        if (employee.getStatus() == Status.N) {
+        if (employee.getStatus() == Status.INACTIVE) {
             throw new UsernameNotFoundException("비활성화된 사용자입니다.");
         }
 
