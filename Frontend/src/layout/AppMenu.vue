@@ -25,7 +25,7 @@ const model = ref([
                 label: '인사',
                 icon: 'pi pi-fw pi-users',
                 items: [
-                    { label: '사람찾기', icon: 'pi pi-fw pi-search', to: '/employeeList' },
+                    { label: '사원 찾기', icon: 'pi pi-fw pi-search', to: '/employeeList' },
                     { label: '내 프로파일', icon: 'pi pi-fw pi-user', to: '/profile' }
                 ]
             },
@@ -39,7 +39,6 @@ const model = ref([
                         icon: 'pi pi-fw pi-envelope',
                         items: [
                             { label: '연차 휴가 신청', icon: 'pi pi-fw pi-calendar-times', to: '/apply-annual-leave' },
-                            { label: '비가동 신청', icon: 'pi pi-fw pi-calendar-minus', to: '/apply-non-operation-leave' },
                             { label: '휴가 승인', icon: 'pi pi-fw pi-check-square', to: '/approve-leave' }
                         ]
                     },
@@ -72,7 +71,8 @@ const model = ref([
                 label: '교육',
                 icon: 'pi pi-fw pi-book',
                 items: [
-                    { label: '교육 현황 및 교육 신청', icon: 'pi pi-fw pi-calendar-plus', to: '/education-calendar' },
+                    { label: '교육 신청', icon: 'pi pi-fw pi-calendar-plus', to: '/education-calendar' },
+                    { label: '교육 이력', icon: 'pi pi-fw pi-calendar-minus', to: '/education-calendar' },
                     { label: '자격증 관리', icon: 'pi pi-fw pi-id-card', to: '/certificate-management' }
                 ]
             },
