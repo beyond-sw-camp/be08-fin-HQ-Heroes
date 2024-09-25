@@ -2,10 +2,9 @@ Spring:
   application:
     name: Heroes
 
-  # ?? ?? ?? ??
   # @Value("${spring.jwt.secret}")
   # OR
-  # application.yml ???? ???? ?? ??
+  # application.yml
   config:
     import: optional:file:.env[.properties]
 
