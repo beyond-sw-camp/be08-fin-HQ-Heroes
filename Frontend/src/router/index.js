@@ -64,11 +64,6 @@ const router = createRouter({
                     component: () => import('@/views/pages/HQattendance/vacation/apply-annual-leave.vue')
                 },
                 {
-                    path: '/apply-non-operation-leave',
-                    name: 'apply-non-operation-leave',
-                    component: () => import('@/views/pages/HQattendance/vacation/apply-non-operation-leave.vue')
-                },
-                {
                     path: '/approve-leave',
                     name: 'approve-leave',
                     component: () => import('@/views/pages/HQattendance/vacation/approve-leave.vue')

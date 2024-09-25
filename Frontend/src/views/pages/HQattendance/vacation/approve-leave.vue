@@ -20,7 +20,7 @@
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
-                            <InputText v-model="filters['global'].value" placeholder="검색..." />
+                            <InputText v-model="filters['global'].value" placeholder="Search" />
                         </IconField>
                     </div>
                 </template>
@@ -61,10 +61,18 @@
                     <label for="approver" class="block font-bold mb-2">1차 결제자</label>
                     <p id="approver">{{ employee.approver }}</p>
                 </div>
+                <div>
+                    <label for="emergencyContact" class="block font-bold mb-2">비상 연락처</label>
+                    <p id="emergencyContact">{{ employee.emergencyContact }}</p>
+                </div>
+                <div>
+                    <label for="leavePeriod" class="block font-bold mb-2">휴가 기간</label>
+                    <p id="leavePeriod">{{ employee.leavePeriod }}</p>
+                </div>
             </div>
 
             <template #footer>
-                <Button label="닫기" icon="pi pi-times" @click="infoDialog = false" />
+                <Button label="닫기" icon="pi pi-times" class="close-button" @click="infoDialog = false" />
             </template>
         </Dialog>
     </div>
@@ -75,29 +83,25 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 
-// EmployeeService 주석 처리
-// import { EmployeeService } from './service/EmployeeService';
-
 onMounted(() => {
-    // 더미 데이터 추가 (나중에 실제 서비스로 교체)
     employees.value = [
-        { id: '1', name: '홍길동', department: '인사', leaveStatus: '연차', approver: '김철수' },
-        { id: '2', name: '이몽룡', department: '경영', leaveStatus: '오후 반차', approver: '이영희' },
-        { id: '3', name: '박지민', department: 'IT', leaveStatus: '병가', approver: '최유리' },
-        { id: '4', name: '김유나', department: '재무', leaveStatus: '경조', approver: '정수현' },
-        { id: '5', name: '이재훈', department: '마케팅', leaveStatus: '가족돌봄', approver: '박지민' },
-        { id: '6', name: '하나', department: '인사', leaveStatus: '난임 치료', approver: '정우성' },
-        { id: '7', name: '서준', department: '경영', leaveStatus: '결혼 - 본인', approver: '이영희' },
-        { id: '8', name: '민서', department: 'IT', leaveStatus: '결혼 - 자녀', approver: '김철수' },
-        { id: '9', name: '상현', department: '재무', leaveStatus: '리프레시', approver: '최유리' },
-        { id: '10', name: '하람', department: '마케팅', leaveStatus: '비상', approver: '정수현' },
+        { id: '1', name: '홍길동', department: '인사', leaveStatus: '연차', approver: '김철수', emergencyContact: '010-1234-5678', leavePeriod: '2024-09-01 ~ 2024-09-05' },
+        { id: '2', name: '이몽룡', department: '경영', leaveStatus: '오후 반차', approver: '이영희', emergencyContact: '010-2345-6789', leavePeriod: '2024-09-03 ~ 2024-09-03' },
+        { id: '3', name: '박지민', department: 'IT', leaveStatus: '병가', approver: '최유리', emergencyContact: '010-3456-7890', leavePeriod: '2024-09-10 ~ 2024-09-12' },
+        { id: '4', name: '김유나', department: '재무', leaveStatus: '경조', approver: '정수현', emergencyContact: '010-4567-8901', leavePeriod: '2024-09-15 ~ 2024-09-16' },
+        { id: '5', name: '이재훈', department: '마케팅', leaveStatus: '병가', approver: '박지민', emergencyContact: '010-5678-9012', leavePeriod: '2024-09-20 ~ 2024-09-25' },
+        { id: '6', name: '하나', department: '인사', leaveStatus: '오후 반차', approver: '정우성', emergencyContact: '010-6789-0123', leavePeriod: '2024-09-28 ~ 2024-10-02' },
+        { id: '7', name: '서준', department: '경영', leaveStatus: '연차', approver: '이영희', emergencyContact: '010-7890-1234', leavePeriod: '2024-09-18 ~ 2024-09-20' },
+        { id: '8', name: '민서', department: 'IT', leaveStatus: '오전 반차', approver: '김철수', emergencyContact: '010-8901-2345', leavePeriod: '2024-10-01 ~ 2024-10-02' },
+        { id: '9', name: '상현', department: '재무', leaveStatus: '병가', approver: '최유리', emergencyContact: '010-9012-3456', leavePeriod: '2024-10-10 ~ 2024-10-15' },
+        { id: '10', name: '하람', department: '마케팅', leaveStatus: '연차', approver: '정수현', emergencyContact: '010-0123-4567', leavePeriod: '2024-10-05 ~ 2024-10-07' },
     ];
 });
 
 const toast = useToast();
 const employees = ref([]);
 const employee = ref({});
-const infoDialog = ref(false);  // 정보만 표시하는 다이얼로그
+const infoDialog = ref(false);
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
@@ -111,27 +115,15 @@ function showEmployeeInfo(emp) {
 function getStatusLabel(status) {
     switch (status) {
         case '연차':
-            return 'danger';  // 초록색
+            return 'danger';
         case '오후 반차':
-            return 'warning';  // 노란색
+            return 'warning';
         case '오전 반차':
-            return 'warning';  // 노란색
+            return 'warning';
         case '병가':
-            return 'danger';  // 빨간색
+            return 'danger';
         case '경조':
-            return 'info';    // 파란색
-        case '가족돌봄':
-            return 'info';    // 파란색
-        case '난임 치료':
-            return 'info';    // 파란색
-        case '결혼 - 본인':
-            return 'success';  // 초록색
-        case '결혼 - 자녀':
-            return 'success';  // 초록색
-        case '리프레시':
-            return 'info';    // 파란색
-        case '비상':
-            return 'danger';  // 빨간색
+            return 'info';
         default:
             return null;
     }
@@ -140,12 +132,24 @@ function getStatusLabel(status) {
 
 <style scoped>
 .confirm-button {
-    background-color: #28a745; /* 초록색 */
-    color: white;
+    background-color: #28a745; /* 기본 초록색 */
+    border: 1px solid #28a745;
+    color: white !important;
 }
+
 .confirm-button:hover {
-    background-color: white; /* 마우스 오버 시 하얀색 */
-    color: #28a745; /* 글자색 초록색 유지 */
-    border: 1px solid #28a745; /* 초록색 테두리 */
+    background-color: #218838 !important; /* 짙은 초록색 */
+    border: 1px solid #218838 !important; /* 짙은 초록색 테두리 */
+}
+
+.close-button {
+    background-color: #dc3545; /* 빨간색 */
+    border: 1px solid #dc3545;
+    color: white !important;
+}
+
+.close-button:hover {
+    background-color: #c82333 !important; /* 짙은 빨간색 */
+    border: 1px solid #c82333 !important; /* 짙은 빨간색 테두리 */
 }
 </style>
