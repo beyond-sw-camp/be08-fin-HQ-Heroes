@@ -96,9 +96,13 @@
 
 <br>
 
+## 📅 WBS
+
+[WBS](https://docs.google.com/spreadsheets/d/11uxzOc_F1XGaa-jF9gtnNzzb2FqxmP_m8B-FbtFqEb8/edit?gid=0#gid=0)
+
 ## 📋 ERD
 
-<br>
+[ERD](https://www.erdcloud.com/d/8E4tc7rcJ3nv7s2pq)
 
 <br>
 
@@ -143,11 +147,6 @@
 ## ▶️ CICD 테스트(Jenkinsfile)
 
 <br>
-
-## 📅 WBS
-
-<br>
-
 
 
 <br>
