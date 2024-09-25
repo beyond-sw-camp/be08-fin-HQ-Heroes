@@ -14,13 +14,6 @@
             <p><strong>직책:</strong> {{ employee.position }}</p>
             <p><strong>사번:</strong> {{ employee.employeeId }}</p>
             <p><strong>입사일:</strong> {{ formatDate(new Date(employee.hireDate)) }}</p>
-            <p><strong>칭찬 횟수:</strong> {{ employee.praiseCount }}</p>
-            <Button     
-                label="칭찬하기" 
-                @click="praiseEmployee" 
-                :disabled="hasPraised"
-                class="p-button-success"
-            />
         </div>
         <div v-else>
             <p>사원 정보가 없습니다.</p>
@@ -40,7 +33,6 @@ const emit = defineEmits(['update:visible']);
 
 const localVisible = ref(props.visible);
 const employee = ref(props.employee);
-const hasPraised = ref(false); // 칭찬 여부 상태
 
 // 부모에서 받은 visible 상태를 로컬 상태로 반영
 watch(
@@ -60,7 +52,6 @@ watch(
     () => props.employee,
     (newVal) => {
         employee.value = newVal;
-        hasPraised.value = false; // 직원 정보 변경 시 칭찬 초기화
     }
 );
 
@@ -69,13 +60,6 @@ function formatDate(date) {
         return '';
     }
     return date.toLocaleDateString();
-}
-
-function praiseEmployee() {
-    if (employee.value) {
-        employee.value.praiseCount++;
-        hasPraised.value = true; // 칭찬한 상태로 변경
-    }
 }
 </script>
 
@@ -96,11 +80,5 @@ function praiseEmployee() {
 
 strong {
     color: #2c3e50; /* 강조된 텍스트 색상 */
-}
-
-.p-button-success {
-    margin-top: 1rem;
-    background-color: #6366F1;
-    border-color: #6366F1;
 }
 </style>
