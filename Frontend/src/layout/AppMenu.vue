@@ -71,8 +71,8 @@ const model = ref([
                 label: '교육',
                 icon: 'pi pi-fw pi-book',
                 items: [
-                    { label: '교육 신청', icon: 'pi pi-fw pi-calendar-plus', to: '/education-calendar' },
-                    { label: '교육 이력', icon: 'pi pi-fw pi-calendar-minus', to: '/education-calendar' },
+                    { label: '교육 신청', icon: 'pi pi-fw pi-calendar-plus', to: '/education-apply' },
+                    { label: '교육 이력', icon: 'pi pi-fw pi-calendar-minus', to: '/education-history' },
                     { label: '자격증 관리', icon: 'pi pi-fw pi-id-card', to: '/certificate-management' }
                 ]
             },

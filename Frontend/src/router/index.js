@@ -39,9 +39,14 @@ const router = createRouter({
                     component: () => import('@/views/pages/attendance/attendance-calendar/AttendanceCalendar.vue')
                 },
                 {
-                    path: '/education-calendar',
-                    name: 'education-calendar',
-                    component: () => import('@/views/pages/education/education-calendar/EducationCalendar.vue')
+                    path: '/education-history',
+                    name: 'education-history',
+                    component: () => import('@/views/pages/education/education-management/EducationHistory.vue')
+                },
+                {
+                    path: '/education-apply',
+                    name: 'education-apply',
+                    component: () => import('@/views/pages/education/education-management/EducationApply.vue')
                 },
                 {
                     path: '/certificate-management',
@@ -117,7 +122,7 @@ const router = createRouter({
                     path: '/manage-certifications',
                     name: 'manage-certifications',
                     component: () => import('@/views/pages/admin/ManageCertificatePage.vue')
-                }, 
+                },
                 {
                     path: '/retirement-funds',
                     name: 'retirement-funds',
