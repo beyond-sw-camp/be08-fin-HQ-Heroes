@@ -26,13 +26,13 @@ public class Retire {
     @Column(name = "period", nullable = false)
     private int period;
 
-    @Column(name = "payroll_avg", precision = 10, scale = 2, nullable = false)
-    private double payrollAvg;
+    @Column(name = "payroll_avg", nullable = false)
+    private Double payrollAvg;
 
-    @Column(name = "anuual_bonus", precision = 10, scale = 2, nullable = false)
-    private double annualBonus;
+    @Column(name = "anuual_bonus", nullable = false)
+    private Double annualBonus;
 
-    @Column(name = "received_amount", precision = 10, scale = 2, nullable = false)
-    private double receivedAmount;
+    @Column(name = "received_amount", nullable = false)
+    private Double receivedAmount;
 
 }

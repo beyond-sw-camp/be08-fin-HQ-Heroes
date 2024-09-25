@@ -23,7 +23,7 @@ public class Notice {
     @Column(name = "notice_id")
     private Long noticeId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
