@@ -156,4 +156,19 @@ export default {
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px;
 }
+
+.submit-button {
+    background-color: #6366F1; /* 기본 배경색 */
+    color: white; /* 글씨 색상 */
+    border: none; /* 테두리 없애기 */
+    border-radius: 5px; /* 둥근 모서리 */
+    padding: 10px 15px; /* 패딩 */
+    cursor: pointer; /* 포인터 커서 */
+    transition: background-color 0.3s ease; /* 부드러운 전환 효과 */
+}
+
+.submit-button:hover {
+    background-color: #4f46e5; /* 호버 시 배경색 변경 */
+}
+
 </style>
