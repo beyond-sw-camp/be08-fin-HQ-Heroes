@@ -26,12 +26,12 @@ public class Team {
     private String teamName;
 
     // 부서와의 Many-to-One 연관관계 매핑
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dept_id", nullable = false)
     private Department department;
 
     // Employee와의 One-to-Many 연관관계 매핑
-    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "team")
     private List<Employee> employees;
 
 }
