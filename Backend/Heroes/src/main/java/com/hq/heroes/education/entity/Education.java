@@ -1,12 +1,13 @@
 package com.hq.heroes.education.entity;
 
-import com.hq.heroes.auth.entity.Employee;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -42,8 +43,4 @@ public class Education {
     @Column(name = "end_date", nullable = false)
     private String endDate;
 
-    // Employee와의 Many-to-One
-    @ManyToOne
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employee;
 }
