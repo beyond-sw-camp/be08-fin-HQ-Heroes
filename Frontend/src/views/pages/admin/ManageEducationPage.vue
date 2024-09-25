@@ -8,7 +8,7 @@
                     <Dropdown v-model="selectedInstructor" :options="instructors" optionLabel="name" placeholder="강사" @change="filterEducations" />
                     <InputText v-model="globalFilter" placeholder="교육 검색 (이름, 코드)" @input="filterEducations" />
                 </div>
-                <Button label="교육 추가" icon="pi pi-plus" class="p-button-success" @click="openAddEducationDialog" />
+                <Button label="교육 추가" icon="pi pi-plus" class="custom-button" @click="openAddEducationDialog" />
             </div>
             <DataTable
                 :value="filteredEducations"
@@ -223,5 +223,18 @@ onBeforeMount(() => {
 }
 .p-button-text {
     color: #007bff;
+}
+
+.custom-button {
+    background-color: #6366F1; /* 기본 배경색 */
+    color: white; /* 글자색 */
+    border: none; /* 테두리 없애기 */
+    border-radius: 5px; /* 모서리 둥글게 */
+    cursor: pointer; /* 커서 포인터로 변경 */
+    transition: background-color 0.2s; /* 배경색 변화 효과 */
+}
+
+.custom-button:hover {
+    background-color: #4f46e5; /* 호버 시 배경색 변화 */
 }
 </style>

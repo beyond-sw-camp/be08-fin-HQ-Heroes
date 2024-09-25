@@ -36,7 +36,7 @@
                 <Column field="approver" header="1차 결제자" sortable style="min-width: 12rem"></Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Button label="확인하기" class="confirm-button mr-2" @click="showEmployeeInfo(slotProps.data)" />
+                        <Button label="확인하기" class="custom-button mr-2" @click="showEmployeeInfo(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -151,5 +151,18 @@ function getStatusLabel(status) {
 .close-button:hover {
     background-color: #c82333 !important; /* 짙은 빨간색 */
     border: 1px solid #c82333 !important; /* 짙은 빨간색 테두리 */
+}
+
+.custom-button {
+    background-color: #6366F1; /* 기본 배경색 */
+    color: white; /* 글자색 */
+    border: none; /* 테두리 없애기 */
+    border-radius: 5px; /* 모서리 둥글게 */
+    cursor: pointer; /* 커서 포인터로 변경 */
+    transition: background-color 0.2s; /* 배경색 변화 효과 */
+}
+
+.custom-button:hover {
+    background-color: #4f46e5; /* 호버 시 배경색 변화 */
 }
 </style>

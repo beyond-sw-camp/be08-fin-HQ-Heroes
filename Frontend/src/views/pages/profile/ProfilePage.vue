@@ -210,6 +210,11 @@ input[type="file"]::-webkit-file-upload-button {
     margin-left: 0; /* 왼쪽 여백 제거 */
 }
 
+/* 마우스 호버 시 색상 변경 */
+input[type="file"]:hover::-webkit-file-upload-button {
+    background-color: #4f46e5; /* 호버 시 배경색 */
+}
+
 input[type="file"] {
     margin-left: 0; /* 파일 입력창의 왼쪽 여백 제거 */
     padding: 0; /* 파일 입력창의 패딩 제거 */
@@ -316,7 +321,14 @@ label {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* 부드러운 전환 효과 */
 }
+
+.btn-zipcode:hover {
+    background-color: #4e54d4; /* 호버 시 배경색 변경 */
+    transform: scale(1.05); /* 호버 시 살짝 커지는 효과 */
+}
+
 
 .edit-icon {
     cursor: pointer;

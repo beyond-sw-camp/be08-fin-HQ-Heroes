@@ -142,13 +142,19 @@ export default {
 }
 
 .submit-button {
-    padding: 10px 20px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: #6366F1; /* 버튼 배경색 */
+    color: white; /* 버튼 글씨색 */
+    border: none; /* 버튼 테두리 없애기 */
+    border-radius: 5px; /* 버튼 둥근 모서리 */
+    padding: 10px 15px; /* 버튼 패딩 */
+    cursor: pointer; /* 포인터 커서 */
+    transition: background-color 0.3s ease; /* 부드러운 전환 효과 */
 }
+
+.submit-button:hover {
+    background-color: #4f46e5; /* 호버 시 배경색 변경 */
+}
+
 
 .submitted-result {
     margin-top: 30px;

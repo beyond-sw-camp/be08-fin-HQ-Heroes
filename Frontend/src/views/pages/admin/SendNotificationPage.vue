@@ -166,14 +166,22 @@ export default {
 .main {
     width: 75%;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* 높이를 전체 화면으로 맞춤 */
 }
 
 .compose-message-container {
-    background-color: #ffffff; /* 배경색 */
-    border: 1px solid #ddd; /* 테두리 */
-    border-radius: 5px; /* 모서리 둥글게 */
-    padding: 20px; /* 내부 여백 */
+    flex-grow: 1; /* 나머지 영역을 채우도록 설정 */
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 효과 추가 */
 }
+
 
 .message-input {
     margin: 15px 0; /* 입력 필드 아래쪽에 간격 추가 */
@@ -185,14 +193,14 @@ export default {
 }
 
 .message-textarea {
-    margin: 15px 0; /* 텍스트 영역 아래쪽에 간격 추가 */
-    padding: 10px; /* 내부 여백 */
-    font-size: 16px; /* 폰트 크기 */
-    border: 1px solid #ddd; /* 테두리 */
-    border-radius: 5px; /* 모서리 둥글게 */
-    width: 100%; /* 너비를 100%로 설정 */
-    height: 300px; /* 원하는 높이로 설정 */
-    resize: none; /* 크기 조절 비활성화 (필요시) */
+    flex-grow: 1; /* 메시지 입력 영역도 나머지 공간을 채우도록 설정 */
+    margin: 15px 0;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    resize: none;
 }
 
 .button-container {
@@ -202,7 +210,7 @@ export default {
 
 .send-button {
     padding: 10px 20px; /* 버튼 안쪽 여백 */
-    background-color: #5cb85c; /* 버튼 배경색 */
+    background-color: #6366F1; /* 버튼 배경색 */
     color: white; /* 글자색 */
     border: none; /* 테두리 없애기 */
     border-radius: 5px; /* 모서리 둥글게 */
@@ -212,6 +220,6 @@ export default {
 }
 
 .send-button:hover {
-    background-color: #4cae4c; /* 호버 시 배경색 변화 */
+    background-color: #4f46e5; /* 호버 시 배경색 변화 */
 }
 </style>

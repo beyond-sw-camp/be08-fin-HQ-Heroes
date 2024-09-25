@@ -10,7 +10,7 @@
                 <i class="pi pi-check-circle !text-xl"></i>
             </div>
         </div>
-        <button class="mt-3 font-bold py-2 px-4 rounded hover:bg-indigo-400" 
+        <button class="mt-3 font-bold py-2 px-4 rounded hover:bg-[#4f46e5]" 
                 :class="['bg-indigo-500 text-white', 'dark:bg-indigo-500 dark:text-white']">
             출근하기
         </button>
