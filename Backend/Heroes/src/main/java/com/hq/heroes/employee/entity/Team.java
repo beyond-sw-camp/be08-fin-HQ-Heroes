@@ -1,10 +1,13 @@
 package com.hq.heroes.employee.entity;
 
+import com.hq.heroes.auth.entity.Employee;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -26,5 +29,9 @@ public class Team {
     @ManyToOne
     @JoinColumn(name = "dept_id", nullable = false)
     private Department department;
+
+    // Employee와의 One-to-Many 연관관계 매핑
+    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
+    private List<Employee> employees;
 
 }
