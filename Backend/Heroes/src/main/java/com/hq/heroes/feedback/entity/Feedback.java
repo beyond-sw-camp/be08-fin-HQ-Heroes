@@ -26,17 +26,17 @@ public class Feedback {
     private Long feedbackId;
 
     // 피평가자 (사원)와의 연관 관계
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
     // 평가자와의 연관 관계
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evaluator_id", nullable = false)
     private Employee evaluator;
 
-    @Column(name = "score", nullable = false, precision = 3, scale = 2)
-    private double score;
+    @Column(name = "score", nullable = false)
+    private Double score;
 
     @Column(name = "comments", columnDefinition = "TEXT")
     private String comments;
