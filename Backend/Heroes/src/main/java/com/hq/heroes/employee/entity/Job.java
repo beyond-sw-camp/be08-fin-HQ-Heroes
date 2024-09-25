@@ -26,6 +26,6 @@ public class Job {
     private String jobName;
 
     // Employee와의 One-to-Many 연관관계 매핑
-    @OneToMany(mappedBy = "job", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "job")
     private List<Employee> employees;
 }
