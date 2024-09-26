@@ -1,6 +1,7 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import { ProductService } from '@/service/ProductService';
+import { getNotices } from './service/noticeService'; // Import the getNotices function from noticeService.js
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import { onMounted, ref, watch } from 'vue';
@@ -9,7 +10,26 @@ const alarmDisplayDialog = ref(false);
 const selectedMessage = ref(null);
 const showMore = ref(false);
 
-// 샘플 메세지 데이터
+// Notice data
+const announcements = ref([]); // Initialize with an empty array to hold fetched notice data
+
+// Fetch notices when the component is mounted
+onMounted(async () => {
+    announcements.value = await getNotices(); // Fetch notices from the backend and populate the announcements array
+});
+
+// Modal functions for messages
+function openModal(message) {
+    selectedMessage.value = message;
+    alarmDisplayDialog.value = true;
+}
+
+function closeModal() {
+    alarmDisplayDialog.value = false;
+    selectedMessage.value = null;
+}
+
+// Sample messages (you can replace this with dynamic data)
 const messages = [
     { id: 1, sender: '홍길동', subject: '휴가 신청', content: '휴가 신청 관련 메세지 내용입니다.', status: '읽지 않음', sendTime: '2023-09-01 14:35' },
     { id: 2, sender: '김철수', subject: '조퇴 신청', content: '조퇴 신청 관련 메세지 내용입니다.', status: '읽지 않음', sendTime: '2023-09-02 09:12' },
@@ -18,21 +38,22 @@ const messages = [
     { id: 5, sender: '최민호', subject: '출결 신청', content: '출결 신청 관련 메세지 내용입니다.', status: '읽지 않음', sendTime: '2023-09-05 11:20' }
 ];
 
-// 모달 열기 함수
-function openModal(message) {
-    selectedMessage.value = message;
-    alarmDisplayDialog.value = true;
+// Modal functions for announcements
+const displayDialog = ref(false);
+const selectedAnnouncement = ref(null);
+
+function openNoticeDetails(event) {
+    selectedAnnouncement.value = event.data;
+    displayDialog.value = true;
 }
 
-// 모달 닫기 함수
-function closeModal() {
-    alarmDisplayDialog.value = false;
-    selectedMessage.value = null;
+function closeDialog() {
+    displayDialog.value = false;
+    selectedAnnouncement.value = null;
 }
 
+// Layout and product data (assuming this data will be fetched or used)
 const { getPrimary, getSurface, isDarkTheme } = useLayout();
-
-// const products = ref(null);
 const products = ref([]);
 const display = ref(false);
 const product = ref({});
@@ -44,117 +65,7 @@ const updateDate = () => {
     currentDate.value = new Date().toLocaleString();
 };
 
-// 공지사항 데이터 정의
-const announcements = ref([
-    {
-        id: 1,
-        type: '일반',
-        title: '새로운 강의 안내',
-        content: '새로운 Vue.js 강의가 다음 주부터 시작됩니다. 많은 참여 부탁드립니다.',
-        date: '2023-09-01'
-    },
-    {
-        id: 2,
-        type: '긴급',
-        title: '서버 점검 안내',
-        content: '내일 오전 2시부터 4시까지 서버 점검이 있을 예정입니다. 서비스 이용에 참고 바랍니다.',
-        date: '2023-09-02'
-    },
-    {
-        id: 3,
-        type: '일반',
-        title: '서비스 업데이트 안내',
-        content: '오는 9월 10일, 새로운 기능과 성능 개선이 포함된 서비스 업데이트가 예정되어 있습니다.',
-        date: '2023-09-05'
-    },
-    {
-        id: 4,
-        type: '긴급',
-        title: '보안 패치 적용 공지',
-        content: '최근 발생한 보안 취약점으로 인해 긴급 보안 패치가 적용될 예정입니다. 적용 시간 동안 서비스 이용에 일시적인 불편이 있을 수 있습니다.',
-        date: '2023-09-07'
-    },
-    {
-        id: 5,
-        type: '일반',
-        title: '휴무일 안내',
-        content: '추석 연휴로 인해 9월 28일부터 10월 2일까지 고객 지원 서비스가 운영되지 않습니다. 서비스 이용에 참고 바랍니다.',
-        date: '2023-09-15'
-    },
-    {
-        id: 6,
-        type: '이벤트',
-        title: '가을 이벤트 시작!',
-        content: '9월 20일부터 10월 10일까지 특별한 가을 이벤트가 진행됩니다. 다양한 혜택을 놓치지 마세요!',
-        date: '2023-09-18'
-    },
-    {
-        id: 7,
-        type: '공지',
-        title: '고객센터 운영시간 변경 안내',
-        content: '고객센터 운영 시간이 9월 30일부터 오전 9시~오후 6시로 변경됩니다. 서비스 이용에 불편 없으시길 바랍니다.',
-        date: '2023-09-20'
-    },
-    {
-        id: 8,
-        type: '긴급',
-        title: '서비스 장애 복구 안내',
-        content: '금일 발생한 일시적인 서비스 장애가 복구되었습니다. 불편을 끼쳐드린 점 양해 부탁드립니다.',
-        date: '2023-09-25'
-    },
-    {
-        id: 9,
-        type: '공지',
-        title: '개인정보 처리방침 변경 안내',
-        content: '개인정보 처리방침이 2023년 10월 1일부터 개정됩니다. 자세한 내용은 홈페이지를 참고해 주세요.',
-        date: '2023-09-27'
-    },
-    {
-        id: 10,
-        type: '이벤트',
-        title: '회원 대상 감사 이벤트!',
-        content: '저희 서비스를 이용해 주시는 모든 회원분들을 위한 특별 감사 이벤트가 10월 1일부터 시작됩니다!',
-        date: '2023-09-30'
-    },
-    {
-        id: 11,
-        type: '공지',
-        title: '시스템 업그레이드 완료 안내',
-        content: '금일 시스템 업그레이드가 성공적으로 완료되었습니다. 이제 더욱 향상된 서비스 속도를 경험하실 수 있습니다.',
-        date: '2023-10-02'
-    },
-    {
-        id: 12,
-        type: '긴급',
-        title: '정기 점검 일정 변경 안내',
-        content: '예정되었던 정기 서버 점검 일정이 10월 5일로 변경되었습니다. 변경된 일정에 맞춰 서비스 이용에 불편이 없도록 협조 부탁드립니다.',
-        date: '2023-10-03'
-    }
-
-    // 추가 공지사항 항목들...
-]);
-
-// Dialog와 선택된 공지사항을 위한 상태 관리
-const displayDialog = ref(false);
-const selectedAnnouncement = ref(null);
-
-// Dialog 열기 함수
-function openDialog(announcement) {
-    selectedAnnouncement.value = announcement;
-    displayDialog.value = true;
-}
-
-// Dialog 닫기 함수
-function closeDialog() {
-    displayDialog.value = false;
-    selectedAnnouncement.value = null;
-}
-
-const items = ref([
-    { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-    { label: 'Remove', icon: 'pi pi-fw pi-trash' }
-]);
-
+// Chart data and options
 onMounted(() => {
     ProductService.getProductsSmall().then((data) => (products.value = data));
     chartData.value = setChartData();
@@ -231,51 +142,41 @@ function setChartOptions() {
     };
 }
 
-// const formatCurrency = (value) => {
-//     return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-// };
-
-// Function to format the title (example: make it uppercase)
-const formatTitle = (title) => {
-    // Example of formatting: convert title to uppercase
-    return title ? title.toUpperCase() : '';
-};
-
+// Watch for theme changes and update the chart
 watch([getPrimary, getSurface, isDarkTheme], () => {
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
 });
 
-// 현재 날짜와 시간을 포맷하는 헬퍼 함수
+// Helper function for formatting time
 const formatDate = (date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
-// 변수 선언
+// Attendance and salary data (can be fetched dynamically in the future)
 const checkInTime = ref('');
 const checkOutTime = ref('');
 const salaryDday = ref('');
 
-// 급여일을 기준으로 디데이를 계산하는 함수
 const calculateSalaryDday = () => {
     const today = new Date();
-    const salaryDay = new Date(today.getFullYear(), today.getMonth() + 1, 25); // 예: 월급일이 매월 25일이라고 가정
+    const salaryDay = new Date(today.getFullYear(), today.getMonth() + 1, 25); // Assuming salary day is the 25th of every month
     const timeDifference = salaryDay - today;
-    const dayDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24)); // 남은 일수를 계산
-    salaryDday.value = dayDifference > 0 ? dayDifference : 0; // 남은 일수가 0일 미만일 때 처리
+    const dayDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+    salaryDday.value = dayDifference > 0 ? dayDifference : 0;
 };
 
-// 출근 시간과 퇴근 시간 설정 (여기서는 샘플 데이터로 사용)
+// Set sample attendance times
 const setAttendanceTimes = () => {
-    checkInTime.value = formatDate(new Date()); // 현재 시간을 출근 시간으로 설정
-    checkOutTime.value = formatDate(new Date(new Date().setHours(new Date().getHours() + 9))); // 출근 9시간 후를 퇴근 시간으로 설정
+    checkInTime.value = formatDate(new Date());
+    checkOutTime.value = formatDate(new Date(new Date().setHours(new Date().getHours() + 9))); // 9 hours later
 };
 
-// 컴포넌트가 마운트될 때 실행
+// Execute on component mount
 onMounted(() => {
-    setAttendanceTimes(); // 출근/퇴근 시간 설정
-    calculateSalaryDday(); // 급여일까지 남은 일수 계산
-    currentDate.value = new Date().toLocaleString(); // 현재 날짜 및 시간 업데이트
+    setAttendanceTimes();
+    calculateSalaryDday();
+    currentDate.value = new Date().toLocaleString();
 });
 </script>
 
@@ -349,43 +250,63 @@ onMounted(() => {
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">공지사항</div>
-                <DataTable :value="announcements" :rows="5" :paginator="true" responsiveLayout="scroll">
-                    <!-- Type 컬럼 -->
-                    <Column field="type" header="Type" style="width: 20%">
+                <DataTable
+                    :value="announcements"
+                    :rows="5"
+                    :paginator="true"
+                    dataKey="noticeId"
+                    responsiveLayout="scroll"
+                    :rowHover="true"
+                    selectionMode="single"
+                    @row-click="openNoticeDetails"
+                    :metaKeySelection="false"
+                    @rowSelect="onRowSelect"
+                    @rowUnselect="onRowUnselect"
+                >
+                    <!-- 카테고리 컬럼 -->
+                    <Column field="category" header="카테고리" style="width: 20%; text-align: left" headerStyle="text-align: center">
                         <template #body="slotProps">
-                            <span>{{ slotProps.data.type }}</span>
+                            <span>{{ slotProps.data.category }}</span>
                         </template>
                     </Column>
 
-                    <!-- Title 컬럼 -->
-                    <Column field="title" header="Title" style="width: 50%">
+                    <!-- 제목 컬럼 -->
+                    <Column field="title" header="제목" style="width: 45%; text-align: left" headerStyle="text-align: center">
                         <template #body="slotProps">
                             <span>{{ slotProps.data.title }}</span>
                         </template>
                     </Column>
 
-                    <!-- View 버튼 컬럼 -->
-                    <Column style="width: 15%" header="View">
+                    <!-- 작성자 컬럼 -->
+                    <Column field="title" header="작성자" style="width: 15%; text-align: left" headerStyle="text-align: center">
                         <template #body="slotProps">
-                            <Button icon="pi pi-search" type="button" class="p-button-text" @click="openDialog(slotProps.data)" />
+                            <span>{{ slotProps.data.writer }}</span>
+                        </template>
+                    </Column>
+
+                    <!-- 날짜 컬럼 -->
+                    <Column style="width: 20%; text-align: left" header="시간" headerStyle="text-align: center">
+                        <template #body="slotProps">
+                            <span>{{ new Date(slotProps.data.createdAt).toLocaleDateString('ko-KR') }}</span>
                         </template>
                     </Column>
                 </DataTable>
-
-                <!-- 공지사항 Dialog -->
-                <Dialog header="공지사항" v-model:visible="displayDialog" pt:mask:class="backdrop-blur-md" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
-                    <template v-if="selectedAnnouncement">
-                        <p class="text-lg font-bold">{{ selectedAnnouncement.title }}</p>
-                        <p class="text-sm text-gray-500">{{ selectedAnnouncement.date }}</p>
-                        <p class="mt-4 leading-normal">{{ selectedAnnouncement.content }}</p>
-                    </template>
-                    <template #footer>
-                        <Button label="Close" @click="closeDialog" />
-                    </template>
-                </Dialog>
             </div>
+
+            <!-- 공지사항 Dialog -->
+            <Dialog header="공지사항" v-model:visible="displayDialog" pt:mask:class="backdrop-blur-md" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }" :modal="true">
+                <template v-if="selectedAnnouncement">
+                    <p class="text-lg font-bold">{{ selectedAnnouncement.title }}</p>
+                    <p class="text-sm text-gray-500">{{ new Date(selectedAnnouncement.createdAt).toLocaleDateString('ko-KR') }}</p>
+                    <p class="mt-4 leading-normal">{{ selectedAnnouncement.content }}</p>
+                </template>
+                <template #footer>
+                    <Button label="Close" @click="closeDialog" />
+                </template>
+            </Dialog>
         </div>
 
+        <!-- 메세지 -->
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">메세지</div>
