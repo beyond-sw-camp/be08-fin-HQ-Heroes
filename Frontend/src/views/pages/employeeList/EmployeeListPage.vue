@@ -12,7 +12,7 @@
             filterDisplay="menu"
             :filters="filters"
             selectionMode="single"
-            :globalFilterFields="['employeeName', 'department', 'address', 'email']"
+            :globalFilterFields="['employeeName', 'deptName', 'jobName', 'teamName', 'positionName', 'employeeId', 'joinDate']"
             showGridlines
             @row-click="showEmployeeDetails"
             :metaKeySelection="false"
@@ -22,8 +22,8 @@
             <template #header>
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <Dropdown v-model="selectedDepartment" :options="departments" optionLabel="name" placeholder="부서를 선택하세요" @change="filterByDepartmentAndTeam" class="mr-2" />
-                        <Dropdown v-model="selectedTeam" :options="teams" optionLabel="name" placeholder="팀을 선택하세요" @change="filterByDepartmentAndTeam" class="mr-2" />
+                        <Dropdown v-model="selectedDepartment" :options="departments" optionLabel="deptName" placeholder="부서를 선택하세요" @change="filterByDepartmentAndTeam" class="mr-2" />
+                        <Dropdown v-model="selectedTeam" :options="teams" optionLabel="teamName" placeholder="팀을 선택하세요" @change="filterByDepartmentAndTeam" class="mr-2" />
                     </div>
                     <div class="relative search-container">
                         <i class="pi pi-search search-icon" />
@@ -32,9 +32,9 @@
                 </div>
             </template>
             <template #empty> No employees found. </template>
-            <Column field="department" sortable header="부 서" style="min-width: 12rem">
+            <Column field="deptName" sortable header="부 서" style="min-width: 12rem">
                 <template #body="{ data }">
-                    {{ data.department }}
+                    {{ data.deptName }}
                 </template>
             </Column>
             <Column field="teamName" sortable header="팀" style="min-width: 12rem">
@@ -47,9 +47,14 @@
                     {{ data.employeeName }}
                 </template>
             </Column>
-            <Column field="position" sortable header="직 책" style="min-width: 12rem">
+            <Column field="jobName" sortable header="직무" style="min-width: 12rem">
                 <template #body="{ data }">
-                    {{ data.position }}
+                    {{ data.jobName }}
+                </template>
+            </Column>
+            <Column field="positionName" sortable header="직 책" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.positionName }}
                 </template>
             </Column>
             <Column field="employeeId" sortable header="사 번" style="min-width: 12rem">
@@ -57,14 +62,9 @@
                     {{ data.employeeId }}
                 </template>
             </Column>
-            <Column field="hireDate" sortable header="입사일" dataType="date" style="min-width: 10rem">
+            <Column field="joinDate" sortable header="입사일" dataType="date" style="min-width: 10rem">
                 <template #body="{ data }">
-                    {{ formatDate(new Date(data.hireDate)) }}
-                </template>
-            </Column>
-            <Column field="status" sortable header="상 태" style="min-width: 10rem">
-                <template #body="{ data }">
-                    {{ data.status }}
+                    {{ formatDate(new Date(data.joinDate)) }}
                 </template>
             </Column>
         </DataTable>
@@ -77,13 +77,8 @@
 import EmployeeDetailModal from '@/views/pages/employeeDetail/EmployeeDetailModal.vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import axios from 'axios';
-import Button from 'primevue/button';
-import Column from 'primevue/column';
-import DataTable from 'primevue/datatable';
-import InputText from 'primevue/inputtext';
 import { onBeforeMount, ref } from 'vue';
 
-// Vue Ref 및 Reactive 변수들
 const employees = ref([]);
 const filteredEmployees = ref([]);
 const filters = ref(null);
@@ -94,50 +89,72 @@ const teams = ref([]);
 const selectedDepartment = ref(null);
 const selectedTeam = ref(null);
 
-// API 호출하여 직원 데이터 가져오기
 async function fetchEmployeeList() {
-    employees.value = [
-        { employeeNo: 1, employeeName: '홍길동', department: '개발', teamName: '팀A', position: '개발자', employeeId: 'E001', hireDate: '2022-01-01', status: '근무중' },
-        { employeeNo: 2, employeeName: '이순신', department: '개발', teamName: '팀B', position: '팀장', employeeId: 'E002', hireDate: '2021-02-01', status: '퇴근' },
-        { employeeNo: 3, employeeName: '김유신', department: '디자인', teamName: '팀C', position: '디자이너', employeeId: 'E003', hireDate: '2020-03-01', status: '휴가' }
-    ];
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/employees'); // API 호출
+        if (Array.isArray(response.data)) {
+            employees.value = response.data;
+        } else {
+            employees.value = [];
+        }
+    } catch (error) {
+        console.error("직원 데이터를 가져오는 중 오류 발생:", error);
+        employees.value = [];
+    }
 
-
-    filterByDepartmentAndTeam(); // 필터링 함수 호출
+    filterByDepartmentAndTeam();
 }
 
 async function fetchDepartments() {
-    departments.value = [
-        { name: '전체' }, // 전체 옵션 추가
-        { name: '개발' },
-        { name: '디자인' },
-        { name: '인사' }
-    ];
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/departments'); // 부서 API 호출
+        console.log("부서 응답:", response.data);
+        if (Array.isArray(response.data)) {
+            departments.value = [{ deptName: '전체 부서' }, ...response.data]; // '전체' 추가
+        } else {
+            departments.value = [{ deptName: '전체 부서' }];
+        }
+    } catch (error) {
+        console.error("부서 데이터를 가져오는 중 오류 발생:", error);
+        departments.value = [{ deptName: '전체 부서' }];
+    }
 }
 
 async function fetchTeams() {
-    teams.value = [
-        { name: '전체' }, // 전체 옵션 추가
-        { name: '팀A' },
-        { name: '팀B' },
-        { name: '팀C' }
-    ];
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/teams'); // 팀 API 호출
+        console.log("팀 응답:", response.data);
+        if (Array.isArray(response.data)) {
+            teams.value = [{ teamName: '전체 팀' }, ...response.data]; // '전체' 추가
+        } else {
+            teams.value = [{ teamName: '전체 팀' }];
+        }
+    } catch (error) {
+        console.error("팀 데이터를 가져오는 중 오류 발생:", error);
+        teams.value = [{ teamName: '전체 팀' }];
+    }
 }
 
 function filterByDepartmentAndTeam() {
+    console.log("선택된 부서:", selectedDepartment.value); // 추가된 로그
     filteredEmployees.value = employees.value.filter((employee) => {
-        const matchesDepartment = selectedDepartment.value && selectedDepartment.value.name !== '전체' ? employee.department === selectedDepartment.value.name : true;
-        const matchesTeam = selectedTeam.value && selectedTeam.value.name !== '전체' ? employee.teamName === selectedTeam.value.name : true;
+        const matchesDepartment = !selectedDepartment.value || selectedDepartment.value.deptName === '전체 부서' || employee.deptName === selectedDepartment.value.deptName;
+        const matchesTeam = !selectedTeam.value || selectedTeam.value.teamName === '전체 팀' || employee.teamName === selectedTeam.value.teamName;
         return matchesDepartment && matchesTeam;
     });
 }
+
 
 function initFilters() {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         employeeName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        department: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        hireDate: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] }
+        deptName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        jobName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        teamName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        positionName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        employeeId: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        joinDate: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] }
     };
 }
 
@@ -176,6 +193,7 @@ onBeforeMount(() => {
     transform: translateY(-50%);
     color: #888;
 }
+
 .search-input {
     padding-left: 2.5rem;
 }

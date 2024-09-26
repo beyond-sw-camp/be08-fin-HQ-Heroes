@@ -11,13 +11,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EmployeeDTO {
-    private String employeeId;
-    private String employeeName;
+public class TeamDTO {
     private String teamName;
-    private String deptName;
-    private String jobName;
-    private String positionName;
-    private Date joinDate;
 }
 
