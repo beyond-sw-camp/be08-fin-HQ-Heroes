@@ -52,6 +52,20 @@ function closeDialog() {
     selectedAnnouncement.value = null;
 }
 
+// Category mapping object
+const categoryTranslations = {
+    GENERAL: '일반',
+    HR: '인사',
+    ATTENDANCE: '근태',
+    VACATION: '휴가',
+    EDUCATION: '교육'
+};
+
+// Function to translate category
+const translateCategory = (category) => {
+    return categoryTranslations[category] || category; // If no match, return the original category
+};
+
 // Layout and product data (assuming this data will be fetched or used)
 const { getPrimary, getSurface, isDarkTheme } = useLayout();
 const products = ref([]);
@@ -250,23 +264,12 @@ onMounted(() => {
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">공지사항</div>
-                <DataTable
-                    :value="announcements"
-                    :rows="5"
-                    :paginator="true"
-                    dataKey="noticeId"
-                    responsiveLayout="scroll"
-                    :rowHover="true"
-                    selectionMode="single"
-                    @row-click="openNoticeDetails"
-                    :metaKeySelection="false"
-                    @rowSelect="onRowSelect"
-                    @rowUnselect="onRowUnselect"
-                >
+                <DataTable :value="announcements" :rows="5" :paginator="true" dataKey="noticeId" responsiveLayout="scroll" :rowHover="true" selectionMode="single" @row-click="openNoticeDetails" :metaKeySelection="false">
                     <!-- 카테고리 컬럼 -->
                     <Column field="category" header="카테고리" style="width: 20%; text-align: left" headerStyle="text-align: center">
                         <template #body="slotProps">
-                            <span>{{ slotProps.data.category }}</span>
+                            <span>{{ translateCategory(slotProps.data.category) }}</span>
+                            <!-- Use translation function -->
                         </template>
                     </Column>
 
@@ -278,7 +281,7 @@ onMounted(() => {
                     </Column>
 
                     <!-- 작성자 컬럼 -->
-                    <Column field="title" header="작성자" style="width: 15%; text-align: left" headerStyle="text-align: center">
+                    <Column field="writer" header="작성자" style="width: 15%; text-align: left" headerStyle="text-align: center">
                         <template #body="slotProps">
                             <span>{{ slotProps.data.writer }}</span>
                         </template>
