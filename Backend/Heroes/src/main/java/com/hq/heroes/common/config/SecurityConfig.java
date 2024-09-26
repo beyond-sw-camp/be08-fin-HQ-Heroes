@@ -119,7 +119,7 @@ public class SecurityConfig {
                     }
                 }))
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join", "/reissue", "/reset-password", "/logout").permitAll()
+                        .requestMatchers("/**, /login", "/", "/join", "/reissue", "/reset-password", "/logout").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
