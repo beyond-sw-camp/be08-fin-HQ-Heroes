@@ -28,6 +28,7 @@ public class Employee {
 
 //    사원 번호 (로그인시 필요)
     @Id
+    @Column(name = "employee_id", nullable = false, unique = true)
     private String employeeId;  // 필드명을 employeeCode에서 employeeId로 변경
 
 //    사원 이름
