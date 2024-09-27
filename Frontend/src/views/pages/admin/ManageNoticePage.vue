@@ -247,8 +247,4 @@ const closeNoticeDialog = () => {
 .notice-list-page {
     padding: 20px;
 }
-.custom-button {
-    background-color: #007bff;
-    color: #fff;
-}
 </style>
