@@ -9,11 +9,11 @@
     >
         <div v-if="employee" class="employee-details">
             <p><strong>이름:</strong> {{ employee.employeeName }}</p>
-            <p><strong>부서:</strong> {{ employee.department }}</p>
+            <p><strong>부서:</strong> {{ employee.deptName }}</p>
             <p><strong>팀:</strong> {{ employee.teamName }}</p>
-            <p><strong>직책:</strong> {{ employee.position }}</p>
+            <p><strong>직책:</strong> {{ employee.positionName }}</p>
             <p><strong>사번:</strong> {{ employee.employeeId }}</p>
-            <p><strong>입사일:</strong> {{ formatDate(new Date(employee.hireDate)) }}</p>
+            <p><strong>입사일:</strong> {{ formatDate(new Date(employee.joinDate)) }}</p>
         </div>
         <div v-else>
             <p>사원 정보가 없습니다.</p>
