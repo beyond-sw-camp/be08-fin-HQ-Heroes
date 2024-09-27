@@ -3,6 +3,8 @@ package com.hq.heroes.employee.controller;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.dto.EmployeeDTO;
+import com.hq.heroes.employee.dto.TeamDTO;
+import com.hq.heroes.employee.entity.Team;
 import com.hq.heroes.employee.repository.DepartmentRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
 import com.hq.heroes.employee.service.EmployeeService;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -47,9 +50,16 @@ public class EmployeeController {
 
     // 팀 조회를 위한 API
     @GetMapping("/teams")
-    public ResponseEntity<?> getTeams() {
+    public ResponseEntity<?> getTeamsByDepartment(@RequestParam(required = false) Long deptId) {
 
-        return ResponseEntity.ok(teamRepository.findAllTeams());
+        List<TeamDTO> teams;
+        if (deptId != null) {
+            teams = teamRepository.findByDepartment_DeptId(deptId); // 부서 ID로 팀을 조회
+        } else {
+            teams = teamRepository.findAllTeams(); // 모든 팀 조회
+        }
+
+        return ResponseEntity.ok(teams);
     }
 
 }
