@@ -22,7 +22,7 @@
             <template #header>
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <Dropdown v-model="selectedDepartment" :options="departments" optionLabel="deptName" placeholder="부서를 선택하세요" @change="filterByDepartmentAndTeam" class="mr-2" />
+                        <Dropdown v-model="selectedDepartment" :options="departments" optionLabel="deptName" placeholder="부서를 선택하세요" @change="handleDepartmentChange" class="mr-2" />
                         <Dropdown v-model="selectedTeam" :options="teams" optionLabel="teamName" placeholder="팀을 선택하세요" @change="filterByDepartmentAndTeam" class="mr-2" />
                     </div>
                     <div class="relative search-container">
@@ -79,6 +79,7 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import axios from 'axios';
 import { onBeforeMount, ref } from 'vue';
 
+
 const employees = ref([]);
 const filteredEmployees = ref([]);
 const filters = ref(null);
@@ -89,14 +90,22 @@ const teams = ref([]);
 const selectedDepartment = ref(null);
 const selectedTeam = ref(null);
 
+
+function handleDepartmentChange(event) {
+    console.log('부서 변경됨:', selectedDepartment.value);
+    
+    // 팀 드롭다운 초기화
+    selectedTeam.value = null; // 팀을 초기화하여 전체 팀으로 변경
+    
+    filterByDepartmentAndTeam();
+}
+
+
+// 직원 목록을 가져오는 함수
 async function fetchEmployeeList() {
     try {
         const response = await axios.get('http://localhost:8080/api/v1/employee/employees'); // API 호출
-        if (Array.isArray(response.data)) {
-            employees.value = response.data;
-        } else {
-            employees.value = [];
-        }
+        employees.value = Array.isArray(response.data) ? response.data : [];
     } catch (error) {
         console.error("직원 데이터를 가져오는 중 오류 발생:", error);
         employees.value = [];
@@ -105,38 +114,45 @@ async function fetchEmployeeList() {
     filterByDepartmentAndTeam();
 }
 
+// 부서 목록을 가져오는 함수
 async function fetchDepartments() {
     try {
         const response = await axios.get('http://localhost:8080/api/v1/employee/departments'); // 부서 API 호출
-        console.log("부서 응답:", response.data);
-        if (Array.isArray(response.data)) {
-            departments.value = [{ deptName: '전체 부서' }, ...response.data]; // '전체' 추가
-        } else {
-            departments.value = [{ deptName: '전체 부서' }];
-        }
+        departments.value = [{ deptId: null, deptName: '전체 부서' }, ...response.data]; // '전체 부서'에 deptId 추가
     } catch (error) {
         console.error("부서 데이터를 가져오는 중 오류 발생:", error);
-        departments.value = [{ deptName: '전체 부서' }];
+        departments.value = [{ deptId: null, deptName: '전체 부서' }];
     }
 }
 
-async function fetchTeams() {
+// 선택된 부서 ID에 따라 팀 목록을 가져오는 함수
+async function fetchTeams(deptId) {
+    console.log('부서 ID:', deptId); // 로그 추가
+    console.log('fetchTeams 함수 호출'); // 추가 로그
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/teams'); // 팀 API 호출
-        console.log("팀 응답:", response.data);
-        if (Array.isArray(response.data)) {
-            teams.value = [{ teamName: '전체 팀' }, ...response.data]; // '전체' 추가
-        } else {
-            teams.value = [{ teamName: '전체 팀' }];
-        }
+        const response = await axios.get('http://localhost:8080/api/v1/employee/teams', {
+            params: { deptId: deptId } // 부서 ID 전달
+        });
+        console.log('팀 데이터:', response.data); // 로그 추가
+        teams.value = [{ teamId: null, teamName: '전체 팀' }, ...response.data]; // DTO에서 teamName 사용
     } catch (error) {
         console.error("팀 데이터를 가져오는 중 오류 발생:", error);
-        teams.value = [{ teamName: '전체 팀' }];
+        teams.value = [{ teamId: null, teamName: '전체 팀' }];
     }
 }
 
+
+// 부서 및 팀에 따라 직원 목록 필터링
 function filterByDepartmentAndTeam() {
-    console.log("선택된 부서:", selectedDepartment.value); // 추가된 로그
+    console.log('선택된 부서:', selectedDepartment.value); // 로그 추가
+    console.log('부서 변경됨:', selectedDepartment.value); // 로그 추가
+
+    if (selectedDepartment.value && selectedDepartment.value.deptId) {
+        fetchTeams(selectedDepartment.value.deptId); // 선택한 부서 ID 전달
+    } else {
+        teams.value = [{ teamId: null, teamName: '전체 팀' }]; // 부서가 선택되지 않은 경우 기본 팀 추가
+    }
+
     filteredEmployees.value = employees.value.filter((employee) => {
         const matchesDepartment = !selectedDepartment.value || selectedDepartment.value.deptName === '전체 부서' || employee.deptName === selectedDepartment.value.deptName;
         const matchesTeam = !selectedTeam.value || selectedTeam.value.teamName === '전체 팀' || employee.teamName === selectedTeam.value.teamName;
@@ -144,7 +160,7 @@ function filterByDepartmentAndTeam() {
     });
 }
 
-
+// 필터 초기화
 function initFilters() {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -158,19 +174,34 @@ function initFilters() {
     };
 }
 
+// 직원 상세 보기 함수
 function showEmployeeDetails(event) {
     selectedEmployee.value = event.data;
     displayDialog.value = true;
 }
 
+// 날짜 포맷팅 함수
 function formatDate(date) {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
+function onRowSelect(event) {
+    console.log('선택된 직원:', event.data);
+    selectedEmployee.value = event.data;
+    displayDialog.value = true;
+}
+
+function onRowUnselect(event) {
+    console.log('선택 해제된 직원:', event.data);
+    selectedEmployee.value = null;
+    displayDialog.value = false; 
+}
+
+
+// 컴포넌트 마운트 시 데이터 가져오기
 onBeforeMount(() => {
     fetchEmployeeList();
     fetchDepartments();
-    fetchTeams();
     initFilters();
 });
 </script>

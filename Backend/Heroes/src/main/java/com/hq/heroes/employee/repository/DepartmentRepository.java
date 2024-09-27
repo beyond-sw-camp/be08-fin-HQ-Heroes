@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface DepartmentRepository extends JpaRepository<Department,Long> {
 
-    @Query("SELECT new com.hq.heroes.employee.dto.DepartmentDTO(d.deptName) FROM Department d")
+    @Query("SELECT new com.hq.heroes.employee.dto.DepartmentDTO(d.deptId, d.deptName) FROM Department d")
     List<DepartmentDTO> findAllDepartments();
 
 }
