@@ -1,4 +1,11 @@
 package com.hq.heroes.attendance.service;
 
-public class AttendanceService {
+import com.hq.heroes.attendance.dto.AttendanceDTO;
+
+import java.util.List;
+
+public interface AttendanceService {
+
+    List<AttendanceDTO> getAllAttendances();
+
 }
