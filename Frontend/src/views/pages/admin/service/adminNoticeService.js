@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/v1/notice-service';
+const API_URL = 'http://localhost:8080';
 
 // 공지사항 등록
 export const createNotice = async (noticeData) => {
@@ -31,6 +31,18 @@ export const deleteNotice = async (noticeId) => {
     return response.status === 200;
   } catch (error) {
     console.error(`Failed to delete notice with ID ${noticeId}:`, error);
+    throw error;
+  }
+};
+
+// 공지사항 조회
+export const fetchNotices = async (category = null) => {
+  try {
+    const params = { category }; // 카테고리 params에 추가
+    const response = await axios.get(`${API_URL}/api/v1/notice-service/notice`, { params });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch notices: ', error);
     throw error;
   }
 };
