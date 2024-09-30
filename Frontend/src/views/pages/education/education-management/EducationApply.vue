@@ -6,15 +6,16 @@
             :paginator="true"
             :rows="10"
             removableSort
-            dataKey="courseNo"
+            dataKey="courseId"
             :rowHover="true"
             v-model:filters="filters"
             filterDisplay="menu"
             :filters="filters"
             selectionMode="single"
-            :globalFilterFields="['courseName', 'category', 'instructorName', 'institute']"
+            :globalFilterFields="['educationName', 'category', 'instructorName', 'institution']"
             showGridlines
         >
+            <!-- 필터와 테이블 헤더 -->
             <template #header>
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
@@ -27,7 +28,8 @@
                     </div>
                 </div>
             </template>
-            <template #empty> No courses found. </template>
+
+            <!-- 테이블 컬럼들 -->
             <Column field="category" sortable header="카테고리" style="min-width: 8rem">
                 <template #body="{ data }">
                     {{ data.category }}
@@ -38,29 +40,29 @@
                     {{ data.instructorName }}
                 </template>
             </Column>
-            <Column field="courseName" sortable header="강의명" style="min-width: 12rem">
+            <Column field="educationName" sortable header="강의명" style="min-width: 12rem">
                 <template #body="{ data }">
-                    {{ data.courseName }}
+                    {{ data.educationName }}
                 </template>
             </Column>
-            <Column field="institute" sortable header="교육기관" style="min-width: 12rem">
+            <Column field="institution" sortable header="교육기관" style="min-width: 12rem">
                 <template #body="{ data }">
-                    {{ data.institute }}
+                    {{ data.institution }}
                 </template>
             </Column>
-            <Column field="startDate" sortable header="교육 시작일" dataType="date" style="min-width: 10rem">
+            <Column field="educationStart" sortable header="교육 시작일" dataType="date" style="min-width: 10rem">
                 <template #body="{ data }">
-                    {{ formatDate(new Date(data.startDate)) }}
+                    {{ formatDate(new Date(data.educationStart)) }}
                 </template>
             </Column>
-            <Column field="endDate" sortable header="교육 종료일" dataType="date" style="min-width: 10rem">
+            <Column field="educationEnd" sortable header="교육 종료일" dataType="date" style="min-width: 10rem">
                 <template #body="{ data }">
-                    {{ formatDate(new Date(data.endDate)) }}
+                    {{ formatDate(new Date(data.educationEnd)) }}
                 </template>
             </Column>
-            <!-- 신청 인원 수 / 총 인원 수 컬럼 추가 -->
-            <Column field="participants" sortable header="신청인원 / 총인원" style="min-width: 11rem">
-                <template #body="{ data }"> {{ data.participants }} / {{ data.totalSeats }} </template>
+            <!-- 신청 인원 수 / 총 참여 인원 컬럼 추가 -->
+            <Column field="totalParticipants" sortable header="신청인원 / 총참여인원" style="min-width: 11rem">
+                <template #body="{ data }"> {{ data.participants }} / {{ data.totalParticipants }} </template>
             </Column>
             <!-- 신청 버튼 컬럼 추가 -->
             <Column field="apply" header="신청" style="min-width: 10rem">
@@ -71,14 +73,14 @@
         </DataTable>
 
         <!-- 신청 모달 컴포넌트 -->
-        <Dialog v-model:visible="applyDialogVisible" :header="selectedCourse?.courseName + ' 신청'" modal>
+        <Dialog v-model:visible="applyDialogVisible" :header="selectedCourse?.educationName + ' 신청'" modal>
             <div>
                 <p><strong>카테고리:</strong> {{ selectedCourse?.category }}</p>
                 <p><strong>강사명:</strong> {{ selectedCourse?.instructorName }}</p>
-                <p><strong>교육기관:</strong> {{ selectedCourse?.institute }}</p>
-                <p><strong>교육 시작일:</strong> {{ formatDate(new Date(selectedCourse?.startDate)) }}</p>
-                <p><strong>교육 종료일:</strong> {{ formatDate(new Date(selectedCourse?.endDate)) }}</p>
-                <p><strong>신청인원:</strong> {{ selectedCourse?.participants }} / {{ selectedCourse?.totalSeats }}</p>
+                <p><strong>교육기관:</strong> {{ selectedCourse?.institution }}</p>
+                <p><strong>교육 시작일:</strong> {{ formatDate(new Date(selectedCourse?.educationStart)) }}</p>
+                <p><strong>교육 종료일:</strong> {{ formatDate(new Date(selectedCourse?.educationEnd)) }}</p>
+                <p><strong>신청인원:</strong> {{ selectedCourse?.participants }} / {{ selectedCourse?.totalParticipants }}</p>
             </div>
             <template #footer>
                 <Button label="신청" icon="pi pi-check" @click="applyForCourse" />
@@ -97,6 +99,7 @@ import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import { onBeforeMount, ref } from 'vue';
+import axios from 'axios';
 
 // 데이터 및 상태 관리
 const courses = ref([]);
@@ -109,22 +112,35 @@ const instructors = ref([]);
 const selectedCategory = ref(null);
 const selectedInstructor = ref(null);
 
+// 백엔드에서 교육 목록 가져오기
 async function fetchCourseList() {
-    courses.value = [
-        { courseNo: 1, courseName: 'Java 개발', category: '개발', instructorName: '홍길동', institute: 'ABC Academy', startDate: '2022-01-01', endDate: '2022-03-01', participants: 5, totalSeats: 10 },
-        { courseNo: 2, courseName: '디자인 패턴', category: '디자인', instructorName: '이순신', institute: 'XYZ Design Center', startDate: '2021-05-01', endDate: '2021-08-01', participants: 8, totalSeats: 15 },
-        { courseNo: 3, courseName: '프로젝트 관리', category: '관리', instructorName: '김유신', institute: 'PQR Management School', startDate: '2020-06-01', endDate: '2020-12-01', participants: 12, totalSeats: 20 }
-    ];
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/education-service/education');
 
-    filterByCategoryAndInstructor();
+        // response.data가 배열인지 확인한 후 courses에 할당
+        if (Array.isArray(response.data)) {
+            courses.value = response.data;
+        } else if (response.data && Array.isArray(response.data.educations)) {
+            // 만약 응답 데이터가 객체 내에 'educations' 배열을 포함하고 있다면 이렇게 처리
+            courses.value = response.data.educations;
+        } else {
+            console.error("예상하지 못한 응답 데이터 형식입니다.");
+        }
+
+        filterByCategoryAndInstructor(); // 필터 적용
+    } catch (error) {
+        console.error("교육 목록을 불러오는 중 오류가 발생했습니다.", error);
+    }
 }
 
 // 카테고리 및 강사 목록 가져오기
 async function fetchCategories() {
+    // API 연동을 위한 카테고리 로직이 필요하면 추가
     categories.value = [{ name: '전체' }, { name: '개발' }, { name: '디자인' }, { name: '관리' }];
 }
 
 async function fetchInstructors() {
+    // API 연동을 위한 강사 목록 로직이 필요하면 추가
     instructors.value = [{ name: '전체' }, { name: '홍길동' }, { name: '이순신' }, { name: '김유신' }];
 }
 
@@ -141,9 +157,9 @@ function filterByCategoryAndInstructor() {
 function initFilters() {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        courseName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+        educationName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
         category: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        startDate: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] }
+        educationStart: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] }
     };
 }
 
@@ -153,19 +169,42 @@ function openApplyModal(course) {
     applyDialogVisible.value = true;
 }
 
-// 강의 신청 처리 (예시)
-function applyForCourse() {
-    // 신청 로직 구현 (API 호출 등)
-    alert(`신청 완료: ${selectedCourse.value.courseName}`);
-    applyDialogVisible.value = false;
+// 강의 신청 처리 (API 연동)
+async function applyForCourse() {
+    if (!selectedCourse.value) {
+        alert("신청할 교육 과정을 선택하세요.");
+        return;
+    }
+    
+    console.log("신청할 교육 과정 번호:", selectedCourse.value.courseId); // courseId 로그
+
+    try {
+        // 신청 API 호출
+        const response = await axios.post(`http://localhost:8080/api/v1/education-service/education/${selectedCourse.value.courseId}/apply`);
+        
+        // 신청 완료 후 신청 인원 수 증가
+        selectedCourse.value.participants += 1;
+
+        // courses 배열에서도 신청 인원 수 업데이트
+        const courseIndex = courses.value.findIndex(course => course.courseId === selectedCourse.value.courseId);
+        if (courseIndex !== -1) {
+            courses.value[courseIndex].participants = selectedCourse.value.participants;
+        }
+
+        alert(`신청 완료: ${selectedCourse.value.educationName}`);
+        applyDialogVisible.value = false;
+    } catch (error) {
+        console.error("교육 과정 신청 중 오류가 발생했습니다.", error);
+        alert("신청 실패. 나중에 다시 시도하세요.");
+    }
 }
 
-// 날짜 형식 포맷팅
+// 날짜 포맷팅 함수
 function formatDate(date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    return date.toISOString().slice(0, 10); // 'YYYY-MM-DD' 형식으로 변환
 }
 
-// 마운트 시 데이터 및 필터 초기화
+// 컴포넌트 생명주기 훅
 onBeforeMount(() => {
     fetchCourseList();
     fetchCategories();
@@ -174,14 +213,8 @@ onBeforeMount(() => {
 });
 </script>
 
-<style scoped lang="scss">
-:deep(.p-datatable-frozen-tbody) {
-    font-weight: bold;
-}
-
+<style scoped>
 .search-container {
-    display: flex;
-    align-items: center;
     position: relative;
 }
 
@@ -190,9 +223,9 @@ onBeforeMount(() => {
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    color: #888;
 }
+
 .search-input {
-    padding-left: 2.5rem;
+    width: 250px;
 }
 </style>
