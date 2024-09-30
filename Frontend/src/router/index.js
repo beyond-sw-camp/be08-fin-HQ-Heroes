@@ -64,14 +64,14 @@ const router = createRouter({
                     component: () => import('@/views/pages/feedback/FeedBackResultPage.vue')
                 },
                 {
-                    path: '/apply-annual-leave',
-                    name: 'apply-annual-leave',
-                    component: () => import('@/views/pages/HQattendance/vacation/apply-annual-leave.vue')
+                    path: '/apply-vacation',
+                    name: 'apply-vacation',
+                    component: () => import('@/views/pages/HQattendance/vacation/apply-vacation.vue')
                 },
                 {
-                    path: '/approve-leave',
+                    path: '/approve-vacation',
                     name: 'approve-leave',
-                    component: () => import('@/views/pages/HQattendance/vacation/approve-leave.vue')
+                    component: () => import('@/views/pages/HQattendance/vacation/approve-vacation.vue')
                 },
                 {
                     path: '/apply-overtime',

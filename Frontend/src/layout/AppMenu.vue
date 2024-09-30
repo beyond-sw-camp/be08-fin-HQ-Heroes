@@ -38,8 +38,8 @@ const model = ref([
                         label: '휴가',
                         icon: 'pi pi-fw pi-envelope',
                         items: [
-                            { label: '연차 휴가 신청', icon: 'pi pi-fw pi-calendar-times', to: '/apply-annual-leave' },
-                            { label: '휴가 승인', icon: 'pi pi-fw pi-check-square', to: '/approve-leave' }
+                            { label: '휴가 신청', icon: 'pi pi-fw pi-calendar-times', to: '/apply-vacation' },
+                            { label: '휴가 승인', icon: 'pi pi-fw pi-check-square', to: '/approve-vacation' }
                         ]
                     },
                     {
