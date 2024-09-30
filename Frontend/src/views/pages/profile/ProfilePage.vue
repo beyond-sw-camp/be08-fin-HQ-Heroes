@@ -17,7 +17,7 @@
                         <div style="margin-left: 10px;">
                             <p class="upload-instruction">증명사진을 첨부해 주세요.</p>
                             <input type="file" id="photoUpload" class="form-control" @change="handleFileUpload" style="border: none; background-color: transparent;" />
-                            <p class="usage-note">첨부하시는 사직은 직원 등록 및 직원 확인용으로 사용되며, 가로 150px, 세로 150px 사용을 권장합니다.</p>
+                            <p class="usage-note">첨부하시는 사진은 직원 등록 및 직원 확인용으로 사용되며, 가로 150px, 세로 150px 사용을 권장합니다.</p>
                         </div>
                     </div>
                 </div>
