@@ -15,13 +15,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class VacationDTO {
 
-    private Long vacationId;
-    private String employeeId;
-    private VacationType vacationType;
-    private LocalDateTime vacationStart;
-    private LocalDateTime vacationEnd;
-    private VacationStatus vacationStatus;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Long vacationId; // 휴가 ID
+    private String employeeId; // 신청인 ID
+    private String approverId; // 결재자 ID
+    private VacationType vacationType; // 휴가 종류
+    private LocalDateTime vacationStart; // 시작 일시
+    private LocalDateTime vacationEnd; // 종료 일시
+    private String comment; // 사유 (댓글)
+    private VacationStatus vacationStatus; // 휴가 상태
+    private LocalDateTime createdAt; // 생성 일시
+    private LocalDateTime updatedAt; // 수정 일시
 
 }
