@@ -14,15 +14,16 @@
             selectionMode="single"
             :globalFilterFields="['educationName', 'category', 'instructorName', 'institution']"
             showGridlines
+            style="table-layout: fixed !important;"
         >
             <!-- 필터와 테이블 헤더 -->
             <template #header>
-                <div class="flex justify-between items-center">
+                <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <Dropdown v-model="selectedCategory" :options="categories" optionLabel="name" placeholder="카테고리를 선택하세요" @change="filterByCategoryAndInstructor" class="mr-2" />
                         <Dropdown v-model="selectedInstructor" :options="instructors" optionLabel="name" placeholder="강사명을 선택하세요" @change="filterByCategoryAndInstructor" class="mr-2" />
                     </div>
-                    <div class="relative search-container">
+                    <div class="relative search-container ml-auto"> <!-- flex-grow 제거 및 ml-auto 추가 -->
                         <i class="pi pi-search search-icon" />
                         <InputText v-model="filters['global'].value" placeholder="Keyword Search" class="pl-8 search-input" />
                     </div>
@@ -30,42 +31,44 @@
             </template>
 
             <!-- 테이블 컬럼들 -->
-            <Column field="category" sortable header="카테고리" style="min-width: 8rem">
+            <Column field="category" sortable header="카테고리" style="min-width: 8rem; text-align: center;">
                 <template #body="{ data }">
                     {{ data.category }}
                 </template>
             </Column>
-            <Column field="instructorName" sortable header="강사명" style="min-width: 7rem">
+            <Column field="instructorName" sortable header="강사명" style="min-width: 7rem; text-align: center;">
                 <template #body="{ data }">
                     {{ data.instructorName }}
                 </template>
             </Column>
-            <Column field="educationName" sortable header="강의명" style="min-width: 12rem">
+            <Column field="educationName" sortable header="강의명" style="min-width: 12rem; text-align: center;">
                 <template #body="{ data }">
                     {{ data.educationName }}
                 </template>
             </Column>
-            <Column field="institution" sortable header="교육기관" style="min-width: 12rem">
+            <Column field="institution" sortable header="교육기관" style="min-width: 12rem; text-align: center;">
                 <template #body="{ data }">
                     {{ data.institution }}
                 </template>
             </Column>
-            <Column field="educationStart" sortable header="교육 시작일" dataType="date" style="min-width: 10rem">
+            <Column field="educationStart" sortable header="교육 시작일" dataType="date" style="min-width: 10rem; text-align: center;">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.educationStart)) }}
                 </template>
             </Column>
-            <Column field="educationEnd" sortable header="교육 종료일" dataType="date" style="min-width: 10rem">
+            <Column field="educationEnd" sortable header="교육 종료일" dataType="date" style="min-width: 10rem; text-align: center;">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.educationEnd)) }}
                 </template>
             </Column>
             <!-- 신청 인원 수 / 총 참여 인원 컬럼 추가 -->
-            <Column field="totalParticipants" sortable header="신청인원 / 총참여인원" style="min-width: 11rem">
-                <template #body="{ data }"> {{ data.participants }} / {{ data.totalParticipants }} </template>
+            <Column field="totalParticipants" sortable header="신청인원 / 총참여인원" style="min-width: 11rem; white-space: nowrap !important; text-align: center;">
+                <template #body="{ data }">
+                    <span>{{ data.participants }} / {{ data.totalParticipants }}</span>
+                </template>
             </Column>
             <!-- 신청 버튼 컬럼 추가 -->
-            <Column field="apply" header="신청" style="min-width: 10rem">
+            <Column field="apply" header="신청" style="min-width: 10rem; text-align: center;">
                 <template #body="{ data }">
                     <Button label="신청하기" icon="pi pi-check" @click="openApplyModal(data)" />
                 </template>
@@ -188,28 +191,32 @@ async function applyForCourse() {
         // courses 배열에서도 신청 인원 수 업데이트
         const courseIndex = courses.value.findIndex(course => course.courseId === selectedCourse.value.courseId);
         if (courseIndex !== -1) {
-            courses.value[courseIndex].participants = selectedCourse.value.participants;
+            courses.value[courseIndex].participants += 1;
         }
 
-        alert(`신청 완료: ${selectedCourse.value.educationName}`);
-        applyDialogVisible.value = false;
+        alert("신청이 완료되었습니다.");
+        applyDialogVisible.value = false; // 모달 닫기
     } catch (error) {
-        console.error("교육 과정 신청 중 오류가 발생했습니다.", error);
-        alert("신청 실패. 나중에 다시 시도하세요.");
+        console.error("신청 처리 중 오류 발생:", error);
+        alert("신청 처리 중 오류가 발생했습니다.");
     }
 }
 
 // 날짜 포맷팅 함수
 function formatDate(date) {
-    return date.toISOString().slice(0, 10); // 'YYYY-MM-DD' 형식으로 변환
+    return new Intl.DateTimeFormat('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(date);
 }
 
-// 컴포넌트 생명주기 훅
+// 컴포넌트가 마운트될 때 데이터 가져오기
 onBeforeMount(() => {
     fetchCourseList();
     fetchCategories();
     fetchInstructors();
-    initFilters();
+    initFilters(); // 필터 초기화
 });
 </script>
 
@@ -226,6 +233,6 @@ onBeforeMount(() => {
 }
 
 .search-input {
-    width: 250px;
+    padding-left: 30px; /* 아이콘과 텍스트 간의 간격 조정 */
 }
 </style>
