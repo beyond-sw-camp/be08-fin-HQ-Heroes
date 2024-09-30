@@ -13,7 +13,7 @@
 
                     <!-- 사진 업로드 -->
                     <div class="form-group">    
-                        <img src="https://via.placeholder.com/150" alt="설명" width="150" height="150">
+                        <img :src="photoUrl" alt="증명사진 미리보기" width="150" height="150">
                         <div style="margin-left: 10px;">
                             <p class="upload-instruction">증명사진을 첨부해 주세요.</p>
                             <input type="file" id="photoUpload" class="form-control" @change="handleFileUpload" style="border: none; background-color: transparent;" />
@@ -140,6 +140,18 @@ export default {
         const position = ref('팀장');
         const hireDate = ref('2020-05-01');
 
+        const photoUrl = ref('https://via.placeholder.com/150'); // 초기 이미지 URL
+
+        const handleFileUpload = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    photoUrl.value = e.target.result; // 이미지 URL 업데이트
+                };
+                reader.readAsDataURL(file); // 파일을 Data URL로 읽기
+            }
+        };
 
         const searchZipCode = () => {
             new daum.Postcode({
@@ -179,6 +191,8 @@ export default {
             hireDate,
             searchZipCode,
             enableEditing,
+            photoUrl,
+            handleFileUpload,
         };
     },
 };
@@ -232,9 +246,12 @@ input[type="file"] {
     box-sizing: border-box; /* padding과 border를 포함한 크기 계산 */
 }
 
-.photo-upload-container {
-    margin-bottom: 15px;
+.photo-upload-container img {
+    width: 150px; /* 너비 고정 */
+    height: 150px; /* 높이 고정 */
+    object-fit: cover; /* 비율을 유지하면서 영역에 맞게 잘라내기 */
 }
+
 
 .photo-upload-container,
 .department-info-container {
