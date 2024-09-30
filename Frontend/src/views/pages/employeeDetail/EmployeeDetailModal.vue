@@ -7,16 +7,18 @@
         @update:visible="handleVisibilityUpdate"
         :style="{ width: '500px', maxWidth: '90vw' }"
     >
-        <div v-if="employee" class="employee-details">
-            <p><strong>이름:</strong> {{ employee.employeeName }}</p>
-            <p><strong>부서:</strong> {{ employee.deptName }}</p>
-            <p><strong>팀:</strong> {{ employee.teamName }}</p>
-            <p><strong>직책:</strong> {{ employee.positionName }}</p>
-            <p><strong>사번:</strong> {{ employee.employeeId }}</p>
-            <p><strong>입사일:</strong> {{ formatDate(new Date(employee.joinDate)) }}</p>
-        </div>
-        <div v-else>
-            <p>사원 정보가 없습니다.</p>
+        <div class="employee-details-container">
+            <div class="employee-details">
+                <p><strong>이름:</strong> {{ employee.employeeName }}</p>
+                <p><strong>부서:</strong> {{ employee.deptName }}</p>
+                <p><strong>팀:</strong> {{ employee.teamName }}</p>
+                <p><strong>직책:</strong> {{ employee.positionName }}</p>
+                <p><strong>사번:</strong> {{ employee.employeeId }}</p>
+                <p><strong>입사일:</strong> {{ formatDate(new Date(employee.joinDate)) }}</p>
+            </div>
+            <div class="photo-upload-container">
+                <img :src="photoUrl" alt="증명사진" class="employee-photo">
+            </div>
         </div>
     </Dialog>
 </template>
@@ -33,8 +35,8 @@ const emit = defineEmits(['update:visible']);
 
 const localVisible = ref(props.visible);
 const employee = ref(props.employee);
+const photoUrl = ref('https://via.placeholder.com/150'); // 초기 이미지 URL
 
-// 부모에서 받은 visible 상태를 로컬 상태로 반영
 watch(
     () => props.visible,
     (newVal) => {
@@ -42,7 +44,6 @@ watch(
     }
 );
 
-// 로컬 visible 상태가 변경되면 부모 컴포넌트에 반영
 function handleVisibilityUpdate(newVal) {
     localVisible.value = newVal;
     emit('update:visible', newVal);
@@ -64,11 +65,28 @@ function formatDate(date) {
 </script>
 
 <style scoped>
+.employee-details-container {
+    display: flex;
+    align-items: center; /* 세로 정렬 */
+    padding: 1.5rem; /* 내부 여백 추가 */
+    background-color: #ffffff; /* 배경 색상 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+    border-radius: 8px; /* 모서리 둥글게 */
+}
+
 .employee-details {
-    padding: 1.5rem;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    flex: 1; /* 남은 공간을 차지하게 함 */
+}
+
+.photo-upload-container {
+    margin-left: 20px; /* 이미지와 텍스트 간격 */
+}
+
+.employee-photo {
+    width: 150px;
+    height: 150px;
+    object-fit: cover; /* 이미지 비율 유지 */
+    border-radius: 4px; /* 약간 둥글게 */
 }
 
 .employee-details p {
