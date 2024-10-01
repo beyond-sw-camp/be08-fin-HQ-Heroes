@@ -1,7 +1,6 @@
-package com.hq.heroes.feedback.entity;
+package com.hq.heroes.evaluation.entity;
 
 import com.hq.heroes.auth.entity.Employee;
-import com.hq.heroes.feedback.entity.enums.FeedbackStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,13 +16,13 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "tb_feedback")
-public class Feedback {
+@Table(name = "tb_evaluation")
+public class Evaluation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feedback_id")
-    private Long feedbackId;
+    @Column(name = "evaluation_id")
+    private Long evaluationId;
 
     // 피평가자 (사원)와의 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,15 +34,16 @@ public class Feedback {
     @JoinColumn(name = "evaluator_id", nullable = false)
     private Employee evaluator;
 
+    // 평가기준과의 연관 관계
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evaluation_template_id", nullable = false)
+    private EvaluationTemplate evaluationTemplate;
+
     @Column(name = "score", nullable = false)
     private Double score;
 
     @Column(name = "comments", columnDefinition = "TEXT")
     private String comments;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private FeedbackStatus status = FeedbackStatus.INCOMPLETE;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
