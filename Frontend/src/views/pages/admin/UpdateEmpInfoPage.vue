@@ -1,165 +1,234 @@
 <template>
-    <div class="employee-list-page">
-        <div class="card">
-            <div class="flex flex-row justify-between">
-                <label class="text-xl font-bold" style="width: 10%">사원 목록</label>
-                <div class="flex flex-row w-1rem col-4">
-                    <Dropdown class="mr-2" v-model="selectedDepartment" :options="departments" optionLabel="name" placeholder="부서" @change="filterEmployees" />
-                    <Dropdown class="mr-2" v-model="selectedTeam" :options="teams" optionLabel="name" placeholder="팀" @change="filterEmployees" />
-                    <InputGroup>
-                        <InputGroupAddon>
-                            <i class="pi pi-search"></i>
-                        </InputGroupAddon>
-                        <InputText placeholder="사원 이름, 코드, 부서, 팀" v-model="globalFilter" @input="initFilters" />
-                    </InputGroup>
+    <div class="card">
+        <div class="font-semibold text-xl mb-4">사원 정보 수정</div>
+        <DataTable
+            :value="filteredEmployees"
+            :paginator="true"
+            :rows="10"
+            removableSort
+            dataKey="employeeNo"
+            :rowHover="true"
+            v-model:filters="filters"
+            filterDisplay="menu"
+            :filters="filters"
+            selectionMode="single"
+            :globalFilterFields="['employeeName', 'deptName', 'jobName', 'teamName', 'positionName', 'employeeId', 'joinDate']"
+            showGridlines
+            @row-click="showEmployeeDetails"
+            :metaKeySelection="false"
+            @rowSelect="onRowSelect"
+            @rowUnselect="onRowUnselect"
+        >
+            <template #header>
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <Dropdown v-model="selectedDepartment" :options="departments" optionLabel="deptName" placeholder="부서를 선택하세요" @change="handleDepartmentChange" class="mr-2" />
+                        <Dropdown v-model="selectedTeam" :options="teams" optionLabel="teamName" placeholder="팀을 선택하세요" @change="filterByDepartmentAndTeam" class="mr-2" />
+                    </div>
+                    <div class="relative search-container">
+                        <i class="pi pi-search search-icon" />
+                        <InputText v-model="filters['global'].value" placeholder="Keyword Search" class="pl-8 search-input" />
+                    </div>
                 </div>
-            </div>
-            <DataTable
-                :value="filteredEmployees"
-                removableSort
-                paginator
-                :rows="10"
-                :rowsPerPageOptions="[10, 20, 30, 50]"
-                :globalFilterFields="['employeeName', 'employeeCode']"
-                selectionMode="single"
-                dataKey="employeeId"
-                @row-click="showEditDialog"
-                :metaKeySelection="false"
-                @rowSelect="onRowSelect"
-                @rowUnselect="onRowUnselect"
-            >
-                <Column field="employeeCode" sortable header="사원 코드" />
-                <Column field="employeeName" sortable header="이름" />
-                <Column field="department" sortable header="부서" />
-                <Column field="teamName" sortable header="팀" />
-                <Column field="position" sortable header="직책" />
-                <Column field="hireDate" sortable header="입사일" />
-            </DataTable>
-        </div>
+            </template>
+            <template #empty> No employees found. </template>
+            <Column field="deptName" sortable header="부 서" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.deptName }}
+                </template>
+            </Column>
+            <Column field="teamName" sortable header="팀" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.teamName }}
+                </template>
+            </Column>
+            <Column field="employeeName" sortable header="이 름" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.employeeName }}
+                </template>
+            </Column>
+            <Column field="jobName" sortable header="직무" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.jobName }}
+                </template>
+            </Column>
+            <Column field="positionName" sortable header="직 책" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.positionName }}
+                </template>
+            </Column>
+            <Column field="employeeId" sortable header="사 번" style="min-width: 12rem">
+                <template #body="{ data }">
+                    {{ data.employeeId }}
+                </template>
+            </Column>
+            <Column field="joinDate" sortable header="입사일" dataType="date" style="min-width: 10rem">
+                <template #body="{ data }">
+                    {{ formatDate(new Date(data.joinDate)) }}
+                </template>
+            </Column>
+        </DataTable>
+
+        <UpdateEmpInfoModal :employee="selectedEmployee" :isVisible="displayDialog" @update:visible="displayDialog = $event" @closeModal="displayDialog = false"/>
     </div>
-
-    <Dialog header="직원 정보" :visible="displayEditDialog" style="width: 70%" :modal="true" :draggable="false">
-        <div class="flex flex-col p-4 bg-white shadow-md rounded-lg" v-if="selectedEmployee">
-            <div class="flex flex-row">
-                <div class="flex flex-col w-1/2 p-3 border-r">
-                    <div class="flex flex-row mb-4">
-                        <div class="w-1/2 p-2">
-                            <Image src="https://upload.wikimedia.org/wikipedia/ko/4/4a/%EC%8B%A0%EC%A7%B1%EA%B5%AC.png" alt="Profile Image" class="w-full h-auto rounded-lg shadow" preview/>
-                        </div>
-                        <div class="flex flex-col w-1/2 justify-center items-center">
-                            <Button class="p-button p-component">사진 변경</Button>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col gap-2">
-                        <div class="flex flex-row items-center gap-2">
-                            <label class="flex justify-end items-center text-gray-600" for="selectedEmployee.employeeCode" style="width: 30%">사원 코드</label>
-                            <InputText id="selectedEmployee.employeeCode" v-model="selectedEmployee.employeeCode" class="flex-1" />
-                        </div>
-                        <div class="flex flex-row items-center gap-2">
-                            <label class="flex justify-end items-center text-gray-600" for="selectedEmployee.employeeName" style="width: 30%">이름</label>
-                            <InputText id="selectedEmployee.employeeName" v-model="selectedEmployee.employeeName" class="flex-1" />
-                        </div>
-                        <div class="flex flex-row items-center gap-2">
-                            <label class="flex justify-end items-center text-gray-600" for="selectedEmployee.department" style="width: 30%">부서</label>
-                            <InputText id="selectedEmployee.department" v-model="selectedEmployee.department" class="flex-1" />
-                        </div>
-                        <div class="flex flex-row items-center gap-2">
-                            <label class="flex justify-end items-center text-gray-600" for="selectedEmployee.teamName" style="width: 30%">팀</label>
-                            <InputText id="selectedEmployee.teamName" v-model="selectedEmployee.teamName" class="flex-1" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col w-1/2 p-3 gap-2">
-                    <p><strong>사원 코드:</strong> {{ selectedEmployee.employeeCode }}</p>
-                    <p><strong>이름:</strong> {{ selectedEmployee.employeeName }}</p>
-                    <p><strong>부서:</strong> {{ selectedEmployee.department }}</p>
-                    <p><strong>팀:</strong> {{ selectedEmployee.teamName }}</p>
-                    <p><strong>직책:</strong> {{ selectedEmployee.position }}</p>
-                    <p><strong>입사일:</strong> {{ selectedEmployee.hireDate | dateFormat }}</p>
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 mt-4">
-                <Button class="p-button p-component p-button-success" @click="saveChanges">저장</Button>
-                <Button class="p-button p-component p-button-danger" @click="hideDialog">취소</Button>
-            </div>
-        </div>
-    </Dialog>
 </template>
 
 <script setup>
-import { ref, onBeforeMount } from 'vue';
-import Dropdown from 'primevue/dropdown';
-import InputText from 'primevue/inputtext';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Dialog from 'primevue/dialog';
+import UpdateEmpInfoModal from '@/views/pages/admin/UpdateEmpInfoModal.vue';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
+import axios from 'axios';
+import { onBeforeMount, ref } from 'vue';
+
 
 const employees = ref([]);
 const filteredEmployees = ref([]);
+const filters = ref(null);
 const selectedEmployee = ref(null);
-const displayEditDialog = ref(false);
+const displayDialog = ref(false);
+const departments = ref([]);
+const teams = ref([]);
 const selectedDepartment = ref(null);
 const selectedTeam = ref(null);
-const globalFilter = ref('');
 
-const departments = ref([{ name: '전체' }, { name: '개발' }, { name: '디자인' }, { name: '인사' }]);
-const teams = ref([{ name: '전체' }, { name: '팀A' }, { name: '팀B' }, { name: '팀C' }]);
+const closeModal = () => {
+    displayDialog.value = false; // 모달 닫기
+};
 
-async function fetchEmployees() {
-    employees.value = [
-        { employeeId: 1, employeeCode: 'E001', employeeName: '김철수', department: '개발', teamName: '팀A', position: '개발자', hireDate: '2022-01-01' },
-        { employeeId: 2, employeeCode: 'E002', employeeName: '박영희', department: '디자인', teamName: '팀B', position: '디자이너', hireDate: '2021-02-01' },
-        { employeeId: 3, employeeCode: 'E003', employeeName: '이민호', department: '인사', teamName: '팀C', position: '팀장', hireDate: '2020-03-01' },
-        { employeeId: 4, employeeCode: 'E004', employeeName: '최지우', department: '개발', teamName: '팀A', position: '프론트엔드 개발자', hireDate: '2019-04-01' },
-        { employeeId: 5, employeeCode: 'E005', employeeName: '강호동', department: '인사', teamName: '팀C', position: 'HR 매니저', hireDate: '2018-05-01' },
-        { employeeId: 6, employeeCode: 'E006', employeeName: '정해인', department: '디자인', teamName: '팀B', position: 'UI/UX 디자이너', hireDate: '2020-06-01' },
-        { employeeId: 7, employeeCode: 'E007', employeeName: '김하늘', department: '개발', teamName: '팀A', position: '백엔드 개발자', hireDate: '2021-07-01' },
-        { employeeId: 8, employeeCode: 'E008', employeeName: '윤아름', department: '개발', teamName: '팀A', position: '데브옵스 엔지니어', hireDate: '2022-02-15' },
-        { employeeId: 9, employeeCode: 'E009', employeeName: '이수민', department: '디자인', teamName: '팀B', position: '그래픽 디자이너', hireDate: '2021-04-10' },
-        { employeeId: 10, employeeCode: 'E010', employeeName: '정서윤', department: '인사', teamName: '팀C', position: '채용 담당자', hireDate: '2020-11-23' },
-        { employeeId: 11, employeeCode: 'E011', employeeName: '최민수', department: '개발', teamName: '팀A', position: '풀스택 개발자', hireDate: '2019-08-05' },
-        { employeeId: 12, employeeCode: 'E012', employeeName: '박민준', department: '디자인', teamName: '팀B', position: 'UX 리서처', hireDate: '2021-07-14' },
-        { employeeId: 13, employeeCode: 'E013', employeeName: '김하린', department: '인사', teamName: '팀C', position: '교육 담당자', hireDate: '2019-03-20' },
-        { employeeId: 14, employeeCode: 'E014', employeeName: '송지호', department: '개발', teamName: '팀A', position: '프론트엔드 개발자', hireDate: '2022-06-01' },
-        { employeeId: 15, employeeCode: 'E015', employeeName: '백예린', department: '디자인', teamName: '팀B', position: 'UI 디자이너', hireDate: '2021-12-30' },
-        { employeeId: 16, employeeCode: 'E016', employeeName: '최윤서', department: '인사', teamName: '팀C', position: 'HR 어드바이저', hireDate: '2020-09-12' },
-        { employeeId: 17, employeeCode: 'E017', employeeName: '한지민', department: '개발', teamName: '팀A', position: '데이터 엔지니어', hireDate: '2022-10-05' }
-    ];
 
-    // 필터링된 데이터를 적용
-    filteredEmployees.value = employees.value;
+function handleDepartmentChange(event) {
+    console.log('부서 변경됨:', selectedDepartment.value);
+    
+    // 팀 드롭다운 초기화
+    selectedTeam.value = null; // 팀을 초기화하여 전체 팀으로 변경
+    
+    filterByDepartmentAndTeam();
 }
 
-function filterEmployees() {
+
+// 직원 목록을 가져오는 함수
+async function fetchEmployeeList() {
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/employees'); // API 호출
+        employees.value = Array.isArray(response.data) ? response.data : [];
+    } catch (error) {
+        console.error("직원 데이터를 가져오는 중 오류 발생:", error);
+        employees.value = [];
+    }
+
+    filterByDepartmentAndTeam();
+}
+
+// 부서 목록을 가져오는 함수
+async function fetchDepartments() {
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/departments'); // 부서 API 호출
+        departments.value = [{ deptId: null, deptName: '전체 부서' }, ...response.data]; // '전체 부서'에 deptId 추가
+    } catch (error) {
+        console.error("부서 데이터를 가져오는 중 오류 발생:", error);
+        departments.value = [{ deptId: null, deptName: '전체 부서' }];
+    }
+}
+
+// 선택된 부서 ID에 따라 팀 목록을 가져오는 함수
+async function fetchTeams(deptId) {
+    console.log('부서 ID:', deptId); // 로그 추가
+    console.log('fetchTeams 함수 호출'); // 추가 로그
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/teams', {
+            params: { deptId: deptId } // 부서 ID 전달
+        });
+        console.log('팀 데이터:', response.data); // 로그 추가
+        teams.value = [{ teamId: null, teamName: '전체 팀' }, ...response.data]; // DTO에서 teamName 사용
+    } catch (error) {
+        console.error("팀 데이터를 가져오는 중 오류 발생:", error);
+        teams.value = [{ teamId: null, teamName: '전체 팀' }];
+    }
+}
+
+
+// 부서 및 팀에 따라 직원 목록 필터링
+function filterByDepartmentAndTeam() {
+
+    if (selectedDepartment.value && selectedDepartment.value.deptId) {
+        fetchTeams(selectedDepartment.value.deptId); // 선택한 부서 ID 전달
+    } else {
+        teams.value = [{ teamId: null, teamName: '전체 팀' }]; // 부서가 선택되지 않은 경우 기본 팀 추가
+    }
+
     filteredEmployees.value = employees.value.filter((employee) => {
-        const globalSearchText = globalFilter.value?.toLowerCase() || '';
-
-        const matchesGlobalFilter = globalSearchText
-            ? employee.employeeName.toLowerCase().includes(globalSearchText) ||
-              employee.employeeCode.toLowerCase().includes(globalSearchText) ||
-              employee.department.toLowerCase().includes(globalSearchText) ||
-              employee.teamName.toLowerCase().includes(globalSearchText)
-            : true;
-
-        const matchesDepartment = selectedDepartment.value?.name !== '전체' ? employee.department === selectedDepartment.value.name : true;
-        const matchesTeam = selectedTeam.value?.name !== '전체' ? employee.teamName === selectedTeam.value.name : true;
-
-        return matchesGlobalFilter && matchesDepartment && matchesTeam;
+        const matchesDepartment = !selectedDepartment.value || selectedDepartment.value.deptName === '전체 부서' || employee.deptName === selectedDepartment.value.deptName;
+        const matchesTeam = !selectedTeam.value || selectedTeam.value.teamName === '전체 팀' || employee.teamName === selectedTeam.value.teamName;
+        return matchesDepartment && matchesTeam;
     });
 }
 
-function showEditDialog(event) {
+// 필터 초기화
+function initFilters() {
+    filters.value = {
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        employeeName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+        deptName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        jobName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        teamName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        positionName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        employeeId: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        joinDate: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] }
+    };
+}
+
+// 직원 상세 보기 함수
+function showEmployeeDetails(event) {
+    console.log('선택된 직원:', event.data);
     selectedEmployee.value = event.data;
-    displayEditDialog.value = true;
+    displayDialog.value = true;
 }
 
-function hideDialog() {
-    displayEditDialog.value = false;
+// 날짜 포맷팅 함수
+function formatDate(date) {
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
+function onRowSelect(event) {
+    console.log('선택된 직원:', event.data);
+    selectedEmployee.value = event.data;
+    displayDialog.value = true;
+}
+
+function onRowUnselect(event) {
+    console.log('선택 해제된 직원:', event.data);
+    selectedEmployee.value = null;
+    displayDialog.value = false; 
+}
+
+
+// 컴포넌트 마운트 시 데이터 가져오기
 onBeforeMount(() => {
-    fetchEmployees();
+    fetchEmployeeList();
+    fetchDepartments();
+    initFilters();
 });
 </script>
+
+<style scoped lang="scss">
+:deep(.p-datatable-frozen-tbody) {
+    font-weight: bold;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.search-input {
+    padding-left: 2.5rem;
+}
+</style>
