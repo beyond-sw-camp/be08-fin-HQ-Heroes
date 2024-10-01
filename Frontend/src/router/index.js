@@ -54,14 +54,14 @@ const router = createRouter({
                     component: () => import('@/views/pages/education/certificate-management/CertificationList.vue')
                 },
                 {
-                    path: '/feedback',
-                    name: 'feedback',
-                    component: () => import('@/views/pages/feedback/FeedBackPage.vue')
+                    path: '/evaluation',
+                    name: 'evaluation',
+                    component: () => import('@/views/pages/evaluation/EvaluationPage.vue')
                 },
                 {
-                    path: '/feedback-result',
-                    name: 'feedbackRestul',
-                    component: () => import('@/views/pages/feedback/FeedBackResultPage.vue')
+                    path: '/evaluation-result',
+                    name: 'evaluationRestul',
+                    component: () => import('@/views/pages/evaluation/EvaluationResultPage.vue')
                 },
                 {
                     path: '/apply-vacation',
