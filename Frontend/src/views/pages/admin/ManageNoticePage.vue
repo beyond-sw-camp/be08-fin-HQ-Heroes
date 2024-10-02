@@ -31,18 +31,27 @@
         :globalFilterFields="['title', 'category', 'employeeName']"
         paginator
         :rows="10"
+        removableSort
         :rowsPerPageOptions="[10, 20, 30, 50]"
         selectionMode="single"
         dataKey="id"
         style="min-height: 400px;"
         @row-click="showNoticeContent"
+        :metaKeySelection="false"
+        @rowSelect="onRowSelect"
+        @rowUnselect="onRowUnselect"
       >
         <Column field="noticeId" header="번호" sortable />
-        <Column header="카테고리" sortable>
+        <Column
+          header="카테고리"
+          :sortable="true"
+          sortField="category"
+        >
           <template #body="slotProps">
             {{ categoryMap[slotProps.data.category] }}
           </template>
         </Column>
+
         <Column field="title" header="제목" sortable />
         <Column field="employeeName" header="작성자" sortable />
         <Column field="createdAt" header="날짜" sortable>
