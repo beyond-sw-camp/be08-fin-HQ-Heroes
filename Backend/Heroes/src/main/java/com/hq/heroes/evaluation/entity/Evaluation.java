@@ -59,8 +59,8 @@ public class Evaluation {
     public EvaluationResDTO toResponseDTO() {
         return EvaluationResDTO.builder()
                 .evaluationId(this.evaluationId)
-                .employeeName(this.employee.getEmployeeName())  // employee 엔티티에서 사원 이름 추출
-                .evaluatorName(this.evaluator.getEmployeeName())  // evaluator 엔티티에서 평가자 이름 추출
+                .employeeId(this.employee.getEmployeeId())  // employee 엔티티에서 사원 이름 추출
+                .evaluatorId(this.evaluator.getEmployeeId())  // evaluator 엔티티에서 평가자 이름 추출
                 .evaluationTemplateTitle(this.evaluationTemplate.getCriteriaTitle())  // 평가 기준의 제목 추출
                 .score(this.score)
                 .comments(this.comments)

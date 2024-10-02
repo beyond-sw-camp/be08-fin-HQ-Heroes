@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class EvaluationReqDTO {
 
-    private Long employeeId;  // 피평가자 ID
-    private Long evaluatorId;  // 평가자 ID
+    private String employeeId;  // 피평가자 ID
+    private String evaluatorId;  // 평가자 ID
     private Long evaluationTemplateId;  // 평가 기준 템플릿 ID
     private Double score;  // 평가 점수
     private String comments;  // 평가 코멘트
