@@ -51,27 +51,11 @@ import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import Dialog from 'primevue/dialog';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
 // 자격증 목록 데이터
-const certifications = ref([
-    {
-        certificationId: 1,
-        certificationName: '정보처리기사',
-        name: '홍길동',
-        evaluatorPosition: '대리',
-        evaluationType: '한국산업인력공단',
-        createdAt: new Date('2022-05-15')
-    },
-    {
-        certificationId: 2,
-        certificationName: '기술사',
-        name: '이순신',
-        evaluatorPosition: '팀장',
-        evaluationType: '한국기술자격검정원',
-        createdAt: new Date('2021-10-10')
-    }
-]);
+const certifications = ref([]);
 
 // 추천 자격증 목록
 const recommendedCertifications = ref([
@@ -109,6 +93,21 @@ const recommendedCertifications = ref([
 const selectedCertification = ref(null);
 const displayDialog = ref(false);
 
+// 자격증 목록 불러오기
+async function fetchCertifications() {
+    try {
+        const response = await axios.get('/api/v1/certification-service/certification');
+        certifications.value = response.data;
+    } catch (error) {
+        console.error('자격증 목록을 불러오는 중 오류가 발생했습니다:', error);
+    }
+}
+
+// 페이지 로드 시 자격증 목록을 불러옴
+onMounted(() => {
+    fetchCertifications();
+});
+
 // 자격증 세부 사항 보여주기
 function showCertificationDetails(event) {
     selectedCertification.value = event.data;
@@ -126,3 +125,7 @@ function formatDate(date) {
 // 현재 날짜
 const currentDate = formatDate(new Date());
 </script>
+
+<style scoped>
+/* 여기에 스타일을 추가하세요 */
+</style>

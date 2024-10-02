@@ -1,8 +1,10 @@
 <template>
     <div class="education-list-page">
         <div class="card">
-            <div class="header">
-                <h2>현재 진행 중인 교육 목록</h2>
+            <div class="flex flex-row justify-between mb-4">
+                <label class="text-xl font-bold">교육 관리</label>
+            </div>
+            <div class="flex flex-row justify-between mb-4">
                 <div class="search-filter">
                     <Dropdown v-model="selectedCategory" :options="categories" optionLabel="name" placeholder="교육 카테고리" @change="filterEducations" />
                     <Dropdown v-model="selectedInstructorName" :options="instructorNames" optionLabel="name" placeholder="강사" @change="filterEducations" />
@@ -47,13 +49,15 @@
                     <label for="instructorName" class="block font-bold mb-3">강사</label>
                     <InputText id="instructorName" v-model="newEducation.instructorName" required="true" placeholder="강사 이름 입력" class="w-full" />
                 </div>
-                <div>
-                    <label for="educationStart" class="block font-bold mb-3">시작일</label>
-                    <InputText id="educationStart" v-model="newEducation.educationStart" required="true" placeholder="YYYY-MM-DD HH:mm" class="w-full" />
-                </div>
-                <div>
-                    <label for="educationEnd" class="block font-bold mb-3">종료일</label>
-                    <InputText id="educationEnd" v-model="newEducation.educationEnd" required="true" placeholder="YYYY-MM-DD HH:mm" class="w-full" />
+                <div class="time-section">
+                    <div class="time-block">
+                        <label for="educationStart" class="block font-bold mb-3">시작 일시</label>
+                        <input type="datetime-local" id="educationStart" v-model="newEducation.educationStart" required="true" class="w-full" />
+                    </div>
+                    <div class="time-block">
+                        <label for="educationEnd" class="block font-bold mb-3">종료 일시</label>
+                        <input type="datetime-local" id="educationEnd" v-model="newEducation.educationEnd" required="true" class="w-full" />
+                    </div>
                 </div>
                 <div>
                     <label for="institution" class="block font-bold mb-3">기관명</label>
@@ -87,7 +91,6 @@
             <template #footer>
                 <Button label="수정" icon="pi pi-pencil" class="p-button-warning" @click="openEditEducationDialog" />
                 <Button label="삭제" icon="pi pi-trash" class="p-button-danger" @click="deleteEducation" />
-                <!-- <Button label="닫기" icon="pi pi-times" text class="p-button-text" @click="closeDetailDialog" /> -->
             </template>
         </Dialog>
     </div>
@@ -312,9 +315,6 @@ onBeforeMount(() => {
 
 
 <style scoped>
-.education-list-page {
-    margin: 20px;
-}
 
 .header {
     display: flex;
