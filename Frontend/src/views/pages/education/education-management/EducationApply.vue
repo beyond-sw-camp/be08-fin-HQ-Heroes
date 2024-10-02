@@ -183,7 +183,7 @@ async function applyForCourse() {
 
     try {
         // 신청 API 호출
-        const response = await axios.post(`http://localhost:8080/api/v1/education-service/education/${selectedCourse.value.courseId}/apply`);
+        const response = await axios.put(`http://localhost:8080/api/v1/education-service/education/${selectedCourse.value.courseId}/apply`);
         
         // 신청 완료 후 신청 인원 수 증가
         selectedCourse.value.participants += 1;

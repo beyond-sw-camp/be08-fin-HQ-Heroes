@@ -1,8 +1,10 @@
 <template>
     <div class="certification-list-page">
         <div class="card">
-            <div class="header">
-                <h2>자격증 목록</h2>
+            <div class="flex flex-row justify-between mb-4">
+                <label class="text-xl font-bold">자격증 관리</label>
+            </div>
+            <div class="flex flex-row justify-between mb-4">
                 <div class="search-filter">
                     <Dropdown v-model="selectedCategory" :options="categories" optionLabel="name" placeholder="자격증 카테고리" @change="filterCertifications" />
                     <Dropdown v-model="selectedIssuer" :options="issuers" optionLabel="name" placeholder="발급 기관" @change="filterCertifications" />
