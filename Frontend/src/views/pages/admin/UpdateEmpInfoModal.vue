@@ -34,25 +34,25 @@
                         <!-- 부서명 -->
                         <div class="form-group">
                             <label for="departmentName">부서명</label>
-                            <input type="text" id="departmentName" v-model="departmentName" class="form-control" readonly />
+                            <input type="text" id="departmentName" v-model="departmentName" class="form-control" />
                         </div>
 
                         <!-- 팀명 -->
                         <div class="form-group">
                             <label for="teamName">팀명</label>
-                            <input type="text" id="teamName" v-model="teamName" class="form-control" readonly />
+                            <input type="text" id="teamName" v-model="teamName" class="form-control" />
                         </div>
 
                         <!-- 직급 -->
                         <div class="form-group">
                             <label for="position">직급</label>
-                            <input type="text" id="position" v-model="position" class="form-control" readonly />
+                            <input type="text" id="position" v-model="position" class="form-control" />
                         </div>
 
                         <!-- 입사일 -->
                         <div class="form-group">
                             <label for="hireDate">입사일</label>
-                            <input type="text" id="hireDate" v-model="hireDate" class="form-control" readonly />
+                            <input type="text" id="hireDate" v-model="hireDate" class="form-control" />
                         </div>
                     </div>
                 </div>
@@ -67,38 +67,38 @@
                     <!-- 직원번호 -->
                     <div class="form-group">
                         <label for="employeeId">직원번호</label>
-                        <input type="text" id="employeeId" v-model="employeeId" class="form-control" readonly />
+                        <input type="text" id="employeeId" v-model="employeeId" class="form-control" />
                     </div>
 
                     <!-- 성명 -->
                     <div class="form-group">
                         <label for="name">성명</label>
-                        <input type="text" id="name" v-model="name" class="form-control" readonly />
+                        <input type="text" id="name" v-model="name" class="form-control" />
                     </div>
 
                     <!-- 생년월일 -->
                     <div class="form-group">
                         <label for="dob">생년월일</label>
-                        <input type="text" id="dob" v-model="dob" class="form-control" readonly />
+                        <input type="text" id="dob" v-model="dob" class="form-control" />
                     </div>
 
                     <!-- 연락처 -->
                     <div class="form-group">
                         <label for="phone">연락처</label>
-                        <input type="text" id="phone" v-model="phone" class="form-control" readonly />
+                        <input type="text" id="phone" v-model="phone" class="form-control" />
                     </div>
 
                     <!-- 이메일 -->
                     <div class="form-group">
                         <label for="email">이메일</label>
-                        <input type="text" id="email" v-model="email" class="form-control" readonly />
+                        <input type="text" id="email" v-model="email" class="form-control" />
                     </div>
 
                     <!-- 직원주소 -->
                     <div class="form-group">
                         <label for="employeeAddress">직원 주소</label>
                         <div class="address-group">
-                            <input type="text" id="employeeAddress" v-model="employeeAddress" class="form-control address-input" readonly />
+                            <input type="text" id="employeeAddress" v-model="employeeAddress" class="form-control address-input" />
                             <button @click="searchZipCode" class="btn-zipcode">우편번호 검색</button>
                         </div>
                     </div>
@@ -106,7 +106,7 @@
                     <!-- 주소 -->
                     <div class="form-group">
                         <label for="address">주소</label>
-                        <input type="text" id="address" v-model="address" class="form-control" readonly />
+                        <input type="text" id="address" v-model="address" class="form-control" />
                     </div>
 
                     <!-- 상세 주소 -->
@@ -195,11 +195,6 @@ const enableEditing = () => {
         title: '수정되었습니다.', // Alert 제목
         icon: 'success' // Alert 타입
     });
-
-    // 직원주소, 주소, 상세주소 필드의 readonly 속성을 제거
-    document.getElementById('employeeAddress').removeAttribute('readonly');
-    document.getElementById('address').removeAttribute('readonly');
-    document.getElementById('detailedAddress').removeAttribute('readonly');
 };
 
 </script>
@@ -275,6 +270,11 @@ input[type="file"]:hover::-webkit-file-upload-button {
 input[type="file"] {
     margin-left: 0; /* 파일 입력창의 왼쪽 여백 제거 */
     padding: 0; /* 파일 입력창의 패딩 제거 */
+}
+
+/* 모든 input 필드의 기본 배경색을 통일 */
+input.form-control {
+    background-color: #fff; /* 흰색으로 설정 */
 }
 
 .content-wrapper {

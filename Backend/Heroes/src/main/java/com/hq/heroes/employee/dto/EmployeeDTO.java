@@ -19,5 +19,7 @@ public class EmployeeDTO {
     private String jobName;
     private String positionName;
     private Date joinDate;
+
+
 }
 
