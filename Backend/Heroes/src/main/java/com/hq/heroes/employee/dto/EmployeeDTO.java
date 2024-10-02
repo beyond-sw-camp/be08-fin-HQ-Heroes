@@ -1,5 +1,6 @@
 package com.hq.heroes.employee.dto;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,12 @@ public class EmployeeDTO {
     private String positionName;
     private Date joinDate;
 
+    private Date birthDate;
+    private String phoneNumber;
+    private String roadAddress;
+    private String lotAddress;
+    private String detailedAddress;
+    private String profileImageUrl;
 
 }
 

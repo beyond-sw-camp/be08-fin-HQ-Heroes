@@ -66,7 +66,7 @@
 
                     <!-- 직원번호 -->
                     <div class="form-group">
-                        <label for="employeeId">직원번호</label>
+                        <label for="employeeId">사원번호</label>
                         <input type="text" id="employeeId" v-model="employeeId" class="form-control" />
                     </div>
 
@@ -96,16 +96,16 @@
 
                     <!-- 직원주소 -->
                     <div class="form-group">
-                        <label for="employeeAddress">직원 주소</label>
+                        <label for="employeeAddress">도로명 주소</label>
                         <div class="address-group">
                             <input type="text" id="employeeAddress" v-model="employeeAddress" class="form-control address-input" />
-                            <button @click="searchZipCode" class="btn-zipcode">우편번호 검색</button>
+                            <button @click="searchZipCode" class="btn-zipcode" style="margin-left: 15px;">우편번호 검색</button>
                         </div>
                     </div>
 
                     <!-- 주소 -->
                     <div class="form-group">
-                        <label for="address">주소</label>
+                        <label for="address">지 번</label>
                         <input type="text" id="address" v-model="address" class="form-control" />
                     </div>
 
