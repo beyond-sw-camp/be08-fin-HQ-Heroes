@@ -71,6 +71,30 @@ public class Employee {
     @Column(name = "update_at")
     private Date updateAt;
 
+    // 생년월일
+    @Column(name = "birth_date", nullable = false)
+    private Date birthDate;
+
+    // 연락처
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
+
+    // 도로명 주소
+    @Column(name = "road_address", nullable = false)
+    private String roadAddress;
+
+    // 지 번
+    @Column(name = "lot_address", nullable = false)
+    private String lotAddress;
+
+    // 상세 주소
+    @Column(name = "detailed_address", nullable = false)
+    private String detailedAddress;
+
+    // 증명 사진 URL
+    @Column(name = "profile_image_url", nullable = true)
+    private String profileImageUrl;
+
     // Team과의 Many-to-One 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id", nullable = false)
