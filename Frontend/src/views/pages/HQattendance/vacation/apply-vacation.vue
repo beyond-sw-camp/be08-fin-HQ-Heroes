@@ -15,12 +15,16 @@
 
                     <div class="time-section">
                         <div class="time-block">
-                            <label for="startDate" class="label">시작 일시</label>
-                            <input type="date" id="startDate" v-model="form.vacationStart" class="input" />
+                            <label for="startDate" class="label">시작 날짜</label>
+                            <input type="date" id="startDate" v-model="form.vacationStartDate" class="input" />
+                            <label for="startTime" class="label">시작 시간</label>
+                            <input type="time" id="startTime" v-model="form.vacationStartTime" class="input" />
                         </div>
                         <div class="time-block">
-                            <label for="endDate" class="label">종료 일시</label>
-                            <input type="date" id="endDate" v-model="form.vacationEnd" class="input" />
+                            <label for="endDate" class="label">종료 날짜</label>
+                            <input type="date" id="endDate" v-model="form.vacationEndDate" class="input" />
+                            <label for="endTime" class="label">종료 시간</label>
+                            <input type="time" id="endTime" v-model="form.vacationEndTime" class="input" />
                         </div>
                     </div>
 
@@ -48,32 +52,43 @@
 </template>
 
 <script>
-import axios from 'axios'; // Axios로 백엔드 API와 통신
+import axios from 'axios';
 
 export default {
     data() {
         return {
             form: {
-                vacationType: 'ANNUAL_LEAVE', // 영어 값으로 설정
-                vacationStart: '',
-                vacationEnd: '',
-                employeeId: '', // 신청인 필드
-                approverId: '', // 결재자 필드
-                comment: '' // 사유 필드
+                vacationType: 'ANNUAL_LEAVE',
+                vacationStartDate: '', // 시작 날짜
+                vacationStartTime: '', // 시작 시간
+                vacationEndDate: '', // 종료 날짜
+                vacationEndTime: '', // 종료 시간
+                employeeId: '',
+                approverId: '',
+                comment: ''
             }
         };
     },
     methods: {
         async submitForm() {
             try {
-                // 백엔드에 휴가 신청 정보 전송
-                const response = await axios.post('/api/v1/vacation/submit', this.form);
+                // 날짜와 시간을 조합하여 LocalDateTime 형식으로 변환
+                const vacationStart = this.form.vacationStartDate + 'T' + this.form.vacationStartTime;
+                const vacationEnd = this.form.vacationEndDate + 'T' + this.form.vacationEndTime;
+
+                const requestBody = {
+                    vacationType: this.form.vacationType,
+                    vacationStart: vacationStart,
+                    vacationEnd: vacationEnd,
+                    employeeId: this.form.employeeId,
+                    approverId: this.form.approverId,
+                    comment: this.form.comment
+                };
+
+                const response = await axios.post('http://localhost:8080/api/v1/vacation/submit', requestBody);
                 console.log('휴가 신청이 완료되었습니다:', response.data);
 
-                // 성공 메시지 알림
                 alert('휴가 신청이 완료되었습니다.');
-
-                // 폼 초기화
                 this.resetForm();
             } catch (error) {
                 console.error('휴가 신청 중 오류가 발생했습니다:', error);
@@ -81,11 +96,12 @@ export default {
             }
         },
         resetForm() {
-            // 폼 초기화
             this.form = {
-                vacationType: 'ANNUAL_LEAVE', // 기본값도 영어로
-                vacationStart: '',
-                vacationEnd: '',
+                vacationType: 'ANNUAL_LEAVE',
+                vacationStartDate: '',
+                vacationStartTime: '',
+                vacationEndDate: '',
+                vacationEndTime: '',
                 employeeId: '',
                 approverId: '',
                 comment: ''
