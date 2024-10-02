@@ -126,7 +126,7 @@ const router = createRouter({
                 {
                     path: '/retirement-funds',
                     name: 'retirement-funds',
-                    component: () => import('@/views/pages/retire/retirement-funds.vue')
+                    component: () => import('@/views/pages/retirement/retirement-funds.vue')
                 }
             ]
         },
