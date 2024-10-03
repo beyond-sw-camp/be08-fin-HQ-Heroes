@@ -15,10 +15,6 @@ public class CustomEmployeeDetails implements UserDetails {
         this.employee = employee;
     }
 
-    public String getEmail() {
-        return employee.getEmail();
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
@@ -38,7 +34,7 @@ public class CustomEmployeeDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return employee.getEmail();
+        return employee.getEmployeeId();
     }
 
     @Override

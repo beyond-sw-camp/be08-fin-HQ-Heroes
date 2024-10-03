@@ -63,11 +63,11 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         // email, role 값을 획득
-        String email = jwtUtil.getUsername(accessToken);
+        String employeeId = jwtUtil.getUsername(accessToken);
         String role = jwtUtil.getRole(accessToken);
 
         Employee employee = new Employee();
-        employee.setEmail(email);
+        employee.setEmployeeId(employeeId);
         employee.setRole(Role.valueOf(role));
         CustomEmployeeDetails customEmployeeDetails = new CustomEmployeeDetails(employee);
 
