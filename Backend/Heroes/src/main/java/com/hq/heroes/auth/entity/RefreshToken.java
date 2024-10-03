@@ -15,13 +15,13 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String email;
+    private String employeeId;
     private String refresh;
     private String expiration;
 
     @Builder
-    public RefreshToken(String email, String refresh, String expiration) {
-        this.email = email;
+    public RefreshToken(String employeeId, String refresh, String expiration) {
+        this.employeeId = employeeId;
         this.refresh = refresh;
         this.expiration = expiration;
     }

@@ -3,11 +3,9 @@ package com.hq.heroes.common.config;
 
 import com.hq.heroes.auth.handler.CustomFormSuccessHandler;
 import com.hq.heroes.auth.handler.CustomLogoutFilter;
-import com.hq.heroes.auth.handler.CustomOAuth2SuccessHandler;
 import com.hq.heroes.auth.jwt.JWTFilter;
 import com.hq.heroes.auth.jwt.JWTUtil;
 import com.hq.heroes.auth.repository.RefreshRepository;
-import com.hq.heroes.auth.service.CustomOAuth2UserService;
 import com.hq.heroes.auth.service.RefreshTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,7 +41,6 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final RefreshTokenService refreshTokenService;
-    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -51,7 +48,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler(){
+    public AuthenticationFailureHandler authenticationFailureHandler() {
         return new AuthenticationFailureHandler() {
             @Override
             public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
@@ -77,8 +74,7 @@ public class SecurityConfig {
                 "/requestBodies/**",
                 "/swagger-*.yaml",
                 "/error",
-                "/v3/api-docs/**",
-                "/**"
+                "/v3/api-docs/**"
         );
     }
 
@@ -91,13 +87,6 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .successHandler(new CustomFormSuccessHandler(jwtUtil, refreshTokenService))
-                        .failureHandler(authenticationFailureHandler())
-                        .permitAll())
-                .oauth2Login((oauth2) -> oauth2
-                        .loginPage("/login")
-                        .userInfoEndpoint((userinfo) -> userinfo
-                                .userService(customOAuth2UserService))
-                        .successHandler(new CustomOAuth2SuccessHandler(jwtUtil, refreshTokenService))
                         .failureHandler(authenticationFailureHandler())
                         .permitAll())
                 .logout((auth) -> auth
@@ -120,7 +109,7 @@ public class SecurityConfig {
                     }
                 }))
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/**, /login", "/", "/join", "/reissue", "/reset-password", "/logout").permitAll()
+                        .requestMatchers("/login", "/", "/join", "/reissue", "/reset-password", "/logout", "/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)

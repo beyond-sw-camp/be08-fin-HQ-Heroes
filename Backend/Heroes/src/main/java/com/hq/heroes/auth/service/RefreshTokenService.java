@@ -56,9 +56,9 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public void saveRefresh(String email, Integer expireS, String refresh) {
+    public void saveRefresh(String employeeId, Integer expireS, String refresh) {
         RefreshToken refreshEntity = RefreshToken.builder()
-                .email(email)
+                .employeeId(employeeId)
                 .refresh(refresh)
                 .expiration(new Date(System.currentTimeMillis() + expireS * 1000L).toString())
                 .build();

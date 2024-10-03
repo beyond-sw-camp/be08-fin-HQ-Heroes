@@ -15,6 +15,6 @@ public interface RefreshRepository extends JpaRepository<RefreshToken, Long> {
     @Transactional
     void deleteByRefresh(String refresh);
 
-    @Query("SELECT r.email FROM RefreshToken r WHERE r.refresh = :refresh")
+    @Query("SELECT r.employeeId FROM RefreshToken r WHERE r.refresh = :refresh")
     String findEmailByRefresh(@Param("refresh") String refresh);
 }

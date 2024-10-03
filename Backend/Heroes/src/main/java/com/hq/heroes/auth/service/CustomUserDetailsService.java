@@ -17,9 +17,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final EmployeeRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
 
-        Employee employee = userRepository.findByEmail(email)
+        Employee employee = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         if (employee.getStatus() == Status.INACTIVE) {
