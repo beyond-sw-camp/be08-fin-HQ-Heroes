@@ -7,6 +7,9 @@ import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.entity.Team;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Random;
 
 import lombok.Builder;
@@ -14,8 +17,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.util.Date;
 
 
 @Entity
@@ -26,57 +27,57 @@ import java.util.Date;
 @Table(name = "tb_employee")
 public class Employee {
 
-//    사원 번호 (로그인시 필요)
+    //    사원 번호 (로그인시 필요)
     @Id
     @Column(name = "employee_id", nullable = false, unique = true)
     private String employeeId;  // 필드명을 employeeCode에서 employeeId로 변경
 
-//    사원 이름
+    //    사원 이름
     @Column(name = "employee_name", nullable = false)
     private String employeeName;
 
-//    이메일
+    //    이메일
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-//    비밀번호
+    //    비밀번호
     @Column(name = "password", nullable = false)
     private String password;
 
-//    역할
+    //    역할
     @Enumerated(EnumType.STRING)
     @Column(name = "is_admin", nullable = false)
     private Role role = Role.ROLE_USER;
 
-//    입사일
+    //    입사일
     @Column(name = "join_date", nullable = false)
-    private Date joinDate;
+    private LocalDate joinDate;
 
-//    연차 일수
+    //    연차 일수
     @Column(name = "annual_leave", nullable = false)
     private Long annualLeave;
 
-//    사원 상태
+    //    사원 상태
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE;
 
-//    생성일자
+    //    생성일자
     @CreationTimestamp
     @Column(name = "create_at", updatable = false)
-    private Date createAt;
+    private LocalDateTime createAt;
 
-//    수정일자
+    //    수정일자
     @UpdateTimestamp
     @Column(name = "update_at")
-    private Date updateAt;
+    private LocalDateTime updateAt;
 
     // 생년월일
-    @Column(name = "birth_date", nullable = false)
-    private Date birthDate;
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
     // 연락처
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number")
     private String phoneNumber;
 
     // 도로명 주소
@@ -92,7 +93,7 @@ public class Employee {
     private String detailedAddress;
 
     // 증명 사진 URL
-    @Column(name = "profile_image_url", nullable = true)
+    @Column(name = "profile_image_url")
     private String profileImageUrl;
 
     // Team과의 Many-to-One 관계
@@ -118,23 +119,10 @@ public class Employee {
     }
 
     private String generateShortRandomCode() {
-        String prefix = "EMP";
-        String randomLetters = getRandomLetters(3);
-        String randomNumbers = getRandomNumbers(3);
+        String prefix = LocalDate.now().getYear() + "" + LocalDate.now().getMonthValue();
+        String randomNumbers = getRandomNumbers(4);
 
-        return prefix + "-" + randomLetters + randomNumbers;
-    }
-
-    // 랜덤 알파벳 생성
-    private String getRandomLetters(int length) {
-        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        Random random = new Random();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            int index = random.nextInt(alphabet.length());
-            sb.append(alphabet.charAt(index));
-        }
-        return sb.toString();
+        return prefix + randomNumbers;
     }
 
     // 랜덤 숫자 생성
@@ -147,4 +135,5 @@ public class Employee {
         }
         return sb.toString();
     }
+
 }
