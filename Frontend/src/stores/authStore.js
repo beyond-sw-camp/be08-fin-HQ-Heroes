@@ -1,35 +1,34 @@
-// src/stores/auth.js
 import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     isLoggedIn: false,
-    userEmail: '',
+    employeeId: '',
     accessToken: '',
   }),
   actions: {
     setIsLoggedIn(status) {
       this.isLoggedIn = status;
     },
-    setLoginUser(email) {
-      this.userEmail = email;
+    setLoginUser(employeeId) {
+      this.employeeId = employeeId;
     },
     setAccessToken(token) {
       this.accessToken = token;
     },
     logout() {
       this.isLoggedIn = false;
-      this.userEmail = '';
+      this.employeeId = '';
       this.accessToken = '';
       window.localStorage.removeItem('access');
-      window.localStorage.removeItem('email');
+      window.localStorage.removeItem('employeeId');
     },
     initializeAuth() {
       const token = window.localStorage.getItem('access');
-      const email = window.localStorage.getItem('email');
-      if (token && email) {
+      const employeeId = window.localStorage.getItem('employeeId');
+      if (token && employeeId) {
         this.accessToken = token;
-        this.userEmail = email;
+        this.employeeId = employeeId;
         this.isLoggedIn = true;
       }
     },

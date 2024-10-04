@@ -31,30 +31,31 @@ const register = async (employeeName, email, password, role, joinDate, birthDate
     }
 };
 
-// 로그인 메서드
 const login = async (employeeId, password) => {
-    const credentials = new URLSearchParams();
-    credentials.append('employeeId', employeeId); // 사번으로 로그인
-    credentials.append('password', password);
+  const credentials = new URLSearchParams();
+  credentials.append('employeeId', employeeId); // 사번으로 로그인
+  credentials.append('password', password);
 
-    try {
-        const response = await axios.post(`${API_URL}/login`, credentials, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            withCredentials: true
-        });
+  try {
+      const response = await axios.post(`${API_URL}/login`, credentials, {
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          withCredentials: true
+      });
 
-        if (response.status === 200) {
-            const { employeeId } = response.data;
-            return { success: true, employeeId };
-        } else {
-            throw new Error('로그인 실패');
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        throw new Error('로그인 실패. 다시 시도해주세요.');
-    }
+      if (response.status === 200) {
+          const { employeeId, accessToken } = response.data;  // 서버에서 받은 accessToken 포함
+          window.localStorage.setItem('access', accessToken); // 토큰 저장
+          window.localStorage.setItem('employeeId', employeeId); // employeeId 저장
+          return { success: true, employeeId, accessToken };
+      } else {
+          throw new Error('로그인 실패');
+      }
+  } catch (error) {
+      console.error('Login error:', error);
+      throw new Error('로그인 실패. 다시 시도해주세요.');
+  }
 };
 
 // 로그아웃 메서드 (변경 없음)
