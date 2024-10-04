@@ -6,9 +6,9 @@
                 <div class="text-surface-900 dark:text-surface-0 font-medium text-l">{{ currentDay }}</div>
                 <div class="text-surface-900 dark:text-surface-0 font-medium text-">09 : 00 ~ 18 : 00</div>
             </div>
-            <div class="flex items-center justify-center rounded-full" style="width: 2.5rem; height: 2.5rem">
+            <!-- <div class="flex items-center justify-center rounded-full" style="width: 2.5rem; height: 2.5rem">
                 <i class="pi pi-check-circle !text-xl"></i>
-            </div>
+            </div> -->
         </div>
         <button class="mt-3 font-bold py-2 px-4 rounded hover:bg-[#4f46e5]" 
                 :class="['bg-indigo-500 text-white', 'dark:bg-indigo-500 dark:text-white']">
