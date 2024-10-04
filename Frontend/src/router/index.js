@@ -1,7 +1,6 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import AdminLoginPage from '@/views/pages/auth/AdminLoginPage.vue';
 import LoginPage from '@/views/pages/auth/LoginPage.vue';
-import OAuth2Redirect from '@/views/pages/auth/OAuth2Redirect.vue';
 import ResetPWPage from '@/views/pages/auth/ResetPWPage.vue';
 import SignUpPage from '@/views/pages/auth/SignUpPage.vue';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -129,10 +128,6 @@ const router = createRouter({
                     component: () => import('@/views/pages/retirement/retirement-funds.vue')
                 }
             ]
-        },
-        {
-            path: '/oauth2-jwt-header',
-            component: OAuth2Redirect
         },
         {
             path: '/login',

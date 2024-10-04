@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,8 @@ public class SignController {
     @PostMapping("/join")
     @ResponseBody
     @Operation(summary = "회원 가입", description = "회원 가입 기능")
-    public ResponseEntity<?> join(@RequestBody @Validated JoinDTO joinDto) {
+    public ResponseEntity<?> join(@ModelAttribute @Validated JoinDTO joinDto) {
+        System.out.println("joinDto = " + joinDto.toString());
         Map<String, Object> response = new HashMap<>();
         try {
             String joinResult = joinService.join(joinDto);
