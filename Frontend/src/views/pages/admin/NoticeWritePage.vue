@@ -10,9 +10,9 @@
                     <input type="text" v-model="subject" class="message-input" />
                     <h3><b>내 용</b></h3>
                     <!-- Quill 에디터 -->
-                    <div ref="editor"></div>
+                    <div ref="editor" class="message-editor"></div>
                     <div class="button-container">
-                        <button @click="sendMessage" class="send-button">작 성</button>
+                        <button @click="sendMessage" class="send-button" style="margin-top: 10px;">작 성</button>
                     </div>
                 </div>
             </div>
@@ -35,7 +35,7 @@ export default {
         // Quill 에디터 초기화
         onMounted(() => {
             const quillEditor = new Quill(editor.value, {
-                theme: 'snow', // Quill의 'snow' 테마 사용
+                theme: 'snow', // Quill의 '' 테마 사용
                 modules: {
                     toolbar: [
                         [{ font: [] }, { size: [] }], // 글꼴 및 글자 크기 선택
@@ -108,10 +108,12 @@ body {
 
 .message-editor {
     flex-grow: 1;
-    margin: 15px 0;
-    border-radius: 5px;
     font-size: 16px;
+    height: 350px; /* 에디터의 높이 설정 */
+    overflow-y: auto; /* 세로 스크롤바 활성화 */
+    border-radius: 0 0 5px 5px; /* 모서리 둥글게 */
 }
+
 
 .button-container {
     display: flex; /* Flexbox 사용 */
