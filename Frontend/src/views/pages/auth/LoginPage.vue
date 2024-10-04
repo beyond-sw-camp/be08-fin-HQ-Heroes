@@ -75,7 +75,7 @@
         console.log('로그인 상태:', authStore.isLoggedIn);
         console.log('사원 코드:', authStore.employeeId);
   
-        // 로그인 성공 시 홈 페이지로 리디렉션
+        alert('로그인 성공!');
         router.push('/');
       } else {
         alert('로그인 실패. 다시 시도해주세요.');

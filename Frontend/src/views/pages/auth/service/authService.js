@@ -33,7 +33,7 @@ const register = async (employeeName, email, password, role, joinDate, birthDate
 
 const login = async (employeeId, password) => {
   const credentials = new URLSearchParams();
-  credentials.append('employeeId', employeeId); // 사번으로 로그인
+  credentials.append('username', employeeId); // 사번으로 로그인
   credentials.append('password', password);
 
   try {
