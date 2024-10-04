@@ -3,7 +3,7 @@ import { useLayout } from '@/layout/composables/layout';
 import 'primeicons/primeicons.css';
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
-import authService from '@/service/authService';
+import authService from '../views/pages/auth/service/authService';
 import router from '@/router';
 
 const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
