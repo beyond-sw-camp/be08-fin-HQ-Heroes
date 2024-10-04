@@ -2,6 +2,7 @@ package com.hq.heroes.auth.entity;
 
 import com.hq.heroes.auth.entity.enums.Role;
 import com.hq.heroes.auth.entity.enums.Status;
+import com.hq.heroes.educationCategory.entity.EducationCategory;
 import com.hq.heroes.employee.entity.Job;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.entity.Team;
@@ -110,6 +111,11 @@ public class Employee {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;
+
+    // EmployeeCategory과 Many-to-One 관계
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private EducationCategory educationCategory;
 
     @PrePersist
     public void prePersist() {
