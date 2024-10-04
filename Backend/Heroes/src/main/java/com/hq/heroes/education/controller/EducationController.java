@@ -1,6 +1,5 @@
 package com.hq.heroes.education.controller;
 
-import com.hq.heroes.education.dto.CourseDTO;
 import com.hq.heroes.education.dto.EducationRequestDTO;
 import com.hq.heroes.education.dto.EducationResponseDTO;
 import com.hq.heroes.education.entity.Education;
@@ -81,24 +80,10 @@ public class EducationController {
     public ResponseEntity<Void> delete (
             @Parameter(description = "교육 ID", example = "1") @PathVariable("education-id") Long educationId) {
 
-        boolean isDeletedd = educationService.deleteEducation(educationId);
+        boolean isDeleted = educationService.deleteEducation(educationId);
 
-        if (isDeletedd) {
+        if (isDeleted) {
             return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    // 교육 신청 처리
-    @PutMapping("/education/{courseId}/apply")
-    @Operation(summary = "교육 신청", description = "교육을 신청한다.")
-    public ResponseEntity<CourseDTO> applyForCourse(
-            @Parameter(description = "신청할 교육 번호", example = "1") @PathVariable("courseId") Long courseId) {
-        CourseDTO courseDTO = educationService.applyForCourse(courseId);
-
-        if (courseDTO != null) {
-            return new ResponseEntity<>(courseDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
