@@ -1,7 +1,6 @@
 package com.hq.heroes.education.entity;
 
 import com.hq.heroes.education.dto.EducationResponseDTO;
-import com.hq.heroes.educationCategory.entity.EducationCategory;
 import com.hq.heroes.educationCurriculum.entity.EducationCurriculum;
 import com.hq.heroes.employeeCertification.entity.EmployeeCertification;
 import jakarta.persistence.*;
@@ -46,10 +45,10 @@ public class Education {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
-    // EducationCategory과 Many-to-One 관계 (카테고리 번호)
+    // EducationCurriculum과 Many-to-One 관계 (카테고리 번호)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private EducationCategory educationCategory;
+    @JoinColumn(name = "curriculum_id", nullable = false)
+    private EducationCurriculum educationCurriculum;
 
     public EducationResponseDTO toResponseDTO() {
         return EducationResponseDTO.builder()
@@ -59,7 +58,7 @@ public class Education {
                 .institution(this.institution)
                 .educationStart(this.startDate)
                 .educationEnd(this.endDate)
-                .category(this.educationCategory.getCategoryName())
+
                 .build();
     }
 }

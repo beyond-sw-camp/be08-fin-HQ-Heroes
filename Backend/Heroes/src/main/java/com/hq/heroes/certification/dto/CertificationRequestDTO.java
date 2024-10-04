@@ -12,7 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class CertificationRequestDTO {
-    // 자격증 이름
+    // 증 이름
     private String certificationName;
 
     // 자격증 카테고리
