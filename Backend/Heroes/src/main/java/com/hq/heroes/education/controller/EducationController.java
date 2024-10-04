@@ -91,7 +91,7 @@ public class EducationController {
     }
 
     // 교육 신청 처리
-    @PostMapping("/education/{courseId}/apply")
+    @PutMapping("/education/{courseId}/apply")
     @Operation(summary = "교육 신청", description = "교육을 신청한다.")
     public ResponseEntity<CourseDTO> applyForCourse(
             @Parameter(description = "신청할 교육 번호", example = "1") @PathVariable("courseId") Long courseId) {
