@@ -21,8 +21,8 @@ import java.util.Date;
 public class Salary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "payroll_id")
-    private Long payrollId;
+    @Column(name = "salary_id")
+    private Long salaryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
