@@ -16,6 +16,4 @@ public interface EducationService {
     Education updateEducation(Long educationId, EducationRequestDTO requestDTO);
 
     boolean deleteEducation(Long educationId);
-
-    CourseDTO applyForCourse(Long courseId); // 교육 신청 처리 메소드 추가
 }
