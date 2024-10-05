@@ -55,6 +55,9 @@ public class JoinDTO {
     // 증명 사진 URL (옵션)
     private String profileImageUrl;
 
+    // Department Id;
+    private Long deptId;
+
     // Team ID (필수)
     private Long teamId;
 

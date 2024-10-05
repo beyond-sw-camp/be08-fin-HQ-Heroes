@@ -6,6 +6,8 @@ import com.hq.heroes.employee.dto.EmployeeDTO;
 import com.hq.heroes.employee.dto.TeamDTO;
 import com.hq.heroes.employee.entity.Team;
 import com.hq.heroes.employee.repository.DepartmentRepository;
+import com.hq.heroes.employee.repository.JobRepository;
+import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
 import com.hq.heroes.employee.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,8 @@ public class EmployeeController {
     private final EmployeeService employeeService;
     private final DepartmentRepository departmentRepository;
     private final TeamRepository teamRepository;
+    private final JobRepository jobRepository;
+    private final PositionRepository positionRepository;
 
     // 모든 사원 조회를 위한 API
     @GetMapping("/employees")
@@ -62,6 +66,18 @@ public class EmployeeController {
         }
 
         return ResponseEntity.ok(teams);
+    }
+
+    @GetMapping("/jobs")
+    @Transactional
+    public ResponseEntity<?> getJobs() {
+        return ResponseEntity.ok((jobRepository.findAllJobs()));
+    }
+
+    @GetMapping("/positions")
+    @Transactional
+    public ResponseEntity<?> getPositions() {
+        return ResponseEntity.ok((positionRepository.findAllPositions()));
     }
 
 }

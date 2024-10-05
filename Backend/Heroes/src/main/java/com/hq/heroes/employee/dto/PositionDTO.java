@@ -5,16 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TeamDTO {
+public class PositionDTO {
 
-    private Long teamId;
-    private String teamName;
+    private Long positionId;
+    private String positionName;
 
 }
-

@@ -2,7 +2,7 @@ package com.hq.heroes.auth.entity;
 
 import com.hq.heroes.auth.entity.enums.Role;
 import com.hq.heroes.auth.entity.enums.Status;
-import com.hq.heroes.educationCategory.entity.EducationCategory;
+import com.hq.heroes.employee.entity.Department;
 import com.hq.heroes.employee.entity.Job;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.entity.Team;
@@ -82,20 +82,25 @@ public class Employee {
     private String phoneNumber;
 
     // 도로명 주소
-    @Column(name = "road_address", nullable = false)
+    @Column(name = "road_address")
     private String roadAddress;
 
     // 지 번
-    @Column(name = "lot_address", nullable = false)
+    @Column(name = "lot_address")
     private String lotAddress;
 
     // 상세 주소
-    @Column(name = "detailed_address", nullable = false)
+    @Column(name = "detailed_address")
     private String detailedAddress;
 
     // 증명 사진 URL
     @Column(name = "profile_image_url")
     private String profileImageUrl;
+
+    // Team과의 Many-to-One 관계
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
 
     // Team과의 Many-to-One 관계
     @ManyToOne(fetch = FetchType.LAZY)
@@ -111,11 +116,6 @@ public class Employee {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;
-
-    // EmployeeCategory과 Many-to-One 관계
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private EducationCategory educationCategory;
 
     @PrePersist
     public void prePersist() {
