@@ -10,13 +10,12 @@ import com.hq.heroes.employee.repository.JobRepository;
 import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
 import com.hq.heroes.employee.service.EmployeeService;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,6 +29,20 @@ public class EmployeeController {
     private final TeamRepository teamRepository;
     private final JobRepository jobRepository;
     private final PositionRepository positionRepository;
+
+    // 특정 사원 조회를 위한 API
+    @GetMapping("/employees/{employee-id}")
+    public ResponseEntity<EmployeeDTO> getAllEmployee(
+            @Parameter(description = "사원 ID", example = "2024106824") @PathVariable("employee-id") String employeeId
+    ) {
+        Employee employee = employeeService.getEmployeeById(employeeId);
+
+        if (employee != null) {
+            return new ResponseEntity<>(employee.toResponseDTO(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
 
     // 모든 사원 조회를 위한 API
     @GetMapping("/employees")

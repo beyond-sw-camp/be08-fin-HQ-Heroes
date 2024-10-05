@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/stores/authStore';
 import axios from 'axios';
 
 const API_URL = 'http://localhost:8080';
@@ -34,8 +35,10 @@ const register = async (employeeName, email, password, role, joinDate, birthDate
 
 const login = async (employeeId, password) => {
   const credentials = new URLSearchParams();
-  credentials.append('username', employeeId); // 사번으로 로그인
+  credentials.append('username', employeeId);
   credentials.append('password', password);
+
+  const authStore = useAuthStore();
 
   try {
     const response = await axios.post(`${API_URL}/login`, credentials, {
@@ -45,10 +48,19 @@ const login = async (employeeId, password) => {
       withCredentials: true
     });
 
+    console.log(response.data);
+
     if (response.status === 200) {
-      const { employeeId, accessToken } = response.data;  // 서버에서 받은 accessToken 포함
-      window.localStorage.setItem('access', accessToken); // 토큰 저장
-      window.localStorage.setItem('employeeId', employeeId); // employeeId 저장
+      const { employeeId, accessToken } = response.data;
+      window.localStorage.setItem('access', accessToken);
+      window.localStorage.setItem('employeeId', employeeId);
+
+
+      authStore.setIsLoggedIn(true);
+      authStore.setLoginUser(employeeId);
+      authStore.setAccessToken(accessToken);
+
+      console.log(authStore);
       return { success: true, employeeId, accessToken };
     } else {
       throw new Error('로그인 실패');

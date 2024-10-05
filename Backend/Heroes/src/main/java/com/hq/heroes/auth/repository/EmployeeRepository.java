@@ -18,7 +18,6 @@ public interface EmployeeRepository extends JpaRepository<Employee,String> {
             + "e.team.teamName, e.team.department.deptName, e.job.jobName, e.position.positionName, "
             + "e.joinDate, e.birthDate, e.phoneNumber, e.roadAddress, e.lotAddress, e.detailedAddress, e.profileImageUrl)" +
             " FROM Employee e")
-
     List<EmployeeDTO> findAllEmployeesDTO();
 
     Optional<Employee> findByEmail(String email);
