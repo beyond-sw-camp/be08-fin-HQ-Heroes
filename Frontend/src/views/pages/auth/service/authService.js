@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_URL = 'http://localhost:8080';
 
 // 회원가입 메서드
-const register = async (employeeName, email, password, role, joinDate, birthDate, annualLeave, status, phoneNumber, roadAddress, lotAddress, detailedAddress, profileImageUrl, teamId, positionId, jobId) => {
+const register = async (employeeName, email, password, role, joinDate, birthDate, annualLeave, status, phoneNumber, roadAddress, lotAddress, detailedAddress, profileImageUrl, deptId, teamId, positionId, jobId) => {
   const formData = new FormData();
   formData.append('employeeName', employeeName);
   formData.append('password', password);
@@ -18,6 +18,7 @@ const register = async (employeeName, email, password, role, joinDate, birthDate
   formData.append('lotAddress', lotAddress);
   formData.append('detailedAddress', detailedAddress);
   formData.append('profileImageUrl', profileImageUrl);
+  formData.append('deptId', deptId);
   formData.append('teamId', teamId);
   formData.append('positionId', positionId);
   formData.append('jobId', jobId);

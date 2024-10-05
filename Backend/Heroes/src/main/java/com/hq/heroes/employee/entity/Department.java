@@ -24,9 +24,6 @@ public class Department {
     @Column(name = "dept_name", nullable = false)
     private String deptName;
 
-    @Column(name = "dept_code", nullable = false)
-    private String deptCode;
-
     // 팀과의 One-to-Many 연관관계 매핑, LAZY 로딩 설정
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Team> teams;

@@ -5,9 +5,11 @@ import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.entity.enums.Role;
 import com.hq.heroes.auth.entity.enums.Status;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import com.hq.heroes.employee.entity.Department;
 import com.hq.heroes.employee.entity.Job;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.entity.Team;
+import com.hq.heroes.employee.repository.DepartmentRepository;
 import com.hq.heroes.employee.repository.JobRepository;
 import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
@@ -22,6 +24,7 @@ import java.util.Optional;
 public class JoinService {
 
     private final EmployeeRepository userRepository;
+    private final DepartmentRepository departmentRepository;
     private final TeamRepository teamRepository;
     private final PositionRepository positionRepository;
     private final JobRepository jobRepository;
@@ -57,14 +60,17 @@ public class JoinService {
         employee.setProfileImageUrl(joinDTO.getProfileImageUrl());  // 프로필 이미지 URL
 
         // 팀, 포지션, 직업 정보 설정
+        Optional<Department> department = departmentRepository.findById(joinDTO.getDeptId());
         Optional<Team> team = teamRepository.findById(joinDTO.getTeamId());
         Optional<Position> position = positionRepository.findById(joinDTO.getPositionId());
         Optional<Job> job = jobRepository.findById(joinDTO.getJobId());
 
+        Department departmentEntity = department.get();
         Team teamEntity = team.get();
         Position positionEntity = position.get();
         Job jobEntity = job.get();
 
+        employee.setDepartment(departmentEntity);   // Department ID
         employee.setTeam(teamEntity);  // Team ID
         employee.setPosition(positionEntity);  // Position ID
         employee.setJob(jobEntity);  // Job ID
