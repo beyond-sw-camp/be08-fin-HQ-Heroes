@@ -2,6 +2,7 @@ package com.hq.heroes.auth.entity;
 
 import com.hq.heroes.auth.entity.enums.Role;
 import com.hq.heroes.auth.entity.enums.Status;
+import com.hq.heroes.employee.dto.EmployeeDTO;
 import com.hq.heroes.employee.entity.Department;
 import com.hq.heroes.employee.entity.Job;
 import com.hq.heroes.employee.entity.Position;
@@ -142,4 +143,21 @@ public class Employee {
         return sb.toString();
     }
 
+    public EmployeeDTO toResponseDTO() {
+        return EmployeeDTO.builder()
+                .employeeId(this.employeeId)
+                .employeeName(this.employeeName)
+                .teamName(this.team != null ? this.team.getTeamName() : null)  // Fetching team name
+                .deptName(this.department != null ? this.department.getDeptName() : null)  // Fetching department name
+                .jobName(this.job != null ? this.job.getJobName() : null)  // Fetching job name
+                .positionName(this.position != null ? this.position.getPositionName() : null)  // Fetching position name
+                .joinDate(this.joinDate)
+                .birthDate(this.birthDate)
+                .phoneNumber(this.phoneNumber)
+                .roadAddress(this.roadAddress)
+                .lotAddress(this.lotAddress)
+                .detailedAddress(this.detailedAddress)
+                .profileImageUrl(this.profileImageUrl)
+                .build();
+    }
 }

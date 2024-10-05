@@ -1,6 +1,5 @@
 package com.hq.heroes.auth.dto.form;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hq.heroes.auth.entity.enums.Role;
 import com.hq.heroes.auth.entity.enums.Status;
 import lombok.AllArgsConstructor;
