@@ -24,7 +24,8 @@
         "quill": "^2.0.2",
         "sweetalert2": "^11.14.1",
         "vue": "^3.4.34",
-        "vue-router": "^4.4.0"
+        "vue-router": "^4.4.0",
+        "vue3-cookies": "^1.0.6"
     },
     "devDependencies": {
         "@primevue/auto-import-resolver": "^4.0.1",
