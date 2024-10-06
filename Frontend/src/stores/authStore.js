@@ -16,17 +16,16 @@ export const useAuthStore = defineStore('auth', {
     setAccessToken(token) {
       this.accessToken = token;
     },
-
     logout() {
       this.isLoggedIn = false;
       this.loginUserId = '';
       this.accessToken = '';
       window.localStorage.removeItem('access');
-      window.localStorage.removeItem('loginUserId');
+      window.localStorage.removeItem('employeeId'); // 'loginUserId'에서 'employeeId'로 수정
     },
     initializeAuth() {
       const token = window.localStorage.getItem('access');
-      const loginUserId = window.localStorage.getItem('loginUserId');
+      const loginUserId = window.localStorage.getItem('employeeId'); // 'loginUserId'에서 'employeeId'로 수정
       if (token && loginUserId) {
         this.accessToken = token;
         this.loginUserId = loginUserId;
@@ -35,4 +34,3 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 });
-

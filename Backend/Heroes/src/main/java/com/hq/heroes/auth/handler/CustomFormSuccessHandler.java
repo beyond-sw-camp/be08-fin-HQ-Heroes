@@ -26,11 +26,11 @@ public class CustomFormSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         String username = authentication.getName();
         String role = authentication.getAuthorities().iterator().next().getAuthority();
 
-        // access
-        String access = jwtUtil.createJwt("access", username, role, 60 * 10 * 1000L);
+        // access 30분
+        String access = jwtUtil.createJwt("access", username, role, 30 * 60 * 1000L);
         response.setHeader("access", access);
 
-        // refresh
+        // refresh 1일
         Integer expireS = 24 * 60 * 60;
         String refresh = jwtUtil.createJwt("refresh", username, role, expireS * 1000L);
         response.addCookie(CookieUtil.createCookie("refresh", refresh, expireS));
@@ -40,7 +40,7 @@ public class CustomFormSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
         // json 을 ObjectMapper 로 직렬화하여 전달
         Map<String, Object> responseData = new HashMap<>();
-        responseData.put("name", username);
+        responseData.put("employeeId", username);
 
         new ObjectMapper().writeValue(response.getWriter(), responseData);
     }

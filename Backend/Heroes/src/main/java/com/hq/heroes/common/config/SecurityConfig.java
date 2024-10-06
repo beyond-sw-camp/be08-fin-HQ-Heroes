@@ -37,7 +37,6 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final RefreshTokenService refreshTokenService;
@@ -83,16 +82,21 @@ public class SecurityConfig {
         http
                 .httpBasic((basic) -> basic.disable())
                 .csrf((csrf) -> csrf.disable())
+
+                // login
                 .formLogin((form) -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .successHandler(new CustomFormSuccessHandler(jwtUtil, refreshTokenService))
                         .failureHandler(authenticationFailureHandler())
                         .permitAll())
+
+                // logout
                 .logout((auth) -> auth
                         .logoutSuccessUrl("/")
                         .permitAll())
 
+                // cors
                 .cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
@@ -102,7 +106,6 @@ public class SecurityConfig {
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
                         configuration.setMaxAge(3600L);
-
                         configuration.setExposedHeaders(Collections.singletonList("access"));
 
                         return configuration;
@@ -112,6 +115,14 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/", "/join", "/reissue", "/reset-password", "/logout", "/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
+
+                // 인가되지 않은 사용자에 대한 exception -> 프론트엔드로 코드 응답
+                .exceptionHandling((exception) ->
+                        exception
+                                .authenticationEntryPoint((request, response, authException) -> {
+                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                }))
+
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class)
                 .sessionManagement((session) -> session

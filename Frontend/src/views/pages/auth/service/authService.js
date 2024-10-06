@@ -1,7 +1,9 @@
 import { useAuthStore } from '@/stores/authStore';
 import axios from 'axios';
+import { useCookies } from 'vue3-cookies';
 
 const API_URL = 'http://localhost:8080';
+const { cookies } = useCookies(); // Initialize the cookies
 
 // 회원가입 메서드
 const register = async (employeeName, email, password, role, joinDate, birthDate, annualLeave, status, phoneNumber, roadAddress, lotAddress, detailedAddress, profileImageUrl, deptId, teamId, positionId, jobId) => {
@@ -34,9 +36,10 @@ const register = async (employeeName, email, password, role, joinDate, birthDate
 };
 
 const login = async (employeeId, password) => {
-  const credentials = new URLSearchParams();
-  credentials.append('username', employeeId);
-  credentials.append('password', password);
+  const credentials = new URLSearchParams({
+    username: employeeId,
+    password: password
+  });
 
   const authStore = useAuthStore();
 
@@ -48,22 +51,23 @@ const login = async (employeeId, password) => {
       withCredentials: true
     });
 
-    console.log(response.data);
-
     if (response.status === 200) {
-      const { employeeId, accessToken } = response.data;
+      const { employeeId, access } = response.data; // 'access'를 사용
+      const accessToken = response.headers['access']; // 헤더에서 access 토큰을 추출
+
       window.localStorage.setItem('access', accessToken);
       window.localStorage.setItem('employeeId', employeeId);
 
+      cookies.set('access', accessToken); // 쿠키 등록
 
       authStore.setIsLoggedIn(true);
       authStore.setLoginUser(employeeId);
       authStore.setAccessToken(accessToken);
 
-      console.log(authStore);
+      console.log('로그인 성공:', authStore);
       return { success: true, employeeId, accessToken };
     } else {
-      throw new Error('로그인 실패');
+      throw new Error('로그인 실패: 상태 코드가 200이 아닙니다.');
     }
   } catch (error) {
     console.error('Login error:', error);
@@ -71,7 +75,7 @@ const login = async (employeeId, password) => {
   }
 };
 
-// 로그아웃 메서드 (변경 없음)
+// 로그아웃 메서드
 const logout = async () => {
   try {
     const response = await fetch(`${API_URL}/logout`, {
@@ -81,6 +85,7 @@ const logout = async () => {
     if (response.ok) {
       alert('로그아웃 성공');
       window.localStorage.removeItem('access');
+      cookies.remove('access'); // 쿠키에서 access 토큰 제거
     } else {
       alert('로그아웃 실패');
     }

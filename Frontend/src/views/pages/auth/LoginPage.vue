@@ -6,7 +6,7 @@
         <span class="text-muted-color font-medium">로그인</span>
       </div>
 
-      <form @submit.prevent="handleSignIn" class="space-y-4">
+      <form @submit.prevent="handleLogin" class="space-y-4">
         <div class="flex flex-col gap-2">
           <label for="employeeId" class="font-medium text-gray-700">사원 코드</label>
           <InputText type="text" id="employeeId" v-model="employeeId" placeholder="사원 코드를 입력해주세요"
@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue'; // onMounted 추가
 import { useRouter } from 'vue-router';
 import authService from '../auth/service/authService';
 import { useAuthStore } from '../../../stores/authStore';
@@ -53,21 +53,19 @@ const checked = ref(false);
 const router = useRouter();
 const authStore = useAuthStore();
 
+// 컴포넌트가 마운트될 때 initializeAuth 호출
+onMounted(() => {
+  authStore.initializeAuth();
+});
+
 const goToSignUp = () => router.push('/signup');
 const goToResetPassword = () => router.push('/reset-password');
 const goToAdminLogin = () => router.push('/admin-login');
 
-const handleSignIn = async () => {
+const handleLogin = async () => {
   try {
     const response = await authService.login(employeeId.value, password.value);
     if (response.success) {
-      authStore.setIsLoggedIn(true);
-      authStore.setLoginUser(response.employeeId);
-      authStore.setAccessToken(response.accessToken);
-
-      console.log('로그인 상태:', authStore.isLoggedIn);
-      console.log('사원 코드:', authStore.employeeId);
-
       alert('로그인 성공!');
       router.push('/');
     } else {
