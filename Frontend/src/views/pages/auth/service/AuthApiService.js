@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/authStore';
 import fetchReissue from "./fetchReissue";
 import { useRouter, useRoute } from 'vue-router';
 
-const fetchAuthorizedPage = async (url) => {
+const fetchGet = async (url) => {
   const authStore = useAuthStore();
   const router = useRouter();
   const route = useRoute();
@@ -34,4 +34,4 @@ const fetchAuthorizedPage = async (url) => {
 };
 
 
-export default fetchAuthorizedPage;
+export default fetchGet;

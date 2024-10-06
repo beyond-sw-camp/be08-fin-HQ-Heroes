@@ -65,7 +65,7 @@
 
 <script setup>
 import EmployeeDetailModal from '@/views/pages/employeeDetail/EmployeeDetailModal.vue';
-import fetchAuthorizedPage from '../auth/service/fetchAuthorizedPage';
+import fetchGet from '../auth/service/AuthApiService';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { onBeforeMount, ref } from 'vue';
 import router from '@/router';
@@ -95,7 +95,7 @@ function handleDepartmentChange(event) {
 async function fetchEmployeeList() {
   try {
     // 권한이 필요한 페이지에 접근할 때 fetchAuthorizedPage 사용
-    const employeesData = await fetchAuthorizedPage('http://localhost:8080/api/v1/employee/employees', router.push, router.currentRoute.value);
+    const employeesData = await fetchGet('http://localhost:8080/api/v1/employee/employees', router.push, router.currentRoute.value);
 
     if (employeesData) {
       // JSON.parse 제거
@@ -114,7 +114,7 @@ async function fetchEmployeeList() {
 
 async function fetchDepartments() {
   try {
-    const departmentsData = await fetchAuthorizedPage('http://localhost:8080/api/v1/employee/departments', router.push, router.currentRoute.value);
+    const departmentsData = await fetchGet('http://localhost:8080/api/v1/employee/departments', router.push, router.currentRoute.value);
 
     if (departmentsData) {
       // JSON.parse 제거
@@ -131,7 +131,7 @@ async function fetchDepartments() {
 
 async function fetchTeams(deptId) {
   try {
-    const teamsData = await fetchAuthorizedPage(`http://localhost:8080/api/v1/employee/teams?deptId=${deptId}`, router.push, router.currentRoute.value);
+    const teamsData = await fetchGet(`http://localhost:8080/api/v1/employee/teams?deptId=${deptId}`, router.push, router.currentRoute.value);
 
     if (teamsData) {
       teams.value = [{ teamId: null, teamName: '전체 팀' }, ...teamsData]; // JSON.parse 제거
