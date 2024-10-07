@@ -3,15 +3,15 @@ package com.hq.heroes.notice.entity;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.notice.dto.NoticeRequestDTO;
 import com.hq.heroes.notice.dto.NoticeResponseDTO;
-import com.hq.heroes.notice.entity.enums.NoticeCategory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -26,9 +26,21 @@ public class Notice {
     @Column(name = "notice_id")
     private Long noticeId;
 
+    // 작성자
+    // Employee 과의 Many-to-One 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
+
+    //수정자
+    // Employee 과의 Many-to-One 관계
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updater_id")
+    private Employee updater;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private NoticeCategory category;
 
     @Column(name = "title", nullable = false, length = 100)
     private String title;
@@ -38,40 +50,37 @@ public class Notice {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
-    @Column(name = "writer", nullable = false, length = 20)
-    private String writer;
-
-    @Column(name = "category", nullable = false, length = 20)
-    private NoticeCategory category;
+    @UpdateTimestamp
+    @Column(name = "update_at", nullable = false)
+    private LocalDateTime updateAt;
 
     public void updateNotice(NoticeRequestDTO requestDTO) {
-        this.title = requestDTO.getTitle();
-        this.content = requestDTO.getContent();
-        this.writer = requestDTO.getWriter();
-        this.category = requestDTO.getCategory();
+        this.title = requestDTO.getTitle();    // 제목 업데이트
+        this.content = requestDTO.getContent(); // 내용 업데이트
+        this.category = requestDTO.getCategory(); // 카테고리 업데이트
     }
+
 
     public NoticeResponseDTO toResponseDTO() {
         return NoticeResponseDTO.builder()
-                .noticeId(this.noticeId)
-                .employeeName(this.employee.getEmployeeName()) // Assuming Employee has a getName() method
-                .title(this.title)
-                .content(this.content)
-                .createdAt(this.createdAt)
-                .writer(this.writer)
-                .category(this.category)
+                .noticeId(this.noticeId) // 공지사항 ID
+                .employeeName(this.employee.getEmployeeName()) // 작성자 이름 (Employee 엔티티에서 가져옴)
+                .title(this.title) // 제목
+                .content(this.content) // 내용
+                .category(this.category) // 카테고리
                 .build();
     }
 
+
     public static Notice fromRequestDTO(NoticeRequestDTO requestDTO, Employee employee) {
         return Notice.builder()
-                .employee(employee)
-                .title(requestDTO.getTitle())
-                .content(requestDTO.getContent())
-                .writer(requestDTO.getWriter())
-                .category(requestDTO.getCategory())
+                .employee(employee) // 작성자 정보
+                .title(requestDTO.getTitle()) // 제목
+                .content(requestDTO.getContent()) // 내용
+                .category(requestDTO.getCategory()) // 카테고리
                 .build();
     }
+
 }

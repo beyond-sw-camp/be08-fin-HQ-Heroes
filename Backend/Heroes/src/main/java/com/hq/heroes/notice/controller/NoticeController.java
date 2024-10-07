@@ -4,7 +4,7 @@ import com.hq.heroes.notice.dto.NoticeRequestDTO;
 import com.hq.heroes.notice.dto.NoticeResponseDTO;
 import com.hq.heroes.notice.dto.NoticeUpdateRequestDTO;
 import com.hq.heroes.notice.entity.Notice;
-import com.hq.heroes.notice.entity.enums.NoticeCategory;
+import com.hq.heroes.notice.entity.NoticeCategory;
 import com.hq.heroes.notice.service.NoticeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,8 +28,8 @@ public class NoticeController {
     // 공지사항 목록 조회
     @GetMapping("/notice")
     @Operation(summary = "공지사항 목록 조회", description = "전체 공지사항의 목록을 조회한다.")
-    public ResponseEntity<List<NoticeResponseDTO>> getNotices(@RequestParam(required = false) NoticeCategory category) {
-        List<Notice> notices = noticeService.getNotices(category);
+    public ResponseEntity<List<NoticeResponseDTO>> getNotices() {
+        List<Notice> notices = noticeService.getNotices();
         List<NoticeResponseDTO> noticeDTOs = notices.stream().map(Notice::toResponseDTO).collect(Collectors.toList());
 
         if (!notices.isEmpty()) {

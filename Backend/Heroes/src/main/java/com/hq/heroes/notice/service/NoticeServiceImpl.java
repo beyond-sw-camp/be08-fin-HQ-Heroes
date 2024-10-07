@@ -5,12 +5,14 @@ import com.hq.heroes.notice.dto.NoticeRequestDTO;
 import com.hq.heroes.notice.dto.NoticeUpdateRequestDTO;
 import com.hq.heroes.notice.entity.Notice;
 import com.hq.heroes.auth.repository.EmployeeRepository;
-import com.hq.heroes.notice.entity.enums.NoticeCategory;
+import com.hq.heroes.notice.entity.NoticeCategory;
+import com.hq.heroes.notice.repository.NoticeCategoryReposiroty;
 import com.hq.heroes.notice.repository.NoticeReposiroty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,14 +21,23 @@ import java.util.Optional;
 public class NoticeServiceImpl implements NoticeService {
 
     private final NoticeReposiroty noticeRepository;
+    private final NoticeCategoryReposiroty noticeCategoryRepository;
     private final EmployeeRepository employeeRepository;
 
     @Override
-    public List<Notice> getNotices(NoticeCategory category) {
-        if (category != null) {
-            return noticeRepository.findByCategory(category);
-        }
+    public List<Notice> getNotices() {
         return noticeRepository.findAll();
+    }
+
+    @Override
+    public List<Notice> getNoticesByCategory(Long categoryId) {
+        Optional<NoticeCategory> category = noticeCategoryRepository.findById(categoryId);
+
+        if (category.isPresent()) {
+            return noticeRepository.findByCategory(category.get());
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override
@@ -51,7 +62,7 @@ public class NoticeServiceImpl implements NoticeService {
                 .employee(employeeEntity)
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
-                .writer(requestDTO.getWriter())
+                .employee(requestDTO.getEmployee())
                 .category(requestDTO.getCategory())
                 .build();
 
@@ -68,7 +79,7 @@ public class NoticeServiceImpl implements NoticeService {
         // 공지사항 정보 업데이트
         notice.setTitle(requestDTO.getTitle());
         notice.setContent(requestDTO.getContent());
-        notice.setWriter(requestDTO.getWriter());
+        notice.setUpdater(requestDTO.getUpdater());
         notice.setCategory(requestDTO.getCategory());
 
         return noticeRepository.save(notice);

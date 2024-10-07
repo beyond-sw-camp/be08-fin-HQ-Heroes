@@ -1,9 +1,10 @@
 package com.hq.heroes.notification.repository;
 
-import com.hq.heroes.notification.entity.Notification;
+import com.hq.heroes.notification.entity.NotificationCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+public interface NotificationCategoryRepository extends JpaRepository<NotificationCategory, Long> {
+
 }
