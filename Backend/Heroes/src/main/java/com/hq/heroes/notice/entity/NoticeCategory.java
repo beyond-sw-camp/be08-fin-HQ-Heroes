@@ -19,7 +19,7 @@ public class NoticeCategory {
     @Column(name = "category_id")
     private Long noticeCategoryId;
 
-    @Column(name = "cateogry_name", nullable = false)
+    @Column(name = "category_name", nullable = false)
     private String categoryName;
 
 }
