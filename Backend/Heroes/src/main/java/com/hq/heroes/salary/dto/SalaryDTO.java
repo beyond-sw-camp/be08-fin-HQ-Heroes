@@ -2,7 +2,7 @@ package com.hq.heroes.salary.dto;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public class SalaryDTO {
@@ -10,7 +10,7 @@ public class SalaryDTO {
     private String employeeId;
     private Double baseSalary;
     private Double bonus;
-    private Date salaryMonth;
+    private LocalDateTime salaryMonth;
 
     public Double getTotalSalary() {
         return baseSalary + bonus;
