@@ -48,6 +48,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/education/education-management/EducationApply.vue')
                 },
                 {
+                    path: '/education-apply/education-detail/:courseId',
+                    name: 'educationDetail',
+                    component: () => import('@/views/pages/education/education-management/EducationDetail.vue')
+                },                
+                {
                     path: '/certificate-management',
                     name: 'certification',
                     component: () => import('@/views/pages/education/certificate-management/CertificationList.vue')

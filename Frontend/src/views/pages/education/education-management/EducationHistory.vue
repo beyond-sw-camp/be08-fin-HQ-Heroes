@@ -32,34 +32,30 @@
                 </div>
             </template>
             <template #empty> No courses found. </template>
-            <Column field="category" sortable header="카테고리" style="min-width: 8rem">
+
+            <!-- 테이블 컬럼들 -->
+            <!-- No. 부분의 너비를 줄임 -->
+            <Column field="courseId" sortable header="No." style="min-width: 2rem; text-align: left;">
+                <template #body="{ data }">
+                    {{ data.courseId }}
+                </template>
+            </Column>
+            <Column field="category" sortable header="카테고리" style="min-width: 6rem; text-align: left;">
                 <template #body="{ data }">
                     {{ data.category }}
                 </template>
             </Column>
-            <Column field="instructorName" sortable header="강사명" style="min-width: 7rem">
+            <!-- 강의 명 부분의 너비를 늘림 -->
+            <Column field="educationName" sortable header="강의명" style="min-width: 20rem; text-align: left;">
                 <template #body="{ data }">
-                    {{ data.instructorName }}
+                    <span @click="openEducationDetail(data)" style="cursor: pointer;">
+                        {{ data.educationName }}
+                    </span>
                 </template>
             </Column>
-            <Column field="courseName" sortable header="강의명" style="min-width: 14rem">
+            <Column field="educationEnd" sortable header="신청일" dataType="date" style="min-width: 8rem; text-align: left;">
                 <template #body="{ data }">
-                    {{ data.courseName }}
-                </template>
-            </Column>
-            <Column field="institute" sortable header="교육기관" style="min-width: 10rem">
-                <template #body="{ data }">
-                    {{ data.institute }}
-                </template>
-            </Column>
-            <Column field="startDate" sortable header="교육 시작일" dataType="date" style="min-width: 8rem">
-                <template #body="{ data }">
-                    {{ formatDate(new Date(data.startDate)) }}
-                </template>
-            </Column>
-            <Column field="endDate" sortable header="교육 종료일" dataType="date" style="min-width: 8rem">
-                <template #body="{ data }">
-                    {{ formatDate(new Date(data.endDate)) }}
+                    {{ formatDate(new Date(data.educationStart)) }}
                 </template>
             </Column>
             <Column field="status" sortable header="이수 여부" style="min-width: 6rem">
@@ -69,7 +65,7 @@
             </Column>
         </DataTable>
 
-        <!-- 모달 컴포넌트 -->
+        <!-- 모달 컴포넌트
         <Dialog v-model:visible="displayDialog" :header="selectedCourse?.courseName" modal>
             <div>
                 <p><strong>카테고리:</strong> {{ selectedCourse?.category }}</p>
@@ -82,7 +78,7 @@
             <template #footer>
                 <Button label="닫기" icon="pi pi-times" @click="displayDialog = false" />
             </template>
-        </Dialog>
+        </Dialog> -->
     </div>
 </template>
 
@@ -108,10 +104,10 @@ const selectedInstructor = ref(null);
 
 async function fetchCourseList() {
     courses.value = [
-        { courseNo: 1, courseName: 'Java 개발', category: '개발', instructorName: '홍길동', institute: 'ABC Academy', startDate: '2022-01-01', endDate: '2022-03-01', status: '이수' },
-        { courseNo: 2, courseName: '디자인 패턴', category: '디자인', instructorName: '이순신', institute: 'XYZ Design Center', startDate: '2021-05-01', endDate: '2021-08-01', status: '미이수' },
-        { courseNo: 3, courseName: '프로젝트 관리', category: '관리', instructorName: '김유신', institute: 'PQR Management School', startDate: '2020-06-01', endDate: '2020-12-01', status: '이수' }
-    ];
+    { courseId: 1, category: '어학', instructorName: '홍길동', educationName: '언어에 어려움을 겪고 있는 사람들을 위한 프로그램', institution: 'Hanwha Academy', educationStart: '2024-10-01', status: '이수' },
+    { courseId: 2, category: '디자인', instructorName: '이순신', educationName: 'UI/UX 디자인 기초', institution: 'Design School', educationStart: '2024-11-02', status: '진행 중' },
+    { courseId: 3, category: '관리', instructorName: '김유신', educationName: '프로젝트 관리 실무', institution: 'Management Center', educationStart: '2024-11-02', status: '이수' }
+];
 
     filterByCategoryAndInstructor();
 }

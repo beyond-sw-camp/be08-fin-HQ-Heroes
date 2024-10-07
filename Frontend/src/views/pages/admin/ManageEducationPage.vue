@@ -10,7 +10,7 @@
                     <Dropdown v-model="selectedInstructorName" :options="instructorNames" optionLabel="name" placeholder="강사" @change="filterEducations" />
                     <InputText v-model="globalFilter" placeholder="교육 검색 (이름, 코드)" @input="filterEducations" />
                 </div>
-                <Button label="교육 추가" icon="pi pi-plus" class="custom-button" @click="openAddEducationDialog" />
+                <Button label="교육 추가" icon="pi pi-plus" class="custom-button" @click="navigateToWriteNotice" />
             </div>
             <DataTable
                 :value="filteredEducations"
@@ -25,12 +25,12 @@
                 selectionMode="single"
                 removableSort
             >
-                <Column field="educationId" sortable header="교육 코드" />
-                <Column field="educationName" sortable header="교육명" />
+                <Column field="educationId" sortable header="No." />
                 <Column field="category" sortable header="카테고리" />
+                <Column field="educationName" sortable header="교육명" />
                 <Column field="instructorName" sortable header="강사" />
-                <Column field="educationStart" sortable header="시작일" :body="(rowData) => formatDate(rowData.educationStart)" />
-                <Column field="educationEnd" sortable header="종료일" :body="(rowData) => formatDate(rowData.educationEnd)" />
+                <Column field="educationStart" sortable header="신청 기간" :body="(rowData) => formatDate(rowData.educationStart)" />
+                <Column field="educationEnd" sortable header="수강 기간" :body="(rowData) => formatDate(rowData.educationEnd)" />
             </DataTable>
         </div>
 
@@ -51,11 +51,11 @@
                 </div>
                 <div class="time-section">
                     <div class="time-block">
-                        <label for="educationStart" class="block font-bold mb-3">시작 일시</label>
+                        <label for="educationStart" class="block font-bold mb-3">신청 기간</label>
                         <input type="datetime-local" id="educationStart" v-model="newEducation.educationStart" required="true" class="w-full" />
                     </div>
                     <div class="time-block">
-                        <label for="educationEnd" class="block font-bold mb-3">종료 일시</label>
+                        <label for="educationEnd" class="block font-bold mb-3">수강 기간</label>
                         <input type="datetime-local" id="educationEnd" v-model="newEducation.educationEnd" required="true" class="w-full" />
                     </div>
                 </div>
@@ -98,6 +98,7 @@
 
 <script setup>
 import axios from 'axios';
+import { useRouter } from 'vue-router'; // vue-router import 추가
 import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
@@ -120,6 +121,9 @@ const isEditing = ref(false);
 // 카테고리와 강사 리스트
 const categories = ref([{ name: '전체' }, { name: '개발' }, { name: '디자인' }, { name: '인사' }]);
 const instructorNames = ref([{ name: '전체' }, { name: '홍길동' }, { name: '이순신' }, { name: '김영희' }]);
+
+// Vue Router 사용 설정
+const router = useRouter();
 
 // API 호출을 통해 교육 목록 가져오기
 async function fetchEducations() {
@@ -150,6 +154,11 @@ function filterEducations() {
     }));
 }
 
+// "추가하기" 버튼 클릭 시 페이지 이동
+function navigateToWriteNotice() {
+    window.location.href = 'http://localhost:5173/write-notice'; // 새로운 URL로 이동
+}
+
 // 교육 추가 모달 열기
 function openAddEducationDialog() {
     isEditing.value = false;
@@ -164,171 +173,60 @@ function openEditEducationDialog() {
     displayAddDialog.value = true;
 }
 
-// 필수 입력값 검증
-function validateEducationData() {
-    return newEducation.value.educationName && newEducation.value.category && newEducation.value.instructorName &&
-        newEducation.value.educationStart && newEducation.value.educationEnd &&
-        newEducation.value.institution && newEducation.value.totalParticipants;
-}
-
-// 새로운 교육을 추가할 때 사용할 데이터
-const newEducation = ref({
-    educationName: '',
-    category: '', 
-    instructorName: '', 
-    educationStart: '',
-    educationEnd: '',
-    institution: '',
-    totalParticipants: 0
-});
-
-// 새로운 교육 추가 함수
-async function addEducation() {
-    if (!validateEducationData()) {
-        console.error('필수 입력값이 누락되었습니다.');
-        return;
-    }
-
-    console.log('전송할 데이터:', newEducation.value);
-
-    // 입력된 날짜를 YYYY-MM-DDTHH:mm:ss 형식으로 변환
-    const educationStart = new Date(newEducation.value.educationStart).toISOString().slice(0, 19);
-    const educationEnd = new Date(newEducation.value.educationEnd).toISOString().slice(0, 19);
-
-    try {
-        const response = await axios.post('http://localhost:8080/api/v1/education-service/education', {
-            ...newEducation.value,
-            educationStart,
-            educationEnd,
-            totalParticipants: newEducation.value.totalParticipants // totalParticipants 필드 추가
-        });
-
-        educations.value.push(response.data);
-        resetNewEducation();
-        fetchEducations();
-        displayAddDialog.value = false;
-    } catch (error) {
-        if (error.response) {
-            // 서버가 응답을 반환했으나 상태 코드가 2xx가 아닐 경우
-            console.error('서버 오류:', error.response.data);
-        } else if (error.request) {
-            // 요청은 했으나 응답이 없을 경우
-            console.error('요청을 보냈으나 응답을 받지 못했습니다.');
-        } else {
-            // 오류를 발생시킨 요청 설정 중 오류
-            console.error('오류 발생:', error.message);
+// 교육 삭제
+async function deleteEducation() {
+    if (selectedEducation.value) {
+        try {
+            await axios.delete(`http://localhost:8080/api/v1/education-service/education/${selectedEducation.value.educationId}`);
+            fetchEducations();
+            selectedEducation.value = null;
+            displayDetailDialog.value = false;
+        } catch (error) {
+            console.error('교육 삭제 중 오류 발생:', error);
         }
     }
 }
 
-// 교육 업데이트 함수
-async function updateEducation() {
-    if (!validateEducationData()) {
-        console.error('필수 입력값이 누락되었습니다.');
-        return;
-    }
-    
-    console.log('수정할 데이터:', newEducation.value);
-    
-    // 입력된 날짜를 YYYY-MM-DDTHH:mm:ss 형식으로 변환
-    const educationStart = new Date(newEducation.value.educationStart).toISOString().slice(0, 19);
-    const educationEnd = new Date(newEducation.value.educationEnd).toISOString().slice(0, 19);
-    
-    try {
-        const response = await axios.put(`http://localhost:8080/api/v1/education-service/education/${selectedEducation.value.educationId}`, {
-            ...newEducation.value,
-            educationStart,
-            educationEnd,
-        });
-        const index = educations.value.findIndex(edu => edu.educationId === selectedEducation.value.educationId);
-        educations.value.splice(index, 1, response.data);
-        resetNewEducation();
-        fetchEducations();
-        displayAddDialog.value = false;
-    } catch (error) {
-        console.error('교육 수정 중 오류 발생:', error);
-    }
-}
-
-// 교육 삭제 함수
-async function deleteEducation() {
-    if (!selectedEducation.value) return;
-
-    try {
-        await axios.delete(`http://localhost:8080/api/v1/education-service/education/${selectedEducation.value.educationId}`);
-        educations.value = educations.value.filter(edu => edu.educationId !== selectedEducation.value.educationId);
-        filteredEducations.value = [...educations.value];
-        selectedEducation.value = null;
-        closeDetailDialog();
-    } catch (error) {
-        console.error('교육 삭제 중 오류 발생:', error);
-    }
-}
-
-// 교육 상세 정보 열기
+// 교육 상세보기 모달 열기
 function openEducationDetail(event) {
     selectedEducation.value = event.data;
     displayDetailDialog.value = true;
 }
 
-// 교육 상세 정보 닫기
-function closeDetailDialog() {
-    displayDetailDialog.value = false;
-    selectedEducation.value = null;
-}
-
-// 다이얼로그 닫기
-function closeDialog() {
-    displayAddDialog.value = false;
-}
-
-// 새로운 교육 리셋
+// 데이터 리셋
 function resetNewEducation() {
     newEducation.value = {
         educationName: '',
-        category: '', 
-        instructorName: '', 
+        category: '',
+        instructorName: '',
         educationStart: '',
         educationEnd: '',
         institution: '',
-        totalParticipants: ''
+        totalParticipants: '',
     };
 }
 
-// 날짜 포맷팅
-function formatDate(dateString) {
-    if (!dateString) return '';
-    const options = { 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit', 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        hour12: false };
-    return new Date(dateString).toLocaleString('ko-KR', options);
+// 날짜 포맷팅 함수
+function formatDate(date) {
+    return date ? new Date(date).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) : '';
 }
 
-onBeforeMount(() => {
-    fetchEducations();
-});
+// 컴포넌트 마운트 시 교육 목록 가져오기
+onBeforeMount(fetchEducations);
 </script>
 
-
 <style scoped>
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.education-list-page {
+    padding: 20px;
 }
-
-.search-filter {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
 .custom-button {
     margin-left: 10px;
+}
+.time-section {
+    display: flex;
+    justify-content: space-between;
+}
+.time-block {
+    width: 48%;
 }
 </style>
