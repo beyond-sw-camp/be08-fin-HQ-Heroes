@@ -9,10 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,20 +33,25 @@ public class SignController {
     @PostMapping("/join")
     @ResponseBody
     @Operation(summary = "회원 가입", description = "회원 가입 기능")
-    public ResponseEntity<?> join(@ModelAttribute @Validated JoinDTO joinDto) {
-        System.out.println("joinDto = " + joinDto.toString());
+    public ResponseEntity<?> join(@Validated @ModelAttribute JoinDTO joinDto,
+                                  @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         Map<String, Object> response = new HashMap<>();
 
         // 프로필 이미지 파일 저장 처리
-        if (joinDto.getProfileImage() != null) {
-            String originalFileName = joinDto.getProfileImage().getOriginalFilename();
-            String fileExtension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf(".")) : ""; // 확장자 추출
-            String uuidFileName = UUID.randomUUID().toString() + fileExtension; // UUID로 파일 이름 생성
-            Path filePath = Paths.get(uploadProperties.getDir(), uuidFileName); // 파일 경로 설정
+        if (profileImage != null && !profileImage.isEmpty()) {
+            String originalFileName = profileImage.getOriginalFilename();
+            String fileExtension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf(".")) : "";
+            String shortUuid = UUID.randomUUID().toString().substring(0, 8);
+            String uuidFileName = shortUuid + fileExtension;
+            Path filePath = Paths.get(uploadProperties.getDir(), uuidFileName);
 
             try {
                 Files.createDirectories(filePath.getParent()); // 디렉토리 생성
-                joinDto.getProfileImage().transferTo(filePath.toFile()); // 파일 저장
+                profileImage.transferTo(filePath.toFile()); // 파일 저장
+
+                // 프로필 이미지의 URL을 저장 (서버의 정적 파일 경로 제공)
+                String profileImageUrl = "/files/" + uuidFileName;
+                joinDto.setProfileImageUrl(profileImageUrl); // 이미지 URL 설정
             } catch (IOException e) {
                 response.put("success", false);
                 response.put("message", "파일 업로드 실패: " + e.getMessage());
@@ -57,14 +60,17 @@ public class SignController {
         }
 
         try {
+            // 회원 가입 처리
             String joinResult = joinService.join(joinDto);
             response.put("success", true);
             response.put("username", joinDto.getEmployeeName());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "회원 가입 실패: " + e.getMessage());
             return ResponseEntity.status(400).body(response);
         }
     }
+
+
 }
