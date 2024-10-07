@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/authStore';
 import authService from '../views/pages/auth/service/authService';
 import router from '@/router';
 
-const { onMenuToggle, toggleDarkMode, isDarkTheme } = useLayout();
+const { onMenuToggle } = useLayout();
 
 const displaySignInDialog = ref(false);
 const displaySignUpDialog = ref(false);
@@ -34,7 +34,7 @@ const goToSignUp = () => router.push('/signup');
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="537.64" height="563.26" viewBox="0 0 537.64 563.26">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 537.64 563.26">
                     <path
                         id="uuid-fb6bba6d-324d-4625-a98c-3d990729dcd8-114-164-127-213"
                         d="m294.36,308.7c1.69,8.48,7.72,13.98,13.47,12.28,5.75-1.7,9.04-9.96,7.35-18.44-.63-3.4-2.11-6.52-4.32-9.07l-7.63-35.8-17.84,5.88,9.42,34.67c-1.01,3.51-1.16,7.11-.43,10.48,0,0,0,0,0,0Z"

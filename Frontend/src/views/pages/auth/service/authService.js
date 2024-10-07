@@ -64,7 +64,7 @@ const login = async (employeeId, password) => {
       authStore.setIsLoggedIn(true);
       authStore.setLoginUser(employeeId);
       authStore.setAccessToken(accessToken);
-
+      
       console.log('로그인 성공:', authStore);
       return { success: true, employeeId, accessToken };
     } else {
@@ -116,5 +116,6 @@ export const getLoginEmployeeInfo = async (employeeId) => {
 export default {
   register,
   login,
-  logout
+  logout,
+  getLoginEmployeeInfo
 };
