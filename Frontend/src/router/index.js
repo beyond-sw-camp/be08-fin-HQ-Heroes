@@ -60,7 +60,12 @@ const router = createRouter({
                 {
                     path: '/evaluation',
                     name: 'evaluation',
-                    component: () => import('@/views/pages/evaluation/EvaluationPage.vue')
+                    component: () => import('@/views/pages/evaluation/EvaluationListPage.vue')
+                },
+                {
+                    path: '/evaluation-detail/:employeeId',
+                    name: 'evaluationDetail',
+                    component: () => import('@/views/pages/evaluation/EvaluationDetailPage.vue')
                 },
                 {
                     path: '/evaluation-result',

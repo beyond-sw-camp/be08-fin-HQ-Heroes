@@ -5,9 +5,11 @@ import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Dialog from 'primevue/dialog';
-import Rating from 'primevue/rating';
+import Dropdown from 'primevue/dropdown';
 import Textarea from 'primevue/textarea';
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // Vue Ref 및 Reactive 변수들
 const evaluations = ref([]);
@@ -16,16 +18,25 @@ const filters1 = ref(null);
 const loading1 = ref(true);
 const selectedEvaluation = ref(null);
 const displayDialog = ref(false);
-const evaluationTypes = ref(['팀', '리더']);
+const evaluationTypes = ref(['팀', '리더', '팀원']);
 const selectedEvaluationType = ref(null);
-const communicationSkill = ref(0);
-const leadership = ref(0);
-const teamwork = ref(0);
-const problemSolving = ref(0);
-const responsibility = ref(0);
+const serviceLevel = ref(null);  // 서비스 레벨 평가 점수
+const teamContribution = ref(null);  // 팀 목표 및 개인 과제 평가 점수
+const scheduleAdherence = ref(null);  // 일정 계획 평가 점수
 const comments = ref('');
 
-// 임시 평가 데이터 (평가 상태 추가 및 기한 계산)
+// 평가 점수 범위 (S~C)
+const scoreOptions = ref([
+    { label: 'S (매우 우수)', value: 100 },
+    { label: 'A+ (95점)', value: 95 },
+    { label: 'A (우수)', value: 90 },
+    { label: 'B+ (85점)', value: 85 },
+    { label: 'B (보통)', value: 80 },
+    { label: 'C+ (75점)', value: 75 },
+    { label: 'C (개선 필요)', value: 70 },
+]);
+
+// 임시 평가 데이터
 const tempEvaluations = [
     {
         evaluationId: 1,
@@ -36,7 +47,7 @@ const tempEvaluations = [
         evaluationType: '팀',
         score: 0,
         comments: '',
-        status: false, // 평가 여부
+        status: false,
         createdAt: new Date('2023-08-15')
     },
     {
@@ -53,7 +64,7 @@ const tempEvaluations = [
     }
 ];
 
-// 평가 리스트 필터링 함수 (평가 상태에 따라 필터링)
+// 평가 리스트 필터링 함수
 function filterByEvaluationType(evaluationType) {
     if (selectedEvaluationType.value === evaluationType) {
         selectedEvaluationType.value = null;
@@ -79,25 +90,23 @@ function showEvaluationDetails(event) {
 
 // 모달 폼 초기화
 function resetEvaluationForm() {
-    communicationSkill.value = 0;
-    leadership.value = 0;
-    teamwork.value = 0;
-    problemSolving.value = 0;
-    responsibility.value = 0;
+    serviceLevel.value = null;
+    teamContribution.value = null;
+    scheduleAdherence.value = null;
     comments.value = '';
 }
 
-// 평가 제출 시 처리 함수 (평가 완료)
+// 평가 제출 시 처리 함수
 function submitEvaluation() {
-    const avgScore = ((communicationSkill.value + leadership.value + teamwork.value + problemSolving.value + responsibility.value) / 5).toFixed(2);
-
     console.log('평가 제출', {
-        averageScore: avgScore,
+        serviceLevel: serviceLevel.value,
+        teamContribution: teamContribution.value,
+        scheduleAdherence: scheduleAdherence.value,
         comments: comments.value
     });
 
     // 선택된 평가의 점수와 코멘트를 업데이트하고 평가 상태를 완료로 변경
-    selectedEvaluation.value.score = avgScore;
+    selectedEvaluation.value.score = (serviceLevel.value + teamContribution.value + scheduleAdherence.value) / 3;
     selectedEvaluation.value.comments = comments.value;
     selectedEvaluation.value.status = true;
 
@@ -108,11 +117,11 @@ function submitEvaluation() {
     displayDialog.value = false; // 모달 닫기
 }
 
-// 날짜 포맷팅 함수 (yyyy/mm/dd 형식)
+// 날짜 포맷팅 함수
 function formatDate(date) {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // 월을 2자리로 맞추기
-    const day = String(date.getDate()).padStart(2, '0'); // 일을 2자리로 맞추기
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}/${month}/${day}`;
 }
 
@@ -134,6 +143,12 @@ onBeforeMount(() => {
     loading1.value = false;
     initFilters1();
 });
+
+// 평가자를 클릭하면 해당 평가자의 상세 페이지로 이동
+function onRowClick(event) {
+    const employeeId = event.data.employeeId;
+    router.push({ name: 'evaluationDetail', params: { employeeId } });
+}
 </script>
 
 <template>
@@ -148,7 +163,7 @@ onBeforeMount(() => {
             :rowHover="true"
             :loading="loading1"
             selectionMode="single"
-            @row-click="showEvaluationDetails"
+            @row-click="onRowClick"
             :metaKeySelection="false"
             @rowSelect="onRowSelect"
             @rowUnselect="onRowUnselect"
@@ -174,36 +189,31 @@ onBeforeMount(() => {
 
         <Dialog v-model:visible="displayDialog" modal="true" header="평가 상세" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="true" :dismissableMask="true">
             <div class="p-fluid p-d-flex p-flex-column p-ai-center p-py-3">
-                <div class="p-field p-col-12 p-md-6 p-d-flex p-flex-column p-ai-center mb-3">
-                    <label for="communicationSkill" class="p-text-bold" style="font-size: 1.2rem">의사소통 능력</label>
-                    <Rating v-model="communicationSkill" :stars="10" class="p-mt-2" />
+
+                <!-- 서비스 레벨 평가 -->
+                <div class="p-field p-col-12 p-md-8 p-d-flex p-flex-column p-ai-center mb-3">
+                    <label for="serviceLevel" class="p-text-bold" style="font-size: 1.2rem">서비스 레벨 평가</label>
+                    <Dropdown v-model="serviceLevel" :options="scoreOptions" optionLabel="label" placeholder="점수를 선택하세요" />
                 </div>
 
-                <!-- 리더십 -->
-                <div class="p-field p-col-12 p-md-6 p-d-flex p-flex-column p-ai-center mb-3">
-                    <label for="leadership" class="p-text-bold" style="font-size: 1.2rem">리더십</label>
-                    <Rating v-model="leadership" :stars="10" class="p-mt-2" />
+                <!-- 팀 목표 및 개인 과제 평가 -->
+                <div class="p-field p-col-12 p-md-8 p-d-flex p-flex-column p-ai-center mb-3">
+                    <label for="teamContribution" class="p-text-bold" style="font-size: 1.2rem">팀 목표 및 개인 과제 평가</label>
+                    <Dropdown v-model="teamContribution" :options="scoreOptions" optionLabel="label" placeholder="점수를 선택하세요" />
                 </div>
 
-                <div class="p-field p-col-12 p-md-6 p-d-flex p-flex-column p-ai-center mb-3">
-                    <label for="teamwork" class="p-text-bold" style="font-size: 1.2rem">팀워크</label>
-                    <Rating v-model="teamwork" :stars="10" class="p-mt-2" />
+                <!-- 일정 계획 평가 -->
+                <div class="p-field p-col-12 p-md-8 p-d-flex p-flex-column p-ai-center mb-3">
+                    <label for="scheduleAdherence" class="p-text-bold" style="font-size: 1.2rem">일정 계획 평가</label>
+                    <Dropdown v-model="scheduleAdherence" :options="scoreOptions" optionLabel="label" placeholder="점수를 선택하세요" />
                 </div>
 
-                <div class="p-field p-col-12 p-md-6 p-d-flex p-flex-column p-ai-center mb-3">
-                    <label for="problemSolving" class="p-text-bold" style="font-size: 1.2rem">문제 해결 능력</label>
-                    <Rating v-model="problemSolving" :stars="10" class="p-mt-2" />
-                </div>
-
-                <div class="p-field p-col-12 p-md-6 p-d-flex p-flex-column p-ai-center mb-3">
-                    <label for="responsibility" class="p-text-bold" style="font-size: 1.2rem">책임감</label>
-                    <Rating v-model="responsibility" :stars="10" class="p-mt-2" />
-                </div>
-
+                <!-- 코멘트 -->
                 <div class="p-field p-col-12 p-md-8 p-d-flex p-flex-column p-ai-center mb-3">
                     <label for="comments" class="p-text-bold" style="font-size: 1.2rem">코멘트</label>
                     <Textarea id="comments" v-model="comments" rows="5" autoResize placeholder="코멘트를 입력하세요" class="p-mt-1" style="width: 100%; height: 150px" />
                 </div>
+
             </div>
 
             <div class="p-d-flex p-jc-center p-mt-3">
