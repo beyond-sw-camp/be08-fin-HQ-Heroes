@@ -100,7 +100,7 @@ public class Employee {
 
     // Team과의 Many-to-One 관계
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", nullable = false)
+    @JoinColumn(name = "dept_id", nullable = false)
     private Department department;
 
     // Team과의 Many-to-One 관계
