@@ -1,6 +1,6 @@
 package com.hq.heroes.notice.dto;
 
-import com.hq.heroes.notice.entity.enums.NoticeCategory;
+import com.hq.heroes.notice.entity.NoticeCategory;
 import lombok.*;
 
 import java.util.Date;

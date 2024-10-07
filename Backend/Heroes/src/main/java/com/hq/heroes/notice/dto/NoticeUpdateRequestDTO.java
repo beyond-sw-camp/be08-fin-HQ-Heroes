@@ -1,6 +1,7 @@
 package com.hq.heroes.notice.dto;
 
-import com.hq.heroes.notice.entity.enums.NoticeCategory;
+import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.notice.entity.NoticeCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +15,7 @@ public class NoticeUpdateRequestDTO {
 
     private String title;
     private String content;
-    private String writer;
+    private Employee updater;
     private NoticeCategory category;
 
 }
