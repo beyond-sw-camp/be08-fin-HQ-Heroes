@@ -8,9 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -29,7 +28,7 @@ public class Salary {
     private Employee employee;
 
     @Column(name = "salary_month", nullable = false)
-    private Date salaryMonth;
+    private LocalDateTime salaryMonth;
 
     @Column(name = "base_salary", nullable = false)
     private Double baseSalary;
@@ -46,5 +45,5 @@ public class Salary {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Date createdAt;
+    private LocalDateTime createdAt;
 }
