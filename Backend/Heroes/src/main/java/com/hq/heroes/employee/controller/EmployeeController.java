@@ -37,10 +37,12 @@ public class EmployeeController {
     ) {
         Employee employee = employeeService.getEmployeeById(employeeId);
 
+        System.out.println("employee = " + employee);
+
         if (employee != null) {
-            return new ResponseEntity<>(employee.toResponseDTO(), HttpStatus.OK);
+            return ResponseEntity.ok(employee.toResponseDTO());
         } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build(); // 수정된 부분
         }
     }
 
@@ -48,8 +50,6 @@ public class EmployeeController {
     @GetMapping("/employees")
     public ResponseEntity<?> getAllEmployees() {
         List<EmployeeDTO> employees = employeeService.getAllEmployees();
-
-        System.out.println("employees = " + employees);
 
         // 사원이 없을 경우 메시지와 함께 200 OK 반환
         if (employees.isEmpty()) {
@@ -61,9 +61,7 @@ public class EmployeeController {
 
     // 부서 조회를 위한 API
     @GetMapping("/departments")
-    @Transactional
     public ResponseEntity<?> getDepartments() {
-
         return ResponseEntity.ok(departmentRepository.findAllDepartments());
     }
 
@@ -72,6 +70,7 @@ public class EmployeeController {
     public ResponseEntity<?> getTeamsByDepartment(@RequestParam(required = false) Long deptId) {
 
         List<TeamDTO> teams;
+
         if (deptId != null) {
             teams = teamRepository.findByDepartment_DeptId(deptId); // 부서 ID로 팀을 조회
         } else {
@@ -82,13 +81,11 @@ public class EmployeeController {
     }
 
     @GetMapping("/jobs")
-    @Transactional
     public ResponseEntity<?> getJobs() {
         return ResponseEntity.ok((jobRepository.findAllJobs()));
     }
 
     @GetMapping("/positions")
-    @Transactional
     public ResponseEntity<?> getPositions() {
         return ResponseEntity.ok((positionRepository.findAllPositions()));
     }
