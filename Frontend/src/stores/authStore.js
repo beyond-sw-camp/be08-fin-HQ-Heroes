@@ -1,26 +1,26 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         isLoggedIn: false,
         loginUserId: '',
         accessToken: '',
-        employeeData: ref({
-            employeeId: '',
-            employeeName: '',
-            teamName: '',
-            deptName: '',
-            jobName: '',
-            positionName: '',
-            joinDate: '',
-            birthDate: '',
-            phoneNumber: '',
-            roadAddress: '',
-            lotAddress: '',
-            detailedAddress: '',
-            profileImageUrl: ''
-        })
+        employeeData: {
+          employeeId: '',
+          employeeName: '',
+          teamName: '',
+          deptName: '',
+          jobName: '',
+          positionName: '',
+          email: '',
+          joinDate: '',
+          birthDate: '',
+          phoneNumber: '',
+          roadAddress: '',
+          lotAddress: '',
+          detailedAddress: '',
+          profileImageUrl: ''
+      }
     }),
     actions: {
         setIsLoggedIn(status) {

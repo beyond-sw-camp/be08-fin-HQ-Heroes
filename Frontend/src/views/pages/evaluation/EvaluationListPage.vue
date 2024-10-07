@@ -1,6 +1,7 @@
 <template>
     <div class="card">
-        <div class="font-semibold text-xl mb-4"> {{authStore.employeesData.teamName}} 평가</div>
+        <!-- employeeId를 제목에 표시 -->
+        <div class="font-semibold text-xl mb-4">평가 - {{ authStore.employeeData.teamName }}</div>
         <DataTable
             :value="filteredEmployees"
             :paginator="true"
@@ -59,6 +60,8 @@ import { onBeforeMount, ref } from 'vue';
 import router from '@/router';
 import { useAuthStore } from '@/stores/authStore';
 
+// authStore 가져오기
+const authStore = useAuthStore();
 
 const employees = ref([]);
 const filteredEmployees = ref([]);
@@ -67,27 +70,32 @@ const selectedEmployee = ref(null);
 const displayDialog = ref(false);
 const departments = ref([]);
 const teams = ref([]);
-const selectedDepartment = ref(null);
-const selectedTeam = ref(null);
-const authStore = useAuthStore();
 
 async function fetchEmployeeList() {
     try {
         // 권한이 필요한 페이지에 접근할 때 fetchAuthorizedPage 사용
         const employeesData = await fetchGet('http://localhost:8080/api/v1/employee/employees', router.push, router.currentRoute.value);
 
-        if (employeesData) {
-            // JSON.parse 제거
+        if (employeesData) { 
             employees.value = employeesData;
+            // 로그인한 사원의 팀 이름과 일치하는 직원 목록 필터링
+            filterEmployeesByTeam();
         } else {
             employees.value = [];
+            filteredEmployees.value = [];
         }
 
-        filterByDepartmentAndTeam();
     } catch (error) {
         console.error('직원 데이터를 가져오는 중 오류 발생:', error);
         employees.value = [];
+        filteredEmployees.value = [];
     }
+}
+
+// 팀 이름으로 직원 목록 필터링 함수
+function filterEmployeesByTeam() {
+    const teamName = authStore.employeeData.teamName;
+    filteredEmployees.value = employees.value.filter(employee => employee.teamName === teamName);
 }
 
 async function fetchDepartments() {
@@ -95,7 +103,6 @@ async function fetchDepartments() {
         const departmentsData = await fetchGet('http://localhost:8080/api/v1/employee/departments', router.push, router.currentRoute.value);
 
         if (departmentsData) {
-            // JSON.parse 제거
             departments.value = [{ deptId: null, deptName: '전체 부서' }, ...departmentsData];
         } else {
             departments.value = [{ deptId: null, deptName: '전체 부서' }];
@@ -104,53 +111,6 @@ async function fetchDepartments() {
         console.error('부서 데이터를 가져오는 중 오류 발생:', error);
         departments.value = [{ deptId: null, deptName: '전체 부서' }];
     }
-}
-
-async function fetchTeams(deptId) {
-    try {
-        const teamsData = await fetchGet(`http://localhost:8080/api/v1/employee/teams?deptId=${deptId}`, router.push, router.currentRoute.value);
-
-        if (teamsData) {
-            teams.value = [{ teamId: null, teamName: '전체 팀' }, ...teamsData]; // JSON.parse 제거
-        } else {
-            teams.value = [{ teamId: null, teamName: '전체 팀' }];
-        }
-    } catch (error) {
-        console.error('팀 데이터를 가져오는 중 오류 발생:', error);
-        teams.value = [{ teamId: null, teamName: '전체 팀' }];
-    }
-}
-
-// 부서 및 팀에 따라 직원 목록 필터링
-function filterByDepartmentAndTeam() {
-    console.log('선택된 부서:', selectedDepartment.value); // 로그 추가
-    console.log('부서 변경됨:', selectedDepartment.value); // 로그 추가
-
-    if (selectedDepartment.value && selectedDepartment.value.deptId) {
-        fetchTeams(selectedDepartment.value.deptId); // 선택한 부서 ID 전달
-    } else {
-        teams.value = [{ teamId: null, teamName: '전체 팀' }]; // 부서가 선택되지 않은 경우 기본 팀 추가
-    }
-
-    filteredEmployees.value = employees.value.filter((employee) => {
-        const matchesDepartment = !selectedDepartment.value || selectedDepartment.value.deptName === '전체 부서' || employee.deptName === selectedDepartment.value.deptName;
-        const matchesTeam = !selectedTeam.value || selectedTeam.value.teamName === '전체 팀' || employee.teamName === selectedTeam.value.teamName;
-        return matchesDepartment && matchesTeam;
-    });
-}
-
-// 필터 초기화
-function initFilters() {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        employeeName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        deptName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        jobName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        teamName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        positionName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        employeeId: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        joinDate: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] }
-    };
 }
 
 // 직원 상세 보기 함수
@@ -180,7 +140,6 @@ function onRowUnselect(event) {
 onBeforeMount(() => {
     fetchEmployeeList();
     fetchDepartments();
-    initFilters();
 });
 </script>
 
