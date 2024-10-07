@@ -2,16 +2,25 @@ package com.hq.heroes.auth.controller;
 
 import com.hq.heroes.auth.dto.form.JoinDTO;
 import com.hq.heroes.auth.service.JoinService;
+import com.hq.heroes.common.config.UploadProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,12 +29,33 @@ public class SignController {
 
     private final JoinService joinService;
 
+    @Autowired
+    private UploadProperties uploadProperties; // UploadProperties 주입
+
     @PostMapping("/join")
     @ResponseBody
     @Operation(summary = "회원 가입", description = "회원 가입 기능")
     public ResponseEntity<?> join(@ModelAttribute @Validated JoinDTO joinDto) {
         System.out.println("joinDto = " + joinDto.toString());
         Map<String, Object> response = new HashMap<>();
+
+        // 프로필 이미지 파일 저장 처리
+        if (joinDto.getProfileImage() != null) {
+            String originalFileName = joinDto.getProfileImage().getOriginalFilename();
+            String fileExtension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf(".")) : ""; // 확장자 추출
+            String uuidFileName = UUID.randomUUID().toString() + fileExtension; // UUID로 파일 이름 생성
+            Path filePath = Paths.get(uploadProperties.getDir(), uuidFileName); // 파일 경로 설정
+
+            try {
+                Files.createDirectories(filePath.getParent()); // 디렉토리 생성
+                joinDto.getProfileImage().transferTo(filePath.toFile()); // 파일 저장
+            } catch (IOException e) {
+                response.put("success", false);
+                response.put("message", "파일 업로드 실패: " + e.getMessage());
+                return ResponseEntity.status(400).body(response);
+            }
+        }
+
         try {
             String joinResult = joinService.join(joinDto);
             response.put("success", true);
