@@ -51,7 +51,7 @@ const router = createRouter({
                     path: '/education-apply/education-detail/:courseId',
                     name: 'educationDetail',
                     component: () => import('@/views/pages/education/education-management/EducationDetail.vue')
-                },                
+                },
                 {
                     path: '/certificate-management',
                     name: 'certification',
@@ -81,11 +81,6 @@ const router = createRouter({
                     path: '/apply-overtime',
                     name: 'apply-overtime',
                     component: () => import('@/views/pages/HQattendance/overtime/apply-overtime.vue')
-                },
-                {
-                    path: '/leave-status',
-                    name: 'leave-status',
-                    component: () => import('@/views/pages/HQattendance/attendanceStatus/leave-status.vue')
                 },
                 {
                     path: '/monthly-attendance-status',
