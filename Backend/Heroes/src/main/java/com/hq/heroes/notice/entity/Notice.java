@@ -63,10 +63,12 @@ public class Notice {
     public NoticeResponseDTO toResponseDTO() {
         return NoticeResponseDTO.builder()
                 .noticeId(this.noticeId) // 공지사항 ID
-                .employeeName(this.employee.getEmployeeName()) // 작성자 이름 (Employee 엔티티에서 가져옴)
+                .employee(this.employee) // 작성자 이름 (Employee 엔티티에서 가져옴)
+                .updater(this.updater)
                 .title(this.title) // 제목
                 .content(this.content) // 내용
-                .category(this.category) // 카테고리
+                .categoryId(this.category.getNoticeCategoryId()) // 카테고리 ID
+                .categoryName(this.category.getCategoryName()) // 카테고리 이름
                 .build();
     }
 

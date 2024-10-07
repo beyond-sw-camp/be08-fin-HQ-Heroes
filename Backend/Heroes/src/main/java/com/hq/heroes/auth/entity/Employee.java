@@ -93,7 +93,7 @@ public class Employee {
     private String detailedAddress;
 
     // 증명 사진 URL
-    @Column(name = "profile_image_url")
+    @Column(name = "profile_image_url", columnDefinition = "TEXT")
     private String profileImageUrl;
 
     // Team과의 Many-to-One 관계
