@@ -1,14 +1,11 @@
 package com.hq.heroes.education.entity;
 
 import com.hq.heroes.education.dto.EducationResponseDTO;
-import com.hq.heroes.educationCurriculum.entity.EducationCurriculum;
-import com.hq.heroes.employeeCertification.entity.EmployeeCertification;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -50,6 +47,11 @@ public class Education {
     @JoinColumn(name = "curriculum_id", nullable = false)
     private EducationCurriculum educationCurriculum;
 
+    // EducationCategory과 Many-to-One 관계 (카테고리 번호)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private EducationCategory educationCategory;
+
     public EducationResponseDTO toResponseDTO() {
         return EducationResponseDTO.builder()
                 .educationId(this.educationId)
@@ -58,7 +60,6 @@ public class Education {
                 .institution(this.institution)
                 .educationStart(this.startDate)
                 .educationEnd(this.endDate)
-
                 .build();
     }
 }
