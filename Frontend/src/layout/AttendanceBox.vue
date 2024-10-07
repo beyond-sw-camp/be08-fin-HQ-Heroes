@@ -19,7 +19,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router'; // 추가: router 사용
-import fetchGet from '@/views/pages/auth/service/AuthApiService';
+import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService'; // 서비스 파일에서 메소드 가져오기
 
 const currentDay = ref('');
 const employeeData = ref({
@@ -29,6 +29,7 @@ const employeeData = ref({
   deptName: '',
   jobName: '',
   positionName: '',
+  email: '',
   joinDate: '',
   birthDate: '',
   phoneNumber: '',
@@ -50,27 +51,16 @@ const getKoreanDate = () => {
   currentDay.value = `${year}/${month}/${dayOfMonth}(${day})`;
 };
 
-async function getLoginEmployeeInfo() {
-  try {
-    const employeeId = window.localStorage.getItem('employeeId');
-    console.log(employeeId);
-    const employeesData = await fetchGet(`http://localhost:8080/api/v1/employee/employees/${employeeId}`, router.push, router.currentRoute.value);
-
-    if (employeesData) {
-      employeeData.value = employeesData;
-    } else {
-      employeeData.value = {};
-    }
-  } catch (error) {
-    console.error("직원 데이터를 가져오는 중 오류 발생:", error);
-    employeeData.value = {};
-  }
-}
-
-onMounted(() => {
+onMounted(async () => {
   getKoreanDate();
-  getLoginEmployeeInfo();
+
+  const employeeId = window.localStorage.getItem('employeeId');
+  const data = await getLoginEmployeeInfo(employeeId);
+  if (data) {
+    employeeData.value = data;
+  }
 });
+
 </script>
 
 <style scoped>

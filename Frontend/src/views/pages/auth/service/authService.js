@@ -1,6 +1,7 @@
 import { useAuthStore } from '@/stores/authStore';
 import axios from 'axios';
 import { useCookies } from 'vue3-cookies';
+import fetchGet from '@/views/pages/auth/service/AuthApiService';
 
 const API_URL = 'http://localhost:8080';
 const { cookies } = useCookies(); // Initialize the cookies
@@ -93,6 +94,24 @@ const logout = async () => {
     console.error('로그아웃 중 오류 발생: ', error);
   }
 };
+
+// 로그인 된 회원정보 불러오는 메서드
+export const getLoginEmployeeInfo = async (employeeId) => {
+  try {
+    // fetchGet 메서드 사용
+    const employeeData = await fetchGet(`${API_URL}/api/v1/employee/employees/${employeeId}`);
+
+    if (employeeData) {
+      return employeeData;
+    } else {
+      throw new Error('직원 데이터를 불러오는 데 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('직원 데이터를 가져오는 중 오류 발생:', error);
+    return null;
+  }
+};
+
 
 export default {
   register,

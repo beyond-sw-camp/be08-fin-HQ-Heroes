@@ -1,14 +1,11 @@
 package com.hq.heroes.employee.dto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -20,6 +17,7 @@ public class EmployeeDTO {
     private String employeeName;
     private String teamName;
     private String deptName;
+    private String email;
     private String jobName;
     private String positionName;
     private LocalDate joinDate;

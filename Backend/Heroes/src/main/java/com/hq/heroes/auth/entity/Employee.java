@@ -8,15 +8,12 @@ import com.hq.heroes.employee.entity.Job;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.entity.Team;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -27,6 +24,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @AllArgsConstructor
 @Builder
 @Table(name = "tb_employee")
+@ToString(exclude = {"team", "department", "position", "job"})
 public class Employee {
 
     //    사원 번호 (로그인시 필요)
@@ -147,10 +145,11 @@ public class Employee {
         return EmployeeDTO.builder()
                 .employeeId(this.employeeId)
                 .employeeName(this.employeeName)
-                .teamName(this.team != null ? this.team.getTeamName() : null)  // Fetching team name
-                .deptName(this.department != null ? this.department.getDeptName() : null)  // Fetching department name
-                .jobName(this.job != null ? this.job.getJobName() : null)  // Fetching job name
-                .positionName(this.position != null ? this.position.getPositionName() : null)  // Fetching position name
+                .teamName(this.team != null ? this.team.getTeamName() : null)
+                .deptName(this.department != null ? this.department.getDeptName() : null)
+                .jobName(this.job != null ? this.job.getJobName() : null)
+                .positionName(this.position != null ? this.position.getPositionName() : null)
+                .email(this.email)
                 .joinDate(this.joinDate)
                 .birthDate(this.birthDate)
                 .phoneNumber(this.phoneNumber)
@@ -160,4 +159,5 @@ public class Employee {
                 .profileImageUrl(this.profileImageUrl)
                 .build();
     }
+
 }
