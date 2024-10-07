@@ -1,6 +1,5 @@
-package com.hq.heroes.educationCurriculum.entity;
+package com.hq.heroes.education.entity;
 
-import com.hq.heroes.education.entity.Education;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

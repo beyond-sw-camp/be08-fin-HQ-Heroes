@@ -8,7 +8,7 @@ import com.hq.heroes.salary.repository.SalaryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -48,7 +48,7 @@ public class SalaryServiceImpl implements SalaryService {
             if (salary != null) {
                 salary.setBaseSalary(salaryDTO.getBaseSalary());
                 salary.setBonus(salaryDTO.getBonus());
-                salary.setSalaryMonth(new Date());
+                salary.setSalaryMonth(LocalDateTime.now());
                 Salary updatedSalary = salaryRepository.save(salary);
                 return mapToDTO(updatedSalary);
             }
@@ -95,7 +95,7 @@ public class SalaryServiceImpl implements SalaryService {
         }
         salary.setBaseSalary(salaryDTO.getBaseSalary());
         salary.setBonus(salaryDTO.getBonus());
-        salary.setSalaryMonth(new Date());
+        salary.setSalaryMonth(LocalDateTime.now());
         return salary;
     }
 }

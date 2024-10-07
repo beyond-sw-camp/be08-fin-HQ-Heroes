@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -65,5 +66,7 @@ public class JoinDTO {
 
     // Job ID (필수)
     private Long jobId;
+
+    private MultipartFile profileImage;  // 프로필 이미지 필드 추가
 }
 

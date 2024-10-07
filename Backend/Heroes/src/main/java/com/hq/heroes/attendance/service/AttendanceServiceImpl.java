@@ -31,8 +31,6 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .checkIn(attendance.getCheckIn())
                 .checkOut(attendance.getCheckOut())
                 .status(attendance.getStatus())
-                .createdAt(attendance.getCreatedAt())
-                .updatedAt(attendance.getUpdatedAt())
                 .build();
     }
 
