@@ -5,16 +5,16 @@
             <Column field="certificationId" header="번호" />
             <Column field="certificationName" header="자격명" />
             <Column field="name" header="이름" />
-            <Column field="evaluatorPosition" header="직급" />
             <Column field="evaluationType" header="평가 기관" />
             <Column field="createdAt" header="취득일" :body="(data) => formatDate(data.createdAt)" />
         </DataTable>
-
+    </div>
+    <div class="card">
         <!-- 자격증 추천 섹션 -->
         <h2 class="font-semibold text-xl my-6">회사가 추천하는 자격증</h2>
         <div class="grid grid-cols-12 gap-4">
             <div class="col-span-12 lg:col-span-6 xl:col-span-3" v-for="cert in recommendedCertifications" :key="cert.certificationId">
-                <div class="card mb-0">
+                <div class="card mb-1 border border-gray-300 p-4"> 
                     <div class="flex justify-between mb-4">
                         <div>
                             <span class="block text-muted-color font-medium mb-4">{{ cert.category }}</span>
@@ -36,7 +36,6 @@
             <h3>자격증 정보</h3>
             <p><strong>자격명:</strong> {{ selectedCertification.certificationName }}</p>
             <p><strong>이름:</strong> {{ selectedCertification.name }}</p>
-            <p><strong>직급:</strong> {{ selectedCertification.evaluatorPosition }}</p>
             <p><strong>평가 기관:</strong> {{ selectedCertification.evaluationType }}</p>
             <p><strong>취득일:</strong> {{ formatDate(selectedCertification.createdAt) }}</p>
         </div>
@@ -51,13 +50,18 @@ import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import Dialog from 'primevue/dialog';
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref } from 'vue';
 
-// 자격증 목록 데이터
-const certifications = ref([]);
+// 자격증 목록 더미 데이터
+const certifications = ref([
+    { certificationId: 1, certificationName: '정보처리기사', name: '홍길동', evaluationType: '한국산업인력공단', createdAt: new Date('2022-04-15') },
+    { certificationId: 2, certificationName: '컴퓨터활용능력 1급', name: '김영희', evaluationType: '대한상공회의소', createdAt: new Date('2021-08-10') },
+    { certificationId: 3, certificationName: '네트워크관리사', name: '이철수', evaluationType: '한국정보통신협회', createdAt: new Date('2020-05-22') },
+    { certificationId: 4, certificationName: '정보보안기사', name: '박민수', evaluationType: '한국산업인력공단', createdAt: new Date('2023-02-19') },
+    { certificationId: 5, certificationName: '데이터분석 전문가', name: '최유리', evaluationType: '한국데이터산업진흥원', createdAt: new Date('2019-12-03') }
+]);
 
-// 추천 자격증 목록
+// 추천 자격증 목록 더미 데이터
 const recommendedCertifications = ref([
     {
         certificationId: 1,
@@ -93,37 +97,28 @@ const recommendedCertifications = ref([
 const selectedCertification = ref(null);
 const displayDialog = ref(false);
 
-// 자격증 목록 불러오기
-async function fetchCertifications() {
-    try {
-        const response = await axios.get('/api/v1/certification-service/certification');
-        certifications.value = response.data;
-    } catch (error) {
-        console.error('자격증 목록을 불러오는 중 오류가 발생했습니다:', error);
-    }
-}
-
-// 페이지 로드 시 자격증 목록을 불러옴
-onMounted(() => {
-    fetchCertifications();
-});
-
 // 자격증 세부 사항 보여주기
 function showCertificationDetails(event) {
     selectedCertification.value = event.data;
     displayDialog.value = true;
 }
 
-// 날짜 포맷팅 함수 (yyyy/mm/dd 형식)
-function formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}/${month}/${day}`;
+// 날짜 포맷팅
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const options = { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: false };
+    return new Date(dateString).toLocaleString('ko-KR', options);
 }
 
 // 현재 날짜
 const currentDate = formatDate(new Date());
+
 </script>
 
 <style scoped>

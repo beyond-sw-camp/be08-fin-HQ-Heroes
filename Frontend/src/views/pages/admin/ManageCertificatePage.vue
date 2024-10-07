@@ -10,7 +10,8 @@
                     <Dropdown v-model="selectedIssuer" :options="issuers" optionLabel="name" placeholder="발급 기관" @change="filterCertifications" />
                     <InputText v-model="globalFilter" placeholder="자격증 검색 (이름, 코드)" @input="filterCertifications" />
                 </div>
-                <Button label="자격증 추가" icon="pi pi-plus" class="custom-button" @click="openAddCertificationDialog" />
+                <!-- '추가하기' 버튼 -->
+                <Button label="추가하기" icon="pi pi-plus" class="custom-button" @click="goToWriteNotice" />
             </div>
             <DataTable
                 :value="filteredCertifications"
@@ -29,8 +30,8 @@
                 <Column field="certificationName" sortable header="자격증명" />
                 <Column field="category" sortable header="카테고리" />
                 <Column field="issuer" sortable header="발급 기관" />
-                <Column field="issueDate" sortable header="발급일" />
-                <Column field="expiryDate" sortable header="만료일" />
+                <Column field="issueDate" sortable header="신청 날짜" />
+                <Column field="expiryDate" sortable header="시험 날짜" />
             </DataTable>
         </div>
 
@@ -54,11 +55,11 @@
                     <Dropdown v-model="newCertification.issuer" :options="issuers" optionLabel="name" placeholder="발급 기관 선택" class="w-full" />
                 </div>
                 <div>
-                    <label for="issueDate" class="block font-bold mb-3">발급일</label>
+                    <label for="issueDate" class="block font-bold mb-3">신청 날짜</label>
                     <InputText id="issueDate" type="datetime-local" v-model="newCertification.issueDate" required="true" class="w-full" />
                 </div>
                 <div>
-                    <label for="expiryDate" class="block font-bold mb-3">만료일</label>
+                    <label for="expiryDate" class="block font-bold mb-3">시험 날짜</label>
                     <InputText id="expiryDate" type="datetime-local" v-model="newCertification.expiryDate" class="w-full" />
                 </div>
             </div>
@@ -76,12 +77,13 @@
                 <p><strong>자격증명:</strong> {{ selectedCertification.certificationName }}</p>
                 <p><strong>카테고리:</strong> {{ selectedCertification.category }}</p>
                 <p><strong>발급 기관:</strong> {{ selectedCertification.issuer }}</p>
-                <p><strong>발급일:</strong> {{ formatDate(selectedCertification.issueDate) }}</p>
-                <p><strong>만료일:</strong> {{ formatDate(selectedCertification.expiryDate) }}</p>
+                <p><strong>신청 날짜:</strong> {{ formatDate(selectedCertification.issueDate) }}</p>
+                <p><strong>시험 날짜:</strong> {{ formatDate(selectedCertification.expiryDate) }}</p>
             </div>
 
             <template #footer>
-                <Button label="닫기" icon="pi pi-times" text class="p-button-text" @click="closeDetailDialog" />
+                <Button label="수정" icon="pi pi-pencil" class="p-button-warning" @click="openEditEducationDialog" />
+                <Button label="삭제" icon="pi pi-trash" class="p-button-danger" @click="deleteEducation" />
             </template>
         </Dialog>
     </div>
@@ -94,7 +96,11 @@ import DataTable from 'primevue/datatable';
 import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
+import { useRouter } from 'vue-router';
 import { onBeforeMount, ref } from 'vue';
+
+// Vue Router 사용을 위한 선언
+const router = useRouter();
 
 // 자격증 목록 및 필터링 관련 데이터
 const certifications = ref([]);
@@ -120,6 +126,11 @@ const newCertification = ref({
     expiryDate: ''
 });
 
+// '추가하기' 버튼 클릭 시 호출되는 함수
+function goToWriteNotice() {
+    window.location.href = 'http://localhost:5173/write-notice'; // 새로운 URL로 이동
+}
+
 // 더미 데이터를 사용한 자격증 목록
 async function fetchCertifications() {
     certifications.value = [
@@ -127,7 +138,6 @@ async function fetchCertifications() {
         { certificationId: 2, certificationCode: 'CERT002', certificationName: '정보보안기사', category: '보안', issuer: 'KISA', issueDate: '2021-06-01', expiryDate: '2024-06-01' },
         { certificationId: 3, certificationCode: 'CERT003', certificationName: '경영지도사', category: '경영', issuer: 'HRD Korea', issueDate: '2020-11-01', expiryDate: '2023-11-01' }
     ];
-    // 더미 데이터로 초기 필터링된 데이터를 설정
     filteredCertifications.value = [...certifications.value];
 }
 
@@ -166,30 +176,21 @@ function resetNewCertification() {
     };
 }
 
-// 모달 닫기 함수
-function closeDialog() {
-    displayAddDialog.value = false;
-}
-
 // 자격증 상세 정보 모달 열기
 function openCertificationDetail(event) {
     selectedCertification.value = event.data;
     displayDetailDialog.value = true;
 }
 
-// 자격증 상세 모달 닫기
-function closeDetailDialog() {
+// 모달 닫기 함수
+function closeDialog() {
+    displayAddDialog.value = false;
     displayDetailDialog.value = false;
 }
 
-// 날짜 형식 변환 함수
+// 날짜 포맷팅 함수
 function formatDate(date) {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    });
+    return new Date(date).toLocaleDateString('ko-KR');
 }
 
 onBeforeMount(() => {
@@ -198,44 +199,11 @@ onBeforeMount(() => {
 </script>
 
 <style scoped>
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.search-filter {
-    display: flex;
-    gap: 10px;
-}
-.flex {
-    display: flex;
-}
-.flex-col {
-    flex-direction: column;
-}
-.gap-6 {
-    gap: 1.5rem;
-}
-.w-full {
-    width: 100%;
-}
-.p-button-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-}
-.p-button-text {
-    color: #007bff;
-}
 .custom-button {
-    background-color: #6366F1; /* 기본 배경색 */
-    color: white; /* 글자색 */
-    border: none; /* 테두리 없애기 */
-    border-radius: 5px; /* 모서리 둥글게 */
-    cursor: pointer; /* 커서 포인터로 변경 */
-    transition: background-color 0.2s; /* 배경색 변화 효과 */
+    background-color: #28a745;
+    color: white;
 }
-
 .custom-button:hover {
-    background-color: #4f46e5; /* 호버 시 배경색 변화 */
+    background-color: #218838;
 }
 </style>
