@@ -43,7 +43,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'; // onMounted 추가
 import { useRouter } from 'vue-router';
-import authService from '../auth/service/authService';
+import authService, { getLoginEmployeeInfo } from '../auth/service/authService';
 import { useAuthStore } from '../../../stores/authStore';
 
 const employeeId = ref('');
@@ -68,6 +68,8 @@ const handleLogin = async () => {
     if (response.success) {
       alert('로그인 성공!');
       router.push('/');
+      authStore.setEmployeeData(getLoginEmployeeInfo(employeeId));
+
     } else {
       alert('로그인 실패. 다시 시도해주세요.');
     }
