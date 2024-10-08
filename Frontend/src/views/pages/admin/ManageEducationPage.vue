@@ -4,93 +4,72 @@
             <div class="flex flex-row justify-between mb-4">
                 <label class="text-xl font-bold">교육 관리</label>
             </div>
-            <div class="flex flex-row justify-between mb-4">
-                <div class="search-filter">
-                    <Dropdown v-model="selectedCategory" :options="categories" optionLabel="name" placeholder="교육 카테고리" @change="filterEducations" />
-                    <Dropdown v-model="selectedInstructorName" :options="instructorNames" optionLabel="name" placeholder="강사" @change="filterEducations" />
-                    <InputText v-model="globalFilter" placeholder="교육 검색 (이름, 코드)" @input="filterEducations" />
+
+            <!-- 필터 및 검색 섹션 -->
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <Dropdown v-model="selectedCategory" :options="categories" optionLabel="name" placeholder="카테고리를 선택하세요" @change="filterEducations" class="mr-2" />
+                    <Calendar v-model="selectedDate" placeholder="날짜를 선택하세요" :showIcon="true" class="mr-2" @change="filterEducations" />
+                    <div class="relative search-container">
+                        <InputText v-model="globalFilter" placeholder="검색" class="pl-8 search-input" />
+                        <i class="pi pi-search search-icon" />
+                    </div>
                 </div>
-                <Button label="교육 추가" icon="pi pi-plus" class="custom-button" @click="navigateToWriteNotice" />
+                <Button label="추가하기" icon="pi pi-plus" class="custom-button" @click="goToWriteNotice" />
             </div>
+
+            <!-- 교육 목록 테이블 -->
             <DataTable
                 :value="filteredEducations"
                 paginator
                 :rows="10"
-                :globalFilterFields="['educationName', 'educationId']"
+                :globalFilterFields="['educationName', 'category', 'institution']"
                 dataKey="educationId"
-                @row-click="openEducationDetail"
+                @row-click="showEducationDetails"
                 :metaKeySelection="false"
-                @rowSelect="onRowSelect"
-                @rowUnselect="onRowUnselect"
                 selectionMode="single"
                 removableSort
             >
                 <Column field="educationId" sortable header="No." />
                 <Column field="category" sortable header="카테고리" />
-                <Column field="educationName" sortable header="교육명" />
-                <Column field="instructorName" sortable header="강사" />
-                <Column field="educationStart" sortable header="신청 기간" :body="(rowData) => formatDate(rowData.educationStart)" />
-                <Column field="educationEnd" sortable header="수강 기간" :body="(rowData) => formatDate(rowData.educationEnd)" />
+                <Column field="educationName" sortable header="교육 명" />
+                <Column field="institution" sortable header="발급 기관" />
+                <Column 
+                    field="educationApplyStart" 
+                    sortable 
+                    header="신청 기간" 
+                >
+                    <template #body="{ data }">
+                        {{ formatDate(data.educationApplyStart) }} ~ {{ formatDate(data.educationApplyEnd) }}
+                    </template>     
+                </Column>
+                <Column 
+                    field="educationDate" 
+                    sortable 
+                    header="교육 기간" 
+                >
+                    <template #body="{ data }">
+                        {{ formatDate(data.educationStart) }} ~ {{ formatDate(data.educationEnd) }}
+                    </template>
+                </Column>
             </DataTable>
         </div>
-
-        <!-- 교육 추가/수정 모달 -->
-        <Dialog v-model:visible="displayAddDialog" modal="true" :header="isEditing ? '교육 수정' : '새로운 교육 추가'" :style="{ width: '450px' }" :draggable="false" :closable="true">
-            <div class="flex flex-col gap-6">
-                <div>
-                    <label for="educationName" class="block font-bold mb-3">교육명</label>
-                    <InputText id="educationName" v-model="newEducation.educationName" required="true" class="w-full" />
-                </div>
-                <div>
-                    <label for="category" class="block font-bold mb-3">카테고리</label>
-                    <InputText id="category" v-model="newEducation.category" required="true" placeholder="카테고리 입력" class="w-full" />
-                </div>
-                <div>
-                    <label for="instructorName" class="block font-bold mb-3">강사</label>
-                    <InputText id="instructorName" v-model="newEducation.instructorName" required="true" placeholder="강사 이름 입력" class="w-full" />
-                </div>
-                <div class="time-section">
-                    <div class="time-block">
-                        <label for="educationStart" class="block font-bold mb-3">신청 기간</label>
-                        <input type="datetime-local" id="educationStart" v-model="newEducation.educationStart" required="true" class="w-full" />
-                    </div>
-                    <div class="time-block">
-                        <label for="educationEnd" class="block font-bold mb-3">수강 기간</label>
-                        <input type="datetime-local" id="educationEnd" v-model="newEducation.educationEnd" required="true" class="w-full" />
-                    </div>
-                </div>
-                <div>
-                    <label for="institution" class="block font-bold mb-3">기관명</label>
-                    <InputText id="institution" v-model="newEducation.institution" required="true" class="w-full" />
-                </div>
-                <div>
-                    <label for="totalParticipants" class="block font-bold mb-3">총 인원</label>
-                    <InputText id="totalParticipants" v-model="newEducation.totalParticipants" required="true" class="w-full" />
-                </div>
-            </div>
-
-            <template #footer>
-                <Button label="취소" icon="pi pi-times" text class="p-button-text" @click="closeDialog" />
-                <Button label="저장" icon="pi pi-check" class="p-button-primary" @click="isEditing ? updateEducation() : addEducation()" />
-            </template>
-        </Dialog>
-
         <!-- 교육 상세 정보 모달 -->
-        <Dialog v-model:visible="displayDetailDialog" modal="true" header="교육 상세 정보" :style="{ width: '450px' }" :draggable="false" :closable="true">
+        <Dialog v-model:visible="displayDetailDialog" modal="true" header="교육 상세 정보" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="true">
             <div v-if="selectedEducation">
                 <p><strong>교육 코드:</strong> {{ selectedEducation.educationId }}</p>
                 <p><strong>교육명:</strong> {{ selectedEducation.educationName }}</p>
                 <p><strong>카테고리:</strong> {{ selectedEducation.category }}</p>
                 <p><strong>강사:</strong> {{ selectedEducation.instructorName }}</p>
-                <p><strong>시작일:</strong> {{ formatDate(selectedEducation.educationStart) }}</p>
-                <p><strong>종료일:</strong> {{ formatDate(selectedEducation.educationEnd) }}</p>
+                <p><strong>신청 기간:</strong> {{ formatDate(selectedEducation.educationApplyStart) }} ~ {{ formatDate(selectedEducation.educationApplyEnd) }}</p>
+                <p><strong>교육 기간:</strong> {{ formatDate(selectedEducation.educationStart) }} ~ {{ formatDate(selectedEducation.educationEnd) }}</p>
                 <p><strong>기관명:</strong> {{ selectedEducation.institution }}</p>
+                <p><strong>현재 인원:</strong> {{ selectedEducation.participant }}</p>
                 <p><strong>총 인원:</strong> {{ selectedEducation.totalParticipants }}</p>
             </div>
-
             <template #footer>
-                <Button label="수정" icon="pi pi-pencil" class="p-button-warning" @click="openEditEducationDialog" />
-                <Button label="삭제" icon="pi pi-trash" class="p-button-danger" @click="deleteEducation" />
+                <Button label="수정" icon="pi pi-pencil" class="p-button-warning" @click="navigateToWriteNotice" />
+                <Button label="삭제" icon="pi pi-trash" class="p-button-danger" @click="confirmDeleteEducation" />
             </template>
         </Dialog>
     </div>
@@ -98,135 +77,168 @@
 
 <script setup>
 import axios from 'axios';
-import { useRouter } from 'vue-router'; // vue-router import 추가
+import { useRouter } from 'vue-router';
+import { ref, onBeforeMount } from 'vue';
 import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
-import { onBeforeMount, ref } from 'vue';
+import Calendar from 'primevue/calendar';
 
-// 교육 목록 및 필터링 관련 데이터
+// 필터 및 검색 관련 데이터
 const educations = ref([]);
 const filteredEducations = ref([]);
 const selectedEducation = ref(null);
-const displayAddDialog = ref(false);
 const displayDetailDialog = ref(false);
 const selectedCategory = ref(null);
-const selectedInstructorName = ref(null);
+const selectedDate = ref(null);
 const globalFilter = ref('');
-const isEditing = ref(false);
 
-// 카테고리와 강사 리스트
+// 카테고리 목록
 const categories = ref([{ name: '전체' }, { name: '개발' }, { name: '디자인' }, { name: '인사' }]);
-const instructorNames = ref([{ name: '전체' }, { name: '홍길동' }, { name: '이순신' }, { name: '김영희' }]);
 
-// Vue Router 사용 설정
+// Vue Router 설정
 const router = useRouter();
-
-// API 호출을 통해 교육 목록 가져오기
-async function fetchEducations() {
-    try {
-        const response = await axios.get('http://localhost:8080/api/v1/education-service/education');
-        educations.value = response.data;
-        filteredEducations.value = [...educations.value].map(education => ({
-            ...education,
-            educationStart: formatDate(education.educationStart),
-            educationEnd: formatDate(education.educationEnd),
-        }));
-    } catch (error) {
-        console.error('교육 목록을 가져오는 중 오류 발생:', error);
-    }
-}
 
 // 필터링 함수
 function filterEducations() {
     filteredEducations.value = educations.value.filter((education) => {
         const matchesCategory = selectedCategory.value?.name !== '전체' ? education.category === selectedCategory.value.name : true;
-        const matchesInstructorName = selectedInstructorName.value?.name !== '전체' ? education.instructorName === selectedInstructorName.value.name : true;
-        const matchesFilter = globalFilter.value ? education.educationName.includes(globalFilter.value) || education.educationId.includes(globalFilter.value) : true;
-        return matchesCategory && matchesInstructorName && matchesFilter;
-    }).map(education => ({
-        ...education,
-        educationStart: formatDate(education.educationStart),
-        educationEnd: formatDate(education.educationEnd),
-    }));
+        const matchesDate = selectedDate.value ? new Date(education.educationStart) <= selectedDate.value && new Date(education.educationEnd) >= selectedDate.value : true;
+        const matchesGlobalFilter = globalFilter.value
+            ? education.educationName.toLowerCase().includes(globalFilter.value.toLowerCase())
+            : true;
+
+        return matchesCategory && matchesDate && matchesGlobalFilter;
+    });
 }
 
-// "추가하기" 버튼 클릭 시 페이지 이동
-function navigateToWriteNotice() {
-    window.location.href = 'http://localhost:5173/write-notice'; // 새로운 URL로 이동
-}
-
-// 교육 추가 모달 열기
-function openAddEducationDialog() {
-    isEditing.value = false;
-    resetNewEducation();
-    displayAddDialog.value = true;
-}
-
-// 교육 수정 모달 열기
-function openEditEducationDialog() {
-    isEditing.value = true;
-    Object.assign(newEducation.value, selectedEducation.value);
-    displayAddDialog.value = true;
-}
-
-// 교육 삭제
-async function deleteEducation() {
-    if (selectedEducation.value) {
-        try {
-            await axios.delete(`http://localhost:8080/api/v1/education-service/education/${selectedEducation.value.educationId}`);
-            fetchEducations();
-            selectedEducation.value = null;
-            displayDetailDialog.value = false;
-        } catch (error) {
-            console.error('교육 삭제 중 오류 발생:', error);
-        }
-    }
-}
-
-// 교육 상세보기 모달 열기
-function openEducationDetail(event) {
+// 교육 상세보기 함수
+function showEducationDetails(event) {
     selectedEducation.value = event.data;
     displayDetailDialog.value = true;
 }
 
-// 데이터 리셋
-function resetNewEducation() {
-    newEducation.value = {
-        educationName: '',
-        category: '',
-        instructorName: '',
-        educationStart: '',
-        educationEnd: '',
-        institution: '',
-        totalParticipants: '',
-    };
+// 교육 추가 화면으로 이동
+function goToWriteNotice() {
+    router.push('/write-notice');
+}
+
+// 교육 삭제 확인 함수
+function confirmDeleteEducation() {
+    const confirmDelete = window.confirm("해당 교육을 삭제하시겠습니까?");
+    if (confirmDelete) {
+        deleteEducation();
+    }
+}
+
+// 교육 삭제 함수
+function deleteEducation() {
+    // 여기에서 실제 삭제 작업을 수행하세요.
+    console.log("교육이 삭제되었습니다.", selectedEducation.educationId);
+    // 삭제 후 모달 닫기 및 데이터 새로 고침 등의 작업 추가
+}
+
+// 수정 화면으로 이동하는 함수 이름 변경
+function navigateToWriteNotice() {
+    router.push('/write-notice');
+}
+
+// 교육 목록 가져오는 함수
+function fetchEducations() {
+    educations.value = [
+        {
+            educationId: '1',
+            educationName: 'Vue.js 기초',
+            category: '개발',
+            instructorName: '홍길동',
+            educationApplyStart: '2024-10-01',
+            educationApplyEnd: '2024-10-10',
+            educationStart: '2024-10-15',
+            educationEnd: '2024-10-20',
+            institution: '코드스쿨',
+            participant: 10,
+            totalParticipants: 30
+        },
+        {
+            educationId: '2',
+            educationName: 'UI/UX 디자인',
+            category: '디자인',
+            instructorName: '이순신',
+            educationApplyStart: '2024-10-05',
+            educationApplyEnd: '2024-10-12',
+            educationStart: '2024-10-20',
+            educationEnd: '2024-11-02',
+            institution: '디자인 아카데미',
+            participant: 10,
+            totalParticipants: 25
+        },
+        {
+            educationId: '3',
+            educationName: '인사 관리',
+            category: '인사',
+            instructorName: '김영희',
+            educationApplyStart: '2024-10-03',
+            educationApplyEnd: '2024-10-08',
+            educationStart: '2024-10-12',
+            educationEnd: '2024-10-23',
+            institution: 'HR 센터',
+            participant: 10,
+            totalParticipants: 20
+        }
+    ]; // 더미 데이터를 할당
+    filteredEducations.value = educations.value; // 필터링 목록에 추가
 }
 
 // 날짜 포맷팅 함수
 function formatDate(date) {
-    return date ? new Date(date).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) : '';
+    if (!date) return ''; // 날짜가 없을 경우 빈 문자열 반환
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
 }
 
-// 컴포넌트 마운트 시 교육 목록 가져오기
-onBeforeMount(fetchEducations);
+// 컴포넌트가 마운트될 때 교육 목록 가져오기
+onBeforeMount(() => {
+    fetchEducations(); // fetchEducations 호출
+});
 </script>
 
 <style scoped>
-.education-list-page {
-    padding: 20px;
+.search-container {
+    position: relative;
 }
+
+.search-input {
+    padding-left: 30px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 .custom-button {
-    margin-left: 10px;
+    margin-left: auto;
 }
+
 .time-section {
     display: flex;
     justify-content: space-between;
 }
+
 .time-block {
-    width: 48%;
+    flex: 1;
+    margin-right: 10px;
+}
+
+.time-block:last-child {
+    margin-right: 0;
 }
 </style>

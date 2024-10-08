@@ -65,20 +65,20 @@
             </Column>
         </DataTable>
 
-        <!-- 모달 컴포넌트
-        <Dialog v-model:visible="displayDialog" :header="selectedCourse?.courseName" modal>
+        <!-- 모달 컴포넌트 -->
+        <Dialog v-model:visible="displayDialog" modal="true" :header="selectedCourse?.courseName" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
             <div>
                 <p><strong>카테고리:</strong> {{ selectedCourse?.category }}</p>
                 <p><strong>강사명:</strong> {{ selectedCourse?.instructorName }}</p>
-                <p><strong>교육기관:</strong> {{ selectedCourse?.institute }}</p>
-                <p><strong>교육 시작일:</strong> {{ formatDate(new Date(selectedCourse?.startDate)) }}</p>
-                <p><strong>교육 종료일:</strong> {{ formatDate(new Date(selectedCourse?.endDate)) }}</p>
+                <p><strong>교육기관:</strong> {{ selectedCourse?.institution }}</p>
+                <p><strong>교육 기간:</strong> {{ formatDate(new Date(selectedCourse?.educationStart)) }} ~ {{ formatDate(new Date(selectedCourse?.educationEnd)) }}</p>
                 <p><strong>이수 여부:</strong> {{ selectedCourse?.status }}</p>
             </div>
             <template #footer>
                 <Button label="닫기" icon="pi pi-times" @click="displayDialog = false" />
             </template>
-        </Dialog> -->
+        </Dialog>
+
     </div>
 </template>
 
@@ -104,9 +104,9 @@ const selectedInstructor = ref(null);
 
 async function fetchCourseList() {
     courses.value = [
-    { courseId: 1, category: '어학', instructorName: '홍길동', educationName: '언어에 어려움을 겪고 있는 사람들을 위한 프로그램', institution: 'Hanwha Academy', educationStart: '2024-10-01', status: '이수' },
-    { courseId: 2, category: '디자인', instructorName: '이순신', educationName: 'UI/UX 디자인 기초', institution: 'Design School', educationStart: '2024-11-02', status: '진행 중' },
-    { courseId: 3, category: '관리', instructorName: '김유신', educationName: '프로젝트 관리 실무', institution: 'Management Center', educationStart: '2024-11-02', status: '이수' }
+    { courseId: 1, category: '어학', instructorName: '홍길동', educationName: '언어에 어려움을 겪고 있는 사람들을 위한 프로그램', institution: 'Hanwha Academy', educationStart: '2024-11-02', educationEnd: '2024-11-20', status: '이수' },
+    { courseId: 2, category: '디자인', instructorName: '이순신', educationName: 'UI/UX 디자인 기초', institution: 'Design School', educationStart: '2024-11-02', educationEnd: '2024-11-20', status: '진행 중' },
+    { courseId: 3, category: '관리', instructorName: '김유신', educationName: '프로젝트 관리 실무', institution: 'Management Center', educationStart: '2024-11-02', educationEnd: '2024-11-20', status: '이수' }
 ];
 
     filterByCategoryAndInstructor();
