@@ -2,12 +2,10 @@ package com.hq.heroes.certification.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

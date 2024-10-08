@@ -19,12 +19,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Table(name = "tb_employee")
-@ToString(exclude = {"team", "department", "position", "job"})
 public class Employee {
 
     //    사원 번호 (로그인시 필요)

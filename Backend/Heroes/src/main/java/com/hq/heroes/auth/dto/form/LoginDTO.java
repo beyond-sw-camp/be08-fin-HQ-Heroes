@@ -1,8 +1,9 @@
 package com.hq.heroes.auth.dto.form;
 
 import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class LoginDTO {
 
     private String employeeId;
