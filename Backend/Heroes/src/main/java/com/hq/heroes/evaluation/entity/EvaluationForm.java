@@ -29,10 +29,10 @@ public class EvaluationForm {
     private EvaluationCriteria evaluationCriteria;
 
     @Column(name = "team_goal", nullable = false)
-    private int teamGoal;
+    private String teamGoal;
 
     @Column(name = "personal_goal", nullable = false)
-    private int personalGoal;
+    private String personalGoal;
 
     // 요청 DTO를 엔티티로 변환하는 메서드
     public static EvaluationForm fromRequestDTO(EvaluationFormReqDTO requestDTO, Employee employee, EvaluationCriteria evaluationCriteria) {
