@@ -73,12 +73,10 @@ const teams = ref([]);
 
 async function fetchEmployeeList() {
     try {
-        // 권한이 필요한 페이지에 접근할 때 fetchAuthorizedPage 사용
         const employeesData = await fetchGet('http://localhost:8080/api/v1/employee/employees', router.push, router.currentRoute.value);
 
         if (employeesData) { 
             employees.value = employeesData;
-            // 로그인한 사원의 팀 이름과 일치하는 직원 목록 필터링
             filterEmployeesByTeam();
         } else {
             employees.value = [];
@@ -95,7 +93,7 @@ async function fetchEmployeeList() {
 // 팀 이름으로 직원 목록 필터링 함수
 function filterEmployeesByTeam() {
     const teamName = authStore.employeeData.teamName;
-    filteredEmployees.value = employees.value.filter(employee => employee.teamName === teamName);
+    filteredEmployees.value = employees.value.filter(employee => employee.teamName === teamName && employee.positionName === '사원');
 }
 
 async function fetchDepartments() {

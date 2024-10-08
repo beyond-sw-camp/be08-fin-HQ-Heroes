@@ -11,14 +11,11 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EvaluationResDTO {
+public class EvaluationFormResDTO {
 
-    private Long evaluationId;  // 평가 ID
+    private Long evaluationFormId;  // 평가 양식 ID
     private String employeeId;  // 피평가자 ID
-    private String evaluatorId;  // 평가자 ID
     private String evaluationCriteriaTitle;  // 평가 기준 제목
-    private Double score;  // 평가 점수
-    private String comments;  // 평가 코멘트
-    private Date createdAt;  // 생성 일시
-    private Date updatedAt;  // 수정 일시
+    private int teamGoal;  // 팀 목표 점수
+    private int personalGoal;  // 개인 목표 점수
 }
