@@ -1,14 +1,11 @@
 package com.hq.heroes.attendance.dto;
 
 import com.hq.heroes.attendance.entity.enums.AttendanceStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

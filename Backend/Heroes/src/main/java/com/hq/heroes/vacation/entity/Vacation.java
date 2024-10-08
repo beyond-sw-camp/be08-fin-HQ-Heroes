@@ -4,15 +4,13 @@ import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.vacation.entity.enums.VacationStatus;
 import com.hq.heroes.vacation.entity.enums.VacationType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

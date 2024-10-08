@@ -4,13 +4,11 @@ import com.hq.heroes.employee.entity.Department;
 import com.hq.heroes.evaluation.dto.EvaluationCriteriaReqDTO;
 import com.hq.heroes.evaluation.dto.EvaluationCriteriaResDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

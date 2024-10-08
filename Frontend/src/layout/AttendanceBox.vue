@@ -22,14 +22,13 @@ import { ref, onMounted } from 'vue';
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService'; 
 import { useAuthStore } from '@/stores/authStore';
 
-// authStore로 직접 접근
 const authStore = useAuthStore();
 
 const currentDay = ref('');
 
 const getKoreanDate = () => {
   const date = new Date();
-  date.setHours(date.getHours() + 9); // UTC+9 for KST
+  date.setHours(date.getHours() + 9);
   const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
   const day = dayNames[date.getDay()];
   const year = date.getFullYear();

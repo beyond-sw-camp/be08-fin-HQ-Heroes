@@ -4,12 +4,12 @@ import com.hq.heroes.vacation.entity.enums.VacationStatus;
 import com.hq.heroes.vacation.entity.enums.VacationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

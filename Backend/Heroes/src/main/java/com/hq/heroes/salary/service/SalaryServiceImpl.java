@@ -76,7 +76,6 @@ public class SalaryServiceImpl implements SalaryService {
 
     private SalaryDTO mapToDTO(Salary salary) {
         SalaryDTO salaryDTO = new SalaryDTO();
-        salaryDTO.setSalaryId(salary.getSalaryId());
         salaryDTO.setEmployeeId(salary.getEmployee().getEmployeeId());
         salaryDTO.setBaseSalary(salary.getBaseSalary());
         salaryDTO.setBonus(salary.getBonus());
@@ -86,7 +85,6 @@ public class SalaryServiceImpl implements SalaryService {
 
     private Salary mapToEntity(SalaryDTO salaryDTO) {
         Salary salary = new Salary();
-        salary.setSalaryId(salaryDTO.getSalaryId());
         Optional<Employee> employee = employeeRepository.findById(salaryDTO.getEmployeeId());
         if (employee.isPresent()) {
             salary.setEmployee(employee.get());

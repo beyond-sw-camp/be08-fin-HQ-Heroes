@@ -1,12 +1,16 @@
 package com.hq.heroes.salary.dto;
 
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SalaryDTO {
-    private Long salaryId;
+
     private String employeeId;
     private Double baseSalary;
     private Double bonus;
