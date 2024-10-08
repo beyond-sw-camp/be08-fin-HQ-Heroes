@@ -4,7 +4,6 @@ import com.hq.heroes.notice.dto.NoticeRequestDTO;
 import com.hq.heroes.notice.dto.NoticeResponseDTO;
 import com.hq.heroes.notice.dto.NoticeUpdateRequestDTO;
 import com.hq.heroes.notice.entity.Notice;
-import com.hq.heroes.notice.entity.NoticeCategory;
 import com.hq.heroes.notice.service.NoticeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/notice-service")
