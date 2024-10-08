@@ -12,13 +12,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "tb_evaluation_template")
+@Table(name = "tb_evaluation_criteria")
 public class EvaluationCriteria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "evaluation_template_id")
-    public Long evaluationTemplateId;
+    @Column(name = "evaluation_criteria_id")
+    public Long evaluationCriteriaId;
 
     // 부서와의 Many-to-One 연관관계 매핑
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,7 +34,7 @@ public class EvaluationCriteria {
     // 엔티티를 응답 DTO로 변환하는 메서드
     public EvaluationCriteriaResDTO toResponseDTO() {
         return EvaluationCriteriaResDTO.builder()
-                .evaluationTemplateId(this.evaluationTemplateId)
+                .evaluationCriteriaId(this.evaluationCriteriaId)
                 .departmentName(this.department.getDeptName())  // 부서 엔티티에서 부서명 추출
                 .criteriaTitle(this.criteriaTitle)
                 .criteriaContent(this.criteriaContent)

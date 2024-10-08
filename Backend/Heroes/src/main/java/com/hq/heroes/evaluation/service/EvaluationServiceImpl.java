@@ -60,7 +60,7 @@ public class EvaluationServiceImpl implements EvaluationService {
         Evaluation evaluation = Evaluation.builder()
                 .employee(employee)
                 .evaluator(evaluator)
-                .evaluationTemplate(criteria)
+                .evaluationCriteria(criteria)
                 .score(requestDTO.getScore())
                 .comments(requestDTO.getComments())
                 .build();
