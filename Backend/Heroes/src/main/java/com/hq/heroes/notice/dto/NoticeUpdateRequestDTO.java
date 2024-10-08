@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class NoticeUpdateRequestDTO {
+
     private String title;
     private String content;
     private Employee updater;

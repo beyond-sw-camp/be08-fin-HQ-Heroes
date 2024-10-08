@@ -5,6 +5,7 @@ import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.entity.enums.Role;
 import com.hq.heroes.auth.entity.enums.Status;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import com.hq.heroes.common.service.FirebaseStorageService;
 import com.hq.heroes.employee.entity.Department;
 import com.hq.heroes.employee.entity.Job;
 import com.hq.heroes.employee.entity.Position;
@@ -30,6 +31,7 @@ public class JoinService {
     private final PositionRepository positionRepository;
     private final JobRepository jobRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final FirebaseStorageService firebaseStorageService;  // FirebaseStorageService 주입
 
     public String join(JoinDTO joinDTO) throws Exception {
 
@@ -68,35 +70,26 @@ public class JoinService {
         Optional<Position> position = positionRepository.findById(joinDTO.getPositionId());
         Optional<Job> job = jobRepository.findById(joinDTO.getJobId());
 
-        Department departmentEntity = department.get();
-        Team teamEntity = team.get();
-        Position positionEntity = position.get();
-        Job jobEntity = job.get();
-
-        employee.setDepartment(departmentEntity);   // Department ID
-        employee.setTeam(teamEntity);  // Team ID
-        employee.setPosition(positionEntity);  // Position ID
-        employee.setJob(jobEntity);  // Job ID
+        employee.setDepartment(department.orElseThrow(() -> new Exception("Department not found")));
+        employee.setTeam(team.orElseThrow(() -> new Exception("Team not found")));
+        employee.setPosition(position.orElseThrow(() -> new Exception("Position not found")));
+        employee.setJob(job.orElseThrow(() -> new Exception("Job not found")));
 
         // Employee 저장 및 employeeId 생성
-        Employee savedEmployee = userRepository.save(employee);  // 저장 후 employeeId 생성됨
+        Employee savedEmployee = userRepository.save(employee);
 
-        // 프로필 이미지 파일 처리
+        // 프로필 이미지 파일 처리 (Firebase Storage 업로드)
         if (joinDTO.getProfileImage() != null && !joinDTO.getProfileImage().isEmpty()) {
             System.out.println("============== 프로필 이미지 존재함 ================= ");
 
-            // 파일 저장 경로 설정
-            String uploadDir = "C://Users//Playdata//Documents//be08-fin-HQ-Heroes//Backend//Heroes//src//main//resources//static//files";
-            String fileName = savedEmployee.getEmployeeId() + "_profile.png";   // 저장된 employeeId로 파일명 생성
-            String filePath = uploadDir + fileName;
-
-            System.out.println("============== filePath ================= " + filePath);
+            // Firebase Storage에 업로드할 파일명 (employeeId로 생성)
+            String fileName = savedEmployee.getEmployeeId() + "_profile.png";
 
             try {
-                // 이미지 파일을 지정한 경로에 저장
-                joinDTO.getProfileImage().transferTo(new File(filePath)); // 파일 저장
-                savedEmployee.setProfileImageUrl(filePath);  // 파일 경로를 데이터베이스에 저장
-                userRepository.save(savedEmployee);  // 파일 경로 업데이트 후 다시 저장
+                // Firebase Storage에 이미지 파일 업로드
+                String imageUrl = firebaseStorageService.uploadFile(joinDTO.getProfileImage(), fileName);
+                savedEmployee.setProfileImageUrl(imageUrl);  // 이미지 URL을 데이터베이스에 저장
+                userRepository.save(savedEmployee);  // 업데이트된 Employee 저장
             } catch (Exception e) {
                 System.out.println("이미지 파일 저장 중 오류 발생: " + e.getMessage());
                 throw new Exception("이미지 파일 저장 중 오류 발생: " + e.getMessage());
@@ -107,5 +100,4 @@ public class JoinService {
 
         return savedEmployee.getEmployeeName() + "님 환영합니다!";
     }
-
 }

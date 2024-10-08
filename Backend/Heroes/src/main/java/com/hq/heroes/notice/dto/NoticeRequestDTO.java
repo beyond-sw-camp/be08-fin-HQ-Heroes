@@ -13,5 +13,6 @@ public class NoticeRequestDTO {
     private String employeeId; // This is the employee who created the notice
     private String title;
     private String content;
+    private Employee employee;
     private NoticeCategory category;
 }

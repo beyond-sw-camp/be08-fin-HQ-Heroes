@@ -33,6 +33,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-quartz'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
+	// fireabse Stroage
+	implementation 'com.google.firebase:firebase-admin:9.3.0'
+
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	implementation 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
