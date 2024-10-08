@@ -15,12 +15,16 @@ import java.util.Optional;
 public interface EmployeeRepository extends JpaRepository<Employee,String> {
 
     @Query("SELECT new com.hq.heroes.employee.dto.EmployeeDTO(e.employeeId, e.employeeName,"
-            + "e.team.teamName, e.team.department.deptName, e.email, e.job.jobName, e.position.positionName, "
-            + "e.joinDate, e.birthDate, e.phoneNumber, e.roadAddress, e.lotAddress, e.detailedAddress, e.profileImageUrl)" +
+            + "e.team.teamName, e.team.department.deptName, e.job.jobName, e.position.positionName, "
+            + "e.email, e.joinDate, e.birthDate, e.phoneNumber, e.roadAddress, e.lotAddress, e.detailedAddress, e.profileImageUrl)" +
             " FROM Employee e")
     List<EmployeeDTO> findAllEmployeesDTO();
 
     Optional<Employee> findByEmail(String email);
 
     Boolean existsByEmail(String email);
+
+    Optional<Employee> findByEmployeeId(String employeeId);
+
+    Optional<Employee> findByEmployeeName(String approverName);
 }
