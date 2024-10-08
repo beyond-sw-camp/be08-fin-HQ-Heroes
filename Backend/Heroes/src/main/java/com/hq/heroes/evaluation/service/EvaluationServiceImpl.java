@@ -8,7 +8,9 @@ import com.hq.heroes.evaluation.dto.EvaluationReqDTO;
 import com.hq.heroes.evaluation.entity.Evaluation;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.evaluation.entity.EvaluationCriteria;
+import com.hq.heroes.evaluation.entity.EvaluationForm;
 import com.hq.heroes.evaluation.repository.EvaluationCriteriaRepository;
+import com.hq.heroes.evaluation.repository.EvaluationFormRepository;
 import com.hq.heroes.evaluation.repository.EvaluationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class EvaluationServiceImpl implements EvaluationService {
     private final EvaluationRepository evaluationRepository;
     private final EmployeeRepository employeeRepository;
     private final EvaluationCriteriaRepository evaluationCriteriaRepository;
+    private final EvaluationFormRepository evaluationFormRepository;
     private final DepartmentRepository departmentRepository;
 
     @Override
@@ -46,7 +49,7 @@ public class EvaluationServiceImpl implements EvaluationService {
         // 평가자와 피평가자 정보 가져옴
         Optional<Employee> employeeOpt = employeeRepository.findById(requestDTO.getEmployeeId());
         Optional<Employee> evaluatorOpt = employeeRepository.findById(requestDTO.getEvaluatorId());
-        Optional<EvaluationCriteria> criteriaOpt = evaluationCriteriaRepository.findById(requestDTO.getEvaluationTemplateId());
+        Optional<EvaluationForm> formOpt = evaluationFormRepository.findById(requestDTO.getEvaluationFormId());
 
         if (employeeOpt.isEmpty() || evaluatorOpt.isEmpty()) {
             throw new IllegalArgumentException("Invalid employee or evaluator ID");
@@ -54,13 +57,13 @@ public class EvaluationServiceImpl implements EvaluationService {
 
         Employee employee = employeeOpt.get();
         Employee evaluator = evaluatorOpt.get();
-        EvaluationCriteria criteria = criteriaOpt.get();
+        EvaluationForm form = formOpt.get();
 
         // 평가 생성
         Evaluation evaluation = Evaluation.builder()
                 .employee(employee)
                 .evaluator(evaluator)
-                .evaluationCriteria(criteria)
+                .evaluationForm(form)
                 .score(requestDTO.getScore())
                 .comments(requestDTO.getComments())
                 .build();

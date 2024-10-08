@@ -36,8 +36,8 @@ public class Evaluation {
 
     // 평가기준과의 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evaluation_criteria_id", nullable = false)
-    private EvaluationCriteria evaluationCriteria;
+    @JoinColumn(name = "evaluation_form_id", nullable = false)
+    private EvaluationForm evaluationForm;
 
     @Column(name = "score", nullable = false)
     private Double score;
@@ -59,7 +59,7 @@ public class Evaluation {
                 .evaluationId(this.evaluationId)
                 .employeeId(this.employee.getEmployeeId())  // employee 엔티티에서 사원 이름 추출
                 .evaluatorId(this.evaluator.getEmployeeId())  // evaluator 엔티티에서 평가자 이름 추출
-                .evaluationCriteriaTitle(this.evaluationCriteria.getCriteriaTitle())  // 평가 기준의 제목 추출
+                .evaluationFormId(this.evaluationForm.getEvaluationFormId())  // 평가 기준의 제목 추출
                 .score(this.score)
                 .comments(this.comments)
                 .createdAt(this.createdAt)
@@ -68,11 +68,11 @@ public class Evaluation {
     }
 
     // 요청 DTO를 엔티티로 변환하는 메서드
-    public static Evaluation fromRequestDTO(EvaluationReqDTO requestDTO, Employee employee, Employee evaluator, EvaluationCriteria evaluationCriteria) {
+    public static Evaluation fromRequestDTO(EvaluationReqDTO requestDTO, Employee employee, Employee evaluator, EvaluationForm evaluationForm) {
         return Evaluation.builder()
                 .employee(employee)
                 .evaluator(evaluator)
-                .evaluationCriteria(evaluationCriteria)
+                .evaluationForm(evaluationForm)
                 .score(requestDTO.getScore())
                 .comments(requestDTO.getComments())
                 .build();

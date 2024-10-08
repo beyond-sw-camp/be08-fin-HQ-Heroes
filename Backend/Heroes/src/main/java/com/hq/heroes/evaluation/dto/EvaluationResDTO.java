@@ -1,5 +1,6 @@
 package com.hq.heroes.evaluation.dto;
 
+import com.hq.heroes.evaluation.entity.EvaluationForm;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class EvaluationResDTO {
     private Long evaluationId;  // 평가 ID
     private String employeeId;  // 피평가자 ID
     private String evaluatorId;  // 평가자 ID
-    private String evaluationCriteriaTitle;  // 평가 기준 제목
+    private Long evaluationFormId;  // 평가 양식 아이디
     private Double score;  // 평가 점수
     private String comments;  // 평가 코멘트
     private Date createdAt;  // 생성 일시
