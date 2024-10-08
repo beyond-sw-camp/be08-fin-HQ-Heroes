@@ -1,10 +1,10 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import { ProductService } from '@/service/ProductService';
-import { getNotices } from './service/noticeService'; // Import the getNotices function from noticeService.js
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import { onMounted, ref, watch } from 'vue';
+import { getNotices } from './service/noticeService'; // Import the getNotices function from noticeService.js
 
 const alarmDisplayDialog = ref(false);
 const selectedMessage = ref(null);
@@ -266,13 +266,7 @@ onMounted(() => {
                 <div class="font-semibold text-xl mb-4">공지사항</div>
                 <DataTable :value="announcements" :rows="5" :paginator="true" dataKey="noticeId" responsiveLayout="scroll" :rowHover="true" selectionMode="single" @row-click="openNoticeDetails" :metaKeySelection="false">
                     <!-- 카테고리 컬럼 -->
-                    <Column field="category" header="카테고리" style="width: 20%; text-align: left" headerStyle="text-align: center">
-                        <template #body="slotProps">
-                            <span>{{ translateCategory(slotProps.data.category) }}</span>
-                            <!-- Use translation function -->
-                        </template>
-                    </Column>
-
+                    <Column field="categoryName" header="카테고리" style="width: 20%; text-align: left" headerStyle="text-align: center" />
                     <!-- 제목 컬럼 -->
                     <Column field="title" header="제목" style="width: 45%; text-align: left" headerStyle="text-align: center">
                         <template #body="slotProps">
@@ -281,11 +275,7 @@ onMounted(() => {
                     </Column>
 
                     <!-- 작성자 컬럼 -->
-                    <Column field="writer" header="작성자" style="width: 15%; text-align: left" headerStyle="text-align: center">
-                        <template #body="slotProps">
-                            <span>{{ slotProps.data.writer }}</span>
-                        </template>
-                    </Column>
+                    <Column field="employeeName" header="작성자" style="width: 15%; text-align: left" headerStyle="text-align: center" />
 
                     <!-- 날짜 컬럼 -->
                     <Column style="width: 20%; text-align: left" header="시간" headerStyle="text-align: center">

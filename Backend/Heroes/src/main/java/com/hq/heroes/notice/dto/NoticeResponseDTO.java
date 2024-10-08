@@ -1,12 +1,11 @@
 package com.hq.heroes.notice.dto;
 
-import com.hq.heroes.auth.entity.Employee;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -15,11 +14,13 @@ import java.util.Date;
 public class NoticeResponseDTO {
 
     private Long noticeId;
-    private Employee employee;
-    private Employee updater;
+    private String employeeId;
+    private String employeeName;
+    private String updaterId;
+    private String updaterName;
     private String title;
     private String content;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private Long categoryId; // 카테고리 ID
     private String categoryName; // 카테고리 이름 (필요한 경우)
 }
