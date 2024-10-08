@@ -7,7 +7,7 @@ const API_URL = 'http://localhost:8080';
 const { cookies } = useCookies(); // Initialize the cookies
 
 // 회원가입 메서드
-const register = async (employeeName, email, password, role, joinDate, birthDate, annualLeave, status, phoneNumber, roadAddress, lotAddress, detailedAddress, profileImageUrl, deptId, teamId, positionId, jobId) => {
+const register = async (employeeName, email, password, role, joinDate, birthDate, annualLeave, status, phoneNumber, roadAddress, lotAddress, detailedAddress, profileImage, deptId, teamId, positionId, jobId) => {
   const formData = new FormData();
   formData.append('employeeName', employeeName);
   formData.append('password', password);
@@ -21,16 +21,21 @@ const register = async (employeeName, email, password, role, joinDate, birthDate
   formData.append('roadAddress', roadAddress);
   formData.append('lotAddress', lotAddress);
   formData.append('detailedAddress', detailedAddress);
-  formData.append('profileImageUrl', profileImageUrl);
+  formData.append('profileImage', profileImage);
   formData.append('deptId', deptId);
   formData.append('teamId', teamId);
   formData.append('positionId', positionId);
   formData.append('jobId', jobId);
 
   try {
-    const response = await axios.post(`${API_URL}/join`, formData);
-    console.log(response)
+    const response = await axios.post(`${API_URL}/join`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // multipart/form-data 설정
+      },
+    });
+    console.log(response.data);
     return response.data;
+
   } catch (error) {
     throw new Error('회원가입 실패. 다시 시도해주세요.');
   }

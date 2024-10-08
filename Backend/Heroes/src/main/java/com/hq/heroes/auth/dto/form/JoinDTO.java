@@ -50,9 +50,6 @@ public class JoinDTO {
     // 상세 주소
     private String detailedAddress;
 
-    // 증명 사진 URL (옵션)
-    private String profileImageUrl;
-
     // Department Id;
     private Long deptId;
 
