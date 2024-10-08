@@ -51,26 +51,21 @@ public class Notice {
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "update_at")
+    @Column(name = "update_at", nullable = false)
     private LocalDateTime updateAt;
 
-    public void updateNotice(NoticeRequestDTO requestDTO, Employee employee) {
+    public void updateNotice(NoticeRequestDTO requestDTO) {
         this.title = requestDTO.getTitle();    // 제목 업데이트
         this.content = requestDTO.getContent(); // 내용 업데이트
         this.category = requestDTO.getCategory(); // 카테고리 업데이트
-        this.updateAt = LocalDateTime.now();
-        this.updater = employee;
     }
 
 
     public NoticeResponseDTO toResponseDTO() {
         return NoticeResponseDTO.builder()
                 .noticeId(this.noticeId) // 공지사항 ID
-                .employeeId(this.employee.getEmployeeId()) // 작성자 ID
-                .employeeName(this.employee.getEmployeeName()) // 작성자 이름 (Employee 엔티티에서 가져옴)
-                .createdAt(this.createdAt) // 작성 날짜
-                .updaterId(this.updater != null ? this.updater.getEmployeeId() : null) // 수정자 ID (null 처리)
-                .updaterName(this.updater != null ? this.updater.getEmployeeName() : null) // 수정자 이름 (null 처리)
+                .employee(this.employee) // 작성자 이름 (Employee 엔티티에서 가져옴)
+                .updater(this.updater)
                 .title(this.title) // 제목
                 .content(this.content) // 내용
                 .categoryId(this.category.getNoticeCategoryId()) // 카테고리 ID

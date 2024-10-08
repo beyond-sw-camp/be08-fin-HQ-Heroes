@@ -136,11 +136,6 @@ const router = createRouter({
                     path: '/retirement-funds',
                     name: 'retirement-funds',
                     component: () => import('@/views/pages/retirement/retirement-funds.vue')
-                },
-                { 
-                    path: '/notice/:id',
-                    name: 'NoticeDetailPage',
-                    component: () => import('@/views/pages/admin/NoticeDetailPage.vue')
                 }
             ]
         },
