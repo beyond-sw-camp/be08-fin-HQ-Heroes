@@ -6,7 +6,8 @@ import com.hq.heroes.vacation.entity.enums.VacationType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -34,11 +35,17 @@ public class Vacation {
     @Column(name = "vacation_type", nullable = false)
     private VacationType vacationType;
 
-    @Column(name = "vacation_start", nullable = false)
-    private LocalDateTime vacationStart;
+    @Column(name = "vacation_start_date", nullable = false)
+    private LocalDate vacationStartDate;  // 시작 날짜
 
-    @Column(name = "vacation_end", nullable = false)
-    private LocalDateTime vacationEnd;
+    @Column(name = "vacation_start_time", nullable = false)
+    private LocalTime vacationStartTime;  // 시작 시간
+
+    @Column(name = "vacation_end_date", nullable = false)
+    private LocalDate vacationEndDate;  // 종료 날짜
+
+    @Column(name = "vacation_end_time", nullable = false)
+    private LocalTime vacationEndTime;  // 종료 시간
 
     @Column(name = "comment", columnDefinition = "TEXT", nullable = true)  // 사유 필드 추가
     private String comment;
@@ -46,22 +53,4 @@ public class Vacation {
     @Enumerated(EnumType.STRING)
     @Column(name = "vacation_status", nullable = false)
     private VacationStatus vacationStatus = VacationStatus.PENDING;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }
-
