@@ -2,9 +2,6 @@ Spring:
   application:
     name: Heroes
 
-  upload:
-    dir: ./files/  # 업로드 경로 추가
-
   # @Value("${spring.jwt.secret}")
   # OR
   # application.yml

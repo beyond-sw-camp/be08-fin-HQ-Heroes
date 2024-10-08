@@ -199,7 +199,10 @@ onMounted(async () => {
         teamName.value = data.teamName;
         position.value = data.positionName;
         hireDate.value = data.joinDate;
-        photoUrl.value = data.profileImageUrl || 'https://via.placeholder.com/150'; // 프로필 이미지 설정
+        const profileImageUrl = `http://localhost:8080/files/${employeeId}_profile.png`;
+
+        console.log(profileImageUrl); // 이미지 데이터 확인
+        photoUrl.value = data.profileImageUrl || profileImageUrl; // 프로필 이미지 설정
     }
 });
 
