@@ -65,7 +65,7 @@
 
 <script setup>
 import EmployeeDetailModal from '@/views/pages/employeeDetail/EmployeeDetailModal.vue';
-import fetchGet from '../auth/service/AuthApiService';
+import { fetchGet } from '../auth/service/AuthApiService';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { onBeforeMount, ref } from 'vue';
 import router from '@/router';

@@ -28,43 +28,34 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String accessToken = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("access")) {
-                    accessToken = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        String access = null;
+        access = request.getHeader("access");
 
-        // 토큰이 없다면 다음 필터로 넘김
-        if (accessToken == null) {
+        // access token null
+        if (access == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
-        try {
-            jwtUtil.isExpired(accessToken);
-        } catch (ExpiredJwtException e) {
-            log.info("access token expired");
+        // access token expired
+        try{
+            jwtUtil.isExpired(access);
+        } catch (ExpiredJwtException e){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        // 토큰이 access인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(accessToken);
-        if (!category.equals("access")) {
-            log.info("invalid access token");
+        String category = jwtUtil.getCategory(access);
+
+        // not access token
+        if(!category.equals("access")){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         // email, role 값을 획득
-        String employeeId = jwtUtil.getUsername(accessToken);
-        String role = jwtUtil.getRole(accessToken);
+        String employeeId = jwtUtil.getUsername(access);
+        String role = jwtUtil.getRole(access);
 
         Employee employee = new Employee();
         employee.setEmployeeId(employeeId);
