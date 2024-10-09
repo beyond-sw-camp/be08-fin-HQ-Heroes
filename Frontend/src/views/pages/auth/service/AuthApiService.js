@@ -1,10 +1,8 @@
 import axios from 'axios';
-import { useAuthStore } from '@/stores/authStore';
 import fetchReissue from "./fetchReissue";
 import { useRouter, useRoute } from 'vue-router';
 
 const fetchGet = async (url) => {
-  const authStore = useAuthStore();
   const router = useRouter();
   const route = useRoute();
 
@@ -12,7 +10,7 @@ const fetchGet = async (url) => {
     const response = await axios.get(url, {
       withCredentials: true,
       headers: {
-        'Authorization': `Bearer ${authStore.accessToken}`,
+        'access': window.localStorage.getItem('access'),
       }
     });
 
@@ -34,7 +32,6 @@ const fetchGet = async (url) => {
 };
 
 const fetchPost = async (url, data) => {
-  const authStore = useAuthStore();
   const router = useRouter();
   const route = useRoute();
 
@@ -42,7 +39,7 @@ const fetchPost = async (url, data) => {
     const response = await axios.post(url, data, {
       withCredentials: true,
       headers: {
-        'Authorization': `Bearer ${authStore.accessToken}`,
+        'access': window.localStorage.getItem('access'),
       }
     });
 
@@ -64,7 +61,6 @@ const fetchPost = async (url, data) => {
 };
 
 const fetchPut = async (url, data) => {
-  const authStore = useAuthStore();
   const router = useRouter();
   const route = useRoute();
 
@@ -72,7 +68,7 @@ const fetchPut = async (url, data) => {
     const response = await axios.put(url, data, {
       withCredentials: true,
       headers: {
-        'Authorization': `Bearer ${authStore.accessToken}`,
+        'access': window.localStorage.getItem('access'),
       }
     });
 
@@ -94,7 +90,6 @@ const fetchPut = async (url, data) => {
 };
 
 const fetchDelete = async (url) => {
-  const authStore = useAuthStore();
   const router = useRouter();
   const route = useRoute();
 
@@ -102,7 +97,7 @@ const fetchDelete = async (url) => {
     const response = await axios.delete(url, {
       withCredentials: true,
       headers: {
-        'Authorization': `Bearer ${authStore.accessToken}`,
+        'access': window.localStorage.getItem('access'),
       }
     });
 

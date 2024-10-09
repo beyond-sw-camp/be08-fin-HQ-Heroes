@@ -14,10 +14,12 @@ const fetchReissue = async () => {
     if (response.status === 200) { // 토큰 재발급 성공
       const newAccessToken = response.headers['access'];
       authStore.setAccessToken(newAccessToken); // Pinia에 access 토큰 저장
+      window.localStorage.setItem('access', newAccessToken)
       return true;
     } else { // 토큰 재발급 실패
       authStore.setAccessToken(null); // Pinia에서 access 토큰 제거
-      cookies.remove('refresh'); // 쿠키에서 refresh 토큰 제거
+      window.localStorage.removeItem('access')
+      cookies.set("refresh", null, { maxAge: 0 });
     }
   } catch (error) {
     console.error('토큰 재발급 에러: ', error);

@@ -40,7 +40,7 @@
 import { ref, onBeforeMount, watch } from 'vue';
 import router from '@/router';
 import { useAuthStore } from '@/stores/authStore';
-import fetchGet from '../auth/service/AuthApiService';
+import { fetchGet } from '../auth/service/AuthApiService';
 
 // authStore 가져오기
 const authStore = useAuthStore();

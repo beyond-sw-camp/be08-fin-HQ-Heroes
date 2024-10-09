@@ -1,11 +1,10 @@
 import { useAuthStore } from '@/stores/authStore';
 import axios from 'axios';
 import { useCookies } from 'vue3-cookies';
-import fetchGet from '@/views/pages/auth/service/AuthApiService';
+import { fetchGet } from '@/views/pages/auth/service/AuthApiService';
 
 const API_URL = 'http://localhost:8080';
 const { cookies } = useCookies(); // Initialize the cookies
-
 // 회원가입 메서드
 const register = async (employeeName, email, password, role, joinDate, birthDate, annualLeave, status, phoneNumber, roadAddress, lotAddress, detailedAddress, profileImage, deptId, teamId, positionId, jobId) => {
   const formData = new FormData();
@@ -47,8 +46,6 @@ const login = async (employeeId, password) => {
     password: password
   });
 
-  const authStore = useAuthStore();
-
   try {
     const response = await axios.post(`${API_URL}/login`, credentials, {
       headers: {
@@ -58,18 +55,20 @@ const login = async (employeeId, password) => {
     });
 
     if (response.status === 200) {
-      const { employeeId, access } = response.data; // 'access'를 사용
-      const accessToken = response.headers['access']; // 헤더에서 access 토큰을 추출
+      const { employeeId } = response.data;
+      const accessToken = response.headers['access'];
+      const authStore = useAuthStore();
+      const accessTime = Date.now();
+
+      authStore.setAccessToken(accessToken);
+      authStore.setLoginUser(employeeId);
+      authStore.setAccessTime(accessTime);
 
       window.localStorage.setItem('access', accessToken);
       window.localStorage.setItem('employeeId', employeeId);
-
-      cookies.set('access', accessToken); // 쿠키 등록
+      window.localStorage.setItem('accessTime', accessTime);
 
       authStore.setIsLoggedIn(true);
-      authStore.setLoginUser(employeeId);
-      authStore.setAccessToken(accessToken);
-      
       console.log('로그인 성공:', authStore);
       return { success: true, employeeId, accessToken };
     } else {
@@ -81,8 +80,10 @@ const login = async (employeeId, password) => {
   }
 };
 
+
 // 로그아웃 메서드
 const logout = async () => {
+  const authStore = useAuthStore();
   try {
     const response = await fetch(`${API_URL}/logout`, {
       method: 'POST',
@@ -91,7 +92,6 @@ const logout = async () => {
     if (response.ok) {
       alert('로그아웃 성공');
       window.localStorage.removeItem('access');
-      cookies.remove('access'); // 쿠키에서 access 토큰 제거
     } else {
       alert('로그아웃 실패');
     }
@@ -117,10 +117,35 @@ export const getLoginEmployeeInfo = async (employeeId) => {
   }
 };
 
+const isTokenExpired = () => {
+  const authStore = useAuthStore();
+  const currentTime = Date.now();
+  const thirtyMinutes = 30 * 60 * 1000;
+
+  if (currentTime - authStore.accessTime >= thirtyMinutes) {
+    return true;
+  }
+  return false;
+};
+
+const handleTokenExpiration = async () => {
+  const authStore = useAuthStore();
+
+  if (isTokenExpired()) {
+    const reissued = await fetchReissue();
+    if (!reissued) {
+      authStore.logout();
+      alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+    }
+  }
+};
+
+
 
 export default {
   register,
   login,
   logout,
-  getLoginEmployeeInfo
+  getLoginEmployeeInfo,
+  handleTokenExpiration
 };
