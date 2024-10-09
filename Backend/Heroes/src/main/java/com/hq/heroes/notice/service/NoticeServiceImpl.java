@@ -62,7 +62,7 @@ public class NoticeServiceImpl implements NoticeService {
                 .employee(employeeEntity)
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
-                .employee(requestDTO.getEmployee())
+                .updater(null)
                 .category(requestDTO.getCategory())
                 .build();
 
