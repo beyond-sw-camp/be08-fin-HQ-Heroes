@@ -1,13 +1,12 @@
 <template>
   <div class="card">
-    <!-- employeeId를 제목에 표시 -->
     <div class="font-semibold text-xl mb-4">평가 - {{ authStore.employeeData.teamName }}</div>
     <DataTable :value="filteredEmployees" :paginator="true" :rows="10" removableSort dataKey="employeeNo"
-      :rowHover="true" v-model:filters="filters" filterDisplay="menu" :filters="filters" selectionMode="single"
+      :rowHover="true" selectionMode="single"
       :globalFilterFields="['employeeName', 'deptName', 'jobName', 'teamName', 'positionName', 'employeeId', 'joinDate']"
-      showGridlines @row-click="showEmployeeDetails" :metaKeySelection="false" @rowSelect="onRowSelect"
-      @rowUnselect="onRowUnselect">
+      showGridlines @row-click="showEmployeeDetails" :metaKeySelection="false">
       <template #empty> No employees found. </template>
+
       <Column field="employeeName" sortable header="이 름" style="min-width: 12rem">
         <template #body="{ data }">
           {{ data.employeeName }}
@@ -34,43 +33,27 @@
         </template>
       </Column>
     </DataTable>
-
-    <EmployeeDetailModal :employee="selectedEmployee" :visible="displayDialog"
-      @update:visible="displayDialog = $event" />
   </div>
 </template>
 
 <script setup>
-import EmployeeDetailModal from '@/views/pages/employeeDetail/EmployeeDetailModal.vue';
-import fetchGet from '../auth/service/AuthApiService';
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-import { onBeforeMount, ref } from 'vue';
+import { ref, onBeforeMount, watch } from 'vue';
 import router from '@/router';
 import { useAuthStore } from '@/stores/authStore';
+import fetchGet from '../auth/service/AuthApiService';
 
 // authStore 가져오기
 const authStore = useAuthStore();
 
 const employees = ref([]);
 const filteredEmployees = ref([]);
-const filters = ref(null);
-const selectedEmployee = ref(null);
-const displayDialog = ref(false);
-const departments = ref([]);
-const teams = ref([]);
 
+// 직원 목록 가져오기
 async function fetchEmployeeList() {
   try {
     const employeesData = await fetchGet('http://localhost:8080/api/v1/employee/employees', router.push, router.currentRoute.value);
-
-    if (employeesData) {
-      employees.value = employeesData;
-      filterEmployeesByTeam();
-    } else {
-      employees.value = [];
-      filteredEmployees.value = [];
-    }
-
+    employees.value = employeesData || [];
+    filterEmployeesByTeam();  // 팀별로 필터링
   } catch (error) {
     console.error('직원 데이터를 가져오는 중 오류 발생:', error);
     employees.value = [];
@@ -84,25 +67,10 @@ function filterEmployeesByTeam() {
   filteredEmployees.value = employees.value.filter(employee => employee.teamName === teamName && employee.positionName === '사원');
 }
 
-async function fetchDepartments() {
-  try {
-    const departmentsData = await fetchGet('http://localhost:8080/api/v1/employee/departments', router.push, router.currentRoute.value);
-
-    if (departmentsData) {
-      departments.value = [{ deptId: null, deptName: '전체 부서' }, ...departmentsData];
-    } else {
-      departments.value = [{ deptId: null, deptName: '전체 부서' }];
-    }
-  } catch (error) {
-    console.error('부서 데이터를 가져오는 중 오류 발생:', error);
-    departments.value = [{ deptId: null, deptName: '전체 부서' }];
-  }
-}
-
 // 직원 상세 보기 함수
 function showEmployeeDetails(event) {
-  selectedEmployee.value = event.data;
-  displayDialog.value = true;
+  const employeeId = event.data.employeeId;
+  router.push({ name: 'evaluationDetail', params: { employeeId } });  // 직원 정보를 문자열로 변환하여 전달
 }
 
 // 날짜 포맷팅 함수
@@ -110,24 +78,20 @@ function formatDate(date) {
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
-function onRowSelect(event) {
-  console.log('선택된 직원:', event.data);
-  selectedEmployee.value = event.data;
-  displayDialog.value = true;
-}
+// 팀 이름이 변경되거나 있을 때 필터링을 다시 적용
+watch(() => authStore.employeeData.teamName, () => {
+  if (employees.value.length > 0) {
+    filterEmployeesByTeam();
+  }
+});
 
-function onRowUnselect(event) {
-  console.log('선택 해제된 직원:', event.data);
-  selectedEmployee.value = null;
-  displayDialog.value = false;
-}
-
-// 컴포넌트 마운트 시 데이터 가져오기
+// 컴포넌트가 마운트될 때 데이터 가져오기
 onBeforeMount(() => {
   fetchEmployeeList();
-  fetchDepartments();
 });
+
 </script>
+
 
 <style scoped lang="scss">
 :deep(.p-datatable-frozen-tbody) {
