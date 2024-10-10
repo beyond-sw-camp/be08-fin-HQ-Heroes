@@ -1,6 +1,7 @@
 package com.hq.heroes.notification.entity;
 
 import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.notification.dto.NotificationResDTO;
 import com.hq.heroes.notification.entity.enums.NotificationStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,4 +45,17 @@ public class Notification {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Date createdAt;
+
+    public NotificationResDTO toResDTO() {
+        return NotificationResDTO.builder()
+                .notificationId(this.notificationId)
+                .senderName(this.sender.getEmployeeName())  // Assuming Employee entity has a 'name' field
+                .receiverName(this.receiver.getEmployeeName())  // Assuming Employee entity has a 'name' field
+                .categoryName(this.category.getNotificationCategoryName())  // Assuming NotificationCategory has this field
+                .message(this.message)
+                .status(this.status)
+                .createdAt(this.createdAt)
+                .build();
+    }
+
 }
