@@ -75,7 +75,9 @@ public class VacationServiceImpl implements VacationService {
         return VacationDTO.builder()
                 .vacationId(vacation.getVacationId())
                 .employeeId(vacation.getEmployee().getEmployeeId()) // 신청인 ID
+                .employeeName(vacation.getEmployee().getEmployeeName()) // 신청인 이름 추가
                 .approverId(vacation.getApprover() != null ? vacation.getApprover().getEmployeeId() : null) // 결재자 ID
+                .approverName(vacation.getApprover() != null ? vacation.getApprover().getEmployeeName() : null) // 결재자 이름 추가
                 .vacationType(vacation.getVacationType())
                 .vacationStartDate(vacation.getVacationStartDate())
                 .vacationStartTime(vacation.getVacationStartTime())

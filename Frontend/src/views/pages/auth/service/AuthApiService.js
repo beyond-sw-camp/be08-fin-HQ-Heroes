@@ -63,6 +63,30 @@ const fetchPost = async (url, data) => {
 const fetchPut = async (url, employeeData, profileImageFile) => {
     const router = useRouter();
     const route = useRoute();
+  try {
+    const response = await axios.post(url, data, {
+      withCredentials: true,  // 인증 토큰이 필요한 경우
+      headers: {
+        'access': window.localStorage.getItem('access'),  // 인증 헤더 확인
+        'Content-Type': 'application/json'  // 서버가 JSON 형식을 기대하는 경우
+      }
+    });
+
+    if (response.status === 201) {
+      return response.data;
+    } else {
+      throw new Error(`Unexpected status code: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error fetching authorized page:', error);
+    throw error;  // 에러 핸들링 추가
+  }
+};
+
+
+const fetchPutMain = async (url, data) => {
+  const router = useRouter();
+  const route = useRoute();
 
     const formData = new FormData();
     formData.append('employeeData', new Blob([JSON.stringify(employeeData)], { type: 'application/json' }));
