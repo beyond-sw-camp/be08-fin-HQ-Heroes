@@ -4,8 +4,10 @@ import { ProductService } from '@/service/ProductService';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { getNotices } from './service/noticeService'; // Import the getNotices function from noticeService.js
 
+const router = useRouter();
 const alarmDisplayDialog = ref(false);
 const selectedMessage = ref(null);
 const showMore = ref(false);
@@ -186,6 +188,11 @@ const setAttendanceTimes = () => {
   checkOutTime.value = formatDate(new Date(new Date().setHours(new Date().getHours() + 9))); // 9 hours later
 };
 
+// 공지사항 목록 페이지로 이동하는 함수
+const showNoticeDetail = () => {
+    router.push({ name: 'manage-notices'});
+};
+
 // Execute on component mount
 onMounted(() => {
   setAttendanceTimes();
@@ -269,7 +276,7 @@ onMounted(() => {
       <div class="card">
         <div class="font-semibold text-xl mb-4">공지사항</div>
         <DataTable :value="announcements" :rows="5" :paginator="true" dataKey="noticeId" responsiveLayout="scroll"
-          :rowHover="true" selectionMode="single" @row-click="openNoticeDetails" :metaKeySelection="false">
+          :rowHover="true" selectionMode="single" @row-click="showNoticeDetail" :metaKeySelection="false">
           <!-- 카테고리 컬럼 -->
           <Column field="categoryName" header="카테고리" style="width: 20%; text-align: left"
             headerStyle="text-align: center" />

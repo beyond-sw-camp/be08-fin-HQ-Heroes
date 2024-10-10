@@ -63,7 +63,7 @@ public class NoticeController {
     }
 
     // 공지사항 수정
-    @PutMapping("/notice/{notice-id}")
+    @PatchMapping("/notice/{notice-id}")
     @Operation(summary = "공지사항 수정", description = "공지사항 정보를 받아 수정한다.")
     public ResponseEntity<NoticeResponseDTO> update(
             @Parameter(description = "공지사항 ID", example = "1") @PathVariable("notice-id") Long noticeId,
