@@ -8,7 +8,9 @@
                     <input type="text" v-model="to" class="message-input" />
                     <h3><b>제 목</b></h3>
                     <input type="text" v-model="subject" class="message-input" />
-                    <h3><b>내 용</b></h3>
+                    <h3><b>카테고리</b></h3>
+                    <input type="text" v-model="category" class="message-input" /> <!-- 카테고리 입력 필드 추가 -->
+                    <h3><b>내 용</b></h3><br>
                     <!-- Quill 에디터 -->
                     <div ref="editor" class="message-editor"></div>
                     <div class="button-container">
@@ -29,6 +31,7 @@ export default {
     setup() {
         const to = ref('');
         const subject = ref('');
+        const category = ref(''); // 카테고리 변수 추가
         const message = ref('');
         const editor = ref(null); // Quill 에디터를 참조할 변수
 
@@ -55,11 +58,11 @@ export default {
         });
 
         const sendMessage = () => {
-            console.log(`Sending message to: ${to.value}, Subject: ${subject.value}, Message: ${message.value}`);
+            console.log(`Sending message to: ${to.value}, Subject: ${subject.value}, Category: ${category.value}, Message: ${message.value}`);
             // 메시지를 전송하는 로직 추가
         };
 
-        return { to, subject, message, editor, sendMessage };
+        return { to, subject, category, message, editor, sendMessage }; // 카테고리 변수 반환
     }
 };
 </script>
@@ -75,7 +78,7 @@ body {
 .app-container {
     display: flex;
     height: 100vh; /* 전체 화면 높이 */
-    margin: 0; /* 상단 여백 없애기 */
+    margin-bottom: 10%;
 }
 
 .main {
@@ -113,7 +116,6 @@ body {
     overflow-y: auto; /* 세로 스크롤바 활성화 */
     border-radius: 0 0 5px 5px; /* 모서리 둥글게 */
 }
-
 
 .button-container {
     display: flex; /* Flexbox 사용 */

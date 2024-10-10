@@ -128,6 +128,11 @@ const router = createRouter({
           component: () => import('@/views/pages/admin/ManageEducationPage.vue')
         },
         {
+          path: '/manage-education/education-detail/:educationId',
+          name: 'manage-education-detail',
+          component: () => import('@/views/pages/admin/ManageEducationDetailPage.vue')
+        },
+        {
           path: '/manage-certifications',
           name: 'manage-certifications',
           component: () => import('@/views/pages/admin/ManageCertificatePage.vue')
