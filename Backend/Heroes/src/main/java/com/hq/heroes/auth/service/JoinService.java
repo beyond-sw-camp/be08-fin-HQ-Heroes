@@ -35,8 +35,6 @@ public class JoinService {
 
     public String join(JoinDTO joinDTO) throws Exception {
 
-        System.out.println("=================JoinService.join============");
-
         String email = joinDTO.getEmail();
 
         // 이메일 중복 검사

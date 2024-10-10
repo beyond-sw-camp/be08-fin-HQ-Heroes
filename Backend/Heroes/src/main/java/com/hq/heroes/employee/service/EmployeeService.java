@@ -14,4 +14,9 @@ public interface EmployeeService {
     List<EmployeeDTO> getAllEmployees();
 
     Employee getEmployeeById(String id);
+
+    /*
+        사원 정보 수정
+     */
+    Employee updateEmployee(EmployeeDTO employeeDTO);
 }

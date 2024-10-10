@@ -1,6 +1,8 @@
 <template>
     <div class="main-container">
         <h1 class="main-title">직원 정보</h1>
+        <span class="edit-icon" @click="enableEditing"><i class="pi pi-pencil"></i></span>
+        <!-- 연필 아이콘 위치 변경 -->
 
         <div class="content-wrapper">
             <div class="left-column">
@@ -10,8 +12,6 @@
                         <h2>사진업로드(증명사진)</h2>
                     </div>
                     <div class="divider"></div>
-
-                    <!-- 사진 업로드 -->
                     <div class="form-group">
                         <img :src="photoUrl" alt="증명사진 미리보기" width="150" height="150" />
                         <div style="margin-left: 10px">
@@ -28,26 +28,21 @@
                         <h2>부서 정보</h2>
                     </div>
                     <div class="divider"></div>
-
-                    <!-- 부서명 -->
                     <div class="form-group">
                         <label for="departmentName">부서명</label>
                         <input type="text" id="departmentName" v-model="departmentName" class="form-control" readonly />
                     </div>
 
-                    <!-- 팀명 -->
                     <div class="form-group">
                         <label for="teamName">팀명</label>
                         <input type="text" id="teamName" v-model="teamName" class="form-control" readonly />
                     </div>
 
-                    <!-- 직급 -->
                     <div class="form-group">
                         <label for="position">직급</label>
                         <input type="text" id="position" v-model="position" class="form-control" readonly />
                     </div>
 
-                    <!-- 입사일 -->
                     <div class="form-group">
                         <label for="hireDate">입사일</label>
                         <input type="text" id="hireDate" v-model="hireDate" class="form-control" readonly />
@@ -59,7 +54,6 @@
             <div class="employee-info-container">
                 <div class="header">
                     <h2>신상 정보</h2>
-                    <span class="edit-icon" @click="enableEditing"><i class="pi pi-pencil"></i></span>
                 </div>
                 <div class="divider"></div>
 
@@ -69,31 +63,26 @@
                     <input type="text" id="employeeId" v-model="employeeData.employeeId" class="form-control" readonly />
                 </div>
 
-                <!-- 성명 -->
                 <div class="form-group">
                     <label for="name">성명</label>
                     <input type="text" id="name" v-model="employeeData.employeeName" class="form-control" readonly />
                 </div>
 
-                <!-- 생년월일 -->
                 <div class="form-group">
                     <label for="dob">생년월일</label>
                     <input type="text" id="dob" v-model="employeeData.birthDate" class="form-control" readonly />
                 </div>
 
-                <!-- 연락처 -->
                 <div class="form-group">
                     <label for="phone">연락처</label>
                     <input type="text" id="phone" v-model="employeeData.phoneNumber" class="form-control" readonly />
                 </div>
 
-                <!-- 이메일 -->
                 <div class="form-group">
                     <label for="email">이메일</label>
                     <input type="text" id="email" v-model="employeeData.email" class="form-control" readonly />
                 </div>
 
-                <!-- 직원주소 -->
                 <div class="form-group">
                     <label for="employeeAddress">직원 주소</label>
                     <div class="address-group">
@@ -102,13 +91,11 @@
                     </div>
                 </div>
 
-                <!-- 주소 -->
                 <div class="form-group">
                     <label for="address">주소</label>
                     <input type="text" id="address" v-model="employeeData.lotAddress" class="form-control" readonly />
                 </div>
 
-                <!-- 상세 주소 -->
                 <div class="form-group">
                     <label for="detailedAddress">상세 주소</label>
                     <input type="text" id="detailedAddress" v-model="employeeData.detailedAddress" class="form-control detailed-address" />
@@ -119,10 +106,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { getLoginEmployeeInfo, updateEmployeeInfo } from '@/views/pages/auth/service/authService'; // 서비스 파일에서 메소드 가져오기
 import Swal from 'sweetalert2';
-import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService'; // 서비스 파일에서 메소드 가져오기
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 // 데이터 선언
 const employeeData = ref({
@@ -139,7 +126,8 @@ const employeeData = ref({
     roadAddress: '',
     lotAddress: '',
     detailedAddress: '',
-    profileImageUrl: ''
+    profileImageUrl: '',
+    profileImage: []
 });
 
 // 부서 정보 선언
@@ -149,18 +137,21 @@ const position = ref('');
 const hireDate = ref('');
 
 const photoUrl = ref('https://via.placeholder.com/150'); // 초기 이미지 URL
-
+const profileImageFile = ref(null);
 const router = useRouter();
 
 // 파일 업로드 핸들러
 const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
+        profileImageFile.value = file;
         const reader = new FileReader();
         reader.onload = (e) => {
             photoUrl.value = e.target.result;
         };
         reader.readAsDataURL(file);
+    } else {
+        photoUrl.value = 'https://via.placeholder.com/150';
     }
 };
 
@@ -168,23 +159,33 @@ const handleFileUpload = (event) => {
 const searchZipCode = () => {
     new daum.Postcode({
         oncomplete: function (data) {
-            employeeAddress.value = data.roadAddress;
-            address.value = data.jibunAddress;
-            detailedAddress.value = '';
+            employeeData.value.roadAddress = data.roadAddress;
+            employeeData.value.lotAddress = data.jibunAddress;
+            employeeData.value.detailedAddress = '';
         }
     }).open();
 };
 
 // 수정 기능
 const enableEditing = () => {
-    Swal.fire({
-        title: '수정되었습니다.',
-        icon: 'success'
-    });
-
     document.getElementById('employeeAddress').removeAttribute('readonly');
     document.getElementById('address').removeAttribute('readonly');
     document.getElementById('detailedAddress').removeAttribute('readonly');
+
+    updateEmployeeInfo(employeeData.value, profileImageFile.value)
+        .then(() => {
+            Swal.fire({
+                title: '수정되었습니다.',
+                icon: 'success'
+            });
+        })
+        .catch((error) => {
+            Swal.fire({
+                title: '수정 실패',
+                text: '정보 수정 중 오류가 발생했습니다.',
+                icon: 'error'
+            });
+        });
 };
 
 onMounted(async () => {
@@ -199,20 +200,17 @@ onMounted(async () => {
         teamName.value = data.teamName;
         position.value = data.positionName;
         hireDate.value = data.joinDate;
-        const profileImageUrl = `http://localhost:8080/files/${employeeId}_profile.png`;
-
-        console.log(profileImageUrl); // 이미지 데이터 확인
-        photoUrl.value = data.profileImageUrl || profileImageUrl; // 프로필 이미지 설정
+        photoUrl.value = data.profileImageUrl; // 프로필 이미지 설정
     }
 });
-
 </script>
 
 <style scoped>
 .main-container {
+    position: relative; /* 상대적 위치 설정 */
     width: 100%;
     padding: 20px;
-    background-color: #fafafa; /* 하얀색에 가까운 색상으로 변경 */
+    background-color: #fafafa;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -358,7 +356,16 @@ label {
 }
 
 .edit-icon {
+    position: absolute;
+    top: 20px; /* 상단 여백 */
+    right: 30px; /* 우측 여백 */
+    font-size: 1.5em;
     cursor: pointer;
+    color: #6366f1;
+}
+
+.edit-icon:hover {
+    color: #4f46e5; /* 호버 시 색상 */
 }
 
 .photo-upload-container .form-control {

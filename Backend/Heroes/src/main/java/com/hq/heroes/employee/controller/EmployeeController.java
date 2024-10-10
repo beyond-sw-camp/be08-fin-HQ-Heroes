@@ -1,5 +1,6 @@
 package com.hq.heroes.employee.controller;
 
+import com.hq.heroes.auth.dto.form.JoinDTO;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.dto.EmployeeDTO;
@@ -15,9 +16,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -91,5 +98,41 @@ public class EmployeeController {
     public ResponseEntity<?> getPositions() {
         return ResponseEntity.ok((positionRepository.findAllPositions()));
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<String> updateEmployeeInfo(
+            @RequestPart("employeeData") @Validated EmployeeDTO employeeDTO,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+
+        try {
+            // 요청 파라미터 로그 출력
+            System.out.println("Profile Image: " + (profileImage != null ? profileImage.getOriginalFilename() : "No file uploaded"));
+
+            // 프로필 이미지 파일 검증 및 처리
+            if (profileImage != null && !profileImage.isEmpty()) {
+                // 이미지 파일 MIME 타입 검증
+                if (!profileImage.getContentType().startsWith("image/")) {
+                    return ResponseEntity.badRequest().body("이미지 파일만 업로드할 수 있습니다.");
+                }
+
+                // DTO에 파일 설정
+                employeeDTO.setProfileImage(profileImage);
+            } else {
+                // 파일이 없을 경우 null 설정
+                employeeDTO.setProfileImage(null);
+            }
+
+            // 사원 정보 업데이트
+            Employee updatedEmployee = employeeService.updateEmployee(employeeDTO);
+            return ResponseEntity.ok("사원 정보가 성공적으로 업데이트되었습니다.");
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body("날짜 형식이 잘못되었습니다: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("사원 정보 업데이트 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+
 
 }
