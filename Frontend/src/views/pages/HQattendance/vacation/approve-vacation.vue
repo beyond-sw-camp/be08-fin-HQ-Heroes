@@ -30,6 +30,8 @@
                 <Column field="vacationType" header="휴가 종류" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationStart" header="시작일" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationEnd" header="종료일" sortable style="min-width: 5rem"></Column>
+                <Column field="vacationStartTime" header="시작 시간" sortable style="min-width: 5rem" v-if="selectedEmployee.vacationType !== '월차'"></Column>
+                <Column field="vacationEndTime" header="종료 시간" sortable style="min-width: 5rem" v-if="selectedEmployee.vacationType !== '월차'"></Column>
                 <Column field="approverName" header="결재자" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationStatus" header="상태" sortable style="min-width: 5rem"></Column>
             </DataTable>
@@ -49,9 +51,17 @@
                     <label for="vacationStart" class="block font-bold mb-2">시작일</label>
                     <p id="vacationStart">{{ selectedEmployee.vacationStart }}</p>
                 </div>
+                <div v-if="selectedEmployee.vacationType !== '월차'">
+                    <label for="vacationStartTime" class="block font-bold mb-2">시작 시간</label>
+                    <p id="vacationStartTime">{{ selectedEmployee.vacationStartTime }}</p>
+                </div>
                 <div>
                     <label for="vacationEnd" class="block font-bold mb-2">종료일</label>
                     <p id="vacationEnd">{{ selectedEmployee.vacationEnd }}</p>
+                </div>
+                <div v-if="selectedEmployee.vacationType !== '월차'">
+                    <label for="vacationEndTime" class="block font-bold mb-2">종료 시간</label>
+                    <p id="vacationEndTime">{{ selectedEmployee.vacationEndTime }}</p>
                 </div>
                 <div>
                     <label for="approverName" class="block font-bold mb-2">결재자</label>
@@ -86,18 +96,21 @@ onMounted(async () => {
         console.log(response.data); // 응답 데이터 출력
         employees.value = response.data.map((record) => ({
             vacationId: record.vacationId,
-            employeeName: record.employee ? record.employee.employeeName : '이름 없음', // employee가 없을 때 처리
-            vacationType: record.vacationType, // 휴가 종류
-            vacationStart: new Date(record.vacationStart).toLocaleDateString(), // 시작일
-            vacationEnd: new Date(record.vacationEnd).toLocaleDateString(), // 종료일
-            approverName: record.approver ? record.approver.employeeName : '미정', // 결재자 이름, 없을 경우 '미정'
-            vacationStatus: mapStatus(record.vacationStatus) // 상태 매핑
+            employeeName: record.employeeName, // 신청인 이름
+            vacationType: mapVacationType(record.vacationType), // 휴가 종류 (한국어로 매핑)
+            vacationStart: new Date(record.vacationStartDate).toLocaleDateString(), // 시작일
+            vacationStartTime: record.vacationStartTime.substring(0, 5), // 시작 시간 (시간과 분만 표시)
+            vacationEnd: new Date(record.vacationEndDate).toLocaleDateString(), // 종료일
+            vacationEndTime: record.vacationEndTime.substring(0, 5), // 종료 시간 (시간과 분만 표시)
+            approverName: record.approverName, // 결재자 이름
+            vacationStatus: mapStatus(record.vacationStatus) // 상태 매핑 (한국어로 매핑)
         }));
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.' });
     }
 });
 
+// 휴가 상태를 한국어로 매핑하는 함수
 function mapStatus(status) {
     switch (status) {
         case 'APPROVED':
@@ -108,6 +121,22 @@ function mapStatus(status) {
             return '대기 중';
         default:
             return '알 수 없음';
+    }
+}
+
+// 휴가 종류를 한국어로 매핑하는 함수
+function mapVacationType(vacationType) {
+    switch (vacationType) {
+        case 'DAY_OFF':
+            return '월차';
+        case 'HALF_DAY_OFF':
+            return '반차';
+        case 'SICK_LEAVE':
+            return '병가';
+        case 'EVENT_LEAVE':
+            return '경조';
+        default:
+            return '기타';
     }
 }
 

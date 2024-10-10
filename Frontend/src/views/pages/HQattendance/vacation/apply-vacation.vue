@@ -12,7 +12,7 @@
                     </div>
 
                     <label for="type" class="label">휴가 종류:</label>
-                    <select id="type" v-model="form.vacationType" class="select">
+                    <select id="type" v-model="form.vacationType" class="select" @change="handleVacationTypeChange">
                         <option value="DAY_OFF">월차</option>
                         <option value="HALF_DAY_OFF">반차</option>
                         <option value="SICK_LEAVE">병가</option>
@@ -86,7 +86,7 @@ const form = ref({
     vacationStartDate: '', // 기본값: 오늘 날짜
     vacationEndDate: '', // 기본값: 오늘 날짜
     vacationStartTime: '09:00', // 시작 시간 기본값
-    vacationEndTime: '11:00', // 종료 시간 기본값
+    vacationEndTime: '18:00', // 종료 시간 기본값
     employeeName: '', // 신청인 이름
     approverName: '', // 결재자 이름
     comment: ''
@@ -118,6 +118,17 @@ const loadEmployeeData = async () => {
             employeeData.value = data;
             form.value.employeeName = data.employeeName; // 신청인 이름 설정
         }
+    }
+};
+
+// 휴가 종류 변경 시 자동으로 시간 설정
+const handleVacationTypeChange = () => {
+    if (form.value.vacationType === 'DAY_OFF') {
+        form.value.vacationStartTime = '09:00'; // 월차 시작 시간은 1쿼터
+        form.value.vacationEndTime = '18:00'; // 월차 종료 시간은 4쿼터
+    } else {
+        form.value.vacationStartTime = ''; // 다른 휴가의 경우 시작 시간 초기화
+        form.value.vacationEndTime = ''; // 다른 휴가의 경우 종료 시간 초기화
     }
 };
 
