@@ -1,23 +1,16 @@
 <template>
-    <Dialog 
-        :visible.sync="localVisible" 
-        header="사원 상세 정보" 
-        :modal="true" 
-        :closable="true" 
-        @update:visible="handleVisibilityUpdate"
-        :style="{ width: '500px', maxWidth: '90vw' }"
-    >
+    <Dialog :visible.sync="localVisible" header="사원 상세 정보" :modal="true" :closable="true" @update:visible="handleVisibilityUpdate" :style="{ width: '500px', maxWidth: '90vw' }">
         <div class="employee-details-container">
             <div class="employee-details">
-                <p><strong>이름:</strong> {{ employee.employeeName }}</p>
-                <p><strong>부서:</strong> {{ employee.deptName }}</p>
-                <p><strong>팀:</strong> {{ employee.teamName }}</p>
-                <p><strong>직책:</strong> {{ employee.positionName }}</p>
-                <p><strong>사번:</strong> {{ employee.employeeId }}</p>
-                <p><strong>입사일:</strong> {{ formatDate(new Date(employee.joinDate)) }}</p>
+                <p><strong>이름 :</strong> {{ employee.employeeName }}</p>
+                <p><strong>부서 :</strong> {{ employee.deptName }}</p>
+                <p><strong>팀 :</strong> {{ employee.teamName }}</p>
+                <p><strong>직책 :</strong> {{ employee.positionName }}</p>
+                <p><strong>사번 :</strong> {{ employee.employeeId }}</p>
+                <p><strong>입사일 :</strong> {{ formatDate(new Date(employee.joinDate)) }}</p>
             </div>
             <div class="photo-upload-container">
-                <img :src="photoUrl" alt="증명사진" class="employee-photo">
+                <img :src="photoUrl" alt="증명사진" class="employee-photo" />
             </div>
         </div>
     </Dialog>
@@ -35,7 +28,7 @@ const emit = defineEmits(['update:visible']);
 
 const localVisible = ref(props.visible);
 const employee = ref(props.employee);
-const photoUrl = ref('https://via.placeholder.com/150'); // 초기 이미지 URL
+const photoUrl = ref('');
 
 watch(
     () => props.visible,
@@ -53,40 +46,51 @@ watch(
     () => props.employee,
     (newVal) => {
         employee.value = newVal;
-    }
+        if (newVal && newVal.profileImageUrl) {
+            photoUrl.value = newVal.profileImageUrl;
+        } else {
+            photoUrl.value = 'https://via.placeholder.com/150';
+        }
+    },
+    { immediate: true }
 );
 
 function formatDate(date) {
     if (!(date instanceof Date) || isNaN(date.getTime())) {
         return '';
     }
-    return date.toLocaleDateString();
+    let formattedDate = date.toLocaleDateString(); // 기본 날짜 형식
+    if (formattedDate.endsWith('.')) {
+        formattedDate = formattedDate.slice(0, -1); // 마지막에 . 이 있으면 제거
+    }
+    return formattedDate;
 }
 </script>
 
 <style scoped>
 .employee-details-container {
     display: flex;
-    align-items: center; /* 세로 정렬 */
-    padding: 1.5rem; /* 내부 여백 추가 */
-    background-color: #ffffff; /* 배경 색상 */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
-    border-radius: 8px; /* 모서리 둥글게 */
+    align-items: center;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
 }
 
 .employee-details {
-    flex: 1; /* 남은 공간을 차지하게 함 */
+    flex: 1;
+    padding-left: 20px; /* 왼쪽 여백 추가 */
 }
 
 .photo-upload-container {
-    margin-left: 20px; /* 이미지와 텍스트 간격 */
+    margin-left: 20px;
 }
 
 .employee-photo {
     width: 150px;
     height: 150px;
-    object-fit: cover; /* 이미지 비율 유지 */
-    border-radius: 4px; /* 약간 둥글게 */
+    object-fit: cover;
+    border-radius: 4px;
 }
 
 .employee-details p {
@@ -97,6 +101,6 @@ function formatDate(date) {
 }
 
 strong {
-    color: #2c3e50; /* 강조된 텍스트 색상 */
+    color: #2c3e50;
 }
 </style>
