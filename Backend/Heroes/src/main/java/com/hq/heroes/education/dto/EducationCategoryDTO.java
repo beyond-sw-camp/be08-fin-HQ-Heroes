@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CourseDTO {
-    private Long courseId; // 수강번호
-    private Long employeeId; // 사원 번호
-    private Long educationId; // 교육 번호
+public class EducationCategoryDTO {
+    private Long categoryId;
+    private String categoryName;
 }

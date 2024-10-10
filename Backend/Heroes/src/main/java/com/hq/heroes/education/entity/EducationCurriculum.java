@@ -3,7 +3,7 @@ package com.hq.heroes.education.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -19,9 +19,13 @@ public class EducationCurriculum {
     @Column(name = "curriculum_id")
     private Long curriculumId;
 
-    // 신청 기간
-    @Column(name = "application_date", nullable = false)
-    private Date applicationDate;
+    // 신청 시작일
+    @Column(name = "application_start_date", nullable = false)
+    private LocalDate applicationStartDate;
+
+    // 신청 종료일
+    @Column(name = "application_end_date", nullable = false)
+    private LocalDate applicationEndDate;
 
     // 수강 정원
     @Column(name = "participants", nullable = false)
