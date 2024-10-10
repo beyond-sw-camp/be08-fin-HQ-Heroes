@@ -32,26 +32,33 @@ const fetchGet = async (url) => {
 };
 
 const fetchPost = async (url, data) => {
+  const router = useRouter();
+  const route = useRoute();
+
   try {
     const response = await axios.post(url, data, {
-      withCredentials: true,  // 인증 토큰이 필요한 경우
+      withCredentials: true,
       headers: {
-        'access': window.localStorage.getItem('access'),  // 인증 헤더 확인
-        'Content-Type': 'application/json'  // 서버가 JSON 형식을 기대하는 경우
+        'access': window.localStorage.getItem('access'),
       }
     });
 
-    if (response.status === 201) {
+    if (response.status === 200) {
       return response.data;
     } else {
-      throw new Error(`Unexpected status code: ${response.status}`);
+      const reissueSuccess = await fetchReissue();
+      if (reissueSuccess) {
+        return await fetchPost(url, data);
+      } else {
+        alert('관리자가 아닙니다.');
+        router.push({ path: '/login', query: { redirect: route.path } });
+      }
     }
   } catch (error) {
     console.error('Error fetching authorized page:', error);
-    throw error;  // 에러 핸들링 추가
   }
+  return null;
 };
-
 
 const fetchPut = async (url, data) => {
   const router = useRouter();
