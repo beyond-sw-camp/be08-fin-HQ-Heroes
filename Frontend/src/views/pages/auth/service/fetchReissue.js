@@ -12,9 +12,12 @@ const fetchReissue = async () => {
     });
 
     if (response.status === 200) { // 토큰 재발급 성공
+      const accessTime = Date.now();
+      
       const newAccessToken = response.headers['access'];
       authStore.setAccessToken(newAccessToken); // Pinia에 access 토큰 저장
       window.localStorage.setItem('access', newAccessToken)
+      window.localStorage.setItem('accessTime', accessTime);
       return true;
     } else { // 토큰 재발급 실패
       authStore.setAccessToken(null); // Pinia에서 access 토큰 제거
