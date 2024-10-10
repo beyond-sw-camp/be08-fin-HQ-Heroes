@@ -15,7 +15,7 @@ export const createNotice = async (noticeData) => {
 // 공지사항 수정
 export const updateNotice = async (noticeId, updatedData) => {
   try {
-    const response = await axios.put(`${API_URL}/notice/${noticeId}`, updatedData);
+    const response = await axios.patch(`${API_URL}/notice/${noticeId}`, updatedData);
     return response.data;
   } catch (error) {
     throw error;

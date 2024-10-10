@@ -17,15 +17,13 @@
       <p><strong>카테고리 : </strong>
         <template v-if="isEditMode">
           <select v-model="editableNotice.categoryName" class="input-field">
-            <option value="GENERAL">일반</option>
-            <option value="HR">인사</option>
-            <option value="ATTENDANCE">출근</option>
-            <option value="VACATION">휴가</option>
-            <option value="EDUCATION">교육</option>
+            <option v-for="category in categories" :key="category.value" :value="category.value">
+              {{ category.label }}
+            </option>
           </select>
         </template>
         <template v-else>
-          {{ getCategoryLabel(notice.categoryName) }}
+          {{ notice.categoryName }}
         </template>
       </p>
 
@@ -35,7 +33,7 @@
 
       <!-- 수정자 -->
       <p><strong>수정자 : </strong> {{ notice.updaterName }}</p>
-      <p><strong>수정 시간 : </strong> {{ notice.updateAt ? formatDateTime(notice.updateAt) : '' }}</p>
+      <p><strong>수정 시간 : </strong> {{ formatDateTime(notice.updateAt) }}</p>
 
       <!-- 내용 -->
       <p><strong>내용 : </strong></p>
@@ -52,7 +50,7 @@
         <Button v-if="isEditMode" label="저장" icon="pi pi-check" class="p-button-success" @click="saveNotice" />
         <Button v-if="isEditMode" label="취소" icon="pi pi-times" class="p-button-secondary" @click="cancelEdit" />
         <Button v-if="!isEditMode" label="수정" icon="pi pi-pencil" class="p-button-warning" @click="enableEditMode" />
-        <Button label="삭제" icon="pi pi-trash" class="p-button-danger" @click="handleDeleteNotice" />
+        <Button v-if="!isEditMode" label="삭제" icon="pi pi-trash" class="p-button-danger" @click="handleDeleteNotice" />
       </div>
     </div>
   </div>
@@ -62,21 +60,23 @@
 import { useAuthStore } from '@/stores/authStore';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { fetchCategories } from './service/adminNoticeCategoryService';
 import { deleteNotice, fetchNoticeById, updateNotice } from './service/adminNoticeService';
 
 const route = useRoute();
 const router = useRouter();
-const notice = ref({});
+const notice = ref({}); // 공지사항 데이터
 const editableNotice = ref({}); // 수정 가능한 데이터
 const originalNotice = ref({}); // 원본 공지사항 데이터
 const isEditMode = ref(false); // 수정 모드 상태
 const authStore = useAuthStore(); // 로그인 정보 가져오기
+const categories = ref([]); // 카테고리 데이터를 저장할 변수
 
 // 공지사항 ID로 데이터 가져오기
 const loadNotice = async () => {
   const noticeId = route.params.id;
   try {
-    const result = await fetchNoticeById(noticeId);
+    const result = await fetchNoticeById(noticeId); // Axios 사용
     notice.value = result;
     editableNotice.value = { ...result }; // 수정 가능 데이터 초기화
     originalNotice.value = { ...result }; // 원본 데이터 저장
@@ -85,32 +85,31 @@ const loadNotice = async () => {
   }
 };
 
-// 카테고리 라벨 변환 함수
-const getCategoryLabel = (category) => {
-  const categories = {
-    'GENERAL': '일반',
-    'HR': '인사',
-    'ATTENDANCE': '출근',
-    'VACATION': '휴가',
-    'EDUCATION': '교육'
-  };
-  return categories[category] || category;
+// 카테고리 데이터 로드
+const loadCategories = async () => {
+  try {
+    const result = await fetchCategories(); // 카테고리 데이터 가져오기
+    categories.value = result.map(category => ({ value: category.id, label: category.name }));
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+  }
 };
 
 // 수정 모드 활성화
 const enableEditMode = () => {
   isEditMode.value = true;
+  editableNotice.value.updaterName = authStore.employeeData.employeeName; // 수정자가 현재 로그인된 사용자로 설정
 };
 
 // 수정 저장 처리
 const saveNotice = async () => {
   try {
-    editableNotice.value.updaterName = authStore.employeeData.name; // authStore에서 이름 가져오기
-    editableNotice.value.updateAt = new Date().toISOString();
-    await updateNotice(editableNotice.value);
-    notice.value = { ...editableNotice.value };
+    editableNotice.value.updaterName = authStore.employeeData.employeeName; // authStore에서 이름 가져오기
+    editableNotice.value.updateAt = new Date().toISOString(); // 현재 시간을 업데이트
+    await updateNotice(notice.value.id, editableNotice.value); // 공지사항 업데이트
+    notice.value = { ...editableNotice.value }; // 변경된 공지사항 데이터 저장
     originalNotice.value = { ...editableNotice.value }; // 수정 후 원본 데이터 갱신
-    isEditMode.value = false;
+    isEditMode.value = false; // 수정 모드 해제
   } catch (error) {
     console.error('Error updating notice:', error);
   }
@@ -124,10 +123,11 @@ const cancelEdit = () => {
 
 // 삭제 처리
 const handleDeleteNotice = async () => {
-  if (!notice.value.id) return;
+  const noticeId = notice.value.id; // 공지사항 ID 가져오기
+  if (!noticeId) return; // ID가 없으면 함수 종료
   try {
-    await deleteNotice(notice.value.id);
-    router.push({ name: 'ManageNoticePage' });
+    await deleteNotice(noticeId); // ID 전달하여 삭제
+    router.push({ name: 'ManageNoticePage' }); // 삭제 후 관리 페이지로 이동
   } catch (error) {
     console.error('Error deleting notice:', error);
   }
@@ -144,8 +144,11 @@ const formatDateTime = (dateString) => {
   }) + ' ' + date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
 };
 
-// 공지사항 로드
-onMounted(loadNotice);
+// 공지사항, 카테고리 로드
+onMounted(() => {
+  loadNotice();
+  loadCategories();
+});
 </script>
 
 <style scoped>
@@ -160,8 +163,7 @@ onMounted(loadNotice);
   margin-top: 2rem;
 }
 
-.input-field,
-.textarea-field {
+.input-field, .textarea-field {
   width: 100%;
   padding: 0.5rem;
   margin-top: 0.5rem;

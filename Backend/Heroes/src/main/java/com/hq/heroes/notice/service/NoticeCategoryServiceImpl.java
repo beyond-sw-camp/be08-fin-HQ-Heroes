@@ -2,7 +2,7 @@ package com.hq.heroes.notice.service;
 
 import com.hq.heroes.notice.dto.NoticeCategoryDTO;
 import com.hq.heroes.notice.entity.NoticeCategory;
-import com.hq.heroes.notice.repository.NoticeCategoryReposiroty;
+import com.hq.heroes.notice.repository.NoticeCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class NoticeCategoryServiceImpl implements NoticeCategoryService {
-    private final NoticeCategoryReposiroty noticeCategoryReposiroty;
+    private final NoticeCategoryRepository noticeCategoryReposiroty;
 
     @Override
     public List<NoticeCategoryDTO> getAllCategories() {

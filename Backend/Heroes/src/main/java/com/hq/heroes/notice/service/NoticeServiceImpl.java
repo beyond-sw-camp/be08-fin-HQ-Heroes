@@ -6,8 +6,8 @@ import com.hq.heroes.notice.dto.NoticeUpdateRequestDTO;
 import com.hq.heroes.notice.entity.Notice;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.notice.entity.NoticeCategory;
-import com.hq.heroes.notice.repository.NoticeCategoryReposiroty;
-import com.hq.heroes.notice.repository.NoticeReposiroty;
+import com.hq.heroes.notice.repository.NoticeCategoryRepository;
+import com.hq.heroes.notice.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +20,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class NoticeServiceImpl implements NoticeService {
 
-    private final NoticeReposiroty noticeRepository;
-    private final NoticeCategoryReposiroty noticeCategoryRepository;
+    private final NoticeRepository noticeRepository;
+    private final NoticeCategoryRepository noticeCategoryRepository;
     private final EmployeeRepository employeeRepository;
 
     @Override

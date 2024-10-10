@@ -3,7 +3,7 @@
     <div class="card">
       <div class="flex flex-row justify-between mb-4">
         <label class="text-xl font-bold">공지사항 목록</label>
-        <Button label="공지사항 추가" icon="pi pi-plus" class="custom-button" @click="openAddNoticeDialog" />
+        <Button label="공지사항 추가" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
       </div>
       <div class="flex flex-row justify-between mb-4">
         <Dropdown class="mr-2" v-model="selectedCategory" :options="categories" optionLabel="name" placeholder="카테고리 선택"
@@ -40,8 +40,8 @@
       </DataTable>
     </div>
 
-    <Dialog v-model:visible="displayAddDialog" modal="true" :header="isEditMode ? '공지사항 수정' : '공지사항 추가'"
-      :style="{ width: '450px' }" :draggable="false" :closable="true">
+    <Dialog v-model:visible="displayAddDialog" modal="true" :header="'공지사항 수정'" :style="{ width: '450px' }"
+      :draggable="false" :closable="true">
       <div class="flex flex-col gap-6">
         <div>
           <label for="noticeTitle" class="block font-bold mb-3">제목</label>
@@ -66,22 +66,20 @@
         </div>
         <div>
           <label for="updatedAt" class="block font-bold mb-3">수정 날짜 / 시간</label>
-          <InputText id="updatedAt" type="text" v-model="newNotice.updateAt" class="w-full" readonly />
+          <InputText id="updatedAt" type="text" v-model="updaterDate" class="w-full" readonly />
         </div>
         <div>
           <label for="content" class="block font-bold mb-3">내용</label>
-          <textarea id="content" v-model="newNotice.content" required="true"
-            class="w-full p-2 border border-gray-300 rounded" rows="5"></textarea>
+          <textarea id="content" v-model="newNotice.content" required="true" class="w-full p-2 border border-gray-300 rounded"
+            rows="5"></textarea>
         </div>
       </div>
 
       <template #footer>
         <Button label="취소" icon="pi pi-times" text class="p-button-text" @click="closeAddDialog" />
-        <Button label="저장" icon="pi pi-check" class="p-button-primary" @click="saveNotice" />
+        <Button label="수정" icon="pi pi-check" class="p-button-primary" @click="saveNotice" />
       </template>
     </Dialog>
-
-
 
     <Dialog v-model:visible="displayDeleteConfirmDialog" modal="true" header="삭제 확인" :style="{ width: '400px' }"
       :draggable="false" :closable="true">
@@ -96,6 +94,7 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
+import axios from 'axios';
 import { format } from 'date-fns';
 import Button from 'primevue/button';
 import Column from 'primevue/column';
@@ -105,9 +104,9 @@ import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import InputText from 'primevue/inputtext';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router'; // 라우터 가져오기
+import { useRouter } from 'vue-router';
 import { fetchCategories } from './service/adminNoticeCategoryService';
-import { createNotice, deleteNotice, fetchNotices, updateNotice } from './service/adminNoticeService';
+import { deleteNotice, fetchNotices } from './service/adminNoticeService';
 
 const authStore = useAuthStore();
 const notices = ref([]);
@@ -118,9 +117,10 @@ const globalFilter = ref('');
 const displayAddDialog = ref(false);
 const displayDeleteConfirmDialog = ref(false);
 const newNotice = ref({ title: '', employeeName: '', categoryName: '', createAt: '', updaterName: '', updateAt: '', content: '' });
+const updaterDate = ref(''); // 수정 시간 관리를 위한 ref
 const isEditMode = ref(false);
-const selectedNotice = ref(null); // 선택된 공지사항을 저장할 변수
-const router = useRouter(); // 라우터 인스턴스 생성
+const selectedNotice = ref(null); // 선택된 공지사항
+const router = useRouter();
 
 // 공지사항 데이터 필터링
 const filterNotices = () => {
@@ -162,23 +162,6 @@ const formatDateTime = (dateString) => {
   return format(date, 'yyyy-MM-dd HH:mm:ss'); // HH:mm:ss로 수정
 };
 
-
-// 공지사항 추가/수정 저장
-const saveNotice = async () => {
-  try {
-    if (isEditMode.value) {
-      await updateNotice(selectedNotice.value.id, newNotice.value);
-    } else {
-      await createNotice(newNotice.value);
-    }
-    closeAddDialog();
-    notices.value = await fetchNotices();
-    filterNotices();
-  } catch (error) {
-    console.error('Error saving notice:', error);
-  }
-};
-
 const updaterInterval = ref(null); // Interval을 저장할 변수
 
 // 공지사항 수정
@@ -191,52 +174,97 @@ const editNotice = (notice) => {
     categoryName: categories.value.find(category => category.id === notice.categoryId), // 카테고리 객체로 설정
     createdAt: formatDateTime(notice.createdAt), // 작성 날짜
     updaterName: authStore.employeeData.employeeName, // 수정자
-    updaterDate: format(new Date(), 'yyyy-MM-dd HH:mm:ss'), // 현재 날짜 및 시간
     content: notice.content, // 내용
   };
 
+  // 수정 시간 갱신
+  updaterDate.value = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+  
   // 1초마다 updaterDate를 업데이트하는 interval 설정
   updaterInterval.value = setInterval(() => {
-    newNotice.value.updaterDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+    updaterDate.value = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
   }, 1000);
 
-  displayAddDialog.value = true; // 모달 대화상자 열기
+  displayAddDialog.value = true;
 };
 
-// 컴포넌트 언마운트 시 interval 해제
-onBeforeUnmount(() => {
-  clearInterval(updaterInterval.value);
-});
+// 다이얼로그 닫기
+const closeAddDialog = () => {
+  displayAddDialog.value = false;
+  isEditMode.value = false;
+  selectedNotice.value = null;
 
+  // Interval 제거
+  if (updaterInterval.value) {
+    clearInterval(updaterInterval.value);
+    updaterInterval.value = null;
+  }
+};
 
-// 공지사항 삭제 확인 대화상자 열기
+// 공지사항 삭제 확인
 const confirmDeleteNotice = (notice) => {
-  selectedNotice.value = notice; // 삭제할 공지사항 설정
-  displayDeleteConfirmDialog.value = true; // 삭제 확인 대화상자 표시
+  selectedNotice.value = notice;
+  displayDeleteConfirmDialog.value = true;
 };
 
-// 공지사항 삭제 처리
+// 공지사항 삭제
 const handleDeleteNotice = async () => {
   try {
-    await deleteNotice(selectedNotice.value.id);
-    closeDeleteConfirmDialog();
-    notices.value = await fetchNotices();
-    filterNotices();
+    await deleteNotice(selectedNotice.value.noticeId);
+    notices.value = notices.value.filter(notice => notice.noticeId !== selectedNotice.value.noticeId);
+    filterNotices(); // 삭제 후 필터링
+
+    closeDeleteConfirmDialog(); // 다이얼로그 닫기
   } catch (error) {
     console.error('Error deleting notice:', error);
   }
 };
 
-// 모달 닫기
-const closeAddDialog = () => {
-  displayAddDialog.value = false;
-  newNotice.value = { title: '', employeeName: '', categoryName: '', date: '', content: '' }; // 입력값 초기화
-  isEditMode.value = false; // 수정 모드 초기화
+// 공지사항 삭제 취소
+const closeDeleteConfirmDialog = () => {
+  displayDeleteConfirmDialog.value = false;
+  selectedNotice.value = null;
 };
 
-// 상세 페이지로 이동
+// 공지사항 수정
+const saveNotice = async () => {
+  try {
+    const updatedNotice = {
+      title: newNotice.value.title,
+      categoryId: newNotice.value.categoryName.id,
+      updaterId: authStore.loginUserId,
+      content: newNotice.value.content,
+    };
+
+    // noticeId를 URL에 명시적으로 포함
+    const response = await axios.patch(`http://localhost:8080/api/v1/notice-service/notice/${selectedNotice.value.noticeId}`, updatedNotice);
+
+    // 기존 로직 계속
+    const index = notices.value.findIndex(n => n.noticeId === selectedNotice.value.noticeId);
+    if (index !== -1) {
+      notices.value.splice(index, 1, { ...selectedNotice.value, ...updatedNotice }); // 기존 공지사항을 업데이트된 공지사항으로 교체
+    }
+
+    closeAddDialog(); // 다이얼로그 닫기
+  } catch (error) {
+    console.error('Error updating notice:', error);
+  }
+};
+
+// 페이지 이동
+const showWriteNoticePage = () => {
+  router.push({ path: '/write-notice' });
+};
+
+// 공지사항 상세보기
 const showNoticeDetail = (noticeId) => {
-  router.push({ name: 'NoticeDetailPage', params: { id: noticeId } });
+  router.push({ path: `/notice/${noticeId}` });
 };
 
+// 컴포넌트가 제거되기 전에 인터벌 정리
+onBeforeUnmount(() => {
+  if (updaterInterval.value) {
+    clearInterval(updaterInterval.value);
+  }
+});
 </script>
