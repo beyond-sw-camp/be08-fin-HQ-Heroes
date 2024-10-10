@@ -37,7 +37,6 @@ const fetchPost = async (url, data) => {
       withCredentials: true,  // 인증 토큰이 필요한 경우
       headers: {
         'access': window.localStorage.getItem('access'),  // 인증 헤더 확인
-        'Content-Type': 'application/json'  // 서버가 JSON 형식을 기대하는 경우
       }
     });
 

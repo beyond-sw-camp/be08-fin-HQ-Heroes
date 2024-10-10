@@ -64,7 +64,7 @@ async function fetchEmployeeList() {
 // 팀 이름으로 직원 목록 필터링 함수
 function filterEmployeesByTeam() {
   const teamName = authStore.employeeData.teamName;
-  filteredEmployees.value = employees.value.filter(employee => employee.teamName === teamName && employee.positionName === '사원');
+  filteredEmployees.value = employees.value.filter(employee => employee.teamName === teamName && employee.positionName === '팀원');
 }
 
 // 직원 상세 보기 함수

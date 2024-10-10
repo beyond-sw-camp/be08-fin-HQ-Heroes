@@ -8,9 +8,7 @@ import com.hq.heroes.evaluation.dto.EvaluationReqDTO;
 import com.hq.heroes.evaluation.entity.Evaluation;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.evaluation.entity.EvaluationCriteria;
-import com.hq.heroes.evaluation.entity.EvaluationForm;
 import com.hq.heroes.evaluation.repository.EvaluationCriteriaRepository;
-import com.hq.heroes.evaluation.repository.EvaluationFormRepository;
 import com.hq.heroes.evaluation.repository.EvaluationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +24,6 @@ public class EvaluationServiceImpl implements EvaluationService {
     private final EvaluationRepository evaluationRepository;
     private final EmployeeRepository employeeRepository;
     private final EvaluationCriteriaRepository evaluationCriteriaRepository;
-    private final EvaluationFormRepository evaluationFormRepository;
     private final DepartmentRepository departmentRepository;
 
     @Override
@@ -43,34 +40,34 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Override
     @Transactional
     public Evaluation createEvaluation(EvaluationReqDTO requestDTO) {
-
-        System.out.println(requestDTO.toString());
-
-        // 평가자와 피평가자 정보 가져옴
+        // 피평가자 및 평가자 정보를 가져옴
         Optional<Employee> employeeOpt = employeeRepository.findById(requestDTO.getEmployeeId());
         Optional<Employee> evaluatorOpt = employeeRepository.findById(requestDTO.getEvaluatorId());
-        Optional<EvaluationForm> formOpt = evaluationFormRepository.findById(requestDTO.getEvaluationFormId());
 
-        if (employeeOpt.isEmpty() || evaluatorOpt.isEmpty()) {
-            throw new IllegalArgumentException("Invalid employee or evaluator ID");
+        // 유효성 검사: 피평가자 또는 평가자가 존재하지 않으면 예외 발생
+        if (employeeOpt.isEmpty()) {
+            throw new IllegalArgumentException("Invalid employee ID: " + requestDTO.getEmployeeId());
+        }
+        if (evaluatorOpt.isEmpty()) {
+            throw new IllegalArgumentException("Invalid evaluator ID: " + requestDTO.getEvaluatorId());
         }
 
         Employee employee = employeeOpt.get();
         Employee evaluator = evaluatorOpt.get();
-        EvaluationForm form = formOpt.get();
 
-        // 평가 생성
+        // 평가 생성 및 저장
         Evaluation evaluation = Evaluation.builder()
                 .employee(employee)
                 .evaluator(evaluator)
-                .evaluationForm(form)
                 .score(requestDTO.getScore())
                 .comments(requestDTO.getComments())
                 .build();
 
-
+        // 데이터베이스에 평가 저장
         return evaluationRepository.save(evaluation);
     }
+
+
 
 
 
