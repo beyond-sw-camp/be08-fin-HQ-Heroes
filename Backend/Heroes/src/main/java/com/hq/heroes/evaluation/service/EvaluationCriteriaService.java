@@ -9,6 +9,8 @@ public interface EvaluationCriteriaService {
 
     List<EvaluationCriteria> getEvaluationCriteriaList();
 
+    List<EvaluationCriteria> getEvaluationCriterListByDeptName(String deptName);
+
     EvaluationCriteria getEvaluationCriteriaById(Long criteriaId);
 
     EvaluationCriteria createEvaluationCriteria(EvaluationCriteriaReqDTO requestDTO);
