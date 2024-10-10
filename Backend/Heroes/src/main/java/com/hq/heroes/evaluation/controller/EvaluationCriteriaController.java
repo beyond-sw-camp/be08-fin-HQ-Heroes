@@ -35,6 +35,20 @@ public class EvaluationCriteriaController {
         return new ResponseEntity<>(criteriaDTOs, HttpStatus.OK);
     }
 
+    // 부서 이름으로 평가 기준 목록 조회
+    @GetMapping("by-department")
+    @Operation(summary = "부서별 평가 기준 조회", description = "부서 이름을 기준으로 평가 기준 목록을 조회한다.")
+    public ResponseEntity<List<EvaluationCriteriaResDTO>> getEvaluationCriteriaByDepartment(
+            @Parameter(description = "부서 이름", example = "경영지원본부") @RequestParam("deptName") String deptName) {
+
+        List<EvaluationCriteria> evaluationCriteriaList = evaluationCriteriaService.getEvaluationCriterListByDeptName(deptName);
+        List<EvaluationCriteriaResDTO> criteriaDTOs = evaluationCriteriaList.stream()
+                .map(EvaluationCriteria::toResponseDTO)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(criteriaDTOs, HttpStatus.OK);
+    }
+
     // 평가 기준 조회
     @GetMapping("/{criteria-id}")
     @Operation(summary = "평가 기준 상세 조회", description = "평가 기준 ID로 해당 평가 기준 정보를 조회한다.")

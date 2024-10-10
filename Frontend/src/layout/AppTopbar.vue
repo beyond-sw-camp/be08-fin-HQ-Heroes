@@ -5,7 +5,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import authService from '../views/pages/auth/service/authService';
 import router from '@/router';
-import fetchReissue from '@/views/pages/auth/service/fetchReissue';
+import fetchReissue from '@/views/pages/auth/service/fetchReissue'; // 토큰 갱신 함수
 import Button from 'primevue/button'; // PrimeVue 버튼 import
 
 const { onMenuToggle } = useLayout();
@@ -27,7 +27,6 @@ const handleLogout = async () => {
     }
 };
 
-
 // 남은 시간을 mm:ss 형식으로 변환하는 함수
 const formatTime = (timeInMs) => {
     const minutes = Math.floor(timeInMs / (1000 * 60));
@@ -47,6 +46,23 @@ const updateRemainingTime = () => {
     } else {
         clearInterval(timer);
         remainingTime.value = '00:00'; // 만료되면 00:00 표시
+    }
+};
+
+// 토큰 재갱신 함수
+const handleReissue = async () => {
+    try {
+        await fetchReissue(); // 토큰 재발급
+
+        // 새로운 accessTime을 localStorage에 저장
+        window.localStorage.setItem('accessTime', Date.now());
+
+        // 타이머 업데이트
+        updateRemainingTime();
+        timer = setInterval(updateRemainingTime, 1000);
+    } catch (error) {
+        console.error('토큰 재갱신 실패:', error.message);
+        alert('토큰 재갱신 중 오류가 발생했습니다.');
     }
 };
 

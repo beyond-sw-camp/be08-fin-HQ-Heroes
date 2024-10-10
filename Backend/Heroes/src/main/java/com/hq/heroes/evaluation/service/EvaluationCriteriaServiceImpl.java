@@ -24,6 +24,15 @@ public class EvaluationCriteriaServiceImpl implements EvaluationCriteriaService 
     }
 
     @Override
+    public List<EvaluationCriteria> getEvaluationCriterListByDeptName(String deptName) {
+        Department department = departmentRepository.findByDeptName(deptName)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid department name: " + deptName));
+
+        return evaluationCriteriaRepository.findByDepartment(department);
+    }
+
+
+    @Override
     public EvaluationCriteria getEvaluationCriteriaById(Long criteriaId) {
         return evaluationCriteriaRepository.findById(criteriaId)
                 .orElse(null);
