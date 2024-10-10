@@ -4,6 +4,7 @@ import com.hq.heroes.education.dto.EducationResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,11 +35,11 @@ public class Education {
 
     // 교육 시작일
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     // 교육 종료일
     @Column(name = "end_date", nullable = false)
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     // EducationCurriculum과 Many-to-One 관계 (카테고리 번호)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -56,8 +57,12 @@ public class Education {
                 .instructorName(this.instructorName)
                 .educationName(this.educationName)
                 .institution(this.institution)
-                .educationStart(this.startDate)
-                .educationEnd(this.endDate)
+                .educationStart(LocalDate.from(this.startDate))
+                .educationEnd(LocalDate.from(this.endDate))
+                .categoryName(this.educationCategory.getCategoryName())  // 카테고리 이름 추가
+                .applicationStartDate(this.educationCurriculum.getApplicationStartDate()) // 신청 시작일 추가
+                .applicationEndDate(this.educationCurriculum.getApplicationEndDate()) // 신청 종료일 추기
+                .participants(this.educationCurriculum.getParticipants())
                 .build();
     }
 }

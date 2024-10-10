@@ -54,8 +54,8 @@ public class EducationController {
     @PostMapping("/education")
     @Operation(summary = "교육 등록", description = "교육 정보를 받아서 등록한다.")
     public ResponseEntity<EducationResponseDTO> create(@RequestBody EducationRequestDTO requestDTO) {
-        EducationResponseDTO createdEducation = educationService.createEducation(requestDTO).toResponseDTO();
-        return new ResponseEntity<>(createdEducation, HttpStatus.CREATED);
+        Education education = educationService.createEducation(requestDTO);
+        return new ResponseEntity<>(education.toResponseDTO(), HttpStatus.CREATED);
     }
 
     // 교육 정보 수정
