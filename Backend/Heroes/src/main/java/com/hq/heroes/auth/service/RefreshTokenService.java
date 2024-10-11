@@ -1,24 +1,18 @@
 package com.hq.heroes.auth.service;
 
-import com.hq.heroes.auth.entity.RefreshToken;
-import com.hq.heroes.auth.jwt.JWTUtil;
-import com.hq.heroes.auth.repository.RefreshRepository;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
-    private final RefreshRepository refreshRepository;
-    private final JWTUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public String checkRefresh(HttpServletRequest request) {
         String refresh = null;
@@ -29,43 +23,28 @@ public class RefreshTokenService {
             }
         }
 
-        //refresh null check
         if (refresh == null) {
             return null;
         }
 
-        //expired check
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
+        // Redis에 저장되어 있는지 확인
+        ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
+        String storedRefresh = opsForValue.get(refresh);
+
+        // Refresh 토큰이 없거나, 만료되었으면 null 반환
+        if (storedRefresh == null) {
             return null;
         }
 
-        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(refresh);
-        if (!category.equals("refresh")) {
-            return null;
-        }
-
-        //DB에 저장되어 있는지 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
-        if (!isExist) {
-            return null;
-        }
         return refresh;
     }
 
-    @Transactional
     public void saveRefresh(String employeeId, Integer expireS, String refresh) {
-        RefreshToken refreshEntity = RefreshToken.builder()
-                .employeeId(employeeId)
-                .refresh(refresh)
-                .expiration(new Date(System.currentTimeMillis() + expireS * 1000L).toString())
-                .build();
-        refreshRepository.save(refreshEntity);
+        ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
+        opsForValue.set(refresh, employeeId, expireS, TimeUnit.SECONDS);  // 만료 시간 설정
     }
 
-    public List<RefreshToken> getAllRefresh() {
-        return refreshRepository.findAll();
+    public void deleteRefresh(String refresh) {
+        redisTemplate.delete(refresh);
     }
 }
