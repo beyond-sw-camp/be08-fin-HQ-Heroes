@@ -13,6 +13,6 @@ import java.util.List;
 public interface PositionRepository extends JpaRepository<Position,Long> {
 
     @Query("SELECT new com.hq.heroes.employee.dto.PositionDTO(p.positionId, p.positionName) FROM Position p")
-    List<PositionDTO> findAllPositions(); // 모든 직무를 가져오는 메서드
+    List<PositionDTO> findAllPositions(); // 모든 직책을 가져오는 메서드
 
 }

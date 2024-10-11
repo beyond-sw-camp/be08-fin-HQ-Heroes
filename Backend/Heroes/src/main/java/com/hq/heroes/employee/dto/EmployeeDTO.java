@@ -14,10 +14,14 @@ public class EmployeeDTO {
 
     private String employeeId;
     private String employeeName;
+    private Long teamId;
     private String teamName;
+    private Long deptId;
     private String deptName;
     private String email;
+    private Long jobId;
     private String jobName;
+    private Long positionId;
     private String positionName;
     private LocalDate joinDate;
 
@@ -32,16 +36,21 @@ public class EmployeeDTO {
     // 프로필 이미지 URL (이 값을 데이터베이스에 저장)
     private String profileImageUrl;
 
-    public EmployeeDTO(String employeeId, String employeeName, String teamName, String deptName,
-                       String email, String jobName, String positionName, LocalDate joinDate,
-                       LocalDate birthDate, String phoneNumber, String roadAddress,
-                       String lotAddress, String detailedAddress, String profileImageUrl) {
+    public EmployeeDTO(String employeeId, String employeeName, Long teamId, String teamName,
+                       Long deptId, String deptName, String email, Long jobId, String jobName,
+                       Long positionId, String positionName, LocalDate joinDate, LocalDate birthDate,
+                       String phoneNumber, String roadAddress, String lotAddress, String detailedAddress,
+                       String profileImageUrl) {
         this.employeeId = employeeId;
         this.employeeName = employeeName;
+        this.teamId = teamId;
         this.teamName = teamName;
+        this.deptId = deptId;
         this.deptName = deptName;
         this.email = email;
+        this.jobId = jobId;
         this.jobName = jobName;
+        this.positionId = positionId;
         this.positionName = positionName;
         this.joinDate = joinDate;
         this.birthDate = birthDate;
@@ -51,5 +60,6 @@ public class EmployeeDTO {
         this.detailedAddress = detailedAddress;
         this.profileImageUrl = profileImageUrl;
     }
+
 }
 

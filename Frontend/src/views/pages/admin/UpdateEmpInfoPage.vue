@@ -69,7 +69,7 @@
             </Column>
         </DataTable>
 
-        <UpdateEmpInfoModal :employee="selectedEmployee" :isVisible="displayDialog" @update:visible="displayDialog = $event" @closeModal="displayDialog = false"/>
+        <UpdateEmpInfoModal :employee="selectedEmployee" :isVisible="displayDialog" @update:visible="displayDialog = $event" @closeModal="displayDialog = false" />
     </div>
 </template>
 
@@ -78,7 +78,6 @@ import UpdateEmpInfoModal from '@/views/pages/admin/UpdateEmpInfoModal.vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import axios from 'axios';
 import { onBeforeMount, ref } from 'vue';
-
 
 const employees = ref([]);
 const filteredEmployees = ref([]);
@@ -94,24 +93,23 @@ const closeModal = () => {
     displayDialog.value = false; // 모달 닫기
 };
 
-
 function handleDepartmentChange(event) {
     console.log('부서 변경됨:', selectedDepartment.value);
-    
+
     // 팀 드롭다운 초기화
     selectedTeam.value = null; // 팀을 초기화하여 전체 팀으로 변경
-    
+
     filterByDepartmentAndTeam();
 }
-
 
 // 직원 목록을 가져오는 함수
 async function fetchEmployeeList() {
     try {
         const response = await axios.get('http://localhost:8080/api/v1/employee/employees'); // API 호출
+        console.log('직원 데이터 응답:', response.data); // 응답 로그 추가
         employees.value = Array.isArray(response.data) ? response.data : [];
     } catch (error) {
-        console.error("직원 데이터를 가져오는 중 오류 발생:", error);
+        console.error('직원 데이터를 가져오는 중 오류 발생:', error);
         employees.value = [];
     }
 
@@ -124,7 +122,7 @@ async function fetchDepartments() {
         const response = await axios.get('http://localhost:8080/api/v1/employee/departments'); // 부서 API 호출
         departments.value = [{ deptId: null, deptName: '전체 부서' }, ...response.data]; // '전체 부서'에 deptId 추가
     } catch (error) {
-        console.error("부서 데이터를 가져오는 중 오류 발생:", error);
+        console.error('부서 데이터를 가져오는 중 오류 발생:', error);
         departments.value = [{ deptId: null, deptName: '전체 부서' }];
     }
 }
@@ -140,15 +138,13 @@ async function fetchTeams(deptId) {
         console.log('팀 데이터:', response.data); // 로그 추가
         teams.value = [{ teamId: null, teamName: '전체 팀' }, ...response.data]; // DTO에서 teamName 사용
     } catch (error) {
-        console.error("팀 데이터를 가져오는 중 오류 발생:", error);
+        console.error('팀 데이터를 가져오는 중 오류 발생:', error);
         teams.value = [{ teamId: null, teamName: '전체 팀' }];
     }
 }
 
-
 // 부서 및 팀에 따라 직원 목록 필터링
 function filterByDepartmentAndTeam() {
-
     if (selectedDepartment.value && selectedDepartment.value.deptId) {
         fetchTeams(selectedDepartment.value.deptId); // 선택한 부서 ID 전달
     } else {
@@ -178,8 +174,8 @@ function initFilters() {
 
 // 직원 상세 보기 함수
 function showEmployeeDetails(event) {
-    console.log('선택된 직원:', event.data);
     selectedEmployee.value = event.data;
+    console.log('선택된 직원 상세 보기:', JSON.stringify(selectedEmployee.value, null, 2)); // 구조 로그 추가
     displayDialog.value = true;
 }
 
@@ -189,17 +185,16 @@ function formatDate(date) {
 }
 
 function onRowSelect(event) {
-    console.log('선택된 직원:', event.data);
     selectedEmployee.value = event.data;
+    console.log('선택된 직원:', selectedEmployee.value); // 로그 추가
     displayDialog.value = true;
 }
 
 function onRowUnselect(event) {
     console.log('선택 해제된 직원:', event.data);
     selectedEmployee.value = null;
-    displayDialog.value = false; 
+    displayDialog.value = false;
 }
-
 
 // 컴포넌트 마운트 시 데이터 가져오기
 onBeforeMount(() => {
