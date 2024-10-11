@@ -21,15 +21,18 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseApp initializeFirebase() throws IOException {
-        // Load the Firebase service account key file
-        FileInputStream serviceAccount = new FileInputStream(firebaseJsonPath);
+        if (FirebaseApp.getApps().isEmpty()) {
+            FileInputStream serviceAccount = new FileInputStream(firebaseJsonPath);
 
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setStorageBucket(firebaseBucketName)
-                .build();
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setStorageBucket(firebaseBucketName)
+                    .build();
 
-        // Initialize Firebase and return the instance
-        return FirebaseApp.initializeApp(options);
+            return FirebaseApp.initializeApp(options);
+        } else {
+            return FirebaseApp.getInstance();
+        }
     }
+
 }
