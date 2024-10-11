@@ -56,4 +56,33 @@ public class EmployeeServiceImpl implements EmployeeService{
         return employeeRepository.save(employee);
     }
 
+    @Override
+    public Employee adminUpdateEmployee(EmployeeDTO employeeDTO) {
+        Employee employee = employeeRepository.findById(employeeDTO.getEmployeeId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 사원을 찾을 수 없습니다."));
+
+
+        employee.setRoadAddress(employeeDTO.getRoadAddress());
+        employee.setLotAddress(employeeDTO.getLotAddress());
+        employee.setDetailedAddress(employeeDTO.getDetailedAddress());
+
+        if (employeeDTO.getProfileImage() != null && !employeeDTO.getProfileImage().isEmpty()) {
+            System.out.println("============== 프로필 이미지 존재함 ================= ");
+
+            // Firebase Storage에 업로드할 파일명 (employeeId로 생성)
+            String fileName = employeeDTO.getEmployeeId() + "_profile.png";
+
+            try {
+                // Firebase Storage에 이미지 파일 업로드
+                String imageUrl = firebaseStorageService.uploadFile(employeeDTO.getProfileImage(), fileName);
+                employee.setProfileImageUrl(imageUrl);  // 이미지 URL을 데이터베이스에 저장
+            } catch (Exception e) {
+                System.out.println("이미지 파일 저장 중 오류 발생: " + e.getMessage());
+                throw new RuntimeException("이미지 파일 저장 중 오류 발생: " + e.getMessage());
+            }
+        } else {
+            System.out.println("============== 프로필 이미지가 존재하지 않음 ================= ");
+        }
+        return null;
+    }
 }

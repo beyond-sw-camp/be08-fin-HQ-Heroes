@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface DepartmentRepository extends JpaRepository<Department,Long> {
 
     @Query("SELECT new com.hq.heroes.employee.dto.DepartmentDTO(d.deptId, d.deptName) FROM Department d")
-    List<DepartmentDTO> findAllDepartments();
+    List<DepartmentDTO> findAllDepartments(); // 모든 부서를 가져오는 메서드
 
     Optional<Department> findByDeptName(String deptName);
 }

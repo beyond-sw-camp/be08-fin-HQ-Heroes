@@ -6,14 +6,12 @@
 
             <div class="content-wrapper">
                 <div class="left-column">
-                    <!-- 증명사진 업로드 틀 -->
                     <div class="photo-upload-container">
                         <div class="header">
                             <h2>사진업로드(증명사진)</h2>
                         </div>
                         <div class="divider"></div>
 
-                        <!-- 사진 업로드 -->
                         <div class="form-group">
                             <img :src="photoUrl" alt="증명사진 미리보기" width="150" height="150" />
                             <div style="margin-left: 10px">
@@ -24,29 +22,39 @@
                         </div>
                     </div>
 
-                    <!-- 부서 정보 틀 -->
                     <div class="department-info-container">
                         <div class="header">
                             <h2>부서 정보</h2>
                         </div>
                         <div class="divider"></div>
 
-                        <!-- 부서명 -->
+                        <!-- 부서 선택 -->
                         <div class="form-group">
-                            <label for="departmentName">부서명</label>
-                            <input type="text" id="departmentName" v-model="departmentName" class="form-control" />
+                            <label for="deptName">부서명</label>
+                            <select id="deptName" v-model="selectedDeptId" @change="fetchTeams(selectedDeptId)" class="form-control">
+                                <option v-for="dept in departments" :key="dept.deptId" :value="dept.deptId">{{ dept.deptName }}</option>
+                            </select>
                         </div>
 
-                        <!-- 팀명 -->
                         <div class="form-group">
                             <label for="teamName">팀명</label>
-                            <input type="text" id="teamName" v-model="teamName" class="form-control" />
+                            <select id="teamName" v-model="selectedTeamId" class="form-control">
+                                <option v-for="team in teams" :key="team.teamId" :value="team.teamId">{{ team.teamName }}</option>
+                            </select>
                         </div>
 
-                        <!-- 직급 -->
                         <div class="form-group">
-                            <label for="position">직급</label>
-                            <input type="text" id="position" v-model="position" class="form-control" />
+                            <label for="jobName">직무</label>
+                            <select id="jobName" v-model="selectedJobId" class="form-control">
+                                <option v-for="job in jobs" :key="job.jobId" :value="job.jobId">{{ job.jobName }}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="positionName">직책</label>
+                            <select id="positionName" v-model="selectedPositionId" class="form-control">
+                                <option v-for="position in positions" :key="position.positionId" :value="position.positionId">{{ position.positionName }}</option>
+                            </select>
                         </div>
 
                         <!-- 입사일 -->
@@ -57,64 +65,55 @@
                     </div>
                 </div>
 
-                <!-- 직원 정보 틀 -->
                 <div class="employee-info-container">
                     <div class="header">
                         <h2>신상 정보</h2>
                     </div>
                     <div class="divider"></div>
 
-                    <!-- 직원번호 -->
                     <div class="form-group">
                         <label for="employeeId">사원번호</label>
-                        <input type="text" id="employeeId" v-model="employeeId" class="form-control" />
+                        <input type="text" id="employeeId" v-model="employeeData.employeeId" class="form-control" />
                     </div>
 
-                    <!-- 성명 -->
                     <div class="form-group">
                         <label for="name">성명</label>
-                        <input type="text" id="name" v-model="name" class="form-control" />
+                        <input type="text" id="name" v-model="employeeData.employeeName" class="form-control" />
                     </div>
 
-                    <!-- 생년월일 -->
                     <div class="form-group">
                         <label for="dob">생년월일</label>
-                        <input type="text" id="dob" v-model="dob" class="form-control" />
+                        <input type="text" id="dob" v-model="employeeData.birthDate" class="form-control" />
                     </div>
 
-                    <!-- 연락처 -->
                     <div class="form-group">
                         <label for="phone">연락처</label>
-                        <input type="text" id="phone" v-model="phone" class="form-control" />
+                        <input type="text" id="phone" v-model="employeeData.phoneNumber" class="form-control" />
                     </div>
 
-                    <!-- 이메일 -->
                     <div class="form-group">
                         <label for="email">이메일</label>
-                        <input type="text" id="email" v-model="email" class="form-control" />
+                        <input type="text" id="email" v-model="employeeData.email" class="form-control" />
                     </div>
 
-                    <!-- 직원주소 -->
                     <div class="form-group">
                         <label for="employeeAddress">도로명 주소</label>
                         <div class="address-group">
-                            <input type="text" id="employeeAddress" v-model="employeeAddress" class="form-control address-input" />
-                            <button @click="searchZipCode" class="btn-zipcode" style="margin-left: 15px;">우편번호 검색</button>
+                            <input type="text" id="employeeAddress" v-model="employeeData.roadAddress" class="form-control address-input" />
+                            <button @click="searchZipCode" class="btn-zipcode" style="margin-left: 10px">우편번호 검색</button>
                         </div>
                     </div>
 
-                    <!-- 주소 -->
                     <div class="form-group">
                         <label for="address">지 번</label>
-                        <input type="text" id="address" v-model="address" class="form-control" />
+                        <input type="text" id="address" v-model="employeeData.lotAddress" class="form-control" />
                     </div>
 
-                    <!-- 상세 주소 -->
                     <div class="form-group">
                         <label for="detailedAddress">상세 주소</label>
-                        <input type="text" id="detailedAddress" v-model="detailedAddress" class="form-control detailed-address" />
+                        <input type="text" id="detailedAddress" v-model="employeeData.detailedAddress" class="form-control detailed-address" />
                     </div>
-                </div>  
+                </div>
             </div>
 
             <div class="button-group">
@@ -125,10 +124,11 @@
     </div>
 </template>
 
-
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue';
+import { adminUpdateEmployeeInfo } from '@/views/pages/auth/service/authService'; // 서비스 파일에서 메소드 가져오기
+import axios from 'axios'; // axios 추가
 import Swal from 'sweetalert2';
+import { defineEmits, defineProps, ref, watch } from 'vue';
 
 const props = defineProps({
     isVisible: {
@@ -145,82 +145,207 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['update:visible', 'closeModal']); // 올바른 위치에 정의
+const emit = defineEmits(['update:visible', 'closeModal']);
 
 const handleClose = () => {
     emit('update:visible', false); // 부모 컴포넌트에 모달 닫기 이벤트 발송
     emit('closeModal'); // 부모 컴포넌트의 close 함수 호출
 };
 
-// 기본값 처리
-const employeeId = ref(props.employee?.employeeId || '2023001');
-const name = ref(props.employee?.name || '홍길동');
-const dob = ref(props.employee?.dob || '1990-01-01');
-const phone = ref(props.employee?.phone || '010-1234-5678');
-const email = ref(props.employee?.email || 'hong@example.com');
-const employeeAddress = ref(props.employee?.address || '');
-const address = ref(props.employee?.address || '');
-const detailedAddress = ref(props.employee?.detailedAddress || '');
+// 데이터 선언
+const employeeData = ref({
+    employeeId: '',
+    deptId: '',
+    teamId: '',
+    jobId: '',
+    positionId: '',
+    employeeName: '',
+    teamName: '',
+    deptName: '',
+    jobName: '',
+    positionName: '',
+    email: '',
+    joinDate: '',
+    birthDate: '',
+    phoneNumber: '',
+    roadAddress: '',
+    lotAddress: '',
+    detailedAddress: '',
+    profileImageUrl: '',
+    profileImage: []
+});
 
-// 부서 정보 추가
-const departmentName = ref(props.employee?.departmentName || '인사부');
-const teamName = ref(props.employee?.teamName || '인재채용팀');
-const position = ref(props.employee?.position || '팀장');
-const hireDate = ref(props.employee?.hireDate || '2020-05-01');
-const photoUrl = ref(props.employee?.photoUrl || 'https://via.placeholder.com/150'); // 초기 이미지 URL
+// 부서, 팀, 직무, 직책 목록과 선택된 값들
+const departments = ref([]);
+const teams = ref([]);
+const jobs = ref([]);
+const positions = ref([]);
+
+const selectedDeptId = ref(null);
+const selectedTeamId = ref(null);
+const selectedJobId = ref(null);
+const selectedPositionId = ref(null);
+const hireDate = ref('');
+
+// 프로필 이미지 처리
+const photoUrl = ref('https://via.placeholder.com/150'); // 초기 이미지 URL
+const profileImageFile = ref(null);
 
 const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
+        profileImageFile.value = file;
         const reader = new FileReader();
         reader.onload = (e) => {
-            photoUrl.value = e.target.result; // 이미지 URL 업데이트
+            photoUrl.value = e.target.result;
         };
-        reader.readAsDataURL(file); // 파일을 Data URL로 읽기
+        reader.readAsDataURL(file);
+    } else {
+        photoUrl.value = 'https://via.placeholder.com/150';
     }
 };
 
+// 우편번호 검색
 const searchZipCode = () => {
     new daum.Postcode({
         oncomplete: function (data) {
-            employeeAddress.value = data.roadAddress; // 도로명 주소
-            address.value = data.jibunAddress; // 지번 주소
-            detailedAddress.value = ''; // 상세 주소는 빈 문자열로 설정
+            employeeData.value.roadAddress = data.roadAddress;
+            employeeData.value.lotAddress = data.jibunAddress;
+            employeeData.value.detailedAddress = '';
         }
     }).open();
 };
 
+// 수정 버튼 클릭 시 처리
 const enableEditing = () => {
-    Swal.fire({
-        title: '수정되었습니다.', // Alert 제목
-        icon: 'success' // Alert 타입
-    });
+    adminUpdateEmployeeInfo(employeeData.value, profileImageFile.value)
+        .then(() => {
+            Swal.fire({
+                title: '수정되었습니다.',
+                icon: 'success'
+            });
+        })
+        .catch((error) => {
+            Swal.fire({
+                title: '수정 실패',
+                text: '정보 수정 중 오류가 발생했습니다.',
+                icon: 'error'
+            });
+        });
 };
 
-</script>
+// 부서, 팀, 직무, 직책 데이터를 불러오는 함수
+const fetchDepartments = async () => {
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/departments');
+        departments.value = response.data;
+        console.log('departments', departments.value);
+    } catch (error) {
+        console.error('부서 데이터를 가져오는 중 오류 발생:', error);
+    }
+};
 
+const fetchTeams = async (deptId) => {
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/teams', {
+            params: { deptId }
+        });
+        teams.value = response.data;
+        console.log('teams', teams.value);
+    } catch (error) {
+        console.error('팀 데이터를 가져오는 중 오류 발생:', error);
+    }
+};
+
+const fetchJobs = async () => {
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/jobs');
+        jobs.value = response.data;
+        console.log('jobs', jobs.value);
+    } catch (error) {
+        console.error('직무 데이터를 가져오는 중 오류 발생:', error);
+    }
+};
+
+const fetchPositions = async () => {
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/positions');
+        positions.value = response.data;
+        console.log('positions', positions.value);
+    } catch (error) {
+        console.error('직책 데이터를 가져오는 중 오류 발생:', error);
+    }
+};
+
+// props.employee가 변경될 때마다 직원 정보 업데이트
+watch(
+    () => props.employee,
+    async (newEmployee) => {
+        if (newEmployee) {
+            employeeData.value = newEmployee;
+            photoUrl.value = newEmployee.profileImageUrl;
+
+            console.log('Updated employee data:', employeeData.value);
+
+            // 부서, 팀, 직무, 직책 목록을 불러오고 선택된 값 설정
+            await fetchDepartments();
+            await fetchTeams(newEmployee.deptId);
+            await fetchJobs();
+            await fetchPositions();
+
+            // 부모 컴포넌트에서 전달받은 값을 기본값으로 설정
+            selectedDeptId.value = newEmployee.deptId;
+            selectedTeamId.value = newEmployee.teamId;
+            selectedJobId.value = newEmployee.jobId;
+            selectedPositionId.value = newEmployee.positionId;
+            hireDate.value = newEmployee.joinDate;
+        }
+    },
+    { immediate: true }
+);
+
+// 모달이 열릴 때 데이터를 불러옴
+watch(
+    () => props.isVisible,
+    (visible) => {
+        if (visible) {
+            fetchDepartments();
+            fetchJobs();
+            fetchPositions();
+        }
+    }
+);
+
+// 부서 선택 시 호출되는 함수
+const handleDepartmentChange = async () => {
+    await fetchTeams(selectedDeptId.value);
+};
+</script>
 
 <style scoped>
 .modal-container {
-    position: fixed; /* 모달을 화면에 고정 */
-    top: 0; /* 화면의 상단에 위치 */
-    left: 0; /* 화면의 왼쪽에 위치 */
-    width: 100%; /* 전체 너비 */
-    height: 100%; /* 전체 높이 */
-    background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
-    display: flex; /* 중앙 정렬을 위해 flex 사용 */
-    justify-content: center; /* 수평 중앙 정렬 */
-    align-items: center; /* 수직 중앙 정렬 */
-    z-index: 1000; /* 다른 요소 위에 표시 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 15px; /* 조금 더 여유롭게 상하 좌우 여백을 설정 */
 }
 
 .modal-content {
-    background-color: white; 
-    border-radius: 10px; 
-    padding: 20px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
-    max-width: 1200px; /* 최대 너비를 1200px로 확장 */
-    width: 90%; /* 화면의 90% 너비 */
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 1200px; /* 최대 너비를 1100px로 약간 확대 */
+    width: 90%; /* 화면 너비의 90%로 설정 */
+    max-height: 95vh; /* 화면 높이의 95%로 확대 */
+    overflow-y: auto; /* 내용이 넘칠 경우만 스크롤 */
 }
 
 .main-title {
@@ -232,13 +357,15 @@ const enableEditing = () => {
 
 /* 버튼 그룹 스타일 */
 .button-group {
-    display: flex; /* Flexbox로 버튼을 나란히 배치 */
-    justify-content: flex-end; /* 오른쪽 정렬 */
-    margin-top: 20px; /* 위쪽 여백 */
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px; /* 여백을 조금 추가 */
+    padding-bottom: 15px; /* 아래쪽 여백을 조금 추가 */
 }
 
-.btn-edit, .btn-close {
-    background-color: #6366F1; /* 기본 배경색 */
+.btn-edit,
+.btn-close {
+    background-color: #6366f1; /* 기본 배경색 */
     color: white; /* 글씨색 */
     border: none; /* 테두리 제거 */
     border-radius: 5px; /* 둥근 모서리 */
@@ -248,12 +375,13 @@ const enableEditing = () => {
     transition: background-color 0.3s ease; /* 배경색 부드러운 전환 */
 }
 
-.btn-edit:hover, .btn-close:hover {
+.btn-edit:hover,
+.btn-close:hover {
     background-color: #4f46e5; /* 호버 시 배경색 */
 }
 
-input[type="file"]::-webkit-file-upload-button {
-    background-color: #6366F1; /* 버튼 배경색 */
+input[type='file']::-webkit-file-upload-button {
+    background-color: #6366f1; /* 버튼 배경색 */
     color: white; /* 버튼 글씨색 */
     border: none; /* 버튼 테두리 없애기 */
     border-radius: 5px; /* 버튼 둥근 모서리 */
@@ -263,11 +391,11 @@ input[type="file"]::-webkit-file-upload-button {
 }
 
 /* 마우스 호버 시 색상 변경 */
-input[type="file"]:hover::-webkit-file-upload-button {
+input[type='file']:hover::-webkit-file-upload-button {
     background-color: #4f46e5; /* 호버 시 배경색 */
 }
 
-input[type="file"] {
+input[type='file'] {
     margin-left: 0; /* 파일 입력창의 왼쪽 여백 제거 */
     padding: 0; /* 파일 입력창의 패딩 제거 */
 }
@@ -377,12 +505,14 @@ label {
 .btn-zipcode {
     margin-left: 3px;
     padding: 10px 15px;
-    background-color: #6366F1;
+    background-color: #6366f1;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease; /* 부드러운 전환 효과 */
+    transition:
+        background-color 0.3s ease,
+        transform 0.3s ease; /* 부드러운 전환 효과 */
 }
 
 .btn-zipcode:hover {
@@ -405,4 +535,3 @@ label {
     background-color: #f0f0f0; /* 읽기 전용 필드의 배경색 */
 }
 </style>
-

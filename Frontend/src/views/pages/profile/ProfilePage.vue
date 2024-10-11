@@ -39,7 +39,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="position">직급</label>
+                        <label for="jobName">직무</label>
+                        <input type="text" id="jobName" v-model="jobName" class="form-control" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="position">직책</label>
                         <input type="text" id="position" v-model="position" class="form-control" readonly />
                     </div>
 
@@ -59,7 +64,7 @@
 
                 <!-- 직원번호 -->
                 <div class="form-group">
-                    <label for="employeeId">직원번호</label>
+                    <label for="employeeId">사원번호</label>
                     <input type="text" id="employeeId" v-model="employeeData.employeeId" class="form-control" readonly />
                 </div>
 
@@ -84,15 +89,15 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="employeeAddress">직원 주소</label>
+                    <label for="employeeAddress">도로명 주소</label>
                     <div class="address-group">
                         <input type="text" id="employeeAddress" v-model="employeeData.roadAddress" class="form-control address-input" readonly />
-                        <button @click="searchZipCode" class="btn-zipcode">우편번호 검색</button>
+                        <button @click="searchZipCode" class="btn-zipcode" style="margin-left: 11px">우편번호 검색</button>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="address">주소</label>
+                    <label for="address">지 번</label>
                     <input type="text" id="address" v-model="employeeData.lotAddress" class="form-control" readonly />
                 </div>
 
@@ -133,6 +138,7 @@ const employeeData = ref({
 // 부서 정보 선언
 const departmentName = ref('');
 const teamName = ref('');
+const jobName = ref('');
 const position = ref('');
 const hireDate = ref('');
 
@@ -198,6 +204,7 @@ onMounted(async () => {
         employeeData.value = data;
         departmentName.value = data.deptName;
         teamName.value = data.teamName;
+        jobName.value = data.jobName;
         position.value = data.positionName;
         hireDate.value = data.joinDate;
         photoUrl.value = data.profileImageUrl; // 프로필 이미지 설정

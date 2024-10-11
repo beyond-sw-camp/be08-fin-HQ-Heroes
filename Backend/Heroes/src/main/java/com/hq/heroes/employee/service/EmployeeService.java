@@ -19,4 +19,9 @@ public interface EmployeeService {
         사원 정보 수정
      */
     Employee updateEmployee(EmployeeDTO employeeDTO);
+
+    /*
+        관리자 - 사원 정보 수정
+     */
+    Employee adminUpdateEmployee(EmployeeDTO employeeDTO);
 }

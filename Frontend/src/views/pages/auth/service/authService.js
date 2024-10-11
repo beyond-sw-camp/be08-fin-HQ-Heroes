@@ -125,6 +125,16 @@ export const updateEmployeeInfo = async (employeeData, profileImageFile) => {
     }
 };
 
+export const adminUpdateEmployeeInfo = async (employeeData, profileImageFile) => {
+    try {
+        const response = await fetchPut(`${API_URL}/api/v1/admin/employee/update`, employeeData, profileImageFile);
+        return response;
+    } catch (error) {
+        console.error('직원 정보 업데이트 중 오류 발생:', error);
+        throw error; // 호출하는 곳에서 에러 처리 가능
+    }
+};
+
 const isTokenExpired = () => {
     const authStore = useAuthStore();
     const currentTime = Date.now();
