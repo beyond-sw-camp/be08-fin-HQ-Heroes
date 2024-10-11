@@ -9,4 +9,8 @@ public interface VacationService {
     void submitVacation(VacationDTO vacationDTO);
 
     List<VacationDTO> getAllVacations();
+
+    void approveVacation(Long vacationId);
+
+    void rejectVacation(Long vacationId);
 }

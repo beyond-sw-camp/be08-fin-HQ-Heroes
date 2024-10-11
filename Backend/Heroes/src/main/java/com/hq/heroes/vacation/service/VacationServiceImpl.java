@@ -61,6 +61,20 @@ public class VacationServiceImpl implements VacationService {
         vacationRepository.save(vacation);
     }
 
+    public void approveVacation(Long vacationId) {
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow(() -> new RuntimeException("휴가를 찾을 수 없습니다."));
+        vacation.setVacationStatus(VacationStatus.APPROVED); // 상태를 승인으로 변경
+        vacationRepository.save(vacation);
+    }
+
+    public void rejectVacation(Long vacationId) {
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow(() -> new RuntimeException("휴가를 찾을 수 없습니다."));
+        vacation.setVacationStatus(VacationStatus.REJECTED); // 상태를 반려로 변경
+        vacationRepository.save(vacation);
+    }
+
 
     @Override
     public List<VacationDTO> getAllVacations() {

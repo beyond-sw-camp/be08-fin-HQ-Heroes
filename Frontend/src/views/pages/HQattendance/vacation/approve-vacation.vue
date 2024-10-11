@@ -15,7 +15,8 @@
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">휴가 관리</h4>
+                        <!-- Apply the title style here -->
+                        <h4 class="m-0 title">휴가 관리</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
@@ -25,6 +26,7 @@
                     </div>
                 </template>
 
+                <!-- 기존 열 구성 -->
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="employeeName" header="이름" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationType" header="휴가 종류" sortable style="min-width: 5rem"></Column>
@@ -34,6 +36,14 @@
                 <Column field="vacationEndTime" header="종료 시간" sortable style="min-width: 5rem" v-if="selectedEmployee.vacationType !== '월차'"></Column>
                 <Column field="approverName" header="결재자" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationStatus" header="상태" sortable style="min-width: 5rem"></Column>
+
+                <!-- 승인/반려 버튼 (관리자나 팀장만 표시) -->
+                <Column v-if="isAdminOrTeamLead" header="승인/반려" style="min-width: 8rem">
+                    <template #body="slotProps">
+                        <Button label="승인" @click="approveVacation(slotProps.data.vacationId)" class="p-button-success" />
+                        <Button label="반려" @click="rejectVacation(slotProps.data.vacationId)" class="p-button-danger" />
+                    </template>
+                </Column>
             </DataTable>
         </div>
 
@@ -89,9 +99,18 @@ const filters = ref({ global: { value: null } });
 const selectedEmployee = ref({});
 const infoDialog = ref(false);
 const toast = useToast();
+const isAdminOrTeamLead = ref(false); // 관리자 또는 팀장 여부 확인
 
 onMounted(async () => {
     try {
+        // 역할과 포지션 정보를 가져와서 관리자 또는 팀장 여부 확인
+        const roleResponse = await axios.get('/api/v1/employee/role-check');
+        const { role, positionId } = roleResponse.data;
+
+        if (role === 'ROLE_ADMIN' || (role === 'ROLE_USER' && positionId === 1)) {
+            isAdminOrTeamLead.value = true; // 관리자나 팀장일 경우 승인/반려 버튼 보이도록 설정
+        }
+
         const response = await axios.get('http://localhost:8080/api/v1/vacation/list');
         console.log(response.data); // 응답 데이터 출력
         employees.value = response.data.map((record) => ({
@@ -109,6 +128,22 @@ onMounted(async () => {
         toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.' });
     }
 });
+
+// 휴가 승인
+function approveVacation(vacationId) {
+    axios
+        .post(`/api/v1/vacation/approve/${vacationId}`)
+        .then(() => alert('휴가가 승인되었습니다.'))
+        .catch((error) => console.error('휴가 승인 실패:', error));
+}
+
+// 휴가 반려
+function rejectVacation(vacationId) {
+    axios
+        .post(`/api/v1/vacation/reject/${vacationId}`)
+        .then(() => alert('휴가가 반려되었습니다.'))
+        .catch((error) => console.error('휴가 반려 실패:', error));
+}
 
 // 휴가 상태를 한국어로 매핑하는 함수
 function mapStatus(status) {
@@ -147,6 +182,12 @@ function showEmployeeInfo(employee) {
 </script>
 
 <style scoped>
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
 .custom-button {
     background-color: #6366f1;
     color: white;
