@@ -90,9 +90,11 @@
 </template>
 
 <script setup>
-import axios from 'axios';
+import router from '@/router'; // 라우터 임포트
+import axios from 'axios'; // axios는 더이상 필요하지 않음 (필요에 따라 제거 가능)
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
+import { fetchGet } from '../../auth/service/AuthApiService'; // fetchGet 임포트
 
 const employees = ref([]);
 const filters = ref({ global: { value: null } });
@@ -104,16 +106,16 @@ const isAdminOrTeamLead = ref(false); // 관리자 또는 팀장 여부 확인
 onMounted(async () => {
     try {
         // 역할과 포지션 정보를 가져와서 관리자 또는 팀장 여부 확인
-        const roleResponse = await axios.get('/api/v1/employee/role-check');
-        const { role, positionId } = roleResponse.data;
+        const roleResponse = await fetchGet('http://localhost:8080/api/v1/employee/role-check', router.push, router.currentRoute.value);
+        const { role, positionId } = roleResponse;
 
         if (role === 'ROLE_ADMIN' || (role === 'ROLE_USER' && positionId === 1)) {
             isAdminOrTeamLead.value = true; // 관리자나 팀장일 경우 승인/반려 버튼 보이도록 설정
         }
 
-        const response = await axios.get('http://localhost:8080/api/v1/vacation/list');
-        console.log(response.data); // 응답 데이터 출력
-        employees.value = response.data.map((record) => ({
+        const response = await fetchGet('http://localhost:8080/api/v1/vacation/list', router.push, router.currentRoute.value);
+        console.log(response); // 응답 데이터 출력
+        employees.value = response.map((record) => ({
             vacationId: record.vacationId,
             employeeName: record.employeeName, // 신청인 이름
             vacationType: mapVacationType(record.vacationType), // 휴가 종류 (한국어로 매핑)

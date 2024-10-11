@@ -1,12 +1,10 @@
 package com.hq.heroes.employee.controller;
 
 import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
-import com.hq.heroes.auth.dto.form.JoinDTO;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.dto.EmployeeDTO;
 import com.hq.heroes.employee.dto.TeamDTO;
-import com.hq.heroes.employee.entity.Team;
 import com.hq.heroes.employee.repository.DepartmentRepository;
 import com.hq.heroes.employee.repository.JobRepository;
 import com.hq.heroes.employee.repository.PositionRepository;
@@ -17,15 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +58,6 @@ public class EmployeeController {
     public ResponseEntity<?> getAllEmployees() {
         List<EmployeeDTO> employees = employeeService.getAllEmployees();
 
-        System.out.println("employees = " + employees);
 
         // 사원이 없을 경우 메시지와 함께 200 OK 반환
         if (employees.isEmpty()) {
