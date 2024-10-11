@@ -26,12 +26,12 @@ public class Evaluation {
 
     // 피평가자 (사원)와의 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
+    @JoinColumn(name = "employee_id", referencedColumnName = "employee_id", nullable = false)
     private Employee employee;
 
     // 평가자와의 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evaluator_id", nullable = false)
+    @JoinColumn(name = "evaluator_id", referencedColumnName = "employee_id", nullable = false)
     private Employee evaluator;
 
     @Column(name = "score", nullable = false)
