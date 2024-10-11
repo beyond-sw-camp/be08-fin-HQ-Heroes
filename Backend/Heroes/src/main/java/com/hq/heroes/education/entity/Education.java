@@ -61,7 +61,7 @@ public class Education {
                 .educationEnd(LocalDate.from(this.endDate))
                 .categoryName(this.educationCategory.getCategoryName())  // 카테고리 이름 추가
                 .applicationStartDate(this.educationCurriculum.getApplicationStartDate()) // 신청 시작일 추가
-                .applicationEndDate(this.educationCurriculum.getApplicationEndDate()) // 신청 종료일 추기
+                .applicationEndDate(this.educationCurriculum.getApplicationEndDate()) // 신청 종료일 추가
                 .participants(this.educationCurriculum.getParticipants())
                 .build();
     }

@@ -6,6 +6,7 @@ import com.hq.heroes.employee.entity.Department;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -34,6 +35,18 @@ public class Certification {
     @Column(name = "benefit")
     private String benefit;
 
+    // 신청 시작일
+    @Column(name = "application_start_date")
+    private LocalDate applicationStartDate;
+
+    // 신청 종료일
+    @Column(name = "application_end_date")
+    private LocalDate applicationEndDate;
+
+    // 시험 날짜
+    @Column(name = "exam_date")
+    private LocalDate examDate;
+
     // Department와의 Many-to-One 관계 (부서 번호)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dept_id", nullable = false)
@@ -45,6 +58,9 @@ public class Certification {
                 .certificationName(this.certificationName)
                 .institution(this.institution)
                 .benefit(this.benefit)
+                .applicationStartDate(this.applicationStartDate)
+                .applicationEndDate(this.applicationEndDate)
+                .examDate(this.examDate)
                 .deptId(this.department.getDeptId())
                 .build();
     }

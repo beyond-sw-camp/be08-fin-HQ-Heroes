@@ -5,24 +5,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CertificationResponseDTO {
-    // 자격증 번호
-    private long certificationId;
-
-    // 자격증 이름
-    private String certificationName;
-
-    // 발급 기관
-    private String institution;
-
-    // 혜택
-    private String benefit;
-
-    // 부서 번호
-    private long deptId;
+    private long certificationId; // 자격증 번호
+    private String certificationName; // 자격증 이름
+    private String institution; // 발급 기관
+    private LocalDate applicationStartDate; // 신청 시작일
+    private LocalDate applicationEndDate; // 신청 종료일
+    private LocalDate examDate; // 시험 날짜
+    private String benefit; // 혜택
+    private long deptId; // 부서 번호
 
 }

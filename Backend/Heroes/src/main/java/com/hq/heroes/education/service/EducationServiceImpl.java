@@ -45,13 +45,13 @@ public class EducationServiceImpl implements EducationService {
                 .orElseThrow(() -> new IllegalArgumentException("Curriculum not found"));
 
         Education education = Education.builder()
-                .educationName(requestDTO.getEducationName())
-                .instructorName(requestDTO.getInstructorName())
-                .institution(requestDTO.getInstitution())
-                .startDate(LocalDate.from(requestDTO.getEducationStart()))
-                .endDate(LocalDate.from(requestDTO.getEducationEnd()))
-                .educationCategory(category)
-                .educationCurriculum(curriculum)
+                .educationName(requestDTO.getEducationName()) // 교육 이름
+                .instructorName(requestDTO.getInstructorName()) // 강사 이름
+                .institution(requestDTO.getInstitution()) // 교육 기관
+                .startDate(LocalDate.from(requestDTO.getEducationStart())) // 교육 시작일
+                .endDate(LocalDate.from(requestDTO.getEducationEnd())) // 교육 종료일
+                .educationCategory(category) // 카테고리
+                .educationCurriculum(curriculum) // 커리큘럼
                 .build();
 
         return educationRepository.save(education);
@@ -63,11 +63,11 @@ public class EducationServiceImpl implements EducationService {
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 교육 ID : " + educationId));
 
-        education.setEducationName(requestDTO.getEducationName());
-        education.setInstitution(requestDTO.getInstitution());
-        education.setInstructorName(requestDTO.getInstructorName());
-        education.setStartDate(LocalDate.from(requestDTO.getEducationStart()));
-        education.setEndDate(LocalDate.from(requestDTO.getEducationEnd()));
+        education.setEducationName(requestDTO.getEducationName()); // 교육 이름
+        education.setInstitution(requestDTO.getInstitution()); // 교육 기관
+        education.setInstructorName(requestDTO.getInstructorName()); // 강사 이름
+        education.setStartDate(LocalDate.from(requestDTO.getEducationStart())); // 강의 시작일
+        education.setEndDate(LocalDate.from(requestDTO.getEducationEnd())); // 강의 종료일
 
         return educationRepository.save(education);
     }
