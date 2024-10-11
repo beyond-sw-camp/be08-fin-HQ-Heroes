@@ -12,7 +12,7 @@ import java.util.List;
 public interface TeamRepository extends JpaRepository<Team,Long> {
 
     @Query("SELECT new com.hq.heroes.employee.dto.TeamDTO(t.teamId, t.teamName) FROM Team t")
-    List<TeamDTO> findAllTeams();
+    List<TeamDTO> findAllTeams(); //// 모든 팀을 가져오는 메서드
 
     @Query("SELECT new com.hq.heroes.employee.dto.TeamDTO(t.teamId, t.teamName) FROM Team t WHERE t.department.deptId = :deptId")
     List<TeamDTO> findByDepartment_DeptId(Long deptId);
