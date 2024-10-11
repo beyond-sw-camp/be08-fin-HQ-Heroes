@@ -12,7 +12,7 @@
             filterDisplay="menu"
             :filters="filters"
             selectionMode="single"
-            :globalFilterFields="['educationName', 'category', 'instructorName', 'institution']"
+            :globalFilterFields="['educationName', 'categoryName', 'instructorName', 'institution']"
             showGridlines
             style="table-layout: fixed !important;"
         >
@@ -20,8 +20,8 @@
             <template #header>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <Dropdown v-model="selectedCategory" :options="categories" optionLabel="name" placeholder="카테고리를 선택하세요" @change="filterByCategoryAndInstructor" class="mr-2" />
-                        <Dropdown v-model="selectedInstructor" :options="instructors" optionLabel="name" placeholder="강사명을 선택하세요" @change="filterByCategoryAndInstructor" class="mr-2" />
+                        <Dropdown v-model="selectedCategoryName" :options="categories" optionLabel="name" placeholder="카테고리를 선택하세요" @change="filterByCategoryNameAndInstructor" class="mr-2" />
+                        <Dropdown v-model="selectedInstructor" :options="instructors" optionLabel="name" placeholder="강사명을 선택하세요" @change="filterByCategoryNameAndInstructor" class="mr-2" />
                     </div>
                     <div class="relative search-container ml-auto">
                         <i class="pi pi-search search-icon" />
@@ -37,9 +37,9 @@
                     {{ data.courseId }}
                 </template>
             </Column>
-            <Column field="category" sortable header="카테고리" style="min-width: 6rem; text-align: left;">
+            <Column field="categoryName" sortable header="카테고리" style="min-width: 6rem; text-align: left;">
                 <template #body="{ data }">
-                    {{ data.category }}
+                    {{ data.categoryName }}
                 </template>
             </Column>
             <Column field="educationName" sortable header="강의명" style="min-width: 20rem; text-align: left;">
@@ -51,7 +51,7 @@
             </Column>
             <Column field="educationStart" sortable header="신청 기간" dataType="date" style="min-width: 8rem; text-align: left;">
                 <template #body="{ data }">
-                    {{ formatDate(new Date(data.educationApplyStart)) }} ~ {{ formatDate(new Date(data.educationApplyEnd)) }}
+                    {{ formatDate(new Date(data.applicationStartDate)) }} ~ {{ formatDate(new Date(data.applicationEndDate)) }}
                 </template>
             </Column>
             <Column field="educationEnd" sortable header="수강 기간" dataType="date" style="min-width: 8rem; text-align: left;">
@@ -71,23 +71,19 @@ import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router'; // useRouter 추가
+import axios from 'axios'; // axios 추가
 
 const router = useRouter(); // 라우터 객체 가져오기
 
 // 데이터 및 상태 관리
-const courses = ref([
-    { courseId: 1, category: '어학', instructorName: '홍길동', educationName: '언어에 어려움을 겪고 있는 사람들을 위한 프로그램', institution: 'Hanwha Academy', educationApplyStart: '2024-10-01', educationApplyEnd: '2024-10-10', educationStart: '2024-11-02', educationEnd: '2024-11-20', participants: 20, totalParticipants: 30 },
-    { courseId: 2, category: '디자인', instructorName: '이순신', educationName: 'UI/UX 디자인 기초', institution: 'Design School',educationApplyStart: '2024-10-01', educationApplyEnd: '2024-10-10', educationStart: '2024-11-02', educationEnd: '2024-11-20', participants: 10, totalParticipants: 20 },
-    { courseId: 3, category: '관리', instructorName: '김유신', educationName: '프로젝트 관리 실무', institution: 'Management Center', educationApplyStart: '2024-10-01', educationApplyEnd: '2024-10-10', educationStart: '2024-11-02', educationEnd: '2024-11-20', participants: 15, totalParticipants: 25 }
-]);
-
+const courses = ref([]); // 초기값을 빈 배열로 설정
 const filteredEmployees = ref([]);
 const filters = ref(null);
 const selectedCourse = ref(null);
 const applyDialogVisible = ref(false); // 신청 모달 가시성 상태
 const categories = ref([]);
 const instructors = ref([]);
-const selectedCategory = ref(null);
+const selectedCategoryName = ref(null);
 const selectedInstructor = ref(null);
 
 // 카테고리 및 강사 목록 가져오기
@@ -99,12 +95,23 @@ async function fetchInstructors() {
     instructors.value = [{ name: '전체' }, { name: '홍길동' }, { name: '이순신' }, { name: '김유신' }];
 }
 
+// 교육 목록 함수 (GET)
+async function fetchEducations() {
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/education-service/education');
+        courses.value = response.data; // 가져온 데이터를 courses에 저장
+        filteredEmployees.value = courses.value; // 필터링된 데이터를 설정
+    } catch (error) {
+        console.error("교육 목록을 불러오지 못했습니다.", error);
+    }
+}
+
 // 필터링
-function filterByCategoryAndInstructor() {
+function filterByCategoryNameAndInstructor() {
     filteredEmployees.value = courses.value.filter((course) => {
-        const matchesCategory = selectedCategory.value && selectedCategory.value.name !== '전체' ? course.category === selectedCategory.value.name : true;
+        const matchesCategoryName = selectedCategoryName.value && selectedCategoryName.value.name !== '전체' ? course.categoryName === selectedCategoryName.value.name : true;
         const matchesInstructor = selectedInstructor.value && selectedInstructor.value.name !== '전체' ? course.instructorName === selectedInstructor.value.name : true;
-        return matchesCategory && matchesInstructor;
+        return matchesCategoryName && matchesInstructor;
     });
 }
 
@@ -113,7 +120,7 @@ function initFilters() {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         educationName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        category: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        categoryName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
         educationStart: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] }
     };
 }
@@ -142,7 +149,8 @@ onBeforeMount(() => {
     initFilters();
     fetchCategories();
     fetchInstructors();
-    filterByCategoryAndInstructor();
+    fetchEducations(); // 교육 목록 가져오기
+    filterByCategoryNameAndInstructor(); // 필터 적용
 });
 
 // 날짜 형식 변환
