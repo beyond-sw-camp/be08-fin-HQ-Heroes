@@ -16,8 +16,8 @@ let timer = null;
 // 로그아웃 처리
 const handleLogout = async () => {
     try {
-        await authService.logout();  // 서버 로그아웃 처리
-        authStore.logout();  // Pinia 스토어에서 로그아웃 처리
+        await authService.logout(); // 서버 로그아웃 처리
+        authStore.logout(); // Pinia 스토어에서 로그아웃 처리
 
         // 로그아웃 완료 후 로그인 화면으로 이동
         await router.push('/login');
@@ -138,7 +138,7 @@ const goToSignUp = () => router.push('/signup');
                     <span>{{ remainingTime }}</span>
 
                     <!-- PrimeVue 버튼을 사용하여 재갱신 버튼 생성 -->
-                    <Button icon="pi pi-refresh" label="재갱신" severity="info" outlined rounded @click="fetchReissue" class="ml-2" />
+                    <Button icon="pi pi-refresh" label="재갱신" severity="info" outlined rounded @click="handleReissue" class="ml-2" />
 
                     <!-- PrimeVue 로그아웃 버튼 -->
                     <Button icon="pi pi-sign-out" label="로그아웃" severity="danger" outlined rounded @click="handleLogout" class="ml-2" />

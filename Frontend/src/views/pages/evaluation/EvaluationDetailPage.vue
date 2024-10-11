@@ -51,6 +51,7 @@ import { fetchGet, fetchPost } from '../auth/service/AuthApiService';
 import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
 import Select from 'primevue/select';
+import router from '@/router';
 
 const route = useRoute();
 const employeeId = route.params.employeeId;
@@ -146,6 +147,7 @@ async function saveEvaluation() {
         const response = await fetchPost('http://localhost:8080/api/v1/evaluation-service/evaluation', evaluationData);
         if (response) {
             alert('평가가 성공적으로 저장되었습니다.');
+            router.go(-1);
         }
     } catch (error) {
         console.error('평가 데이터를 저장하는 중 오류 발생:', error);
