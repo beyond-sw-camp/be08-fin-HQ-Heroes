@@ -33,6 +33,20 @@ public class VacationController {
         }
     }
 
+    // 휴가 승인
+    @PostMapping("/approve/{vacationId}")
+    public ResponseEntity<String> approveVacation(@PathVariable Long vacationId) {
+        vacationService.approveVacation(vacationId);
+        return ResponseEntity.ok("휴가가 승인되었습니다.");
+    }
+
+    // 휴가 반려
+    @PostMapping("/reject/{vacationId}")
+    public ResponseEntity<String> rejectVacation(@PathVariable Long vacationId) {
+        vacationService.rejectVacation(vacationId);
+        return ResponseEntity.ok("휴가가 반려되었습니다.");
+    }
+
     @GetMapping("/list")
     @Operation(summary = "휴가 신청 목록 조회")
     public ResponseEntity<List<VacationDTO>> getVacationList() {

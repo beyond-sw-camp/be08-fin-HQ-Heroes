@@ -1,5 +1,6 @@
 package com.hq.heroes.employee.controller;
 
+import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.auth.dto.form.JoinDTO;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
@@ -15,6 +16,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +41,7 @@ public class EmployeeController {
     private final TeamRepository teamRepository;
     private final JobRepository jobRepository;
     private final PositionRepository positionRepository;
+    private final EmployeeRepository employeeRepository;
 
     // 특정 사원 조회를 위한 API
     @GetMapping("/employees/{employee-id}")
@@ -133,6 +139,40 @@ public class EmployeeController {
         }
     }
 
+    // 현재 로그인한 사용자의 역할과 positionId를 확인하는 API
+    @GetMapping("/role-check")
+    public ResponseEntity<Map<String, Object>> checkUserRoleAndPosition() {
+        String employeeId = "";
+        String role = "";
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof CustomEmployeeDetails) {
+                CustomEmployeeDetails userDetails = (CustomEmployeeDetails) principal;
+                employeeId = userDetails.getUsername();
+                role = userDetails.getRole();
+                System.out.println("User is authenticated: " + employeeId + ", Role: " + role);
+            } else {
+                System.out.println("Principal is not an instance of CustomEmployeeDetails.");
+            }
+        } else {
+            System.out.println("No authenticated user found.");
+        }
+
+        Optional<Employee> employeeOptional = employeeRepository.findByEmployeeId(employeeId);
+        System.out.println("Employee found: " + employeeOptional.isPresent()); // 조회 결과 확인
+
+        if (employeeOptional.isPresent()) {
+            Employee employee = employeeOptional.get();
+            Map<String, Object> response = Map.of(
+                    "role", employee.getRole().toString(),  // 역할: ROLE_ADMIN, ROLE_USER 등
+                    "positionId", employee.getPosition().getPositionId() // positionId
+            );
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "사용자를 찾을 수 없습니다."));
+        }
+    }
 
 }
