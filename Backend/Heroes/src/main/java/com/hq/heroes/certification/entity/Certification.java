@@ -1,13 +1,11 @@
 package com.hq.heroes.certification.entity;
 
-import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.certification.dto.CertificationResponseDTO;
 import com.hq.heroes.employee.entity.Department;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Getter
@@ -61,7 +59,7 @@ public class Certification {
                 .applicationStartDate(this.applicationStartDate)
                 .applicationEndDate(this.applicationEndDate)
                 .examDate(this.examDate)
-                .deptId(this.department.getDeptId())
+                .deptName(this.department.getDeptName())
                 .build();
     }
 }

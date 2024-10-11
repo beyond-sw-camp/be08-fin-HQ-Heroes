@@ -7,7 +7,7 @@ import com.hq.heroes.education.entity.Education;
 import java.util.List;
 
 public interface EducationService {
-    List<Education> getEducations(String category);
+    List<Education> getEducations();
 
     Education getEducationById(Long educationId);
 
