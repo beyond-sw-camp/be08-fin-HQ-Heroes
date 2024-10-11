@@ -138,6 +138,11 @@ const router = createRouter({
           component: () => import('@/views/pages/admin/ManageCertificatePage.vue')
         },
         {
+          path: '/manage-certifications/certification-detail/:certificationId',
+          name: 'manage-certifications-detail',
+          component: () => import('@/views/pages/admin/ManageCertificationDetailPage.vue')
+        },
+        {
           path: '/retirement-funds',
           name: 'retirement-funds',
           component: () => import('@/views/pages/retirement/retirement-funds.vue')

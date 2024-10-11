@@ -7,7 +7,7 @@ import com.hq.heroes.education.entity.EducationCurriculum;
 import com.hq.heroes.education.repository.EducationCategoryRepository;
 import com.hq.heroes.education.repository.EducationCurriculumRepository;
 import com.hq.heroes.education.repository.EducationRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +22,8 @@ public class EducationServiceImpl implements EducationService {
     private final EducationCurriculumRepository educationCurriculumRepository;
 
     @Override
-    public List<Education> getEducations(String educationName) {
-        if (educationName != null && !educationName.isEmpty()) {
-            return educationRepository.findByEducationName(educationName);
-        } else {
+    public List<Education> getEducations() {
             return educationRepository.findAll();
-        }
     }
 
     @Override

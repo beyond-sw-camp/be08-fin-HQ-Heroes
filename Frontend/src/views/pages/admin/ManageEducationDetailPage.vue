@@ -106,9 +106,9 @@ onMounted(() => {
 });
 
 // 수정 모드를 활성화하는 함수
-const enableEditMode = () => {
-    editMode.value = true;
-};
+function enableEditMode() {
+    router.push('/write-notice');
+}
 
 // 변경 사항을 저장하는 함수
 const saveChanges = async () => {

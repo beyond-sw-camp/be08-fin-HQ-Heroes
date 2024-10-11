@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,9 +25,9 @@ public class EducationController {
     // 교육 목록 조회하기
     @GetMapping("/education")
     @Operation(summary = "교육 목록 조회", description = "전체 교육의 목록을 조회한다.")
-    public ResponseEntity<List<EducationResponseDTO>> getEducations(@RequestParam(required = false) String educationName) {
-        List<Education> educations = educationService.getEducations(educationName); // 수정된 부분
-        List<EducationResponseDTO> educationDTOs = educations.stream().map(Education::toResponseDTO).toList();
+    public ResponseEntity<List<EducationResponseDTO>> getEducations() {
+        List<Education> educations = educationService.getEducations(); // 수정된 부분
+        List<EducationResponseDTO> educationDTOs = educations.stream().map(Education::toResponseDTO).collect(Collectors.toList());
 
         if (!educations.isEmpty()) {
             return new ResponseEntity<>(educationDTOs, HttpStatus.OK);
@@ -76,7 +77,7 @@ public class EducationController {
 
     // 교육 삭제
     @DeleteMapping("/education/{education-id}")
-    @Operation(summary = "교육 삭제", description = "교육 ID로 해당 교율을 삭제한다.")
+    @Operation(summary = "교육 삭제", description = "교육 ID로 해당 교욱을 삭제한다.")
     public ResponseEntity<Void> delete (
             @Parameter(description = "교육 ID", example = "1") @PathVariable("education-id") Long educationId) {
 
