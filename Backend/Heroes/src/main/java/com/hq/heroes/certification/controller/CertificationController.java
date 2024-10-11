@@ -29,6 +29,9 @@ public class CertificationController {
         List<Certification> certifications = certificationService.getCertifications(certificationId);
         List<CertificationResponseDTO> certificationDTOS = certifications.stream().map(Certification::toResponseDTO).toList();
 
+        System.out.println("Received request for certifications");
+
+
         if (certificationId != null) {
             return new ResponseEntity<>(certificationDTOS, HttpStatus.OK);
         } else {
