@@ -34,6 +34,7 @@ const fetchGet = async (url) => {
 const fetchPost = async (url, data) => {
     const router = useRouter();
     const route = useRoute();
+    let reissueAttempted = false;  // 재발급 시도 여부를 체크하는 플래그
 
     try {
         const response = await axios.post(url, data, {
@@ -43,22 +44,27 @@ const fetchPost = async (url, data) => {
             }
         });
 
-        if (response.status === 200) {
+        if (response.status === 201) {
             return response.data;
-        } else {
+        } else if (!reissueAttempted) {
+            // 첫 재발급 시도
             const reissueSuccess = await fetchReissue();
             if (reissueSuccess) {
-                return await fetchPost(url, data);
-            } else {
-                alert('관리자가 아닙니다.');
-                router.push({ path: '/login', query: { redirect: route.path } });
+                reissueAttempted = true;  // 재발급을 시도한 상태로 변경
+                return await fetchPost(url, data);  // 재귀 호출
             }
         }
+
+        // 재발급 실패 또는 권한 없음
+        alert('관리자가 아닙니다.');
+        router.push({ path: '/login', query: { redirect: route.path } });
+
     } catch (error) {
         console.error('Error fetching authorized page:', error);
     }
     return null;
 };
+
 
 const fetchPut = async (url, employeeData, profileImageFile) => {
     const router = useRouter();
