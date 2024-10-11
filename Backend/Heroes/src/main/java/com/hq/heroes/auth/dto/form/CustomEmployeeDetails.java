@@ -27,6 +27,10 @@ public class CustomEmployeeDetails implements UserDetails {
         return collection;
     }
 
+    public String getRole(){
+        return String.valueOf(employee.getRole());
+    }
+
     @Override
     public String getPassword() {
         return employee.getPassword();

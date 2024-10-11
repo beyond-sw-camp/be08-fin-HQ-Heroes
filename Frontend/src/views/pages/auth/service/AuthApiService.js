@@ -34,7 +34,7 @@ const fetchGet = async (url) => {
 const fetchPost = async (url, data) => {
     const router = useRouter();
     const route = useRoute();
-    let reissueAttempted = false;  // 재발급 시도 여부를 체크하는 플래그
+    let reissueAttempted = false;
 
     try {
         const response = await axios.post(url, data, {
@@ -47,15 +47,13 @@ const fetchPost = async (url, data) => {
         if (response.status === 201) {
             return response.data;
         } else if (!reissueAttempted) {
-            // 첫 재발급 시도
             const reissueSuccess = await fetchReissue();
             if (reissueSuccess) {
-                reissueAttempted = true;  // 재발급을 시도한 상태로 변경
-                return await fetchPost(url, data);  // 재귀 호출
+                reissueAttempted = true;
+                return await fetchPost(url, data);
             }
         }
 
-        // 재발급 실패 또는 권한 없음
         alert('관리자가 아닙니다.');
         router.push({ path: '/login', query: { redirect: route.path } });
 
