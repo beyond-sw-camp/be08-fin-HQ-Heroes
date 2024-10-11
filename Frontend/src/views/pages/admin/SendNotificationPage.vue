@@ -4,14 +4,25 @@
       <!-- 검색 필드 -->
       <div class="search-container">
         <i class="pi pi-search search-icon"></i>
-        <input type="text" placeholder="Search users..." v-model="searchQuery" class="search-input" />
+        <input type="text" placeholder="Search employees..." v-model="searchQuery" class="search-input" />
       </div>
 
-      <!-- 사용자 목록 트리 구조 -->
-      <div class="tree-container">
+      <!-- 사원 목록 트리 구조 -->
+      <div class="panelmenu-container">
         <div class="card">
           <div class="font-semibold text-xl">사원 목록</div>
-          <Tree :value="filteredTreeData" selectionMode="checkbox" v-model:selectionKeys="selectedTreeValue"></Tree>
+          <Tree v-model:selectionKeys="selectedKeys" :value="filteredTreeData" selectionMode="checkbox"
+            class="w-full md:w-[25rem]">
+            <template #default="slotProps">
+              <div class="flex items-center">
+                <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X"
+                  size="normal" shape="circle" class="mr-2" style="background-color: #dee9fc; color: #1a2551" />
+                <Avatar v-else-if="slotProps.node.key.startsWith('emp-')" :image="slotProps.node.profileImageUrl"
+                  size="normal" shape="circle" class="mr-2" />
+                <span>{{ slotProps.node.label }}</span>
+              </div>
+            </template>
+          </Tree>
         </div>
       </div>
     </div>
@@ -36,81 +47,147 @@
   </div>
 </template>
 
+
+
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { NodeService } from '@/service/NodeService'; // Assuming this is your data service
 import Quill from 'quill';
-import 'quill/dist/quill.snow.css'; // Quill의 스타일
+import 'quill/dist/quill.snow.css';
+import Tree from 'primevue/tree';
+import Avatar from 'primevue/avatar';
+import { fetchGet } from '../auth/service/AuthApiService'; // Replace with your API service
 
-const treeValue = ref(null);
-const selectedTreeValue = ref(null);
+// State variables
 const searchQuery = ref('');
 const to = ref('');
 const subject = ref('');
 const message = ref('');
-const editor = ref(null); // Quill 에디터를 참조할 변수
+const editor = ref(null);
+const employeeData = ref([]);  // Stores employee data
+const selectedKeys = ref({});  // Stores selected employee IDs as key-value pairs
 
-// Load tree nodes data on mount
+// Fetch hierarchical employee data on component mount
 onMounted(() => {
-  NodeService.getTreeNodes().then((data) => (treeValue.value = data));
+  fetchEmployeeList();
 
-  // Initialize Quill editor
+  // Initialize Quill editor for composing messages
   const quillEditor = new Quill(editor.value, {
-    theme: 'snow', // Quill의 '' 테마 사용
+    theme: 'snow',
     modules: {
       toolbar: [
-        [{ font: [] }, { size: [] }], // 글꼴 및 글자 크기 선택
-        ['bold', 'italic', 'underline', 'strike'], // 텍스트 스타일
-        [{ color: [] }, { background: [] }], // 텍스트 색상 및 배경색 선택
-        [{ list: 'ordered' }, { list: 'bullet' }], // 목록
-        [{ align: [] }], // 정렬
-        ['link', 'image', 'blockquote'], // 링크, 이미지, 인용구
-        ['clean'] // 서식 제거
+        [{ font: [] }, { size: [] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ color: [] }, { background: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        [{ align: [] }],
+        ['link', 'image', 'blockquote'],
+        ['clean']
       ]
     }
   });
 
   quillEditor.on('text-change', () => {
-    message.value = quillEditor.root.innerHTML; // Quill 에디터 내용이 변경될 때 message 값 업데이트
+    message.value = quillEditor.root.innerHTML;
   });
 });
 
-const filteredTreeData = computed(() => {
-  if (!searchQuery.value) return treeValue.value;
+async function fetchEmployeeList() {
+  try {
+    const data = await fetchGet('http://localhost:8080/api/v1/employee/employees');
+    employeeData.value = convertToTreeModel(data);
+  } catch (error) {
+    console.error('Error fetching employee data:', error);
+  }
+}
 
-  const filterTree = (nodes, query) => {
-    return nodes
-      .map((node) => {
-        if (node.children) {
-          const filteredChildren = filterTree(node.children, query);
-          if (filteredChildren.length || node.label.toLowerCase().includes(query)) {
-            return { ...node, children: filteredChildren };
+const convertToTreeModel = (data) => {
+  const departments = data.reduce((acc, employee) => {
+    const dept = acc.find(d => d.label === employee.deptName);
+    if (!dept) {
+      acc.push({
+        key: `dept-${employee.deptName}`,
+        label: employee.deptName,
+        icon: 'pi pi-building',
+        children: [{
+          key: `team-${employee.teamName}`,
+          label: employee.teamName,
+          icon: 'pi pi-users',
+          children: []
+        }]
+      });
+    }
+    const deptIndex = acc.findIndex(d => d.label === employee.deptName);
+    const team = acc[deptIndex].children.find(t => t.label === employee.teamName);
+    if (!team) {
+      acc[deptIndex].children.push({
+        key: `team-${employee.teamName}`,
+        label: employee.teamName,
+        icon: 'pi pi-users',
+        children: []
+      });
+    }
+    const teamIndex = acc[deptIndex].children.findIndex(t => t.label === employee.teamName);
+    acc[deptIndex].children[teamIndex].children.push({
+      key: `emp-${employee.employeeId}`,
+      label: employee.employeeName,
+      profileImageUrl: employee.profileImageUrl,
+      employeeId: employee.employeeId,
+      jobName: employee.jobName,
+      positionName: employee.positionName,
+      joinDate: employee.joinDate
+    });
+    return acc;
+  }, []);
+  return departments;
+};
+
+const filteredTreeData = computed(() => {
+  if (!searchQuery.value) return employeeData.value;
+
+  const filterTree = (items, query) => {
+    return items
+      .map(item => {
+        if (item.children) {
+          const filteredChildren = filterTree(item.children, query);
+          if (filteredChildren.length || item.label.toLowerCase().includes(query)) {
+            return { ...item, children: filteredChildren };
           }
-        } else if (node.label.toLowerCase().includes(query)) {
-          return node;
+        } else if (item.label.toLowerCase().includes(query)) {
+          return item;
         }
         return null;
       })
-      .filter((node) => node !== null);
+      .filter(item => item !== null);
   };
 
-  return filterTree(treeValue.value, searchQuery.value.toLowerCase());
+  return filterTree(employeeData.value, searchQuery.value.toLowerCase());
 });
 
 const sendMessage = () => {
-  console.log(`Sending message to: ${to.value}, Subject: ${subject.value}, Message: ${message.value}`);
+  const selectedEmployeeIds = Object.keys(selectedKeys.value)
+    .filter(key => key.startsWith('emp-'))
+    .map(key => key.replace('emp-', ''));
+
+  if (selectedEmployeeIds.length === 0) {
+    console.log("No employees selected");
+    return;
+  }
+
+  console.log(`Sending message to employees: ${selectedEmployeeIds.join(', ')}`);
+  console.log(`Subject: ${subject.value}`);
+  console.log(`Message: ${message.value}`);
 };
 </script>
+
+
 
 <style scoped>
 .app-container {
   display: flex;
-  height: 100vh;
+  height: 90vh;
 }
 
 .sidebar {
-  width: 25%;
-  height: 90vh;
   background-color: #ffffff;
   padding: 20px;
   border-radius: 10px;
@@ -120,9 +197,8 @@ const sendMessage = () => {
   flex-direction: column;
 }
 
-.tree-container {
+.panelmenu-container {
   flex-grow: 1;
-  margin: 0;
 }
 
 .card {
@@ -132,27 +208,6 @@ const sendMessage = () => {
 
 .font-semibold.text-xl {
   padding: 10px;
-}
-
-.tree-container .pi-tree {
-  text-align: left;
-}
-
-.user-profile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20%;
-  padding-bottom: 10px;
-}
-
-.user-profile::after {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 2px;
-  background-color: #ddd;
-  margin: 10px 0;
 }
 
 .search-container {
@@ -180,7 +235,6 @@ const sendMessage = () => {
   padding-left: 20px;
   display: flex;
   flex-direction: column;
-  height: 90vh;
 }
 
 .compose-message-container {
