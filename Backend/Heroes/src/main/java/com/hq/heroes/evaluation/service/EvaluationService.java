@@ -11,6 +11,8 @@ public interface EvaluationService {
 
     List<Evaluation> getEvaluations();
 
+    List<Evaluation> getEvaluationsByEmployeeId(String employeeId);
+
     Evaluation getEvaluationById(Long evaluationId);
 
     Evaluation createEvaluation(EvaluationReqDTO requestDTO);
@@ -19,13 +21,4 @@ public interface EvaluationService {
 
     boolean deleteEvaluation(Long evaluationId);
 
-    List<EvaluationCriteria> getEvaluationCriteriaList();
-
-    EvaluationCriteria getEvaluationCriteriaById(Long criteriaId);
-
-    EvaluationCriteria createEvaluationCriteria(EvaluationCriteriaReqDTO requestDTO);
-
-    EvaluationCriteria updateEvaluationCriteria(Long criteriaId, EvaluationCriteriaReqDTO requestDTO);
-
-    boolean deleteEvaluationCriteria(Long criteriaId);
 }

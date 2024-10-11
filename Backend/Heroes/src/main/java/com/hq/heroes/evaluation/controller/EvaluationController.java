@@ -1,5 +1,6 @@
 package com.hq.heroes.evaluation.controller;
 
+import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.evaluation.dto.EvaluationReqDTO;
 import com.hq.heroes.evaluation.dto.EvaluationResDTO;
 import com.hq.heroes.evaluation.entity.Evaluation;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +35,32 @@ public class EvaluationController {
 
         return new ResponseEntity<>(evaluationDTOs, HttpStatus.OK);
     }
+
+    @GetMapping("/evaluations/by-employeeId")
+    @Operation(summary = "사원 ID로 평가 목록 조회", description = "해당 사원의 평가 목록을 조회한다.")
+    public ResponseEntity<List<EvaluationResDTO>> getEvaluationsByEmployeeId() {
+
+        String employeeId = "";
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof CustomEmployeeDetails) {
+                CustomEmployeeDetails userDetails = (CustomEmployeeDetails) principal;
+                employeeId = userDetails.getUsername();
+            } else {
+                System.out.println("Principal is not an instance of CustomEmployeeDetails.");
+            }
+        } else {
+            System.out.println("No authenticated user found.");
+        }
+
+        List<Evaluation> evaluations = evaluationService.getEvaluationsByEmployeeId(employeeId);
+        List<EvaluationResDTO> evaluationDTOs = evaluations.stream().map(Evaluation::toResponseDTO).collect(Collectors.toList());
+
+        return new ResponseEntity<>(evaluationDTOs, HttpStatus.OK);
+    }
+
 
     // 평가 조회
     @GetMapping("/evaluation/{evaluation-id}")
@@ -85,4 +114,5 @@ public class EvaluationController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
 }
