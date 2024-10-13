@@ -11,7 +11,7 @@
             <div class="panelmenu-container">
                 <div class="card">
                     <div class="font-semibold text-xl">사원 목록</div>
-                    <Tree v-model:selectionKeys="selectedKeys" :value="filteredTreeData" selectionMode="checkbox" class="w-full md:w-[25rem]">
+                    <Tree v-model:selectionKeys="selectedKeys" :value="filteredTreeData" selectionMode="checkbox" class="w-full md:w-[20rem]">
                         <template #default="slotProps">
                             <div class="flex items-center">
                                 <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X" size="normal" shape="circle" class="mr-2" style="background-color: #dee9fc; color: #1a2551" />
@@ -237,11 +237,10 @@ const sendMessage = async () => {
 </script>
 
 <style scoped>
-/* 기존 스타일에 추가 스타일 */
 
 .app-container {
     display: flex;
-    height: 90vh;
+    height: 50rem;
 }
 
 .sidebar {
@@ -316,7 +315,6 @@ const sendMessage = async () => {
 .message-editor {
     flex-grow: 1;
     font-size: 16px;
-    height: 43vh;
     overflow-y: auto;
     border: 1px solid #ddd;
     border-radius: 5px;
