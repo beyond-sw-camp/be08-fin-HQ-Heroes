@@ -1,6 +1,5 @@
 package com.hq.heroes.education.service;
 
-import com.hq.heroes.education.dto.CourseDTO;
 import com.hq.heroes.education.dto.EducationRequestDTO;
 import com.hq.heroes.education.entity.Education;
 

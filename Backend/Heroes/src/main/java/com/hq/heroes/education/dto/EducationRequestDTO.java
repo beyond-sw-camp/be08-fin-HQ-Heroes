@@ -20,6 +20,7 @@ public class EducationRequestDTO {
     private LocalDate educationEnd;    // 교육 종료일
     private Long categoryId;          // 교육 카테고리 ID
     private Long curriculumId;        // 커리큘럼 ID
+    private Integer participants;
 
 }
 
