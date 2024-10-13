@@ -6,7 +6,7 @@
             :paginator="true"
             :rows="10"
             removableSort
-            dataKey="courseId"
+            dataKey="educationId"
             :rowHover="true"
             v-model:filters="filters"
             filterDisplay="menu"
@@ -32,9 +32,9 @@
 
             <!-- 테이블 컬럼들 -->
             <!-- No. 부분의 너비를 줄임 -->
-            <Column field="courseId" sortable header="No." style="min-width: 2rem; text-align: left;">
+            <Column field="educationId" sortable header="No." style="min-width: 2rem; text-align: left;">
                 <template #body="{ data }">
-                    {{ data.courseId }}
+                    {{ data.educationId }}
                 </template>
             </Column>
             <Column field="categoryName" sortable header="카테고리" style="min-width: 6rem; text-align: left;">
@@ -126,18 +126,18 @@ function initFilters() {
 }
 
 function openEducationDetail(course) {
-    if (!course.courseId) {
-        console.error('courseId가 존재하지 않습니다:', course);
+    if (!course.educationId) {
+        console.error('educationId 존재하지 않습니다:', course);
         return;
     }
-    // 라우터 네비게이션 (courseId를 파라미터로 전달)
-    router.push({ name: 'educationDetail', params: { courseId: course.courseId } });
+    // 라우터 네비게이션 (educationId 파라미터로 전달)
+    router.push({ path: `/education-apply/education-detail/${course.educationId}` });
 }
 
 // 신청 모달 열기
 function openApplyModal(course) {
-    if (!course.courseId) {
-        console.error('courseId가 존재하지 않습니다:', course);
+    if (!course.educationId) {
+        console.error('educationId가 존재하지 않습니다:', course);
         return;
     }
     selectedCourse.value = course;

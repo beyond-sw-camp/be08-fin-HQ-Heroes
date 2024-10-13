@@ -78,7 +78,6 @@
                 <Button label="닫기" icon="pi pi-times" @click="displayDialog = false" />
             </template>
         </Dialog>
-
     </div>
 </template>
 
@@ -90,6 +89,7 @@ import DataTable from 'primevue/datatable';
 import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
+import axios from 'axios';
 import { onBeforeMount, ref } from 'vue';
 
 const courses = ref([]);
@@ -102,16 +102,18 @@ const instructors = ref([]);
 const selectedCategory = ref(null);
 const selectedInstructor = ref(null);
 
+// API 호출해서 교육 목록 가져오기
 async function fetchCourseList() {
-    courses.value = [
-    { courseId: 1, category: '어학', instructorName: '홍길동', educationName: '언어에 어려움을 겪고 있는 사람들을 위한 프로그램', institution: 'Hanwha Academy', educationStart: '2024-11-02', educationEnd: '2024-11-20', status: '이수' },
-    { courseId: 2, category: '디자인', instructorName: '이순신', educationName: 'UI/UX 디자인 기초', institution: 'Design School', educationStart: '2024-11-02', educationEnd: '2024-11-20', status: '진행 중' },
-    { courseId: 3, category: '관리', instructorName: '김유신', educationName: '프로젝트 관리 실무', institution: 'Management Center', educationStart: '2024-11-02', educationEnd: '2024-11-20', status: '이수' }
-];
-
-    filterByCategoryAndInstructor();
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/course-service/my-courses');
+        courses.value = response.data; // 백엔드에서 가져온 교육 데이터
+        filterByCategoryAndInstructor();
+    } catch (error) {
+        console.error("교육 목록을 가져오는 중 오류가 발생했습니다.", error);
+    }
 }
 
+// 카테고리, 강사 목록 가져오기 (예시 데이터 사용)
 async function fetchCategories() {
     categories.value = [{ name: '전체' }, { name: '개발' }, { name: '디자인' }, { name: '관리' }];
 }
@@ -120,6 +122,7 @@ async function fetchInstructors() {
     instructors.value = [{ name: '전체' }, { name: '홍길동' }, { name: '이순신' }, { name: '김유신' }];
 }
 
+// 카테고리 및 강사명으로 필터링
 function filterByCategoryAndInstructor() {
     filteredEmployees.value = courses.value.filter((course) => {
         const matchesCategory = selectedCategory.value && selectedCategory.value.name !== '전체' ? course.category === selectedCategory.value.name : true;
@@ -128,6 +131,7 @@ function filterByCategoryAndInstructor() {
     });
 }
 
+// 필터 초기화
 function initFilters() {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -137,17 +141,19 @@ function initFilters() {
     };
 }
 
+// 강의 상세보기
 function showCourseDetails(event) {
     selectedCourse.value = event.data;
     displayDialog.value = true;
 }
 
+// 날짜 포맷팅
 function formatDate(date) {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
 onBeforeMount(() => {
-    fetchCourseList();
+    fetchCourseList();  // 사원이 신청한 교육 목록 가져오기
     fetchCategories();
     fetchInstructors();
     initFilters();
