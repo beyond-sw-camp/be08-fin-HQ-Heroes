@@ -1,6 +1,7 @@
 package com.hq.heroes.notification.entity;
 
 import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.notification.dto.NotificationReqDTO;
 import com.hq.heroes.notification.dto.NotificationResDTO;
 import com.hq.heroes.notification.entity.enums.NotificationStatus;
 import jakarta.persistence.*;
@@ -38,6 +39,7 @@ public class Notification {
     @Column(name = "message", columnDefinition = "TEXT", nullable = false)
     private String message;
 
+    // 기본 상태를 'UNREAD'로 설정
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private NotificationStatus status = NotificationStatus.UNREAD;
@@ -46,16 +48,26 @@ public class Notification {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Date createdAt;
 
+    // 추가: DTO로 변환하는 메서드
     public NotificationResDTO toResDTO() {
         return NotificationResDTO.builder()
                 .notificationId(this.notificationId)
-                .senderName(this.sender.getEmployeeName())  // Assuming Employee entity has a 'name' field
-                .receiverName(this.receiver.getEmployeeName())  // Assuming Employee entity has a 'name' field
-                .categoryName(this.category.getNotificationCategoryName())  // Assuming NotificationCategory has this field
+                .senderName(this.sender.getEmployeeName())
+                .receiverName(this.receiver.getEmployeeName())
+                .categoryName(this.category.getNotificationCategoryName())
                 .message(this.message)
                 .status(this.status)
                 .createdAt(this.createdAt)
                 .build();
     }
 
+    public NotificationReqDTO toReqDTO() {
+        return NotificationReqDTO.builder()
+                .senderId(this.sender.getEmployeeId())
+                .receiverId(this.receiver.getEmployeeId())
+                .categoryId(this.category.getNotificationCategoryId())
+                .message(this.message)
+                .status(this.status) // 추가: 상태를 DTO로 변환할 때도 포함
+                .build();
+    }
 }

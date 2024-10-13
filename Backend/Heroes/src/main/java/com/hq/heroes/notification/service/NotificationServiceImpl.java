@@ -5,6 +5,7 @@ import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.notification.dto.NotificationReqDTO;
 import com.hq.heroes.notification.entity.Notification;
 import com.hq.heroes.notification.entity.NotificationCategory;
+import com.hq.heroes.notification.entity.enums.NotificationStatus;
 import com.hq.heroes.notification.repository.NotificationCategoryRepository;
 import com.hq.heroes.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,17 +44,21 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationCategory category = notificationCategoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
 
+        // 상태값이 없으면 기본값으로 'UNREAD' 설정
+        NotificationStatus status = requestDTO.getStatus() != null ? requestDTO.getStatus() : NotificationStatus.UNREAD;
+
         // Create notification entity
         Notification notification = Notification.builder()
                 .sender(sender)
                 .receiver(receiver)
                 .category(category)
                 .message(requestDTO.getMessage())
-                .status(requestDTO.getStatus())
+                .status(status)  // 상태값 설정
                 .build();
 
         return notificationRepository.save(notification);
     }
+
 
     @Override
     @Transactional
