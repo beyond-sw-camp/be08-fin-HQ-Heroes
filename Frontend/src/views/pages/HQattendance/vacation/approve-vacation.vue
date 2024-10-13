@@ -3,7 +3,6 @@
         <div class="card">
             <DataTable
                 ref="dt"
-                v-model:selection="selectedEmployees"
                 :value="employees"
                 dataKey="vacationId"
                 :paginator="true"
@@ -15,7 +14,6 @@
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <!-- Apply the title style here -->
                         <h4 class="m-0 title">휴가 관리</h4>
                         <IconField>
                             <InputIcon>
@@ -26,8 +24,6 @@
                     </div>
                 </template>
 
-                <!-- 기존 열 구성 -->
-                <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="employeeName" header="이름" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationType" header="휴가 종류" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationStart" header="시작일" sortable style="min-width: 5rem"></Column>
@@ -40,8 +36,8 @@
                 <!-- 승인/반려 버튼 (관리자나 팀장만 표시) -->
                 <Column v-if="isAdminOrTeamLead" header="승인/반려" style="min-width: 8rem">
                     <template #body="slotProps">
-                        <Button label="승인" @click="approveVacation(slotProps.data.vacationId)" class="p-button-success" />
-                        <Button label="반려" @click="rejectVacation(slotProps.data.vacationId)" class="p-button-danger" />
+                        <Button label="승인" :disabled="isLoading" @click="approveVacation(slotProps.data.vacationId)" class="p-button-success" />
+                        <Button label="반려" :disabled="isLoading" @click="rejectVacation(slotProps.data.vacationId)" class="p-button-danger" />
                     </template>
                 </Column>
             </DataTable>
@@ -90,11 +86,9 @@
 </template>
 
 <script setup>
-import router from '@/router'; // 라우터 임포트
-import axios from 'axios'; // axios는 더이상 필요하지 않음 (필요에 따라 제거 가능)
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
-import { fetchGet } from '../../auth/service/AuthApiService'; // fetchGet 임포트
+import { computed, onMounted, ref } from 'vue';
+import { fetchGet, fetchPost } from '../../auth/service/AuthApiService'; // 수정된 fetch 함수 사용
 
 const employees = ref([]);
 const filters = ref({ global: { value: null } });
@@ -103,18 +97,26 @@ const infoDialog = ref(false);
 const toast = useToast();
 const isAdminOrTeamLead = ref(false); // 관리자 또는 팀장 여부 확인
 
+// 관리자나 팀장일 경우 승인/반려된 항목을 제외하고 대기중인 휴가만 필터링
+const filteredEmployees = computed(() => {
+    if (isAdminOrTeamLead.value) {
+        return employees.value.filter((employee) => employee.vacationStatus === '대기 중');
+    }
+    return employees.value; // 사원인 경우 모든 항목을 표시
+});
+
 onMounted(async () => {
     try {
         // 역할과 포지션 정보를 가져와서 관리자 또는 팀장 여부 확인
-        const roleResponse = await fetchGet('http://localhost:8080/api/v1/employee/role-check', router.push, router.currentRoute.value);
+        const roleResponse = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
         const { role, positionId } = roleResponse;
 
         if (role === 'ROLE_ADMIN' || (role === 'ROLE_USER' && positionId === 1)) {
             isAdminOrTeamLead.value = true; // 관리자나 팀장일 경우 승인/반려 버튼 보이도록 설정
         }
 
-        const response = await fetchGet('http://localhost:8080/api/v1/vacation/list', router.push, router.currentRoute.value);
-        console.log(response); // 응답 데이터 출력
+        // 휴가 목록 불러오기
+        const response = await fetchGet('http://localhost:8080/api/v1/vacation/list');
         employees.value = response.map((record) => ({
             vacationId: record.vacationId,
             employeeName: record.employeeName, // 신청인 이름
@@ -131,20 +133,44 @@ onMounted(async () => {
     }
 });
 
+const isLoading = ref(false); // 로딩 상태 변수
+
 // 휴가 승인
-function approveVacation(vacationId) {
-    axios
-        .post(`/api/v1/vacation/approve/${vacationId}`)
-        .then(() => alert('휴가가 승인되었습니다.'))
-        .catch((error) => console.error('휴가 승인 실패:', error));
+async function approveVacation(vacationId) {
+    if (isLoading.value) return; // 이미 로딩 중이면 중복 요청 방지
+    isLoading.value = true; // 로딩 시작
+
+    try {
+        await fetchPost(`http://localhost:8080/api/v1/vacation/approve/${vacationId}`);
+        employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '승인됨' } : emp));
+        toast.add({ severity: 'success', summary: 'Success', detail: '휴가가 승인되었습니다.' });
+
+        // 승인 후 새로고침
+        window.location.reload(); // 페이지 새로고침
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: '휴가 승인 실패.' });
+    } finally {
+        isLoading.value = false; // 로딩 완료
+    }
 }
 
 // 휴가 반려
-function rejectVacation(vacationId) {
-    axios
-        .post(`/api/v1/vacation/reject/${vacationId}`)
-        .then(() => alert('휴가가 반려되었습니다.'))
-        .catch((error) => console.error('휴가 반려 실패:', error));
+async function rejectVacation(vacationId) {
+    if (isLoading.value) return; // 이미 로딩 중이면 중복 요청 방지
+    isLoading.value = true; // 로딩 시작
+
+    try {
+        await fetchPost(`http://localhost:8080/api/v1/vacation/reject/${vacationId}`);
+        employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '반려됨' } : emp));
+        toast.add({ severity: 'success', summary: 'Success', detail: '휴가가 반려되었습니다.' });
+
+        // 반려 후 새로고침
+        window.location.reload(); // 페이지 새로고침
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: '휴가 반려 실패.' });
+    } finally {
+        isLoading.value = false; // 로딩 완료
+    }
 }
 
 // 휴가 상태를 한국어로 매핑하는 함수
