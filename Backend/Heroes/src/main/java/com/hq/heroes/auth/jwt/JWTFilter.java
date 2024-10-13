@@ -30,7 +30,7 @@ public class JWTFilter extends OncePerRequestFilter {
         String access = request.getHeader("access");
 
         if (access == null) {
-            System.out.println("No access token found in request headers.");
+            log.debug("요청 헤더에 액세스 토큰이 없습니다.");
             filterChain.doFilter(request, response);
             return;
         }
@@ -38,14 +38,13 @@ public class JWTFilter extends OncePerRequestFilter {
         try {
             jwtUtil.isExpired(access); // 토큰 만료 확인
         } catch (ExpiredJwtException e) {
-            System.out.println("Access token has expired.");
+            log.debug("액세스 토큰이 만료되었습니다.");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         String category = jwtUtil.getCategory(access);
         if (!category.equals("access")) {
-            System.out.println("Invalid token category: " + category);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -54,7 +53,9 @@ public class JWTFilter extends OncePerRequestFilter {
         String role = jwtUtil.getRole(access);
 
         // 사용자 정보 출력 (디버깅용)
-        System.out.println("Extracted employeeId: " + employeeId + ", role: " + role);
+        if (log.isDebugEnabled()) {
+            log.debug("추출된 employeeId: {}, role: {}", employeeId, role);
+        }
 
         Employee employee = new Employee();
         employee.setEmployeeId(employeeId);
@@ -66,32 +67,34 @@ public class JWTFilter extends OncePerRequestFilter {
         Authentication authToken = new UsernamePasswordAuthenticationToken(customEmployeeDetails, null, customEmployeeDetails.getAuthorities());
 
         // Authentication 객체 설정 전 디버깅용 출력
-        System.out.println("AuthToken: " + authToken);
+        if (log.isDebugEnabled()) {
+            log.debug("AuthToken: {}", authToken);
+        }
 
         // SecurityContextHolder에 인증 정보 설정
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         // 설정 후 확인
-        System.out.println("Authentication set in SecurityContextHolder: " + SecurityContextHolder.getContext().getAuthentication());
-
+        if (log.isDebugEnabled()) {
+            log.debug("SecurityContextHolder에 설정된 인증 정보: {}", SecurityContextHolder.getContext().getAuthentication());
+        }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof CustomEmployeeDetails) {
                 CustomEmployeeDetails userDetails = (CustomEmployeeDetails) principal;
-                System.out.println("User is authenticated: " + userDetails.getUsername() + ", Role: " + userDetails.getRole());
+                if (log.isDebugEnabled()) {
+                    log.debug("사용자가 인증되었습니다: {}, 역할: {}", userDetails.getUsername(), userDetails.getRole());
+                }
             } else {
-                System.out.println("Principal is not an instance of CustomEmployeeDetails.");
+                log.debug("Principal이 CustomEmployeeDetails 인스턴스가 아닙니다.");
             }
         } else {
-            System.out.println("No authenticated user found.");
+            log.debug("인증된 사용자를 찾을 수 없습니다.");
         }
-
 
         filterChain.doFilter(request, response);
     }
-
-
-
 }
+
