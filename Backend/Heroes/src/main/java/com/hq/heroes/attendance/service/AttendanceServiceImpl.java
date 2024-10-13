@@ -34,6 +34,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         return AttendanceDTO.builder()
                 .attendanceId(attendance.getAttendanceId())
                 .employeeId(attendance.getEmployee().getEmployeeId())
+                .employeeName(attendance.getEmployee().getEmployeeName())
                 .checkIn(attendance.getCheckIn())
                 .checkOut(attendance.getCheckOut())
                 .status(attendance.getStatus())
@@ -88,4 +89,12 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
         return false;
     }
+
+    public List<AttendanceDTO> getAttendancesByEmployeeId(String employeeId) {
+        List<Attendance> attendances = attendanceRepository.findByEmployeeEmployeeId(employeeId);
+        return attendances.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

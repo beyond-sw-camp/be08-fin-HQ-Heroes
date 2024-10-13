@@ -27,12 +27,19 @@ public class AttendanceController {
     private final AttendanceService attendanceService;
     private final EmployeeRepository employeeRepository;
 
-    @GetMapping()
-    @Operation(summary = "전체 근태 기록 조회")
-    public ResponseEntity<List<AttendanceDTO>> getAttendanceRecords() {
-        List<AttendanceDTO> records = attendanceService.getAllAttendances();
-        return ResponseEntity.ok(records);
+    @GetMapping("/my-attendance")
+    @Operation(summary = "로그인한 사용자의 근태 기록 조회")
+    public ResponseEntity<List<AttendanceDTO>> getMyAttendanceRecords(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            CustomEmployeeDetails userDetails = (CustomEmployeeDetails) authentication.getPrincipal();
+            String employeeId = userDetails.getUsername();  // employeeId 가져오기
+
+            List<AttendanceDTO> records = attendanceService.getAttendancesByEmployeeId(employeeId);
+            return ResponseEntity.ok(records);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+
 
     // 출근 요청
     @PostMapping("/check-in")

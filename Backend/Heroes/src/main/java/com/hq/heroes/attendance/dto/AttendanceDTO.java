@@ -13,6 +13,7 @@ public class AttendanceDTO {
 
     private Long attendanceId;
     private String employeeId;
+    private String employeeName;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
     private AttendanceStatus status;

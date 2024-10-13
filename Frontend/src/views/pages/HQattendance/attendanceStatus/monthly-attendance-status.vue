@@ -17,10 +17,14 @@
         >
             <template #header>
                 <div class="flex justify-between items-center">
+                    <!-- 검색 기능 유지 -->
                     <div class="relative search-container">
                         <i class="pi pi-search search-icon" />
                         <InputText v-model="filters['global'].value" placeholder="검색어 입력" class="pl-8 search-input" />
                     </div>
+
+                    <!-- 월별 필터 추가 -->
+                    <Dropdown v-model="selectedMonth" :options="months" optionLabel="name" optionValue="value" placeholder="월 선택" class="ml-4" @change="filterByMonth" />
                 </div>
             </template>
             <template #empty> 근태 기록이 없습니다. </template>
@@ -36,28 +40,50 @@
 </template>
 
 <script setup>
+import { useAuthStore } from '@/stores/authStore'; // 인증된 사용자의 정보를 가져오기 위해 추가
+import { fetchGet } from '@/views/pages/auth/service/AuthApiService'; // 직접 작성한 fetchGet 함수 가져오기
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-import axios from 'axios';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
+import Dropdown from 'primevue/dropdown'; // PrimeVue Dropdown 컴포넌트 추가
 import InputText from 'primevue/inputtext';
 import { onBeforeMount, ref } from 'vue';
 
 const attendanceRecords = ref([]);
 const filteredAttendanceRecords = ref([]);
 const filters = ref(null);
+const authStore = useAuthStore(); // 인증된 사용자 정보 사용
+
+const selectedMonth = ref(null); // 선택된 월을 저장하는 변수
+const months = ref([
+    { name: '1월', value: 1 },
+    { name: '2월', value: 2 },
+    { name: '3월', value: 3 },
+    { name: '4월', value: 4 },
+    { name: '5월', value: 5 },
+    { name: '6월', value: 6 },
+    { name: '7월', value: 7 },
+    { name: '8월', value: 8 },
+    { name: '9월', value: 9 },
+    { name: '10월', value: 10 },
+    { name: '11월', value: 11 },
+    { name: '12월', value: 12 }
+]);
 
 async function fetchAttendanceRecords() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/attendance'); // 수정된 경로
-        if (Array.isArray(response.data)) {
-            attendanceRecords.value = response.data.map((record) => ({
+        // 인증된 사용자의 employeeId를 이용해 근태 기록 가져오기
+        const employeeId = authStore.employeeData.employeeId;
+        const response = await fetchGet(`http://localhost:8080/api/v1/attendance/my-attendance?employeeId=${employeeId}`); // fetchGet 사용
+
+        if (Array.isArray(response)) {
+            attendanceRecords.value = response.map((record) => ({
                 attendanceId: record.attendanceId,
-                employeeName: record.employeeId, // DTO의 employeeId 필드 사용
+                employeeName: record.employeeName, // 서버에서 받은 직원 이름 사용
                 attendanceDate: record.checkIn.split('T')[0], // 날짜 추출
                 checkInTime: record.checkIn.split('T')[1], // 출근 시간 추출
-                checkOutTime: record.checkOut.split('T')[1], // 퇴근 시간 추출
-                totalHours: calculateTotalHours(record.checkIn, record.checkOut),
+                checkOutTime: record.checkOut ? record.checkOut.split('T')[1] : '-', // 퇴근 시간이 없을 경우 '-'
+                totalHours: record.checkOut ? calculateTotalHours(record.checkIn, record.checkOut) : '-', // 퇴근 시간이 없을 경우 '-'
                 status: mapStatus(record.status)
             }));
         } else {
@@ -94,13 +120,27 @@ function calculateTotalHours(checkIn, checkOut) {
 function mapStatus(status) {
     switch (status) {
         case 'NORMAL':
-            return '정상';
+            return '출근';
         case 'LATE':
             return '지각';
         case 'ABSENT':
             return '결석';
+        case 'LEAVE_WORK': // 서버에서 반환하는 퇴근 상태값 추가
+            return '퇴근';
         default:
-            return '알 수 없음';
+            return '알 수 없음'; // 예상치 못한 상태에 대한 기본 처리
+    }
+}
+
+// 선택한 월에 따라 필터링하는 함수
+function filterByMonth() {
+    if (selectedMonth.value !== null) {
+        filteredAttendanceRecords.value = attendanceRecords.value.filter((record) => {
+            const month = new Date(record.attendanceDate).getMonth() + 1; // JavaScript의 월은 0부터 시작하므로 +1
+            return month === selectedMonth.value;
+        });
+    } else {
+        filteredAttendanceRecords.value = attendanceRecords.value; // 월 선택이 해제되면 모든 기록 표시
     }
 }
 
