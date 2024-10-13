@@ -44,6 +44,12 @@
                 </div>
             </div>
         </div>
+
+        <!-- 알림 발송 진행상황 모달 -->
+        <Dialog header="알림 발송 중" v-model:visible="progressVisible" :modal="true" :closable="false" style="width: 50vw">
+            <ProgressBar :value="progressValue"></ProgressBar>
+            <p>{{ progressValue }}% 완료</p>
+        </Dialog>
     </div>
 </template>
 
@@ -56,6 +62,8 @@ import Avatar from 'primevue/avatar';
 import InputText from 'primevue/inputtext';
 import { fetchPost, fetchGet } from '../auth/service/AuthApiService'; // Replace with your API service
 import Select from 'primevue/select';
+import ProgressBar from 'primevue/progressbar';
+import Dialog from 'primevue/dialog';
 import { useAuthStore } from '@/stores/authStore';
 
 const authStore = useAuthStore();
@@ -67,6 +75,9 @@ const employeeData = ref([]); // 전체 사원 데이터를 저장
 const selectedKeys = ref({});
 const categories = ref([]); // List of notification categories
 const selectedCategory = ref(''); // Currently selected category
+
+const progressValue = ref(0); // ProgressBar의 현재 값
+const progressVisible = ref(false); // ProgressBar 모달 표시 여부
 
 onMounted(() => {
     fetchEmployeeList();
@@ -182,7 +193,7 @@ const sendNotification = async (notificationPayload) => {
     }
 };
 
-// 알림 발송 시 기본값 설정
+// 알림 발송 시 진행률 표시
 const sendMessage = async () => {
     const selectedEmployeeIds = Object.keys(selectedKeys.value)
         .filter((key) => key.startsWith('emp-'))
@@ -199,26 +210,35 @@ const sendMessage = async () => {
     }
 
     const senderId = window.localStorage.getItem('employeeId');
+    progressVisible.value = true; // ProgressBar 모달을 표시
+    progressValue.value = 0; // ProgressBar 초기화
 
-    // 모든 사원에게 알림 발송
-    for (const receiverId of selectedEmployeeIds) {
+    for (let i = 0; i < selectedEmployeeIds.length; i++) {
+        const receiverId = selectedEmployeeIds[i];
         const payload = {
             senderId,
             receiverId,
             categoryId: selectedCategory.value.notificationCategoryId,
             message: message.value,
-            status: 'UNREAD'  // 기본 상태 설정
+            status: 'UNREAD' // 기본 상태 설정
         };
 
         await sendNotification(payload);
+        // ProgressBar 값 업데이트
+        progressValue.value = Math.round(((i + 1) / selectedEmployeeIds.length) * 100);
     }
 
-    alert('모든 알림이 발송되었습니다.');
-};
+    progressVisible.value = false; // ProgressBar 모달 닫기;
 
+    setTimeout(() => {
+        alert('알림 발송 완료');
+    }, 100);
+};
 </script>
 
 <style scoped>
+/* 기존 스타일에 추가 스타일 */
+
 .app-container {
     display: flex;
     height: 90vh;
@@ -293,28 +313,11 @@ const sendMessage = async () => {
     width: 20%;
 }
 
-.message-input {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: 100%;
-}
-
 .message-editor {
     flex-grow: 1;
     font-size: 16px;
-    height: 57vh;
+    height: 43vh;
     overflow-y: auto;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.category-select {
-    padding: 10px;
-    margin-bottom: 10px;
-    font-size: 16px;
-    width: 100%;
     border: 1px solid #ddd;
     border-radius: 5px;
 }
