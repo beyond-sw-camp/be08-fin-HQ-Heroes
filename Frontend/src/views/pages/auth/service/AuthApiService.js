@@ -56,40 +56,37 @@ const fetchPost = async (url, data) => {
 
         alert('관리자가 아닙니다.');
         router.push({ path: '/login', query: { redirect: route.path } });
-
     } catch (error) {
         console.error('Error fetching authorized page:', error);
     }
     return null;
 };
 
-
-const fetchPut = async (url, employeeData, profileImageFile) => {
+const fetchPut = async (url, data) => {
     const router = useRouter();
     const route = useRoute();
-  try {
-    const response = await axios.post(url, data, {
-      withCredentials: true,  // 인증 토큰이 필요한 경우
-      headers: {
-        'access': window.localStorage.getItem('access'),  // 인증 헤더 확인
-      }
-    });
+    try {
+        const response = await axios.put(url, data, {
+            withCredentials: true, // 인증 토큰이 필요한 경우
+            headers: {
+                access: window.localStorage.getItem('access') // 인증 헤더 확인
+            }
+        });
 
-    if (response.status === 201) {
-      return response.data;
-    } else {
-      throw new Error(`Unexpected status code: ${response.status}`);
+        if (response.status === 201) {
+            return response.data;
+        } else {
+            throw new Error(`Unexpected status code: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error fetching authorized page:', error);
+        throw error; // 에러 핸들링 추가
     }
-  } catch (error) {
-    console.error('Error fetching authorized page:', error);
-    throw error;  // 에러 핸들링 추가
-  }
 };
 
-
-const fetchPutMain = async (url, data) => {
-  const router = useRouter();
-  const route = useRoute();
+const fetchPutMain = async (url, employeeData, profileImageFile) => {
+    const router = useRouter();
+    const route = useRoute();
 
     const formData = new FormData();
     formData.append('employeeData', new Blob([JSON.stringify(employeeData)], { type: 'application/json' }));
@@ -108,6 +105,7 @@ const fetchPutMain = async (url, data) => {
         });
 
         if (response.status === 200) {
+            console.log(response.data);
             return response.data;
         } else {
             const reissueSuccess = await fetchReissue();
@@ -153,4 +151,4 @@ const fetchDelete = async (url) => {
     return null;
 };
 
-export { fetchDelete, fetchGet, fetchPost, fetchPut };
+export { fetchDelete, fetchGet, fetchPost, fetchPut, fetchPutMain };
