@@ -35,7 +35,7 @@ public class EvaluationCriteria {
     public EvaluationCriteriaResDTO toResponseDTO() {
         return EvaluationCriteriaResDTO.builder()
                 .evaluationCriteriaId(this.evaluationCriteriaId)
-                .departmentName(this.department.getDeptName())  // 부서 엔티티에서 부서명 추출
+                .deptId(this.department.getDeptId())  // 부서 엔티티에서 부서명 추출
                 .criteriaTitle(this.criteriaTitle)
                 .criteriaContent(this.criteriaContent)
                 .build();

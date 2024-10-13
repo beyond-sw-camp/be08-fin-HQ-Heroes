@@ -73,6 +73,11 @@ const router = createRouter({
           component: () => import('@/views/pages/evaluation/EvaluationResultPage.vue')
         },
         {
+          path: '/manage-evaluation-criteria',
+          name: 'manageEvaluationCriteria',
+          component: () => import('@/views/pages/admin/ManageEvaluationCriteriaPage.vue')
+        },
+        {
           path: '/apply-vacation',
           name: 'apply-vacation',
           component: () => import('@/views/pages/HQattendance/vacation/apply-vacation.vue')
