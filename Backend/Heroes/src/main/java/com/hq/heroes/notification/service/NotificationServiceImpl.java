@@ -82,4 +82,9 @@ public class NotificationServiceImpl implements NotificationService {
         }
         return false;
     }
+
+    public List<Notification> getNotificationsByReceiverId(String employeeId) {
+        return notificationRepository.findByReceiver_EmployeeId(employeeId);
+    }
+
 }

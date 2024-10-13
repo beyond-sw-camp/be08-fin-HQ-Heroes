@@ -20,4 +20,6 @@ public interface NotificationService {
 
     @Transactional
     boolean deleteNotification(Long notificationId);
+
+    List<Notification> getNotificationsByReceiverId(String employeeId);
 }
