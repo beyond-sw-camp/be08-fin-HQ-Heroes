@@ -2,6 +2,7 @@ package com.hq.heroes.auth.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,12 +12,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JWTUtil {
     private final SecretKey secretKey;
 
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
         String algorithm = Jwts.SIG.HS256.key().build().getAlgorithm();
-        .println("algorithm = " + algorithm);
+        log.debug("algorithm = {}", algorithm);
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
