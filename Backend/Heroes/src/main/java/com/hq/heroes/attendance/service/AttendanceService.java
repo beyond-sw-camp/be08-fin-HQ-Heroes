@@ -15,4 +15,6 @@ public interface AttendanceService {
     void checkOut(Employee employee);
 
     boolean isAlreadyCheckedIn(String employeeId);
+
+    List<AttendanceDTO> getAttendancesByEmployeeId(String employeeId);
 }

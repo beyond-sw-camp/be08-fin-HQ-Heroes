@@ -36,8 +36,9 @@
 </template>
 
 <script setup>
+import { useAuthStore } from '@/stores/authStore'; // 인증된 사용자의 정보를 가져오기 위해 추가
+import { fetchGet } from '@/views/pages/auth/service/AuthApiService'; // 직접 작성한 fetchGet 함수 가져오기
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-import axios from 'axios';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
@@ -46,18 +47,22 @@ import { onBeforeMount, ref } from 'vue';
 const attendanceRecords = ref([]);
 const filteredAttendanceRecords = ref([]);
 const filters = ref(null);
+const authStore = useAuthStore(); // 인증된 사용자 정보 사용
 
 async function fetchAttendanceRecords() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/attendance'); // 수정된 경로
-        if (Array.isArray(response.data)) {
-            attendanceRecords.value = response.data.map((record) => ({
+        // 인증된 사용자의 employeeId를 이용해 근태 기록 가져오기
+        const employeeId = authStore.employeeData.employeeId;
+        const response = await fetchGet(`http://localhost:8080/api/v1/attendance/my-attendance?employeeId=${employeeId}`); // fetchGet 사용
+
+        if (Array.isArray(response)) {
+            attendanceRecords.value = response.map((record) => ({
                 attendanceId: record.attendanceId,
-                employeeName: record.employeeId, // DTO의 employeeId 필드 사용
+                employeeName: record.employeeName, // 서버에서 받은 직원 이름 사용
                 attendanceDate: record.checkIn.split('T')[0], // 날짜 추출
                 checkInTime: record.checkIn.split('T')[1], // 출근 시간 추출
-                checkOutTime: record.checkOut.split('T')[1], // 퇴근 시간 추출
-                totalHours: calculateTotalHours(record.checkIn, record.checkOut),
+                checkOutTime: record.checkOut ? record.checkOut.split('T')[1] : '-', // 퇴근 시간이 없을 경우 '-'
+                totalHours: record.checkOut ? calculateTotalHours(record.checkIn, record.checkOut) : '-', // 퇴근 시간이 없을 경우 '-'
                 status: mapStatus(record.status)
             }));
         } else {
@@ -94,13 +99,15 @@ function calculateTotalHours(checkIn, checkOut) {
 function mapStatus(status) {
     switch (status) {
         case 'NORMAL':
-            return '정상';
+            return '출근';
         case 'LATE':
             return '지각';
         case 'ABSENT':
             return '결석';
+        case 'LEAVE_WORK': // 서버에서 반환하는 퇴근 상태값 추가
+            return '퇴근';
         default:
-            return '알 수 없음';
+            return '알 수 없음'; // 예상치 못한 상태에 대한 기본 처리
     }
 }
 
