@@ -13,7 +13,8 @@ const model = ref([
                     { label: '알림 발송', icon: 'pi pi-fw pi-bell', to: '/send-notifications' },
                     { label: '공지 사항 관리', icon: 'pi pi-fw pi-file', to: '/manage-notices' },
                     { label: '교육 관리', icon: 'pi pi-fw pi-book', to: '/manage-education' },
-                    { label: '자격증 관리', icon: 'pi pi-fw pi-credit-card', to: '/manage-certifications' }
+                    { label: '자격증 관리', icon: 'pi pi-fw pi-credit-card', to: '/manage-certifications' },
+                    { label: '평가 기준 관리', icon: 'pi pi-fw pi-chart-bar', to: '/manage-evaluation-criteria' }
                 ]
             }
         ]

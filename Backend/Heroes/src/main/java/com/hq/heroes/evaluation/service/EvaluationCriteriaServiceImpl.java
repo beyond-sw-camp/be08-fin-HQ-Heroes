@@ -41,7 +41,7 @@ public class EvaluationCriteriaServiceImpl implements EvaluationCriteriaService 
     @Override
     @Transactional
     public EvaluationCriteria createEvaluationCriteria(EvaluationCriteriaReqDTO requestDTO) {
-        Department department = departmentRepository.findById(requestDTO.getDepartmentId())
+        Department department = departmentRepository.findById(requestDTO.getDeptId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid department ID"));
 
         EvaluationCriteria evaluationCriteria = EvaluationCriteria.fromRequestDTO(requestDTO, department);
@@ -55,7 +55,7 @@ public class EvaluationCriteriaServiceImpl implements EvaluationCriteriaService 
         EvaluationCriteria criteria = evaluationCriteriaRepository.findById(criteriaId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 평가 기준 ID : " + criteriaId));
 
-        Department department = departmentRepository.findById(requestDTO.getDepartmentId())
+        Department department = departmentRepository.findById(requestDTO.getDeptId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid department ID"));
 
         // 평가 기준 정보 업데이트
