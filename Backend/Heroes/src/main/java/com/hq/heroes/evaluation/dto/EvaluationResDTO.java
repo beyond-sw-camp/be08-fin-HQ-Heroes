@@ -21,4 +21,5 @@ public class EvaluationResDTO {
     private String comments;  // 평가 코멘트
     private Date createdAt;  // 생성 일시
     private Date updatedAt;  // 수정 일시
+
 }

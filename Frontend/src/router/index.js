@@ -73,6 +73,11 @@ const router = createRouter({
           component: () => import('@/views/pages/evaluation/EvaluationResultPage.vue')
         },
         {
+          path: '/manage-evaluation-criteria',
+          name: 'manageEvaluationCriteria',
+          component: () => import('@/views/pages/admin/ManageEvaluationCriteriaPage.vue')
+        },
+        {
           path: '/apply-vacation',
           name: 'apply-vacation',
           component: () => import('@/views/pages/HQattendance/vacation/apply-vacation.vue')
@@ -136,6 +141,11 @@ const router = createRouter({
           path: '/manage-certifications',
           name: 'manage-certifications',
           component: () => import('@/views/pages/admin/ManageCertificatePage.vue')
+        },
+        {
+          path: '/manage-certifications/certification-detail/:certificationId',
+          name: 'manage-certifications-detail',
+          component: () => import('@/views/pages/admin/ManageCertificationDetailPage.vue')
         },
         {
           path: '/retirement-funds',

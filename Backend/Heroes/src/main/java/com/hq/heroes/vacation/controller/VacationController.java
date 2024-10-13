@@ -75,4 +75,22 @@ public class VacationController {
 
         return ResponseEntity.ok(username);
     }
+
+    // 로그인된 사용자의 승인된 휴가 목록을 반환하는 API
+    @GetMapping("/my-vacations")
+    @Operation(summary = "로그인된 사용자의 승인된 휴가 내역 조회")
+    public ResponseEntity<List<VacationDTO>> getMyApprovedVacations() {
+        // SecurityContextHolder에서 로그인된 사용자의 정보 가져오기
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String employeeId = "";
+
+        if (principal instanceof UserDetails) {
+            employeeId = ((UserDetails) principal).getUsername(); // employeeId 추출
+        }
+
+        // 해당 사용자(employeeId)의 승인된 휴가 목록 조회
+        List<VacationDTO> approvedVacations = vacationService.getApprovedVacationsByEmployeeId(employeeId);
+
+        return ResponseEntity.ok(approvedVacations);
+    }
 }

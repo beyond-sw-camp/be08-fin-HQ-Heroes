@@ -19,6 +19,6 @@ public class CertificationResponseDTO {
     private LocalDate applicationEndDate; // 신청 종료일
     private LocalDate examDate; // 시험 날짜
     private String benefit; // 혜택
-    private long deptId; // 부서 번호
+    private String deptName; // 부서 이름
 
 }

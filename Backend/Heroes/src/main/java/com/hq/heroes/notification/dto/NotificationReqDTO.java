@@ -12,10 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class NotificationReqDTO {
 
-    private String senderId;  // Employee sender ID
-    private String receiverId; // Employee receiver ID
-    private Long categoryId; // Notification Category ID
+    private String senderId;
+    private String receiverId;
+    private Long categoryId;
     private String message;
-    private NotificationStatus status;
 
+    // 기본 상태값을 'UNREAD'로 설정
+    private NotificationStatus status = NotificationStatus.UNREAD;
 }
+

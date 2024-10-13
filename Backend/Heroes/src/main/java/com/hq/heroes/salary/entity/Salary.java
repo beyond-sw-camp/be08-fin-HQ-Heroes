@@ -44,4 +44,15 @@ public class Salary {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    // 연도를 반환하는 메서드
+    public int getYear() {
+        return salaryMonth.getYear();
+    }
+
+    // 월을 반환하는 메서드
+    public int getMonth() {
+        return salaryMonth.getMonthValue();
+    }
+
 }

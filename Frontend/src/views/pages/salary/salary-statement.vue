@@ -1,161 +1,315 @@
 <template>
-  <div class="salary-management">
-    <div class="header">
-      <h2>급여관리</h2>
-      <p>급여와 내역을 확인한 후 신규급여를 생성할 수 있습니다.</p>
-    </div>
+  <div class="card">
+    <div class="salary-management">
+      <div class="header">
+        <label class="text-2xl font-bold text-gray-800">급여 관리</label>
+        <p class="text-gray-600 mt-2">급여와 내역을 확인한 후 신규 급여를 생성할 수 있습니다.</p>
+      </div>
 
-    <div class="year-selection">
-      <Calendar
-        v-model="selectedDate"
-        :showIcon="true"
-        :yearRange="yearRange"
-        view="year"
-        dateFormat="yy"
-        @input="updateSelectedYear"
-        placeholder="년도 선택"
-      />
-    </div>
+      <div class="year-selection">
+        <Calendar
+          v-model="selectedDate"
+          :showIcon="true"
+          :yearRange="yearRange"
+          view="year"
+          dateFormat="yy"
+          @update:model-value="updateSelectedYear"
+          placeholder="년도 선택"
+          class="calendar"
+        />
 
-    <div class="salary-cards">
-      <div class="grid grid-cols-12 gap-4">
-        <!-- 1월부터 12월까지 각 급여 카드 -->
-        <div v-for="month in monthsList" :key="month.id" class="col-span-12 lg:col-span-6 xl:col-span-3">
-          <div class="card mb-0 p-6 custom-box relative">
-            <div class="text-left">
-              <!-- 아이콘 박스 -->
-              <div class="flex items-center dark:bg-blue-400/10 rounded-border icon-box mb-6">
-                <i :class="month.icon" class="text-gray-400 !text-4xl"></i>
+      </div>
+
+      <div class="salary-cards">
+        <div class="grid grid-cols-12 gap-6">
+          <div v-for="month in monthsList" :key="month.id" class="col-span-12 lg:col-span-6 xl:col-span-4">
+            <div class="card mb-0 p-4 custom-box relative transition-transform duration-200 hover:scale-105">
+              <div class="text-left">
+                <div class="flex items-center justify-between mb-4">
+                  <i :class="month.icon" class="text-gray-600 text-3xl"></i>
+                </div>
+                <span class="block text-muted-color font-medium text-lg">{{ getMonthLabel(month.salaryMonth) }} 급여</span>
+                <div class="status-badge" :class="month.status ? 'paid' : 'pending'">
+                  {{ month.status ? '지급' : '미지급' }}
+                </div>
+
+                <div class="text-surface-900 font-medium text-lg mt-2">
+                  <div>총 지급액 : {{ formatCurrency(month.totalSalary) }}</div>
+                  <div>공제액 : {{ formatCurrency(month.totalDeductions) }}</div>
+                  <div>실지급액 : {{ formatCurrency(month.netPayment) }}</div>
+                </div>
+                <Button
+                  label="급여내역보기"
+                  class="p-button-secondary mt-4"
+                  style="width: 100%;"
+                  @click="() => { showSalaryModal(month); }"
+                />
               </div>
-              <!-- 텍스트 부분 (제목 및 카운트) -->
-              <span class="block text-muted-color font-medium mb-4 text-base">{{ month.label }} 급여</span>
-              <div class="text-surface-900 dark:text-surface-0 font-medium text-lg">
-                총 지급액: {{ formatCurrency(month.totalPayment) }}
-              </div>
-              <div class="text-surface-900 dark:text-surface-0 font-medium text-lg">
-                공제액: {{ formatCurrency(month.totalDeductions) }}
-              </div>
-              <div class="text-surface-900 dark:text-surface-0 font-medium text-lg">
-                실지급액: {{ formatCurrency(month.netPayment) }}
-              </div>
-              <Button
-                label="급여내역보기"
-                class="p-button-secondary"
-                style="margin-left:0.7rem; margin-top: 1rem; width: 95%;"
-                @click="() => { showSalaryModal(month); }"
-              />
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <Dialog
-      header="급여 상세"
-      v-model:visible="displayModal"
-      :style="{ width: '50vw' }"
-    >
-      <div class="salary-modal">
-        <!-- 선택한 급여의 상세 내역 표시 -->
-        <h3>{{ selectedMonth?.label }} 급여 상세 내역</h3>
-        <p>총 지급액: {{ formatCurrency(selectedMonth?.totalPayment) }}</p>
-        <p>공제액: {{ formatCurrency(selectedMonth?.totalDeductions) }}</p>
-        <p>실지급액: {{ formatCurrency(selectedMonth?.netPayment) }}</p>
-      </div>
-    </Dialog>
+      <Dialog
+        header="급여 내역"
+        v-model:visible="displayModal"
+        :style="{ width: '70vw', marginLeft: '15%', marginTop: '5%' }"
+        class="salary-dialog"
+      >
+        <div class="salary-modal">
+          <div class="salary-details">
+            <div class="left-panel">
+              <h3 class="text-xl font-semibold text-gray-800">급여 상세 정보</h3>
+              <div class="info-item">
+                <span>부서:</span>
+                <span>{{ authStore.employeeData.deptName }}</span>
+              </div>
+              <div class="info-item">
+                <span>팀:</span>
+                <span>{{ authStore.employeeData.teamName }}</span>
+              </div>
+              <div class="info-item">
+                <span>직무:</span>
+                <span>{{ authStore.employeeData.jobName }}</span>
+              </div>
+              <div class="info-item">
+                <span>직책:</span>
+                <span>{{ authStore.employeeData.positionName }}</span>
+              </div>
+              <div class="info-item">
+                <span>사원 이름:</span>
+                <span>{{ authStore.employeeData.employeeName }}</span>
+              </div>
+              <div class="info-item">
+                <span>총 근무시간:</span>
+                <span>{{ selectedMonth?.totalWorkHours }} 시간</span>
+              </div>
+            </div>
+
+            <div class="right-panel">
+              <h3 class="text-xl font-semibold text-gray-800">공제액</h3>
+              <div class="deduction-item" v-for="(deduction, index) in deductions" :key="index">
+                <span>{{ deduction.name }}:</span>
+                <span>{{ formatCurrency(deduction.amount) }}</span>
+              </div>
+              <div class="total-deductions font-semibold mt-4">
+                <span>공제액 합계:</span>
+                <span>{{ formatCurrency(totalDeductions) }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <Button label="닫기" class="p-button-text" @click="displayModal = false" />
+          </div>
+        </div>
+      </Dialog>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import Calendar from 'primevue/calendar';
+import { useAuthStore } from '@/stores/authStore';
+import { fetchDeductions } from '@/views/pages/salary/deductService';
+import { fetchSalaryDataUpToCurrentMonth } from '@/views/pages/salary/salaryService';
 import Button from 'primevue/button';
+import Calendar from 'primevue/calendar';
+import { onMounted, ref, watch } from 'vue';
 
-// 달력 관련 설정
+const authStore = useAuthStore();
+
 const selectedDate = ref(new Date());
+const selectedYear = ref(selectedDate.value.getFullYear());
 const displayModal = ref(false);
 const selectedMonth = ref(null);
+const deductions = ref([]);
+const totalDeductions = ref(0);
 const currentYear = new Date().getFullYear();
 const yearRange = `${1900}:${currentYear}`;
+const monthsList = ref([]);
 
-// 1월부터 12월까지의 급여 카드 리스트
-const monthsList = ref([
-  { id: 1, label: '1월', icon: 'pi pi-calendar', totalPayment: 3000000, totalDeductions: 500000, netPayment: 2500000 },
-  { id: 2, label: '2월', icon: 'pi pi-calendar', totalPayment: 3100000, totalDeductions: 520000, netPayment: 2580000 },
-  { id: 3, label: '3월', icon: 'pi pi-calendar', totalPayment: 3200000, totalDeductions: 540000, netPayment: 2660000 },
-  { id: 4, label: '4월', icon: 'pi pi-calendar', totalPayment: 3300000, totalDeductions: 560000, netPayment: 2740000 },
-  { id: 5, label: '5월', icon: 'pi pi-calendar', totalPayment: 3400000, totalDeductions: 580000, netPayment: 2820000 },
-  { id: 6, label: '6월', icon: 'pi pi-calendar', totalPayment: 3500000, totalDeductions: 600000, netPayment: 2900000 },
-  { id: 7, label: '7월', icon: 'pi pi-calendar', totalPayment: 3600000, totalDeductions: 620000, netPayment: 2980000 },
-  { id: 8, label: '8월', icon: 'pi pi-calendar', totalPayment: 3700000, totalDeductions: 640000, netPayment: 3060000 },
-  { id: 9, label: '9월', icon: 'pi pi-calendar', totalPayment: 3800000, totalDeductions: 660000, netPayment: 3140000 },
-  { id: 10, label: '10월', icon: 'pi pi-calendar', totalPayment: 3900000, totalDeductions: 680000, netPayment: 3220000 },
-  { id: 11, label: '11월', icon: 'pi pi-calendar', totalPayment: 4000000, totalDeductions: 700000, netPayment: 3300000 },
-  { id: 12, label: '12월', icon: 'pi pi-calendar', totalPayment: 4100000, totalDeductions: 720000, netPayment: 3380000 },
-]);
-
+// 화폐 포맷팅 함수
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('ko-KR', {
-    style: 'currency',
-    currency: 'KRW'
-  }).format(value);
+  return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(value);
 };
 
-// 선택된 급여 정보를 모달에 표시
-const showSalaryModal = (selectedSalary) => {
-  selectedMonth.value = selectedSalary;
+// 선택한 연도에 따라 월별 데이터 가져오기
+const updateSelectedYear = async (date) => {
+  selectedYear.value = date.getFullYear();
+  await loadMonthlyData();
+};
+
+// 월별 데이터 가져오기 함수
+const loadMonthlyData = async () => {
+  const salaryData = await fetchSalaryDataUpToCurrentMonth(authStore.loginUserId, selectedYear.value);
+  // 월별 데이터에 대해 공제액 및 실지급액 계산
+  monthsList.value = await Promise.all(salaryData.map(async (month) => {
+    const deductionsData = await fetchDeductionsData(month); // 공제액 및 실지급액 계산
+    return {
+      ...month,
+      ...deductionsData,
+    };
+  }));
+};
+
+// 급여 상세 모달 열기
+const showSalaryModal = async (month) => {
+  selectedMonth.value = month;
+  await fetchDeductionsData(month); // 월 정보 전달
   displayModal.value = true;
 };
 
-const updateSelectedYear = () => {
-  console.log("Selected Year:", selectedDate.value.getFullYear());
+const fetchDeductionsData = async (month) => {
+  try {
+    const fetchedDeductions = await fetchDeductions(month.id, selectedYear.value);
+
+    // 공제 항목 추출
+    const nationalPension = fetchedDeductions.find(d => d.deductName === '국민연금')?.deductionRate || 0;
+    const healthInsuranceRate = fetchedDeductions.find(d => d.deductName === '건강보험')?.deductionRate || 0;
+    const longTermCareRate = fetchedDeductions.find(d => d.deductName === '장기요양')?.deductionRate || 0;
+    const employmentInsurance = fetchedDeductions.find(d => d.deductName === '고용보험')?.deductionRate || 0;
+    const incomeTaxRate = fetchedDeductions.find(d => d.deductName === '소득세')?.deductionRate || 0;
+    const localIncomeTaxRate = fetchedDeductions.find(d => d.deductName === '지방소득세')?.deductionRate || 0;
+
+    // 공제 금액 계산
+    const nationalPensionAmount = month.baseSalary * nationalPension;
+    const healthInsuranceAmount = month.baseSalary * healthInsuranceRate;
+    const longTermCareAmount = healthInsuranceAmount * longTermCareRate;
+    const employmentInsuranceAmount = month.baseSalary * employmentInsurance;
+    const incomeTaxAmount = month.baseSalary * incomeTaxRate;
+    const localIncomeTaxAmount = incomeTaxAmount * localIncomeTaxRate;
+
+    // 공제 항목 배열 구성
+    deductions.value = [
+      { name: '국민연금', amount: nationalPensionAmount },
+      { name: '건강보험', amount: healthInsuranceAmount },
+      { name: '장기요양', amount: longTermCareAmount },
+      { name: '고용보험', amount: employmentInsuranceAmount },
+      { name: '소득세', amount: incomeTaxAmount },
+      { name: '지방소득세', amount: localIncomeTaxAmount },
+    ];
+
+    // 공제액 합계 계산
+    totalDeductions.value = deductions.value.reduce((total, deduction) => total + deduction.amount, 0);
+
+    // 총 지급액 계산 (기본급 + 보너스)
+    const totalSalary = month.baseSalary + (month.bonus || 0);
+
+    // 실지급액 계산
+    const netPayment = totalSalary - totalDeductions.value;
+    return { totalDeductions : totalDeductions.value, netPayment };
+  } catch (error) {
+    console.error('Error fetching deductions data:', error);
+  }
 };
+
+const getMonthLabel = (dateString) => {
+  const date = new Date(dateString); // 문자열 -> Date 객체
+  const month = date.getMonth() + 1; // getMonth()는 0부터 시작하므로 1을 더함
+  return `${month}월`;
+};
+
+// selectedMonth 변경 시 실지급액 계산
+watch(selectedMonth, (newValue) => {
+  if (newValue) {
+    console.log('Selected Month:', newValue);
+  }
+});
+
+// 페이지 로드 시 초기화
+onMounted(async () => {
+  await loadMonthlyData();
+  await fetchDeductionsData();
+});
+
 </script>
 
 <style scoped>
 .salary-management {
-  padding: 2rem;
+  padding: 1rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.year-selection {
+  margin-bottom: 2rem;
 }
 
 .salary-cards {
-  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
 .custom-box {
-  border-radius: 10px;
-  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
 }
 
-.icon-box {
-  width: 4rem;
-  height: 4rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.5rem;
+.custom-box:hover {
+  transform: translateY(-5px);
 }
 
-.text-muted-color {
-  color: #6b7280;
+.status-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  font-weight: bold;
+  color: white;
 }
 
-.text-surface-900 {
-  color: #1f2937;
+.paid {
+  background-color: #28a745; /* Green */
 }
 
-.dark .text-surface-0 {
-  color: #f9fafb;
-}
-
-.mb-6 {
-  margin-bottom: 30px;
-}
-
-.text-left {
-  text-align: left;
+.pending {
+  background-color: #dc3545; /* Red */
 }
 
 .salary-modal {
-  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.salary-details {
+  display: flex;
+  padding: 1rem;
+}
+
+.left-panel,
+.right-panel {
+  width: 50%;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #f9fafb; /* Light background */
+  margin: 0.5rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.deduction-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.total-deductions {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-weight: bold;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }
 </style>

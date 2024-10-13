@@ -5,8 +5,6 @@ import com.hq.heroes.salary.service.SalaryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,51 +12,38 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/salary-service")
 @RequiredArgsConstructor
-@Tag(name = "Salary APIs", description = "급여 관련 API 목록")
+@Tag(name = "Salary APIs", description = "급여 관리 API 목록")
 public class SalaryController {
 
     private final SalaryService salaryService;
 
-    // 직원의 모든 급여 조회 (employeeId로 조회)
     @GetMapping("/salaries")
-    @Operation(summary = "직원의 급여 조회", description = "특정 직원의 모든 급여 정보를 조회한다.")
-    public ResponseEntity<List<SalaryDTO>> getSalariesByEmployeeId(@RequestParam String employeeId) {
-        return ResponseEntity.ok(salaryService.getSalariesByEmployeeId(employeeId));
+    @Operation(summary = "특정 직원의 연도별 급여 조회", description = "특정 직원의 특정 연도 급여 정보를 조회합니다.")
+    public List<SalaryDTO> getSalariesByEmployeeIdAndYear(@RequestParam String employeeId, @RequestParam int year) {
+        return salaryService.getSalariesUpToCurrentMonth(employeeId, year);
     }
 
-    // 새로운 급여 생성
-    @PostMapping("/salary")
-    @Operation(summary = "급여 생성", description = "새로운 급여 정보를 생성한다.")
-    public ResponseEntity<SalaryDTO> createSalary(@RequestBody SalaryDTO salaryDTO) {
-        return new ResponseEntity<>(salaryService.createSalary(salaryDTO), HttpStatus.CREATED);
+    @GetMapping("/salaries/month")
+    @Operation(summary = "특정 월의 급여 조회", description = "특정 직원의 특정 월의 급여 정보를 조회합니다.")
+    public SalaryDTO getSalaryByEmployeeIdAndMonth(@RequestParam String employeeId, @RequestParam int year, @RequestParam int month) {
+        return salaryService.getSalaryByEmployeeIdAndMonth(employeeId, year, month);
     }
 
-    // 급여 수정
-    @PatchMapping("/salary")
-    @Operation(summary = "급여 수정", description = "특정 직원의 급여 정보를 수정한다.")
-    public ResponseEntity<SalaryDTO> updateSalary(
-            @RequestParam String employeeId,
-            @RequestParam Long salaryId,
-            @RequestBody SalaryDTO salaryDTO) {
-        SalaryDTO updatedSalary = salaryService.updateSalaryByEmployeeAndSalaryId(employeeId, salaryId, salaryDTO);
-        if (updatedSalary != null) {
-            return ResponseEntity.ok(updatedSalary);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 일치하는 데이터가 없을 때
-        }
+    @PostMapping
+    @Operation(summary = "급여 생성", description = "새로운 급여 정보를 생성합니다.")
+    public SalaryDTO createSalary(@RequestBody SalaryDTO salaryDto) {
+        return salaryService.createSalary(salaryDto);
     }
 
-    // 급여 삭제
-    @DeleteMapping("/salary")
-    @Operation(summary = "급여 삭제", description = "특정 직원의 급여 정보를 삭제한다.")
-    public ResponseEntity<Void> deleteSalary(
-            @RequestParam String employeeId,
-            @RequestParam Long salaryId) {
-        boolean isDeleted = salaryService.deleteSalaryByEmployeeAndSalaryId(employeeId, salaryId);
-        if (isDeleted) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 삭제 성공
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 일치하는 데이터가 없을 때
-        }
+    @PutMapping("/{salaryId}")
+    @Operation(summary = "급여 수정", description = "급여 ID를 기반으로 급여 정보를 수정합니다.")
+    public SalaryDTO updateSalary(@PathVariable Long salaryId, @RequestBody SalaryDTO salaryDto) {
+        return salaryService.updateSalary(salaryId, salaryDto);
+    }
+
+    @DeleteMapping("/{salaryId}")
+    @Operation(summary = "급여 삭제", description = "급여 ID를 기반으로 급여 정보를 삭제합니다.")
+    public void deleteSalary(@PathVariable Long salaryId) {
+        salaryService.deleteSalary(salaryId);
     }
 }

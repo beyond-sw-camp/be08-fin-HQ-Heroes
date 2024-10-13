@@ -84,6 +84,15 @@ public class VacationServiceImpl implements VacationService {
                 .collect(Collectors.toList());
     }
 
+    // 특정 사용자의 승인된 휴가 목록 조회
+    public List<VacationDTO> getApprovedVacationsByEmployeeId(String employeeId) {
+        List<Vacation> approvedVacations = vacationRepository.findApprovedVacationsByEmployeeId(employeeId);
+        return approvedVacations.stream()
+                .map(this::convertToDTO)  // Vacation 객체를 VacationDTO로 변환하는 메서드
+                .collect(Collectors.toList());
+    }
+
+
     // Vacation 엔티티를 VacationDTO로 변환하는 메서드
     private VacationDTO convertToDTO(Vacation vacation) {
         return VacationDTO.builder()

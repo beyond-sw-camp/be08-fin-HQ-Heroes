@@ -22,7 +22,8 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
+import { ref } from 'vue'; // ref 추가
 
 // 기본값을 추가하여 제대로 출력되는지 확인합니다.
 const props = defineProps({
@@ -42,19 +43,34 @@ const props = defineProps({
         type: String,
         default: '2024년 11월 21일'
     }
-})
+});
 
-const router = useRouter()
+const router = useRouter();
+
+// 신청한 교육 정보를 저장하기 위한 상태 변수
+const appliedEducation = ref(null);
 
 // '목록' 버튼 클릭 시 목록 페이지로 이동
 const goBackToList = () => {
-    router.push('/education-apply')
-}
+    router.push('/education-apply');
+};
 
-// '신청하기' 버튼 클릭 시 alert 창 띄우기
+// '신청하기' 버튼 클릭 시 신청 정보 저장 및 페이지 이동
 const handleApplyClick = () => {
-    alert("교육 신청이 완료되었습니다")
-}
+    // 신청한 교육 정보를 저장
+    appliedEducation.value = {
+        name: props.educationName,
+        start: props.educationStart,
+        applyEnd: props.educationApplyEnd,
+        end: props.educationEnd
+    };
+
+    // alert으로 신청 완료 메시지 표시
+    alert("교육 신청이 완료되었습니다");
+
+    // 신청 완료 후 "/education-history" 페이지로 이동
+    router.push('/education-history');
+};
 </script>
 
 <style scoped>

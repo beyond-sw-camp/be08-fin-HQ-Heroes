@@ -4,14 +4,25 @@
       <!-- 검색 필드 -->
       <div class="search-container">
         <i class="pi pi-search search-icon"></i>
-        <input type="text" placeholder="Search users..." v-model="searchQuery" class="search-input" />
+        <input type="text" placeholder="Search employees..." v-model="searchQuery" class="search-input" />
       </div>
 
-      <!-- 사용자 목록 트리 구조 -->
-      <div class="tree-container">
+      <!-- 사원 목록 트리 구조 -->
+      <div class="panelmenu-container">
         <div class="card">
           <div class="font-semibold text-xl">사원 목록</div>
-          <Tree :value="filteredTreeData" selectionMode="checkbox" v-model:selectionKeys="selectedTreeValue"></Tree>
+          <Tree v-model:selectionKeys="selectedKeys" :value="filteredTreeData" selectionMode="checkbox"
+            class="w-full md:w-[20rem]">
+            <template #default="slotProps">
+              <div class="flex items-center">
+                <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X"
+                  size="normal" shape="circle" class="mr-2" style="background-color: #dee9fc; color: #1a2551" />
+                <Avatar v-else-if="slotProps.node.key.startsWith('emp-')" :image="slotProps.node.profileImageUrl"
+                  size="normal" shape="circle" class="mr-2" />
+                <span>{{ slotProps.node.label }}</span>
+              </div>
+            </template>
+          </Tree>
         </div>
       </div>
     </div>
@@ -21,96 +32,221 @@
       <div class="compose-message-container">
         <div class="compose-message">
           <h3 class="mb-2"><b>발송자</b></h3>
-          <input type="text" v-model="to" class="to-input" />
-          <h3 class="mb-2 mt-5"><b>제목</b></h3>
-          <input type="text" v-model="subject" class="message-input" />
+          <InputText type="text" v-model="sender" class="to-input" />
+
+          <!-- Notification Category Dropdown -->
+          <h3 class="mb-2 mt-5"><b>카테고리</b></h3>
+          <Select v-model="selectedCategory" :options="categories" optionLabel="categoryName"
+            placeholder="카테고리를 선택하세요" />
+
           <h3 class="mb-2 mt-5"><b>메시지</b></h3>
-          <!-- Quill 에디터 -->
           <div ref="editor" class="message-editor"></div>
+
           <div class="button-container">
             <button @click="sendMessage" class="send-button">알림 발송</button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 알림 발송 진행상황 모달 -->
+    <Dialog header="알림 발송 중" v-model:visible="progressVisible" :modal="true" :closable="false" style="width: 50vw">
+      <ProgressBar :value="progressValue"></ProgressBar>
+      <p>{{ progressValue }}% 완료</p>
+    </Dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { NodeService } from '@/service/NodeService'; // Assuming this is your data service
 import Quill from 'quill';
-import 'quill/dist/quill.snow.css'; // Quill의 스타일
+import 'quill/dist/quill.snow.css';
+import Tree from 'primevue/tree';
+import Avatar from 'primevue/avatar';
+import InputText from 'primevue/inputtext';
+import { fetchPost, fetchGet } from '../auth/service/AuthApiService'; // Replace with your API service
+import Select from 'primevue/select';
+import ProgressBar from 'primevue/progressbar';
+import Dialog from 'primevue/dialog';
+import { useAuthStore } from '@/stores/authStore';
 
-const treeValue = ref(null);
-const selectedTreeValue = ref(null);
-const searchQuery = ref('');
-const to = ref('');
-const subject = ref('');
+const authStore = useAuthStore();
+const searchQuery = ref(''); // 검색어 상태
+const sender = ref(authStore.employeeName);
 const message = ref('');
-const editor = ref(null); // Quill 에디터를 참조할 변수
+const editor = ref(null);
+const employeeData = ref([]); // 전체 사원 데이터를 저장
+const selectedKeys = ref({});
+const categories = ref([]); // List of notification categories
+const selectedCategory = ref(''); // Currently selected category
 
-// Load tree nodes data on mount
+const progressValue = ref(0); // ProgressBar의 현재 값
+const progressVisible = ref(false); // ProgressBar 모달 표시 여부
+
 onMounted(() => {
-  NodeService.getTreeNodes().then((data) => (treeValue.value = data));
+  fetchEmployeeList();
+  fetchCategories(); // Fetch notification categories
 
-  // Initialize Quill editor
   const quillEditor = new Quill(editor.value, {
-    theme: 'snow', // Quill의 '' 테마 사용
+    theme: 'snow',
     modules: {
-      toolbar: [
-        [{ font: [] }, { size: [] }], // 글꼴 및 글자 크기 선택
-        ['bold', 'italic', 'underline', 'strike'], // 텍스트 스타일
-        [{ color: [] }, { background: [] }], // 텍스트 색상 및 배경색 선택
-        [{ list: 'ordered' }, { list: 'bullet' }], // 목록
-        [{ align: [] }], // 정렬
-        ['link', 'image', 'blockquote'], // 링크, 이미지, 인용구
-        ['clean'] // 서식 제거
-      ]
+      toolbar: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']]
     }
   });
 
   quillEditor.on('text-change', () => {
-    message.value = quillEditor.root.innerHTML; // Quill 에디터 내용이 변경될 때 message 값 업데이트
+    message.value = quillEditor.root.innerHTML;
   });
 });
 
-const filteredTreeData = computed(() => {
-  if (!searchQuery.value) return treeValue.value;
+async function fetchEmployeeList() {
+  try {
+    const data = await fetchGet('http://localhost:8080/api/v1/employee/employees');
+    employeeData.value = convertToTreeModel(data);
+  } catch (error) {
+    console.error('Error fetching employee data:', error);
+  }
+}
 
-  const filterTree = (nodes, query) => {
-    return nodes
-      .map((node) => {
-        if (node.children) {
-          const filteredChildren = filterTree(node.children, query);
-          if (filteredChildren.length || node.label.toLowerCase().includes(query)) {
-            return { ...node, children: filteredChildren };
+async function fetchCategories() {
+  try {
+    const response = await fetchGet('http://localhost:8080/api/v1/notification-service/categories');
+    categories.value = response;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+  }
+}
+
+const convertToTreeModel = (data) => {
+  const departments = data.reduce((acc, employee) => {
+    const dept = acc.find((d) => d.label === employee.deptName);
+    if (!dept) {
+      acc.push({
+        key: `dept-${employee.deptName}`,
+        label: employee.deptName,
+        icon: 'pi pi-building',
+        children: [
+          {
+            key: `team-${employee.teamName}`,
+            label: employee.teamName,
+            icon: 'pi pi-users',
+            children: []
           }
-        } else if (node.label.toLowerCase().includes(query)) {
-          return node;
+        ]
+      });
+    }
+    const deptIndex = acc.findIndex((d) => d.label === employee.deptName);
+    const team = acc[deptIndex].children.find((t) => t.label === employee.teamName);
+    if (!team) {
+      acc[deptIndex].children.push({
+        key: `team-${employee.teamName}`,
+        label: employee.teamName,
+        icon: 'pi pi-users',
+        children: []
+      });
+    }
+    const teamIndex = acc[deptIndex].children.findIndex((t) => t.label === employee.teamName);
+    acc[deptIndex].children[teamIndex].children.push({
+      key: `emp-${employee.employeeId}`,
+      label: employee.employeeName,
+      profileImageUrl: employee.profileImageUrl,
+      employeeId: employee.employeeId,
+      jobName: employee.jobName,
+      positionName: employee.positionName,
+      joinDate: employee.joinDate
+    });
+    return acc;
+  }, []);
+  return departments;
+};
+
+// 검색 필터링
+const filteredTreeData = computed(() => {
+  if (!searchQuery.value) return employeeData.value;
+
+  const filterTree = (items, query) => {
+    return items
+      .map((item) => {
+        if (item.children) {
+          const filteredChildren = filterTree(item.children, query);
+          if (filteredChildren.length || item.label.toLowerCase().includes(query)) {
+            return { ...item, children: filteredChildren };
+          }
+        } else if (item.label.toLowerCase().includes(query)) {
+          return item;
         }
         return null;
       })
-      .filter((node) => node !== null);
+      .filter((item) => item !== null);
   };
 
-  return filterTree(treeValue.value, searchQuery.value.toLowerCase());
+  return filterTree(employeeData.value, searchQuery.value.toLowerCase());
 });
 
-const sendMessage = () => {
-  console.log(`Sending message to: ${to.value}, Subject: ${subject.value}, Message: ${message.value}`);
+// 단일 알림 발송
+const sendNotification = async (notificationPayload) => {
+  try {
+    const response = await fetchPost('http://localhost:8080/api/v1/notification-service/notification', notificationPayload);
+    if (response) {
+      console.log('Notification sent successfully:', response);
+    } else {
+      console.error('Failed to send notification.');
+    }
+  } catch (error) {
+    console.error('Error sending notification:', error);
+  }
+};
+
+// 알림 발송 시 진행률 표시
+const sendMessage = async () => {
+  const selectedEmployeeIds = Object.keys(selectedKeys.value)
+    .filter((key) => key.startsWith('emp-'))
+    .map((key) => key.replace('emp-', ''));
+
+  if (!selectedCategory.value) {
+    alert('카테고리를 선택하세요.');
+    return;
+  }
+
+  if (selectedEmployeeIds.length === 0) {
+    alert('직원을 선택하세요.');
+    return;
+  }
+
+  const senderId = window.localStorage.getItem('employeeId');
+  progressVisible.value = true; // ProgressBar 모달을 표시
+  progressValue.value = 0; // ProgressBar 초기화
+
+  for (let i = 0; i < selectedEmployeeIds.length; i++) {
+    const receiverId = selectedEmployeeIds[i];
+    const payload = {
+      senderId,
+      receiverId,
+      categoryId: selectedCategory.value.notificationCategoryId,
+      message: message.value,
+      status: 'UNREAD' // 기본 상태 설정
+    };
+
+    await sendNotification(payload);
+    // ProgressBar 값 업데이트
+    progressValue.value = Math.round(((i + 1) / selectedEmployeeIds.length) * 100);
+  }
+
+  progressVisible.value = false; // ProgressBar 모달 닫기;
+
+  setTimeout(() => {
+    alert('알림 발송 완료');
+  }, 100);
 };
 </script>
 
 <style scoped>
 .app-container {
   display: flex;
-  height: 100vh;
+  height: 50rem;
 }
 
 .sidebar {
-  width: 25%;
-  height: 90vh;
   background-color: #ffffff;
   padding: 20px;
   border-radius: 10px;
@@ -120,9 +256,8 @@ const sendMessage = () => {
   flex-direction: column;
 }
 
-.tree-container {
+.panelmenu-container {
   flex-grow: 1;
-  margin: 0;
 }
 
 .card {
@@ -132,27 +267,6 @@ const sendMessage = () => {
 
 .font-semibold.text-xl {
   padding: 10px;
-}
-
-.tree-container .pi-tree {
-  text-align: left;
-}
-
-.user-profile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20%;
-  padding-bottom: 10px;
-}
-
-.user-profile::after {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 2px;
-  background-color: #ddd;
-  margin: 10px 0;
 }
 
 .search-container {
@@ -180,7 +294,6 @@ const sendMessage = () => {
   padding-left: 20px;
   display: flex;
   flex-direction: column;
-  height: 90vh;
 }
 
 .compose-message-container {
@@ -202,18 +315,10 @@ const sendMessage = () => {
   width: 20%;
 }
 
-.message-input {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  width: 100%;
-}
-
 .message-editor {
   flex-grow: 1;
   font-size: 16px;
-  height: 57vh;
+  height: 25rem;
   overflow-y: auto;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -227,7 +332,7 @@ const sendMessage = () => {
 .send-button {
   padding: 10px 20px;
   margin-top: 10px;
-  background-color: #6366F1;
+  background-color: #6366f1;
   color: white;
   border: none;
   border-radius: 5px;

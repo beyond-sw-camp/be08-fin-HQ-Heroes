@@ -80,4 +80,17 @@ public class NotificationController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @GetMapping("/notifications/receiver/{employeeId}")
+    @Operation(summary = "수신된 알림 목록 조회", description = "수신자의 ID로 알림 목록을 조회한다.")
+    public ResponseEntity<List<NotificationResDTO>> getNotificationsByReceiverId(
+            @Parameter(description = "수신자의 사원 ID", example = "1") @PathVariable("employeeId") String employeeId) {
+        List<Notification> notifications = notificationService.getNotificationsByReceiverId(employeeId);
+        List<NotificationResDTO> notificationDTOs = notifications.stream()
+                .map(Notification::toResDTO)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(notificationDTOs, HttpStatus.OK);
+    }
+
 }

@@ -22,5 +22,5 @@ public class EducationResponseDTO {
     private String categoryName; // 카테고리 이름 추가
     private LocalDate applicationStartDate; // 신청 시작일 추가
     private LocalDate applicationEndDate; // 신청 종료일 추가
-    private Integer participants; // 참가자 수 추가 (필요시)
+    private Integer participants;
 }

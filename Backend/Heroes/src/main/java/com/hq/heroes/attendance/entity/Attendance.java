@@ -25,13 +25,13 @@ public class Attendance {
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @Column(name = "check_in", nullable = false)
+    @Column(name = "check_in", nullable = true)
     private LocalDateTime checkIn;
 
-    @Column(name = "check_out", nullable = false)
+    @Column(name = "check_out", nullable = true)
     private LocalDateTime checkOut;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private AttendanceStatus status;
+    private AttendanceStatus status = AttendanceStatus.NORMAL;
 }
