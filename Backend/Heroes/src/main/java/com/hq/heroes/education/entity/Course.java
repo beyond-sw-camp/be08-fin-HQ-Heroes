@@ -1,6 +1,7 @@
 package com.hq.heroes.education.entity;
 
 import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.education.dto.CourseResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,4 +28,17 @@ public class Course {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "education_id", nullable = false)
     private Education education;
+
+    public CourseResponseDTO toResponseDTO() {
+        return CourseResponseDTO.builder()
+                .courseId(this.courseId)
+                .educationName(this.education.getEducationName())
+                .employeeName(this.employee.getEmployeeName())
+                .startDate(this.education.getStartDate())
+                .endDate(this.education.getEndDate())
+                .applicationStartDate(this.education.getEducationCurriculum().getApplicationStartDate())
+                .applicationEndDate(this.education.getEducationCurriculum().getApplicationEndDate())
+                .categoryName(this.education.getEducationCategory().getCategoryName())
+                .build();
+    }
 }

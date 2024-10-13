@@ -1,6 +1,7 @@
 package com.hq.heroes.certification.entity;
 
 import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.certification.dto.EmployeeCertificationResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,5 +37,14 @@ public class EmployeeCertification {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
-}
 
+    public EmployeeCertificationResponseDTO toECResponseDTO() {
+        return EmployeeCertificationResponseDTO.builder()
+                .registrationId(this.registrationId)
+                .certificationName(this.certificationName)
+                .institution(this.institution)
+                .acquisitionDate(this.acquisitionDate)
+                .employeeName(this.employee.getEmployeeName())  // 사원 이름 변환 추가
+                .build();
+    }
+}
