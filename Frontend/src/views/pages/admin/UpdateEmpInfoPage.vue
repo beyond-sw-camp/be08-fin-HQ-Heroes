@@ -76,8 +76,8 @@
 <script setup>
 import UpdateEmpInfoModal from '@/views/pages/admin/UpdateEmpInfoModal.vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-import axios from 'axios';
 import { onBeforeMount, ref } from 'vue';
+import { fetchGet } from '../auth/service/AuthApiService';
 
 const employees = ref([]);
 const filteredEmployees = ref([]);
@@ -105,9 +105,9 @@ function handleDepartmentChange(event) {
 // 직원 목록을 가져오는 함수
 async function fetchEmployeeList() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/employees'); // API 호출
-        console.log('직원 데이터 응답:', response.data); // 응답 로그 추가
-        employees.value = Array.isArray(response.data) ? response.data : [];
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees'); // API 호출
+        console.log('직원 데이터 응답:', response); // 응답 로그 추가
+        employees.value = Array.isArray(response) ? response : [];
     } catch (error) {
         console.error('직원 데이터를 가져오는 중 오류 발생:', error);
         employees.value = [];
@@ -119,8 +119,8 @@ async function fetchEmployeeList() {
 // 부서 목록을 가져오는 함수
 async function fetchDepartments() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/departments'); // 부서 API 호출
-        departments.value = [{ deptId: null, deptName: '전체 부서' }, ...response.data]; // '전체 부서'에 deptId 추가
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/departments'); // 부서 API 호출
+        departments.value = [{ deptId: null, deptName: '전체 부서' }, ...response]; // '전체 부서'에 deptId 추가
     } catch (error) {
         console.error('부서 데이터를 가져오는 중 오류 발생:', error);
         departments.value = [{ deptId: null, deptName: '전체 부서' }];
@@ -132,11 +132,11 @@ async function fetchTeams(deptId) {
     console.log('부서 ID:', deptId); // 로그 추가
     console.log('fetchTeams 함수 호출'); // 추가 로그
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/teams', {
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/teams', {
             params: { deptId: deptId } // 부서 ID 전달
         });
         console.log('팀 데이터:', response.data); // 로그 추가
-        teams.value = [{ teamId: null, teamName: '전체 팀' }, ...response.data]; // DTO에서 teamName 사용
+        teams.value = [{ teamId: null, teamName: '전체 팀' }, ...response]; // DTO에서 teamName 사용
     } catch (error) {
         console.error('팀 데이터를 가져오는 중 오류 발생:', error);
         teams.value = [{ teamId: null, teamName: '전체 팀' }];

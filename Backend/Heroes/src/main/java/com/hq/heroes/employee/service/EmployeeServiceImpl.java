@@ -4,6 +4,14 @@ import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.common.service.FirebaseStorageService;
 import com.hq.heroes.employee.dto.EmployeeDTO;
+import com.hq.heroes.employee.entity.Department;
+import com.hq.heroes.employee.entity.Job;
+import com.hq.heroes.employee.entity.Position;
+import com.hq.heroes.employee.entity.Team;
+import com.hq.heroes.employee.repository.DepartmentRepository;
+import com.hq.heroes.employee.repository.JobRepository;
+import com.hq.heroes.employee.repository.PositionRepository;
+import com.hq.heroes.employee.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +19,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class EmployeeServiceImpl implements EmployeeService{
+public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final FirebaseStorageService firebaseStorageService;
+    private final DepartmentRepository departmentRepository;
+    private final JobRepository jobRepository;
+    private final PositionRepository positionRepository;
+    private final TeamRepository teamRepository;
 
     @Override
     public List<EmployeeDTO> getAllEmployees() {
@@ -58,13 +70,26 @@ public class EmployeeServiceImpl implements EmployeeService{
 
     @Override
     public Employee adminUpdateEmployee(EmployeeDTO employeeDTO) {
+
         Employee employee = employeeRepository.findById(employeeDTO.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 사원을 찾을 수 없습니다."));
 
-
+        employee.setEmployeeName(employeeDTO.getEmployeeName());
+        employee.setPhoneNumber(employeeDTO.getPhoneNumber());
+        employee.setEmail(employeeDTO.getEmail());
         employee.setRoadAddress(employeeDTO.getRoadAddress());
         employee.setLotAddress(employeeDTO.getLotAddress());
         employee.setDetailedAddress(employeeDTO.getDetailedAddress());
+
+        Department department = departmentRepository.findById(employeeDTO.getDeptId()).orElseThrow();
+        Job job = jobRepository.findById(employeeDTO.getJobId()).orElseThrow();
+        Position position = positionRepository.findById(employeeDTO.getPositionId()).orElseThrow();
+        Team team = teamRepository.findById(employeeDTO.getTeamId()).orElseThrow();
+
+        employee.setDepartment(department);
+        employee.setJob(job);
+        employee.setPosition(position);
+        employee.setTeam(team);
 
         if (employeeDTO.getProfileImage() != null && !employeeDTO.getProfileImage().isEmpty()) {
             System.out.println("============== 프로필 이미지 존재함 ================= ");
@@ -83,6 +108,6 @@ public class EmployeeServiceImpl implements EmployeeService{
         } else {
             System.out.println("============== 프로필 이미지가 존재하지 않음 ================= ");
         }
-        return null;
+        return employeeRepository.save(employee);
     }
 }

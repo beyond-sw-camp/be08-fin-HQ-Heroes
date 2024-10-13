@@ -50,8 +50,6 @@ public class EmployeeController {
     ) {
         Employee employee = employeeService.getEmployeeById(employeeId);
 
-        System.out.println("employee = " + employee);
-
         if (employee != null) {
             return ResponseEntity.ok(employee.toResponseDTO());
         } else {
@@ -63,8 +61,6 @@ public class EmployeeController {
     @GetMapping("/employees")
     public ResponseEntity<?> getAllEmployees() {
         List<EmployeeDTO> employees = employeeService.getAllEmployees();
-
-        System.out.println("employees = " + employees);
 
         // 사원이 없을 경우 메시지와 함께 200 OK 반환
         if (employees.isEmpty()) {

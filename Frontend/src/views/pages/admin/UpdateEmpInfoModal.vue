@@ -60,7 +60,7 @@
                         <!-- 입사일 -->
                         <div class="form-group">
                             <label for="hireDate">입사일</label>
-                            <input type="text" id="hireDate" v-model="hireDate" class="form-control" />
+                            <input type="text" id="hireDate" v-model="hireDate" class="form-control readonly-input" readonly />
                         </div>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
 
                     <div class="form-group">
                         <label for="employeeId">사원번호</label>
-                        <input type="text" id="employeeId" v-model="employeeData.employeeId" class="form-control" />
+                        <input type="text" id="employeeId" v-model="employeeData.employeeId" class="form-control readonly-input" readonly />
                     </div>
 
                     <div class="form-group">
@@ -83,7 +83,7 @@
 
                     <div class="form-group">
                         <label for="dob">생년월일</label>
-                        <input type="text" id="dob" v-model="employeeData.birthDate" class="form-control" />
+                        <input type="text" id="dob" v-model="employeeData.birthDate" class="form-control readonly-input" readonly />
                     </div>
 
                     <div class="form-group">
@@ -126,9 +126,9 @@
 
 <script setup>
 import { adminUpdateEmployeeInfo } from '@/views/pages/auth/service/authService'; // 서비스 파일에서 메소드 가져오기
-import axios from 'axios'; // axios 추가
 import Swal from 'sweetalert2';
 import { defineEmits, defineProps, ref, watch } from 'vue';
+import { fetchGet } from '../auth/service/AuthApiService';
 
 const props = defineProps({
     isVisible: {
@@ -218,7 +218,9 @@ const searchZipCode = () => {
 
 // 수정 버튼 클릭 시 처리
 const enableEditing = () => {
-    adminUpdateEmployeeInfo(employeeData.value, profileImageFile.value)
+    const updatedEmployeeData = { ...employeeData.value }; // employeeData를 복사하여 별도 객체로 생성
+    console.log('updatedEmployeeData: ', updatedEmployeeData);
+    adminUpdateEmployeeInfo(updatedEmployeeData, profileImageFile.value)
         .then(() => {
             Swal.fire({
                 title: '수정되었습니다.',
@@ -237,9 +239,8 @@ const enableEditing = () => {
 // 부서, 팀, 직무, 직책 데이터를 불러오는 함수
 const fetchDepartments = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/departments');
-        departments.value = response.data;
-        console.log('departments', departments.value);
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/departments');
+        departments.value = response;
     } catch (error) {
         console.error('부서 데이터를 가져오는 중 오류 발생:', error);
     }
@@ -247,11 +248,8 @@ const fetchDepartments = async () => {
 
 const fetchTeams = async (deptId) => {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/teams', {
-            params: { deptId }
-        });
-        teams.value = response.data;
-        console.log('teams', teams.value);
+        const response = await fetchGet(`http://localhost:8080/api/v1/employee/teams?deptId=${deptId}`);
+        teams.value = response;
     } catch (error) {
         console.error('팀 데이터를 가져오는 중 오류 발생:', error);
     }
@@ -259,9 +257,8 @@ const fetchTeams = async (deptId) => {
 
 const fetchJobs = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/jobs');
-        jobs.value = response.data;
-        console.log('jobs', jobs.value);
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/jobs');
+        jobs.value = response;
     } catch (error) {
         console.error('직무 데이터를 가져오는 중 오류 발생:', error);
     }
@@ -269,9 +266,8 @@ const fetchJobs = async () => {
 
 const fetchPositions = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/positions');
-        positions.value = response.data;
-        console.log('positions', positions.value);
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/positions');
+        positions.value = response;
     } catch (error) {
         console.error('직책 데이터를 가져오는 중 오류 발생:', error);
     }
@@ -284,8 +280,6 @@ watch(
         if (newEmployee) {
             employeeData.value = newEmployee;
             photoUrl.value = newEmployee.profileImageUrl;
-
-            console.log('Updated employee data:', employeeData.value);
 
             // 부서, 팀, 직무, 직책 목록을 불러오고 선택된 값 설정
             await fetchDepartments();
@@ -353,6 +347,11 @@ const handleDepartmentChange = async () => {
     font-size: large;
     margin-bottom: 20px;
     text-align: left; /* 제목을 왼쪽 상단에 배치 */
+}
+
+.readonly-input[readonly] {
+    background-color: #f0f0f0; /* 회색 배경 */
+    cursor: not-allowed; /* 커서를 not-allowed로 변경 */
 }
 
 /* 버튼 그룹 스타일 */

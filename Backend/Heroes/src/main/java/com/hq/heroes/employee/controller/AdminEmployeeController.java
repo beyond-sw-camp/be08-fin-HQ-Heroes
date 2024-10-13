@@ -30,7 +30,6 @@ public class AdminEmployeeController {
     public ResponseEntity<String> adminUpdateEmployeeInfo(
             @RequestPart("employeeData") @Validated EmployeeDTO employeeDTO,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
-
         try {
             // 요청 파라미터 로그 출력
             System.out.println("Profile Image: " + (profileImage != null ? profileImage.getOriginalFilename() : "No file uploaded"));
@@ -50,7 +49,8 @@ public class AdminEmployeeController {
             }
 
             // 사원 정보 업데이트
-            Employee updatedEmployee = employeeService.updateEmployee(employeeDTO);
+            Employee updatedEmployee = employeeService.adminUpdateEmployee(employeeDTO);
+
             return ResponseEntity.ok("사원 정보가 성공적으로 업데이트되었습니다.");
         } catch (DateTimeParseException e) {
             return ResponseEntity.badRequest().body("날짜 형식이 잘못되었습니다: " + e.getMessage());
