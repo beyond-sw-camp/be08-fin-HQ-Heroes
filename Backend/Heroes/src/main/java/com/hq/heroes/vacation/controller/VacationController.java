@@ -2,7 +2,6 @@ package com.hq.heroes.vacation.controller;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
-import com.hq.heroes.employee.service.EmployeeService;
 import com.hq.heroes.vacation.dto.VacationDTO;
 import com.hq.heroes.vacation.service.VacationService;
 import io.swagger.v3.oas.annotations.Operation;

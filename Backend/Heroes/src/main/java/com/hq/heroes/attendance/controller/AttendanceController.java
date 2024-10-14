@@ -2,7 +2,6 @@ package com.hq.heroes.attendance.controller;
 
 import com.hq.heroes.attendance.dto.AttendanceDTO;
 import com.hq.heroes.attendance.entity.Attendance;
-import com.hq.heroes.attendance.repository.AttendanceRepository;
 import com.hq.heroes.attendance.service.AttendanceService;
 import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.auth.entity.Employee;
@@ -13,7 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
