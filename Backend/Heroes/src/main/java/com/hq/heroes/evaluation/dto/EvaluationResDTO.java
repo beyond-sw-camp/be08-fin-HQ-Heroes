@@ -1,6 +1,5 @@
 package com.hq.heroes.evaluation.dto;
 
-import com.hq.heroes.evaluation.entity.EvaluationForm;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

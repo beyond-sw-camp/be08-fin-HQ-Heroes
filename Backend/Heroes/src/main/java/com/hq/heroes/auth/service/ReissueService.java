@@ -1,7 +1,6 @@
 package com.hq.heroes.auth.service;
 
 import com.hq.heroes.auth.jwt.JWTUtil;
-import com.hq.heroes.auth.repository.RefreshRepository;
 import com.hq.heroes.auth.util.CookieUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
