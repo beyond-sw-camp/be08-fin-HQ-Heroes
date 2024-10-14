@@ -218,7 +218,19 @@ const searchZipCode = () => {
 
 // 수정 버튼 클릭 시 처리
 const enableEditing = () => {
-    const updatedEmployeeData = { ...employeeData.value }; // employeeData를 복사하여 별도 객체로 생성
+    employeeData.value.deptId = selectedDeptId.value;
+    employeeData.value.teamId = selectedTeamId.value;
+    employeeData.value.jobId = selectedJobId.value;
+    employeeData.value.positionId = selectedPositionId.value;
+
+    const updatedEmployeeData = {
+        ...employeeData.value,
+        teamName: teams.value.find((team) => team.teamId === selectedTeamId.value)?.teamName || '',
+        deptName: departments.value.find((dept) => dept.deptId === selectedDeptId.value)?.deptName || '',
+        jobName: jobs.value.find((job) => job.jobId === selectedJobId.value)?.jobName || '',
+        positionName: positions.value.find((position) => position.positionId === selectedPositionId.value)?.positionName || ''
+    }; // employeeData를 복사하여 별도 객체로 생성
+
     console.log('updatedEmployeeData: ', updatedEmployeeData);
     adminUpdateEmployeeInfo(updatedEmployeeData, profileImageFile.value)
         .then(() => {

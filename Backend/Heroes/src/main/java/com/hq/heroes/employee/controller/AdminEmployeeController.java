@@ -2,12 +2,9 @@ package com.hq.heroes.employee.controller;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.employee.dto.EmployeeDTO;
-import com.hq.heroes.employee.repository.DepartmentRepository;
-import com.hq.heroes.employee.repository.JobRepository;
-import com.hq.heroes.employee.repository.PositionRepository;
-import com.hq.heroes.employee.repository.TeamRepository;
 import com.hq.heroes.employee.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +19,7 @@ import java.time.format.DateTimeParseException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/employee")
+@Slf4j
 public class AdminEmployeeController {
 
     private final EmployeeService employeeService;
@@ -32,7 +30,7 @@ public class AdminEmployeeController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         try {
             // 요청 파라미터 로그 출력
-            System.out.println("Profile Image: " + (profileImage != null ? profileImage.getOriginalFilename() : "No file uploaded"));
+            log.info("Profile Image: {}", (profileImage != null ? profileImage.getOriginalFilename() : "No file uploaded"));
 
             // 프로필 이미지 파일 검증 및 처리
             if (profileImage != null && !profileImage.isEmpty()) {
