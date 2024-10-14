@@ -29,12 +29,12 @@
                   <i :class="month.icon" class="text-gray-600 text-3xl"></i>
                 </div>
                 <span class="block text-muted-color font-medium text-lg">{{ getMonthLabel(month.salaryMonth) }} 급여</span>
-                <div class="status-badge" :class="month.status ? 'paid' : 'pending'">
-                  {{ month.status ? '지급' : '미지급' }}
+                <div class="status-badge" :class="month.status === 'PAID' ? 'PAID' : 'PENDING'">
+                  {{ month.status === 'PAID' ? '지급' : '미지급' }}
                 </div>
 
                 <div class="text-surface-900 font-medium text-lg mt-2">
-                  <div>총 지급액 : {{ formatCurrency(month.totalSalary) }}</div>
+                  <div>총 급여 : {{ formatCurrency(month.totalSalary) }}</div>
                   <div>공제액 : {{ formatCurrency(month.totalDeductions) }}</div>
                   <div>실지급액 : {{ formatCurrency(month.netPayment) }}</div>
                 </div>
@@ -61,28 +61,32 @@
             <div class="left-panel">
               <h3 class="text-xl font-semibold text-gray-800">급여 상세 정보</h3>
               <div class="info-item">
-                <span>부서:</span>
+                <span>부서 :</span>
                 <span>{{ authStore.employeeData.deptName }}</span>
               </div>
               <div class="info-item">
-                <span>팀:</span>
+                <span>팀 :</span>
                 <span>{{ authStore.employeeData.teamName }}</span>
               </div>
               <div class="info-item">
-                <span>직무:</span>
+                <span>직무 :</span>
                 <span>{{ authStore.employeeData.jobName }}</span>
               </div>
               <div class="info-item">
-                <span>직책:</span>
+                <span>직책 :</span>
                 <span>{{ authStore.employeeData.positionName }}</span>
               </div>
               <div class="info-item">
-                <span>사원 이름:</span>
+                <span>사원 이름 :</span>
                 <span>{{ authStore.employeeData.employeeName }}</span>
               </div>
               <div class="info-item">
-                <span>총 근무시간:</span>
+                <span>총 근무시간 :</span>
                 <span>{{ selectedMonth?.totalWorkHours }} 시간</span>
+              </div>
+              <div class="total-deductions font-semibold mt-4">
+                <span>급여 합계 :</span>
+                <span>{{ formatCurrency(selectedMonth?.baseSalary + (selectedMonth?.bonus || 0)) }}</span>
               </div>
             </div>
 
@@ -141,15 +145,26 @@ const updateSelectedYear = async (date) => {
 // 월별 데이터 가져오기 함수
 const loadMonthlyData = async () => {
   const salaryData = await fetchSalaryDataUpToCurrentMonth(authStore.loginUserId, selectedYear.value);
-  // 월별 데이터에 대해 공제액 및 실지급액 계산
-  monthsList.value = await Promise.all(salaryData.map(async (month) => {
-    const deductionsData = await fetchDeductionsData(month); // 공제액 및 실지급액 계산
-    return {
-      ...month,
-      ...deductionsData,
-    };
-  }));
+
+  // 월별 데이터 로드 및 공제 내역 추가
+  const monthsWithDeductions = await Promise.all(
+    salaryData.map(async (month) => {
+      const deductionsData = await fetchDeductionsData(month);
+      return {
+        ...month,
+        ...deductionsData,
+      };
+    })
+  );
+
+  // 월별 데이터 정렬
+  monthsList.value = monthsWithDeductions.sort((a, b) => {
+    const monthA = new Date(a.salaryMonth).getMonth();
+    const monthB = new Date(b.salaryMonth).getMonth();
+    return monthA - monthB;
+  });
 };
+
 
 // 급여 상세 모달 열기
 const showSalaryModal = async (month) => {
@@ -260,12 +275,12 @@ onMounted(async () => {
   color: white;
 }
 
-.paid {
-  background-color: #28a745; /* Green */
+.PAID {
+  background-color: #28a745;
 }
 
-.pending {
-  background-color: #dc3545; /* Red */
+.PENDING {
+  background-color: #dc3545;
 }
 
 .salary-modal {
@@ -303,8 +318,11 @@ onMounted(async () => {
 .total-deductions {
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem 0;
+  padding: 1rem 0;
   font-weight: bold;
+  font-size: 1.1rem;
+  border-top: 2px solid #e5e7eb;
+  margin-top: 1rem;
 }
 
 .modal-footer {
