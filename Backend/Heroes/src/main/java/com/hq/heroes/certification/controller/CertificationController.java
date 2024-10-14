@@ -1,14 +1,9 @@
 package com.hq.heroes.certification.controller;
 
-import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.certification.dto.CertificationRequestDTO;
 import com.hq.heroes.certification.dto.CertificationResponseDTO;
-import com.hq.heroes.certification.dto.EmployeeCertificationResponseDTO;
 import com.hq.heroes.certification.entity.Certification;
-import com.hq.heroes.certification.entity.EmployeeCertification;
 import com.hq.heroes.certification.service.CertificationService;
-import com.hq.heroes.certification.service.EmployeeCertificationService;
-import com.hq.heroes.employee.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

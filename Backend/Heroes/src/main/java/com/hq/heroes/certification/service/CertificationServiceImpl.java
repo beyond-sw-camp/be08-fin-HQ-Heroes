@@ -1,7 +1,6 @@
 package com.hq.heroes.certification.service;
 
 import com.hq.heroes.certification.dto.CertificationRequestDTO;
-import com.hq.heroes.certification.dto.CertificationResponseDTO;
 import com.hq.heroes.certification.entity.Certification;
 import com.hq.heroes.certification.repository.CertificationRepository;
 import com.hq.heroes.employee.entity.Department;

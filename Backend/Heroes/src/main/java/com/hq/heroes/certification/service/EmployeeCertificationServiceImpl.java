@@ -5,8 +5,6 @@ import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.certification.dto.EmployeeCertificationRequestDTO;
 import com.hq.heroes.certification.entity.EmployeeCertification;
 import com.hq.heroes.certification.repository.EmployeeCertificationRepository;
-import com.hq.heroes.education.entity.Education;
-import com.hq.heroes.education.repository.EducationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
