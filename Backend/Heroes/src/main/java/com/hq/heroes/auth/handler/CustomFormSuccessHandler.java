@@ -23,7 +23,9 @@ public class CustomFormSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         // create JWT
+        // 사원 번호
         String username = authentication.getName();
+        // 역할 USER, ADMIN
         String role = authentication.getAuthorities().iterator().next().getAuthority();
 
         // access 30분

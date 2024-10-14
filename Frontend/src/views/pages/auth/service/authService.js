@@ -53,6 +53,7 @@ const login = async (employeeId, password) => {
             withCredentials: true
         });
 
+        // 로그인 성공
         if (response.status === 200) {
             const { employeeId } = response.data;
             const accessToken = response.headers['access'];
@@ -70,7 +71,7 @@ const login = async (employeeId, password) => {
             authStore.setIsLoggedIn(true);
             console.log('로그인 성공:', authStore);
             return { success: true, employeeId, accessToken };
-        } else {
+        } else {    // 로그인 실패
             throw new Error('로그인 실패: 상태 코드가 200이 아닙니다.');
         }
     } catch (error) {
