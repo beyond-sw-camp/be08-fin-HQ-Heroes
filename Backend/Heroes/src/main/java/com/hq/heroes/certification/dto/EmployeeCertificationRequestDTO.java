@@ -13,7 +13,9 @@ import java.time.LocalDate;
 @Builder
 public class EmployeeCertificationRequestDTO {
     private String certificationName;
+    private long educationId;
+    private long registrationId;
     private String institution;
     private LocalDate acquisitionDate;
-    private Long employeeId;
+    private String employeeId;
 }

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Builder
 public class EmployeeCertificationResponseDTO {
     private long registrationId;
+    private long educationId;
     private String certificationName;
     private String institution;
     private LocalDate acquisitionDate;

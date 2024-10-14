@@ -1,10 +1,8 @@
 package com.hq.heroes.education.controller;
 
 import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
-import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.education.dto.CourseResponseDTO;
 import com.hq.heroes.education.entity.Course;
-import com.hq.heroes.education.entity.Education;
 import com.hq.heroes.education.service.CourseService;
 import com.hq.heroes.education.service.EducationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
