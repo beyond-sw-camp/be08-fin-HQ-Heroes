@@ -84,7 +84,7 @@ const fetchPut = async (url, data) => {
     }
 };
 
-const fetchPutMain = async (url, employeeData, profileImageFile) => {
+const fetchPutEmployee = async (url, employeeData, profileImageFile) => {
     const router = useRouter();
     const route = useRoute();
 
@@ -151,4 +151,4 @@ const fetchDelete = async (url) => {
     return null;
 };
 
-export { fetchDelete, fetchGet, fetchPost, fetchPut, fetchPutMain };
+export { fetchDelete, fetchGet, fetchPost, fetchPut, fetchPutEmployee };

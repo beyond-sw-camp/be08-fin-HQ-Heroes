@@ -1,6 +1,5 @@
 package com.hq.heroes.employee.repository;
 
-import com.hq.heroes.employee.dto.JobDTO;
 import com.hq.heroes.employee.dto.PositionDTO;
 import com.hq.heroes.employee.entity.Position;
 import org.springframework.data.jpa.repository.JpaRepository;

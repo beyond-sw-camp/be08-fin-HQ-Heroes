@@ -74,6 +74,7 @@
 </template>
 
 <script setup>
+import router from '@/router';
 import UpdateEmpInfoModal from '@/views/pages/admin/UpdateEmpInfoModal.vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { onBeforeMount, ref } from 'vue';
@@ -129,14 +130,14 @@ async function fetchDepartments() {
 
 // 선택된 부서 ID에 따라 팀 목록을 가져오는 함수
 async function fetchTeams(deptId) {
-    console.log('부서 ID:', deptId); // 로그 추가
-    console.log('fetchTeams 함수 호출'); // 추가 로그
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/teams', {
-            params: { deptId: deptId } // 부서 ID 전달
-        });
-        console.log('팀 데이터:', response.data); // 로그 추가
-        teams.value = [{ teamId: null, teamName: '전체 팀' }, ...response]; // DTO에서 teamName 사용
+        const teamsData = await fetchGet(`http://localhost:8080/api/v1/employee/teams?deptId=${deptId}`, router.push, router.currentRoute.value);
+
+        if (teamsData) {
+            teams.value = [{ teamId: null, teamName: '전체 팀' }, ...teamsData]; // JSON.parse 제거
+        } else {
+            teams.value = [{ teamId: null, teamName: '전체 팀' }];
+        }
     } catch (error) {
         console.error('팀 데이터를 가져오는 중 오류 발생:', error);
         teams.value = [{ teamId: null, teamName: '전체 팀' }];

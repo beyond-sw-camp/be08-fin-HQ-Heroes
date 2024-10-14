@@ -12,6 +12,7 @@ import com.hq.heroes.employee.repository.TeamRepository;
 import com.hq.heroes.employee.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,6 +29,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/employee")
+@Slf4j
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -102,7 +104,7 @@ public class EmployeeController {
 
         try {
             // 요청 파라미터 로그 출력
-            System.out.println("Profile Image: " + (profileImage != null ? profileImage.getOriginalFilename() : "No file uploaded"));
+            log.info("Profile Image: {}", (profileImage != null ? profileImage.getOriginalFilename() : "No file uploaded"));
 
             // 프로필 이미지 파일 검증 및 처리
             if (profileImage != null && !profileImage.isEmpty()) {

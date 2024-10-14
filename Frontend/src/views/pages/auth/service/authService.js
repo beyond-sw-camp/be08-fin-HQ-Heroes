@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/authStore';
-import { fetchGet, fetchPutMain } from '@/views/pages/auth/service/AuthApiService';
+import { fetchGet, fetchPutEmployee } from '@/views/pages/auth/service/AuthApiService';
 import axios from 'axios';
 import { useCookies } from 'vue3-cookies';
 
@@ -117,7 +117,7 @@ export const getLoginEmployeeInfo = async (employeeId) => {
 
 export const updateEmployeeInfo = async (employeeData, profileImageFile) => {
     try {
-        const response = await fetchPutMain(`${API_URL}/api/v1/employee/update`, employeeData, profileImageFile);
+        const response = await fetchPutEmployee(`${API_URL}/api/v1/employee/update`, employeeData, profileImageFile);
         return response;
     } catch (error) {
         console.error('직원 정보 업데이트 중 오류 발생:', error);
@@ -127,7 +127,7 @@ export const updateEmployeeInfo = async (employeeData, profileImageFile) => {
 
 export const adminUpdateEmployeeInfo = async (employeeData, profileImageFile) => {
     try {
-        const response = await fetchPutMain(`${API_URL}/api/v1/admin/employee/update`, employeeData, profileImageFile);
+        const response = await fetchPutEmployee(`${API_URL}/api/v1/admin/employee/update`, employeeData, profileImageFile);
         return response;
     } catch (error) {
         console.error('직원 정보 업데이트 중 오류 발생:', error);
