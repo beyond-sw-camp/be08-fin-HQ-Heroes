@@ -1,4 +1,5 @@
 import AppLayout from '@/layout/AppLayout.vue';
+import { useAuthStore } from '@/stores/authStore';
 import AdminLoginPage from '@/views/pages/auth/AdminLoginPage.vue';
 import LoginPage from '@/views/pages/auth/LoginPage.vue';
 import ResetPWPage from '@/views/pages/auth/ResetPWPage.vue';
@@ -176,6 +177,17 @@ const router = createRouter({
       component: ResetPWPage
     }
   ]
+});
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore(); 
+  const publicPages = ['/login', '/signup', '/admin-login', '/reset-password'];
+  const authRequired = !publicPages.includes(to.path);
+
+  if (authRequired && !authStore.isLoggedIn) {
+    return next('/login');
+  }
+  next();
 });
 
 export default router;
