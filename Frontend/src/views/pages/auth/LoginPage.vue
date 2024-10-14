@@ -1,5 +1,5 @@
 <template>
-    <div class="login-page flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="login-page flex items-center justify-center min-h-screen">
         <div class="login-container bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
             <div class="text-center mb-8">
                 <div class="text-surface-900 dark:text-surface-0 text-4xl font-medium mb-4">HeRoes</div>
@@ -17,11 +17,7 @@
                     <Password id="password" v-model="password" placeholder="비밀번호를 입력해주세요." :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="rememberMe" v-model="checked" class="cursor-pointer" />
-                        <label for="rememberMe" class="text-gray-700 cursor-pointer">내 정보 기억하기</label>
-                    </div>
+                <div class="flex items-center justify-end">
                     <a href="#" @click="goToResetPassword" class="text-sm text-gray-500 hover:text-primary">비밀번호 재발급</a>
                 </div>
 
@@ -44,7 +40,6 @@ import { useAuthStore } from '../../../stores/authStore';
 
 const employeeId = ref('');
 const password = ref('');
-const checked = ref(false);
 
 const router = useRouter();
 const authStore = useAuthStore();
