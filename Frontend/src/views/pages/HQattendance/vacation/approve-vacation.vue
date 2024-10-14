@@ -1,17 +1,7 @@
 <template>
     <div>
         <div class="card">
-            <DataTable
-                ref="dt"
-                :value="employees"
-                dataKey="vacationId"
-                :paginator="true"
-                :rows="10"
-                :filters="filters"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                :rowsPerPageOptions="[5, 10, 25]"
-                currentPageReportTemplate="총 {totalRecords}명의 휴가 중 {first} ~ {last}명 표시"
-            >
+            <DataTable ref="dt" :value="employees" dataKey="vacationId" :paginator="true" :rows="10" :filters="filters" paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport" currentPageReportTemplate="">
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <h4 class="m-0 title">휴가 관리</h4>
