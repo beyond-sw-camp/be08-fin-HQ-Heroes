@@ -17,14 +17,14 @@
         >
             <template #header>
                 <div class="flex justify-between items-center">
-                    <!-- 검색 기능 유지 -->
+                    <!-- 월 선택을 검색창 대신 왼쪽에 배치 -->
+                    <Dropdown v-model="selectedMonth" :options="months" optionLabel="name" optionValue="value" placeholder="월 선택" class="ml-4" @change="filterByMonth" />
+
+                    <!-- 검색 기능을 오른쪽으로 이동 -->
                     <div class="relative search-container">
                         <i class="pi pi-search search-icon" />
                         <InputText v-model="filters['global'].value" placeholder="검색어 입력" class="pl-8 search-input" />
                     </div>
-
-                    <!-- 월별 필터 추가 -->
-                    <Dropdown v-model="selectedMonth" :options="months" optionLabel="name" optionValue="value" placeholder="월 선택" class="ml-4" @change="filterByMonth" />
                 </div>
             </template>
             <template #empty> 근태 기록이 없습니다. </template>
