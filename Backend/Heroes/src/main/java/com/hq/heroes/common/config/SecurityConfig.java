@@ -5,7 +5,6 @@ import com.hq.heroes.auth.handler.CustomFormSuccessHandler;
 import com.hq.heroes.auth.handler.CustomLogoutFilter;
 import com.hq.heroes.auth.jwt.JWTFilter;
 import com.hq.heroes.auth.jwt.JWTUtil;
-import com.hq.heroes.auth.repository.RefreshRepository;
 import com.hq.heroes.auth.service.RefreshTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

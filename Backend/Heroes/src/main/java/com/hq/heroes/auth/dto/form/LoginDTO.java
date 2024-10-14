@@ -1,6 +1,5 @@
 package com.hq.heroes.auth.dto.form;
 
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

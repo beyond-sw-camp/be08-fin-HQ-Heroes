@@ -1,9 +1,7 @@
 package com.hq.heroes.evaluation.service;
 
-import com.hq.heroes.evaluation.dto.EvaluationCriteriaReqDTO;
 import com.hq.heroes.evaluation.dto.EvaluationReqDTO;
 import com.hq.heroes.evaluation.entity.Evaluation;
-import com.hq.heroes.evaluation.entity.EvaluationCriteria;
 
 import java.util.List;
 

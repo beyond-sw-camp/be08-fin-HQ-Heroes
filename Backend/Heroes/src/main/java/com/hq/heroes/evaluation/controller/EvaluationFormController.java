@@ -5,7 +5,6 @@ import com.hq.heroes.evaluation.dto.EvaluationFormResDTO;
 import com.hq.heroes.evaluation.entity.EvaluationForm;
 import com.hq.heroes.evaluation.service.EvaluationFormService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

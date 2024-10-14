@@ -2,12 +2,10 @@ package com.hq.heroes.auth.repository;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.employee.dto.EmployeeDTO;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
