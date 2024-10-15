@@ -20,8 +20,8 @@ public class NoticeCategoryServiceImpl implements NoticeCategoryService {
         return categories.stream()
                 .map(category -> {
                     NoticeCategoryDTO categoryDTO = new NoticeCategoryDTO();
-                    categoryDTO.setId(category.getNoticeCategoryId());
-                    categoryDTO.setName(category.getCategoryName());
+                    categoryDTO.setCategoryId(category.getNoticeCategoryId());
+                    categoryDTO.setCategoryName(category.getCategoryName());
                     return categoryDTO;
                 })
                 .collect(Collectors.toList());
