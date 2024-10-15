@@ -5,6 +5,6 @@ import lombok.Getter;
 @Getter
 public class EmailReqDTO {
 
-    private String email;
+    private String employeeId;
 
 }

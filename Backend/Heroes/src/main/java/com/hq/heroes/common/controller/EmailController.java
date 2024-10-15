@@ -1,5 +1,7 @@
 package com.hq.heroes.common.controller;
 
+import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.common.dto.EmailMessage;
 import com.hq.heroes.common.dto.EmailReqDTO;
 import com.hq.heroes.common.dto.EmailResDTO;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/mails")
@@ -20,13 +24,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmailController {
 
     private final EmailService emailService;
+    private final EmployeeRepository employeeRepository;
 
     // 임시 비밀번호 발급
     @PostMapping("/password")
     @Operation(summary = "임시 비밀번호 발급", description = "임시 비밀번호를 발급하여 메일로 전송한다.")
     public ResponseEntity<Void> sendPasswordMail(@RequestBody EmailReqDTO emailReqDTO) {
+
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(emailReqDTO.getEmployeeId());
+
+        String email = employee.get().getEmail();
+
         EmailMessage emailMessage = EmailMessage.builder()
-                .to(emailReqDTO.getEmail())
+                .to(email)
                 .subject("[HQ-HeRoes] 임시 비밀번호 발급")
                 .build();
 
@@ -39,8 +49,13 @@ public class EmailController {
     @PostMapping("/email")
     @Operation(summary = "인증 코드 발급", description = "인증 코드를 발급하여 메일로 전송한다.")
     public ResponseEntity<Void> sendAuthCodeMail(@RequestBody EmailReqDTO emailReqDTO) {
+
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(emailReqDTO.getEmployeeId());
+
+        String email = employee.get().getEmail();
+
         EmailMessage emailMessage = EmailMessage.builder()
-                .to(emailReqDTO.getEmail())
+                .to(email)
                 .subject("[HQ-HeRoes]이메일 인증을 위한 인증 코드 발송")
                 .build();
 

@@ -42,7 +42,7 @@ public class EmailServiceImpl implements EmailService {
         else if (type.equals("/mails/authCode")) {
             // Redis에 인증 코드 저장
             String email = emailMessage.getTo();
-            redisTemplate.opsForValue().set(email, authCode, 10, TimeUnit.MINUTES);  // 10분 만료 시간 설정
+            redisTemplate.opsForValue().set(email, authCode, 3, TimeUnit.MINUTES);  // 10분 만료 시간 설정
 
             String checkAuthCode = getAuthCode(email); // 인증 코드 조회
             log.debug("저장된 인증 코드: {}", checkAuthCode);
