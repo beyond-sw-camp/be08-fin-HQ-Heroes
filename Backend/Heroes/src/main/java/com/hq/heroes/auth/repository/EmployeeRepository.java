@@ -19,11 +19,11 @@ public interface EmployeeRepository extends JpaRepository<Employee,String> {
             "FROM Employee e")
     List<EmployeeDTO> findAllEmployeesDTO();
 
-    Optional<Employee> findByEmail(String email);
-
     Boolean existsByEmail(String email);
 
     Optional<Employee> findByEmployeeId(String employeeId);
 
     Optional<Employee> findByEmployeeName(String approverName);
+
+    Optional<Employee> findByEmail(String email);
 }

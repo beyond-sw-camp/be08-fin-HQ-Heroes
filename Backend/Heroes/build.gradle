@@ -32,17 +32,32 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-quartz'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
-	// fireabse Stroage
+	// firebase Storage
 	implementation 'com.google.firebase:firebase-admin:9.3.0'
 
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+	// Spring Cache - 캐싱을 통한 성능 향상
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+	// Spring Actuator - 모니터링 및 애플리케이션 관리
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// WebSocket - 실시간 기능 지원
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	implementation 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// 테스트 관련 의존성
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.mockito:mockito-core:4.11.0'  // Mockito로 목 객체 생성
+	testImplementation 'org.assertj:assertj-core:3.23.1'  // AssertJ로 테스트 검증
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
