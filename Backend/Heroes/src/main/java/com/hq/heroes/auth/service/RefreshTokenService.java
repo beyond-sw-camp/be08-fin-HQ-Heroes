@@ -1,26 +1,26 @@
 package com.hq.heroes.auth.service;
 
+import com.hq.heroes.auth.repository.RefreshRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RefreshRepository refreshRepository;
 
     public String checkRefresh(HttpServletRequest request) {
         String refresh = null;
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("refresh")) {
-                refresh = cookie.getValue();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refresh")) {
+                    refresh = cookie.getValue();
+                    break;
+                }
             }
         }
 
@@ -28,24 +28,23 @@ public class RefreshTokenService {
             return null;
         }
 
-        // Redis에 저장되어 있는지 확인
-        ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
-        String storedRefresh = opsForValue.get(refresh);
+        // Redis에서 refresh 토큰이 저장되어 있는지 확인
+        boolean exists = refreshRepository.existsByRefreshToken(refresh);
 
-        // Refresh 토큰이 없거나, 만료되었으면 null 반환
-        if (storedRefresh == null) {
-            return null;
+        if (!exists) {
+            return null; // Redis에 저장된 토큰이 없으면 null 반환
         }
 
         return refresh;
     }
 
     public void saveRefresh(String employeeId, Integer expireS, String refresh) {
-        ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
-        opsForValue.set(refresh, employeeId, expireS, TimeUnit.SECONDS);  // 만료 시간 설정
+        // Refresh 토큰을 저장 (레디스에 저장)
+        refreshRepository.save(refresh, employeeId, expireS * 1000L); // expireS를 초 단위로 설정
     }
 
     public void deleteRefresh(String refresh) {
-        redisTemplate.delete(refresh);
+        // Redis에서 Refresh 토큰 삭제
+        refreshRepository.deleteByRefreshToken(refresh);
     }
 }
