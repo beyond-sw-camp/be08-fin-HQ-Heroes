@@ -93,7 +93,12 @@ const goToWriteNotice = () => {
     if (categories.value.length > 0) {
         // 카테고리가 비어있지 않은지 확인
         const filteredCategories = categories.value.filter((category) => category.categoryName !== '전체'); // '전체' 제외
-        router.push({ path: '/write-notice', query: { fromPage: 'educationListPage', categories: JSON.stringify(filteredCategories) } });
+
+        // 카테고리를 로컬 스토리지에 저장
+        localStorage.setItem('educationCategories', JSON.stringify(filteredCategories));
+
+        // 쿼리 문자열 없이 '/write-notice'로 이동
+        router.replace({ path: '/write-education', query: { fromPage: 'educationListPage' } });
     } else {
         console.error('categories는 정의되지 않았습니다.');
     }

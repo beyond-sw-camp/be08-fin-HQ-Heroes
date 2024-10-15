@@ -254,7 +254,11 @@ const saveNotice = async () => {
 const showWriteNoticePage = () => {
     // this.categories가 정의되어 있는지 확인
     if (categories.value) {
-        router.push({ path: '/write-notice', query: { fromPage: 'notice', categories: JSON.stringify(categories.value) } });
+        // 카테고리를 로컬 스토리지에 저장
+        localStorage.setItem('noticeCategories', JSON.stringify(categories.value));
+
+        // 쿼리 문자열 없이 '/write-notice'로 이동
+        router.replace({ path: '/write-notice', query: { fromPage: 'notice' } });
     } else {
         console.error('categories는 정의되지 않았습니다.');
     }

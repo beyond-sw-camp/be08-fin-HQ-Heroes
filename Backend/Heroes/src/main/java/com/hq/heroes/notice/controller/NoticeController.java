@@ -29,6 +29,9 @@ public class NoticeController {
     @GetMapping("/notice")
     @Operation(summary = "공지사항 목록 조회", description = "전체 공지사항의 목록을 조회한다.")
     public ResponseEntity<List<NoticeResponseDTO>> getNotices() {
+
+        System.out.println("noticeService = " + noticeService);
+        
         List<Notice> notices = noticeService.getNotices();
         List<NoticeResponseDTO> noticeDTOs = notices.stream().map(Notice::toResponseDTO).collect(Collectors.toList());
 
@@ -58,6 +61,9 @@ public class NoticeController {
     @PostMapping("/notice")
     @Operation(summary = "공지사항 등록", description = "공지사항 정보를 받아서 등록한다.")
     public ResponseEntity<NoticeResponseDTO> create(@RequestBody NoticeRequestDTO requestDTO) {
+
+        System.out.println("requestDTO = " + requestDTO);
+
         Notice notice = noticeService.createNotice(requestDTO);
         return new ResponseEntity<>(notice.toResponseDTO(), HttpStatus.CREATED);
     }

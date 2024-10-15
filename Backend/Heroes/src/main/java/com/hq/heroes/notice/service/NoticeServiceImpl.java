@@ -55,7 +55,16 @@ public class NoticeServiceImpl implements NoticeService {
             throw new IllegalArgumentException("Invalid employee ID");
         }
 
+        System.out.println("requestDTO.categoryId = " + requestDTO.getCategoryId());
+
+
         Employee employeeEntity = employee.get();
+
+        // 카테고리 정보를 가져옴
+        Optional<NoticeCategory> category = noticeCategoryRepository.findById(requestDTO.getCategoryId());
+        if (category.isEmpty()) {
+            throw new IllegalArgumentException("Invalid category ID");
+        }
 
         // 공지사항 생성
         Notice notice = Notice.builder()
@@ -63,7 +72,7 @@ public class NoticeServiceImpl implements NoticeService {
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
                 .updater(null)
-                .category(requestDTO.getCategory())
+                .category(category.get()) // 조회된 카테고리 설정
                 .build();
 
         return noticeRepository.save(notice);
