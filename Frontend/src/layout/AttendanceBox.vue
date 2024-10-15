@@ -68,11 +68,8 @@ const handleAttendance = async () => {
         } else {
             // 퇴근 처리
             const response = await fetchPost('http://localhost:8080/api/v1/attendance/check-out', { checkOutTime: attendanceTime });
-            if (response) {
-                isCheckedIn.value = false; // 퇴근 상태로 변경
-            } else {
-                console.error('퇴근 처리 실패');
-            }
+
+            isCheckedIn.value = false; // 퇴근 상태로 변경
         }
     } catch (error) {
         console.error('오류 발생', error);
