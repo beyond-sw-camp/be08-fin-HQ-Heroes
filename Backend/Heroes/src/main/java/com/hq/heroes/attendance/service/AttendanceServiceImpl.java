@@ -6,7 +6,9 @@ import com.hq.heroes.attendance.entity.enums.AttendanceStatus;
 import com.hq.heroes.attendance.repository.AttendanceRepository;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AttendanceServiceImpl implements AttendanceService {
 
@@ -64,11 +67,16 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     // 퇴근 처리
+    @Transactional
     @Override
     public void checkOut(Employee employee) {
-        // 가장 최근 출근 기록 조회
-        Attendance attendance = attendanceRepository.findTopByEmployeeAndStatusOrderByCheckInDesc(employee, AttendanceStatus.NORMAL)
-                .orElseThrow(() -> new IllegalArgumentException("No active attendance record found"));
+
+        // 가장 최근 출근 기록 조회 (상태가 NORMAL이고 퇴근 시간이 NULL인 기록)
+        Attendance attendance = attendanceRepository.findTopByEmployeeAndStatusAndCheckOutIsNullOrderByCheckInDesc(employee, AttendanceStatus.NORMAL)
+                .orElseThrow(() -> {
+                    log.error("출근 기록 조회 실패 - employeeId: {}", employee.getEmployeeId());
+                    return new IllegalArgumentException("No active attendance record found");
+                });
 
         attendance.setCheckOut(LocalDateTime.now());  // 퇴근 시간 설정
         attendance.setStatus(AttendanceStatus.LEAVE_WORK);  // 상태를 퇴근으로 변경
@@ -83,9 +91,9 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         if (employeeOptional.isPresent()) {
             Employee employee = employeeOptional.get();
-            // 직원의 가장 최근 출근 상태 확인
-            Optional<Attendance> attendance = attendanceRepository.findTopByEmployeeAndStatusOrderByCheckInDesc(employee, AttendanceStatus.NORMAL);
-            return attendance.isPresent() && attendance.get().getCheckOut() == null; // 퇴근 기록이 없는 경우 출근 상태로 판단
+            // 직원의 가장 최근 출근 상태 확인 (상태가 NORMAL이고 퇴근 시간이 NULL인 경우만 확인)
+            Optional<Attendance> attendance = attendanceRepository.findTopByEmployeeAndStatusAndCheckOutIsNullOrderByCheckInDesc(employee, AttendanceStatus.NORMAL);
+            return attendance.isPresent(); // 퇴근 기록이 없는 경우 출근 상태로 판단
         }
         return false;
     }

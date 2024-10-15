@@ -15,7 +15,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     Optional<Attendance> findByEmployeeAndStatus(Employee employee, AttendanceStatus attendanceStatus);
 
     // 직원의 가장 최근 출근 기록 조회
-    Optional<Attendance> findTopByEmployeeAndStatusOrderByCheckInDesc(Employee employee, AttendanceStatus status);
+    Optional<Attendance> findTopByEmployeeAndStatusAndCheckOutIsNullOrderByCheckInDesc(Employee employee, AttendanceStatus status);
 
     List<Attendance> findByEmployeeEmployeeId(String employeeId);
 }
