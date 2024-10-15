@@ -1,19 +1,20 @@
 package com.hq.heroes.notice.dto;
 
 import com.hq.heroes.notice.entity.NoticeCategory;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class NoticeRequestDTO {
 
-    private String employeeId; // This is the employee who created the notice
+    private String employeeId;
+    private String employeeName;
     private String title;
     private String content;
-    private NoticeCategory category;
+    private Long categoryId;
+    private String updaterId;
+    private String updaterName;
 }

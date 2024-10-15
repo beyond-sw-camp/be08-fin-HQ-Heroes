@@ -3,6 +3,7 @@ package com.hq.heroes.notice.entity;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.notice.dto.NoticeRequestDTO;
 import com.hq.heroes.notice.dto.NoticeResponseDTO;
+import com.hq.heroes.notice.repository.NoticeCategoryRepository;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -54,10 +55,12 @@ public class Notice {
     @Column(name = "update_at")
     private LocalDateTime updateAt;
 
-    public void updateNotice(NoticeRequestDTO requestDTO, Employee employee) {
-        this.title = requestDTO.getTitle();    // 제목 업데이트
+    // Notice 클래스에 추가된 메소드
+    public void updateNotice(NoticeRequestDTO requestDTO, Employee employee, NoticeCategoryRepository categoryRepository) {
+        this.title = requestDTO.getTitle(); // 제목 업데이트
         this.content = requestDTO.getContent(); // 내용 업데이트
-        this.category = requestDTO.getCategory(); // 카테고리 업데이트
+        this.category = categoryRepository.findById(requestDTO.getCategoryId()) // 카테고리 업데이트 (ID로 조회)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + requestDTO.getCategoryId()));
         this.updateAt = LocalDateTime.now();
         this.updater = employee;
     }
@@ -79,12 +82,12 @@ public class Notice {
     }
 
 
-    public static Notice fromRequestDTO(NoticeRequestDTO requestDTO, Employee employee) {
+    public static Notice fromRequestDTO(NoticeRequestDTO requestDTO, Employee employee, NoticeCategory category) {
         return Notice.builder()
                 .employee(employee) // 작성자 정보
                 .title(requestDTO.getTitle()) // 제목
                 .content(requestDTO.getContent()) // 내용
-                .category(requestDTO.getCategory()) // 카테고리
+                .category(category) // 카테고리 (ID로 조회한 Category 객체)
                 .build();
     }
 
