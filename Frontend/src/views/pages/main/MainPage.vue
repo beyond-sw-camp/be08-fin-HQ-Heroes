@@ -122,7 +122,7 @@
                     </Column>
 
                     <!-- 상태 -->
-                    <Column field="categoryName" header="카테고리" style="width: 25%">
+                    <Column field="notificationStatus" header="상태" style="width: 25%">
                         <template #body="slotProps">
                             <span> {{ slotProps.data.status === 'READ' ? '읽음' : '안 읽음' }} </span>
                         </template>
@@ -148,11 +148,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import Button from 'primevue/button';
+import Dialog from 'primevue/dialog';
+import { onMounted, ref } from 'vue';
 import { getNotices } from './service/noticeService';
 import { getNotificationsByEmployeeId } from './service/notificationService';
-import Dialog from 'primevue/dialog';
-import Button from 'primevue/button';
 
 const displayDialog = ref(false);
 const alarmDisplayDialog = ref(false);
