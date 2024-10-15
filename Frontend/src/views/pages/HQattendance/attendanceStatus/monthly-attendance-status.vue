@@ -81,8 +81,8 @@ async function fetchAttendanceRecords() {
                 attendanceId: record.attendanceId,
                 employeeName: record.employeeName, // 서버에서 받은 직원 이름 사용
                 attendanceDate: record.checkIn.split('T')[0], // 날짜 추출
-                checkInTime: record.checkIn.split('T')[1], // 출근 시간 추출
-                checkOutTime: record.checkOut ? record.checkOut.split('T')[1] : '-', // 퇴근 시간이 없을 경우 '-'
+                checkInTime: record.checkIn.split('T')[1].split('.')[0], // 출근 시간 추출, 초에서 소숫점 아래 버림
+                checkOutTime: record.checkOut ? record.checkOut.split('T')[1].split('.')[0] : '-', // 퇴근 시간이 없을 경우 '-'
                 totalHours: record.checkOut ? calculateTotalHours(record.checkIn, record.checkOut) : '-', // 퇴근 시간이 없을 경우 '-'
                 status: mapStatus(record.status)
             }));
@@ -113,8 +113,12 @@ function calculateTotalHours(checkIn, checkOut) {
     const checkInTime = new Date(checkIn);
     const checkOutTime = new Date(checkOut);
     const diffInMs = checkOutTime - checkInTime;
-    const diffInHours = diffInMs / (1000 * 60 * 60);
-    return `${diffInHours.toFixed(2)}시간`; // 소수점 두 자리까지 표시
+
+    const hours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diffInMs % (1000 * 60)) / 1000);
+
+    return `${hours}시간 ${minutes}분 ${seconds}초`;
 }
 
 function mapStatus(status) {
