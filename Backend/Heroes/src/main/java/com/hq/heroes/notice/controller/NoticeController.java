@@ -35,7 +35,7 @@ public class NoticeController {
         if (!notices.isEmpty()) {
             return new ResponseEntity<>(noticeDTOs, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(noticeDTOs, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(noticeDTOs, HttpStatus.OK); // 변경: 빈 리스트에 대해서는 200 OK 반환
         }
     }
 

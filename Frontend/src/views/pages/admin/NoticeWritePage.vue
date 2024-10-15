@@ -6,15 +6,23 @@
                 <div class="compose-message">
                     <h3><b>작성자</b></h3>
                     <input type="text" v-model="to" class="message-input" />
+
                     <h3><b>제 목</b></h3>
                     <input type="text" v-model="subject" class="message-input" />
+
                     <h3><b>카테고리</b></h3>
-                    <input type="text" v-model="category" class="message-input" /> <!-- 카테고리 입력 필드 추가 -->
-                    <h3><b>내 용</b></h3><br>
+                    <select v-model="selectedCategory" class="message-input">
+                        <option v-for="category in categories" :key="category.id" :value="category.name">
+                            {{ category.categoryName }}
+                        </option>
+                    </select>
+
+                    <h3><b>내 용</b></h3>
+                    <br />
                     <!-- Quill 에디터 -->
                     <div ref="editor" class="message-editor"></div>
                     <div class="button-container">
-                        <button @click="sendMessage" class="send-button" style="margin-top: 10px;">작 성</button>
+                        <button @click="sendMessage" class="send-button" style="margin-top: 10px">작 성</button>
                     </div>
                 </div>
             </div>
@@ -23,17 +31,20 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Quill의 스타일
+import { onBeforeMount, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
     setup() {
         const to = ref('');
         const subject = ref('');
-        const category = ref(''); // 카테고리 변수 추가
+        const selectedCategory = ref(''); // 선택된 카테고리
+        const categories = ref([]); // 카테고리 목록
         const message = ref('');
         const editor = ref(null); // Quill 에디터를 참조할 변수
+        const route = useRoute();
 
         // Quill 에디터 초기화
         onMounted(() => {
@@ -57,12 +68,26 @@ export default {
             });
         });
 
+        // fromPage 확인 및 카테고리 설정
+        onBeforeMount(() => {
+            const fromPage = route.query.fromPage;
+            const incomingCategories = JSON.parse(route.query.categories || '[]'); // JSON 문자열을 배열로 변환
+
+            if (fromPage === 'educationListPage') {
+                console.log('교육 페이지에서 넘어옴', incomingCategories);
+                categories.value = incomingCategories; // 받아온 카테고리를 설정
+            } else {
+                console.log('공지사항 페이지에서 넘어옴', incomingCategories);
+                categories.value = incomingCategories; // 받아온 카테고리를 설정
+            }
+        });
+
         const sendMessage = () => {
-            console.log(`Sending message to: ${to.value}, Subject: ${subject.value}, Category: ${category.value}, Message: ${message.value}`);
+            console.log(`Sending message to: ${to.value}, Subject: ${subject.value}, Category: ${selectedCategory.value}, Message: ${message.value}`);
             // 메시지를 전송하는 로직 추가
         };
 
-        return { to, subject, category, message, editor, sendMessage }; // 카테고리 변수 반환
+        return { to, subject, selectedCategory, categories, message, editor, sendMessage };
     }
 };
 </script>

@@ -9,7 +9,6 @@ const model = ref([
                 label: '관리자 기능',
                 items: [
                     { label: '사원 정보 수정', icon: 'pi pi-fw pi-user-edit', to: '/update-emp-info' },
-                    { label: '공지 사항 작성', icon: 'pi pi-fw pi-user-edit', to: '/write-notice' },
                     { label: '알림 발송', icon: 'pi pi-fw pi-bell', to: '/send-notifications' },
                     { label: '공지 사항 관리', icon: 'pi pi-fw pi-file', to: '/manage-notices' },
                     { label: '교육 관리', icon: 'pi pi-fw pi-book', to: '/manage-education' },
