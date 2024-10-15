@@ -2,10 +2,9 @@ package com.hq.heroes.salary.dto;
 
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class DeductDTO {
     private Long deductId;
     private String deductName;

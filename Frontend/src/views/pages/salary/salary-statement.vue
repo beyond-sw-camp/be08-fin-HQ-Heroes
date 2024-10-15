@@ -17,7 +17,6 @@
           placeholder="년도 선택"
           class="calendar"
         />
-
       </div>
 
       <div class="salary-cards">
@@ -34,9 +33,9 @@
                 </div>
 
                 <div class="text-surface-900 font-medium text-lg mt-2">
-                  <div>총 급여 : {{ formatCurrency(month.totalSalary) }}</div>
-                  <div>공제액 : {{ formatCurrency(month.totalDeductions) }}</div>
-                  <div>실지급액 : {{ formatCurrency(month.netPayment) }}</div>
+                  <div>총 급여 : {{ formatCurrency(month.preTaxTotal) }}</div>
+                  <div>공제액 : {{ formatCurrency(month.deductions) }}</div>
+                  <div>실지급액 : {{ formatCurrency(month.postTaxTotal) }}</div>
                 </div>
                 <Button
                   label="급여내역보기"
@@ -117,7 +116,7 @@ import { fetchDeductions } from '@/views/pages/salary/deductService';
 import { fetchSalaryDataUpToCurrentMonth } from '@/views/pages/salary/salaryService';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const authStore = useAuthStore();
 
@@ -145,26 +144,15 @@ const updateSelectedYear = async (date) => {
 // 월별 데이터 가져오기 함수
 const loadMonthlyData = async () => {
   const salaryData = await fetchSalaryDataUpToCurrentMonth(authStore.loginUserId, selectedYear.value);
-
-  // 월별 데이터 로드 및 공제 내역 추가
-  const monthsWithDeductions = await Promise.all(
-    salaryData.map(async (month) => {
-      const deductionsData = await fetchDeductionsData(month);
-      return {
-        ...month,
-        ...deductionsData,
-      };
-    })
-  );
-
+  console.log(salaryData);
+  
   // 월별 데이터 정렬
-  monthsList.value = monthsWithDeductions.sort((a, b) => {
+  monthsList.value = salaryData.sort((a, b) => {
     const monthA = new Date(a.salaryMonth).getMonth();
     const monthB = new Date(b.salaryMonth).getMonth();
     return monthA - monthB;
   });
 };
-
 
 // 급여 상세 모달 열기
 const showSalaryModal = async (month) => {
@@ -176,64 +164,23 @@ const showSalaryModal = async (month) => {
 const fetchDeductionsData = async (month) => {
   try {
     const fetchedDeductions = await fetchDeductions(month.id, selectedYear.value);
-
-    // 공제 항목 추출
-    const nationalPension = fetchedDeductions.find(d => d.deductName === '국민연금')?.deductionRate || 0;
-    const healthInsuranceRate = fetchedDeductions.find(d => d.deductName === '건강보험')?.deductionRate || 0;
-    const longTermCareRate = fetchedDeductions.find(d => d.deductName === '장기요양')?.deductionRate || 0;
-    const employmentInsurance = fetchedDeductions.find(d => d.deductName === '고용보험')?.deductionRate || 0;
-    const incomeTaxRate = fetchedDeductions.find(d => d.deductName === '소득세')?.deductionRate || 0;
-    const localIncomeTaxRate = fetchedDeductions.find(d => d.deductName === '지방소득세')?.deductionRate || 0;
-
-    // 공제 금액 계산
-    const nationalPensionAmount = month.baseSalary * nationalPension;
-    const healthInsuranceAmount = month.baseSalary * healthInsuranceRate;
-    const longTermCareAmount = healthInsuranceAmount * longTermCareRate;
-    const employmentInsuranceAmount = month.baseSalary * employmentInsurance;
-    const incomeTaxAmount = month.baseSalary * incomeTaxRate;
-    const localIncomeTaxAmount = incomeTaxAmount * localIncomeTaxRate;
-
-    // 공제 항목 배열 구성
-    deductions.value = [
-      { name: '국민연금', amount: nationalPensionAmount },
-      { name: '건강보험', amount: healthInsuranceAmount },
-      { name: '장기요양', amount: longTermCareAmount },
-      { name: '고용보험', amount: employmentInsuranceAmount },
-      { name: '소득세', amount: incomeTaxAmount },
-      { name: '지방소득세', amount: localIncomeTaxAmount },
-    ];
-
-    // 공제액 합계 계산
-    totalDeductions.value = deductions.value.reduce((total, deduction) => total + deduction.amount, 0);
-
-    // 총 지급액 계산 (기본급 + 보너스)
-    const totalSalary = month.baseSalary + (month.bonus || 0);
-
-    // 실지급액 계산
-    const netPayment = totalSalary - totalDeductions.value;
-    return { totalDeductions : totalDeductions.value, netPayment };
+    console.log(deductions.value);
+    deductions.value = fetchedDeductions.deductions;
+    totalDeductions.value = fetchedDeductions.totalDeductions;
   } catch (error) {
     console.error('Error fetching deductions data:', error);
   }
 };
 
 const getMonthLabel = (dateString) => {
-  const date = new Date(dateString); // 문자열 -> Date 객체
-  const month = date.getMonth() + 1; // getMonth()는 0부터 시작하므로 1을 더함
+  const date = new Date(dateString);
+  const month = date.getMonth() + 1;
   return `${month}월`;
 };
-
-// selectedMonth 변경 시 실지급액 계산
-watch(selectedMonth, (newValue) => {
-  if (newValue) {
-    console.log('Selected Month:', newValue);
-  }
-});
 
 // 페이지 로드 시 초기화
 onMounted(async () => {
   await loadMonthlyData();
-  await fetchDeductionsData();
 });
 
 </script>
@@ -299,7 +246,7 @@ onMounted(async () => {
   padding: 1rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-  background: #f9fafb; /* Light background */
+  background: #f9fafb;
   margin: 0.5rem;
 }
 
