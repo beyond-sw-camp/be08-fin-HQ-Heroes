@@ -44,7 +44,7 @@ const fetchPost = async (url, data) => {
             }
         });
 
-        if (response.status === 201) {
+        if (response.status === 201 || response.status === 200) {
             return response.data;
         } else if (!reissueAttempted) {
             const reissueSuccess = await fetchReissue();
