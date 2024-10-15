@@ -34,7 +34,7 @@
 
                 <div class="text-surface-900 font-medium text-lg mt-2">
                   <div>총 급여 : {{ formatCurrency(month.preTaxTotal) }}</div>
-                  <div>공제액 : {{ formatCurrency(month.deductions) }}</div>
+                  <div>공제액 : {{ formatCurrency(month.preTaxTotal - month.postTaxTotal) }}</div>
                   <div>실지급액 : {{ formatCurrency(month.postTaxTotal) }}</div>
                 </div>
                 <Button
@@ -50,38 +50,26 @@
       </div>
 
       <Dialog
-        header="급여 내역"
+        :header="salaryDialogHeader"
         v-model:visible="displayModal"
         :style="{ width: '70vw', marginLeft: '15%', marginTop: '5%' }"
         class="salary-dialog"
       >
-        <div class="salary-modal">
+      <div class="salary-modal">
           <div class="salary-details">
             <div class="left-panel">
               <h3 class="text-xl font-semibold text-gray-800">급여 상세 정보</h3>
               <div class="info-item">
-                <span>부서 :</span>
-                <span>{{ authStore.employeeData.deptName }}</span>
-              </div>
-              <div class="info-item">
-                <span>팀 :</span>
-                <span>{{ authStore.employeeData.teamName }}</span>
-              </div>
-              <div class="info-item">
-                <span>직무 :</span>
-                <span>{{ authStore.employeeData.jobName }}</span>
-              </div>
-              <div class="info-item">
-                <span>직책 :</span>
-                <span>{{ authStore.employeeData.positionName }}</span>
-              </div>
-              <div class="info-item">
-                <span>사원 이름 :</span>
-                <span>{{ authStore.employeeData.employeeName }}</span>
-              </div>
-              <div class="info-item">
                 <span>총 근무시간 :</span>
                 <span>{{ selectedMonth?.totalWorkHours }} 시간</span>
+              </div>
+              <div class="info-item">
+                <span>기본 급여 :</span>
+                <span>{{ formatCurrency(selectedMonth?.baseSalary) }}</span>
+              </div>
+              <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(selectedMonth.salaryMonth) === '1월' || getMonthLabel(selectedMonth.salaryMonth) === '7월')" class="info-item">
+                <span>성과급 :</span>
+                <span>{{ formatCurrency(selectedMonth?.bonus || 0) }}</span>
               </div>
               <div class="total-deductions font-semibold mt-4">
                 <span>급여 합계 :</span>
@@ -91,9 +79,14 @@
 
             <div class="right-panel">
               <h3 class="text-xl font-semibold text-gray-800">공제액</h3>
-              <div class="deduction-item" v-for="(deduction, index) in deductions" :key="index">
-                <span>{{ deduction.name }}:</span>
-                <span>{{ formatCurrency(deduction.amount) }}</span>
+              <div v-if="deductions && deductions.length">
+                <div class="deduction-item" v-for="deduction in deductions" :key="deduction.type">
+                  <span>{{ deduction.type }} :</span>
+                  <span>{{ formatCurrency(deduction.amount) }}</span>
+                </div>
+              </div>
+              <div v-else>
+                <p>급여 데이터가 없습니다.</p>
               </div>
               <div class="total-deductions font-semibold mt-4">
                 <span>공제액 합계:</span>
@@ -113,7 +106,7 @@
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
 import { fetchDeductions } from '@/views/pages/salary/deductService';
-import { fetchSalaryDataUpToCurrentMonth } from '@/views/pages/salary/salaryService';
+import { fetchSalariesByEmployeeIdAndYear, fetchSalaryByEmployeeIdAndMonth } from '@/views/pages/salary/salaryService';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
 import { onMounted, ref } from 'vue';
@@ -129,6 +122,16 @@ const totalDeductions = ref(0);
 const currentYear = new Date().getFullYear();
 const yearRange = `${1900}:${currentYear}`;
 const monthsList = ref([]);
+const salaryDialogHeader = ref("급여 내역");
+
+const deductionNameMapping = {
+  nationalPension: "국민연금",
+  healthInsurance: "건강보험",
+  longTermCare: "장기요양",
+  employmentInsurance: "고용보험",
+  incomeTax: "소득세",
+  localIncomeTax: "지방 소득세"
+};
 
 // 화폐 포맷팅 함수
 const formatCurrency = (value) => {
@@ -143,32 +146,61 @@ const updateSelectedYear = async (date) => {
 
 // 월별 데이터 가져오기 함수
 const loadMonthlyData = async () => {
-  const salaryData = await fetchSalaryDataUpToCurrentMonth(authStore.loginUserId, selectedYear.value);
-  console.log(salaryData);
+  const salaryData = await fetchSalariesByEmployeeIdAndYear(authStore.loginUserId, selectedYear.value);
   
   // 월별 데이터 정렬
   monthsList.value = salaryData.sort((a, b) => {
     const monthA = new Date(a.salaryMonth).getMonth();
     const monthB = new Date(b.salaryMonth).getMonth();
-    return monthA - monthB;
+    return monthB - monthA;
   });
 };
 
 // 급여 상세 모달 열기
 const showSalaryModal = async (month) => {
   selectedMonth.value = month;
-  await fetchDeductionsData(month); // 월 정보 전달
+  salaryDialogHeader.value = `${authStore.employeeData.employeeName}님의 급여 내역`;
+  await fetchDeductionsData(month.salaryMonth); // 급여 월 정보 전달
   displayModal.value = true;
 };
 
-const fetchDeductionsData = async (month) => {
+const fetchDeductionsData = async (salaryMonth) => {
+  const month = new Date(salaryMonth).getMonth() + 1;
+  const year = selectedYear.value;
+
   try {
-    const fetchedDeductions = await fetchDeductions(month.id, selectedYear.value);
-    console.log(deductions.value);
-    deductions.value = fetchedDeductions.deductions;
-    totalDeductions.value = fetchedDeductions.totalDeductions;
+    // API에서 해당 월의 급여 데이터 가져오기
+    const salaryResponse = await fetchSalaryByEmployeeIdAndMonth(
+      authStore.loginUserId, year, month
+    );
+    
+    // 공제 데이터 가져오기
+    const deductionResponse = await fetchDeductions();
+
+    console.log('공제 항목:', deductionResponse);
+
+    // 공제 항목 매핑
+    const mappedDeductions = deductionResponse.map((item) => {
+      const englishType = Object.keys(deductionNameMapping).find(
+        (key) => deductionNameMapping[key] === item.deductName
+      );
+
+      const amount = englishType ? salaryResponse[englishType] || 0 : 0;
+
+      return {
+        type: item.deductName,
+        amount: amount,
+      };
+    });
+    
+    console.log('매핑된 공제 데이터:', mappedDeductions);
+
+    deductions.value = mappedDeductions;
+    totalDeductions.value = mappedDeductions.reduce((sum, item) => sum + item.amount, 0);
   } catch (error) {
     console.error('Error fetching deductions data:', error);
+    deductions.value = [];
+    totalDeductions.value = 0;
   }
 };
 
