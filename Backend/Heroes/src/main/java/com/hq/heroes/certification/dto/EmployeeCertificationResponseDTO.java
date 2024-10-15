@@ -1,9 +1,6 @@
 package com.hq.heroes.certification.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -11,11 +8,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class EmployeeCertificationResponseDTO {
-    private long registrationId;
-    private long educationId;
-    private String certificationName;
-    private String institution;
-    private LocalDate acquisitionDate;
+    private long registrationId; // 자격증 번호
+    private String certificationName; // 자격증 이름
+    private String institution; // 발급기관
+    private LocalDate acquisitionDate; // 취득일
     private String employeeName;  // 사원 이름 필드 추가
 }
