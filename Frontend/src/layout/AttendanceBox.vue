@@ -9,7 +9,7 @@
             </div>
         </div>
 
-        <button class="mt-3 font-bold py-2 px-4 rounded hover:bg-[#4f46e5]" :class="['bg-indigo-500 text-white', 'dark:bg-indigo-500 dark:text-white']" @click="handleAttendance">
+        <button class="mt-3 font-bold py-2 px-4 rounded hover:bg-[#4f46e5]" :class="[isCheckedIn ? 'bg-red-500 hover:bg-red-600' : 'bg-indigo-500 hover:bg-[#4f46e5]', 'text-white', 'dark:bg-indigo-500 dark:text-white']" @click="handleAttendance">
             {{ isCheckedIn ? '퇴근하기' : '출근하기' }}
         </button>
     </div>
