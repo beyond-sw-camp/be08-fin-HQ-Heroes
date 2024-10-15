@@ -35,10 +35,18 @@ public class CourseContoller {
 
         // Spring Security를 통해 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        System.out.println("authentication = " + authentication);
+
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
-            if (principal instanceof CustomEmployeeDetails userDetails) {
+
+            if (principal instanceof CustomEmployeeDetails) {
+                CustomEmployeeDetails userDetails = (CustomEmployeeDetails) principal;
                 employeeId = userDetails.getUsername();
+
+                System.out.println("employeeId = " + employeeId);
+
             } else {
                 System.out.println("Principal is not an instance of CustomEmployeeDetails.");
             }
@@ -47,12 +55,14 @@ public class CourseContoller {
         }
 
         // 해당 사원의 신청한 교육 목록을 서비스에서 조회
-        List<Course> courses = courseService.getCoursesByEmployeeId(employeeId);
+        List<Course> courses = courseService.getCourseByEmployeeId(employeeId);
 
         // Course 엔티티를 CourseResponseDTO로 변환
         List<CourseResponseDTO> courseDTOs = courses.stream()
                 .map(Course::toResponseDTO)
                 .collect(Collectors.toList());
+
+        System.out.println("Returned Certifications====================== " + courseDTOs);
 
         // 응답 반환
         return new ResponseEntity<>(courseDTOs, HttpStatus.OK);

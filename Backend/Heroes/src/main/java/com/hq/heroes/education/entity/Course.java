@@ -2,6 +2,7 @@ package com.hq.heroes.education.entity;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.education.dto.CourseResponseDTO;
+import com.hq.heroes.education.entity.enums.CourseStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +30,10 @@ public class Course {
     @JoinColumn(name = "education_id", nullable = false)
     private Education education;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "course_status", nullable = false)
+    private CourseStatus courseStatus = CourseStatus.FAIL;
+
     public CourseResponseDTO toResponseDTO() {
         return CourseResponseDTO.builder()
                 .courseId(this.courseId)
@@ -39,6 +44,7 @@ public class Course {
                 .applicationStartDate(this.education.getEducationCurriculum().getApplicationStartDate())
                 .applicationEndDate(this.education.getEducationCurriculum().getApplicationEndDate())
                 .categoryName(this.education.getEducationCategory().getCategoryName())
+                .status(this.courseStatus)
                 .build();
     }
 }

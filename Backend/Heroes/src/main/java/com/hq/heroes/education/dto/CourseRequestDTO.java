@@ -1,5 +1,6 @@
 package com.hq.heroes.education.dto;
 
+import com.hq.heroes.education.entity.enums.CourseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,14 +13,17 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class CourseRequestDTO {
-    private Long educationId;
-    private Long employeeId;
-    private Long categoryId;
-    private String educationName;
-    private String employeeName;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private LocalDate applicationStartDate;
-    private LocalDate applicationEndDate;
-    private String categoryName;
+    private Long educationId; // 교육 번호
+    private String employeeId; // 사원 번호
+    private Long categoryId; // 카테고리 번호
+    private String educationName; // 교육 이름
+    private String employeeName; // 사원 이름
+    private LocalDate startDate; // 교육 시작일
+    private LocalDate endDate; // 교육 종료일
+    private LocalDate applicationStartDate; // 신청 시작일
+    private LocalDate applicationEndDate; // 신청 종료일
+    private String categoryName; // 카테고리 이름
+
+    // 기본 상태값을 'FAIL (미이수)'로 설정
+    private CourseStatus status = CourseStatus.FAIL;
 }

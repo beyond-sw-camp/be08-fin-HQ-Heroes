@@ -1,9 +1,10 @@
 package com.hq.heroes.education.service;
 
 import com.hq.heroes.education.entity.Course;
+import io.lettuce.core.dynamic.annotation.Param;
 
 import java.util.List;
 
 public interface CourseService  {
-    List<Course> getCoursesByEmployeeId(String employeeId);
+    List<Course> getCourseByEmployeeId(String employeeId);
 }
