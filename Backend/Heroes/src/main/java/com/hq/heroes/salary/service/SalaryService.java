@@ -1,13 +1,13 @@
 package com.hq.heroes.salary.service;
 
 import com.hq.heroes.salary.dto.SalaryDTO;
+import com.hq.heroes.salary.entity.Salary;
 
 import java.util.List;
 
 public interface SalaryService {
-    List<SalaryDTO> getSalariesUpToCurrentMonth(String employeeId, int year);
-    SalaryDTO getSalaryByEmployeeIdAndMonth(String employeeId, int year, int month);
-    SalaryDTO createSalary(SalaryDTO salaryDto);
-    SalaryDTO updateSalary(Long salaryId, SalaryDTO salaryDto);
-    void deleteSalary(Long salaryId);
+    SalaryDTO getSalaryByPositionId(Long positionId); // 직책으로 급여 조회
+
+    List<SalaryDTO> getSalariesByEmployeeIdAndYear(String employeeId, int year);
+    List<SalaryDTO> getSalariesByEmployeeIdAndYearAndMonth(String employeeId, int year, int month);
 }

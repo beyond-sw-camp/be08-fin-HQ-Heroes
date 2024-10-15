@@ -1,21 +1,19 @@
 package com.hq.heroes.salary.dto;
 
-import com.hq.heroes.salary.entity.enums.Status;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class SalaryDTO {
     private Long salaryId;
+    private Long positionId;
     private String employeeId;
-    private LocalDateTime salaryMonth;
+    private Double performanceBonus;
+    private LocalDateTime performanceDate;
     private Double baseSalary;
-    private Double bonus;
-    private Double totalSalary;
-    private Status status;
-    private LocalDateTime createdAt;
 }
