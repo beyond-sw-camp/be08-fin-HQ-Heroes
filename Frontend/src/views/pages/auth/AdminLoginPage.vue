@@ -103,7 +103,7 @@ const goToLogin = () => router.push('/login');
 
         <div v-if="timeRemaining > 0" class="text-xxl text-muted">남은 시간: {{ Math.floor(timeRemaining / 60) }}분 {{
           timeRemaining % 60 }}초</div>
-        <div v-else-if="timeRemaining === 0" class="text-xxl text-red-500">사원 번호와 비밀번호를 입력 후 인증코드를 발급해주세요.</div>
+        <div v-else-if="timeRemaining === 0" class="text-xxl text-red-500">사원 번호를 입력 후 인증코드를 발급해주세요.</div>
 
         <div class="flex flex-col items-center">
           <Button label="Login" class="w-full mt-3" @click="handleAdminLogin"></Button>
