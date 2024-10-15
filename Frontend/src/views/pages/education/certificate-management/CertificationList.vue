@@ -56,10 +56,6 @@
                 <InputText id="certificationName" v-model="newCertification.certificationName" required="true" class="w-full" />
             </div>
             <div>
-                <label for="deptName" class="block font-bold mb-3">카테고리</label>
-                <InputText id="deptName" v-model="newCertification.deptName" required="true" placeholder="카테고리 입력" class="w-full" />
-            </div>
-            <div>
                 <label for="acquisitionDate" class="block font-bold mb-3">취득일</label>
                 <Calendar id="acquisitionDate" v-model="newCertification.acquisitionDate" required="true" placeholder="YYYY-MM-DD" class="w-full small-calendar" />
             </div>
@@ -100,6 +96,7 @@
 import { ref, onMounted } from 'vue';
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
 import axios from 'axios';
+import { fetchGet } from '../../auth/service/AuthApiService';
 
 const certifications = ref([]); 
 const filteredCertifications = ref([...certifications.value]); 
@@ -131,9 +128,19 @@ async function fetchRecommendedCertifications() {
 // 사원 자격증 목록 가져오기
 async function fetchEmployeeCertifications() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee-certification/my-certification');
-        certifications.value = response.data; 
-        filteredCertifications.value = [...certifications.value];
+        const data = await fetchGet('http://localhost:8080/api/v1/employee-certification/my-certification');
+
+        // 응답 데이터 확인
+        console.log('응답 데이터:', data);  // 응답 데이터 확인
+
+        // 데이터가 존재하고 배열인지 확인
+        if (data && Array.isArray(data)) {
+            certifications.value = data;  // 배열일 경우만 할당
+            filteredCertifications.value = [...certifications.value];
+            console.log('Certifications:', certifications.value);  // 가져온 데이터 확인
+        } else {
+            console.error('응답 데이터가 배열이 아닙니다.', data);
+        }
     } catch (error) {
         console.error('사원 자격증 목록을 불러오지 못했습니다.', error);
     }
