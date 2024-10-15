@@ -17,6 +17,17 @@ Spring:
     hikari:
       maximum-pool-size: 5
 
+  mail:
+    default-encoding: UTF-8
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    host: smtp.gmail.com
+    port: 587
+    protocol: smtp
+    properties:
+      mail.smtp.starttls.enable: true
+      mail.smtp.auth: true
+
   jpa:
     hibernate:
       ddl-auto: update

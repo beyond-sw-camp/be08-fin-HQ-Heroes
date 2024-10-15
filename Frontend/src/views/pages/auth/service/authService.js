@@ -5,6 +5,7 @@ import { useCookies } from 'vue3-cookies';
 
 const API_URL = 'http://localhost:8080';
 const { cookies } = useCookies(); // Initialize the cookies
+
 // 회원가입 메서드
 const register = async (employeeName, email, password, role, joinDate, birthDate, annualLeave, status, phoneNumber, roadAddress, lotAddress, detailedAddress, profileImage, deptId, teamId, positionId, jobId) => {
     const formData = new FormData();
@@ -39,6 +40,50 @@ const register = async (employeeName, email, password, role, joinDate, birthDate
     }
 };
 
+// 관리자 로그인
+const adminLogin = async (employeeId, password, authCode) => {
+    const credentials = new URLSearchParams({
+        username: employeeId,
+        password: password,
+        authCode: authCode // 관리자용 OTP 코드
+    });
+
+    try {
+        const response = await axios.post(`${API_URL}/login`, credentials, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            withCredentials: true
+        });
+
+        // 로그인 성공 시 처리
+        if (response.status === 200) {
+            const { employeeId } = response.data;
+            const accessToken = response.headers['access'];
+            const authStore = useAuthStore();
+            const accessTime = Date.now();
+
+            authStore.setAccessToken(accessToken);
+            authStore.setLoginUser(employeeId);
+            authStore.setAccessTime(accessTime);
+
+            window.localStorage.setItem('access', accessToken);
+            window.localStorage.setItem('employeeId', employeeId);
+            window.localStorage.setItem('accessTime', accessTime);
+
+            authStore.setIsLoggedIn(true);
+            console.log('관리자 로그인 성공:', authStore);
+            return { success: true, employeeId, accessToken };
+        } else {
+            throw new Error('로그인 실패: 상태 코드가 200이 아닙니다.');
+        }
+    } catch (error) {
+        console.error('Admin login error:', error.response?.data?.message || error.message);
+        throw new Error('관리자 로그인 실패. 다시 시도해주세요.');
+    }
+};
+
+// 로그인
 const login = async (employeeId, password) => {
     const credentials = new URLSearchParams({
         username: employeeId,
@@ -162,6 +207,7 @@ const handleTokenExpiration = async () => {
 export default {
     register,
     login,
+    adminLogin,
     logout,
     getLoginEmployeeInfo,
     updateEmployeeInfo,

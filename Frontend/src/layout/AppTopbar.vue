@@ -7,10 +7,12 @@ import authService from '../views/pages/auth/service/authService';
 import router from '@/router';
 import fetchReissue from '@/views/pages/auth/service/fetchReissue'; // 토큰 갱신 함수
 import Button from 'primevue/button'; // PrimeVue 버튼 import
+import Dialog from 'primevue/dialog';
 
 const { onMenuToggle } = useLayout();
 const authStore = useAuthStore();
 const remainingTime = ref(''); // 남은 시간 표시를 위한 변수
+const showReissueDialog = ref(false);
 let timer = null;
 
 // 로그아웃 처리
@@ -31,7 +33,7 @@ const handleLogout = async () => {
 const formatTime = (timeInMs) => {
     const minutes = Math.floor(timeInMs / (1000 * 60));
     const seconds = Math.floor((timeInMs % (1000 * 60)) / 1000);
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    return `${String(minutes).padStart(2, '0')}분${String(seconds).padStart(2, '0')}초`;
 };
 
 // 타이머를 업데이트하는 함수
@@ -45,11 +47,11 @@ const updateRemainingTime = () => {
         remainingTime.value = formatTime(timeLeft);
     } else {
         clearInterval(timer);
-        remainingTime.value = '00:00'; // 만료되면 00:00 표시
+        remainingTime.value = '00분00초'; // 만료되면 00분00초 표시
+        showReissueDialog.value = true; // 다이얼로그 표시
     }
 };
 
-// 토큰 재갱신 함수
 const handleReissue = async () => {
     try {
         await fetchReissue(); // 토큰 재발급
@@ -60,6 +62,9 @@ const handleReissue = async () => {
         // 타이머 업데이트
         updateRemainingTime();
         timer = setInterval(updateRemainingTime, 1000);
+
+        // 다이얼로그 닫기
+        showReissueDialog.value = false;
     } catch (error) {
         console.error('토큰 재갱신 실패:', error.message);
         alert('토큰 재갱신 중 오류가 발생했습니다.');
@@ -154,4 +159,22 @@ const goToSignUp = () => router.push('/signup');
             </div>
         </div>
     </div>
+
+    <!-- 재갱신 요청 다이얼로그 -->
+    <Dialog
+        v-model:visible="showReissueDialog"
+        :modal="true"
+        :closable="false"
+        pt:mask:class="backdrop-blur-sm bg-black/50"
+        header="시간 만료"
+        :style="{ width: '25rem', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }"
+        class="custom-dialog"
+    >
+        <p class="text-gray-900 text-center mb-1">접근 시간이 만료되었습니다.</p>
+        <p class="text-gray-700 text-sm text-center mb-4">시간을 갱신해 주세요.</p>
+
+        <div class="flex justify-center">
+            <Button icon="pi pi-refresh" label="시간 갱신" @click="handleReissue" class="w-full py-2 px-4 font-bold rounded-lg text-white" />
+        </div>
+    </Dialog>
 </template>

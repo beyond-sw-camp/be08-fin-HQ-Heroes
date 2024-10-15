@@ -24,4 +24,8 @@ public interface EmployeeService {
         관리자 - 사원 정보 수정
      */
     Employee adminUpdateEmployee(EmployeeDTO employeeDTO);
+
+    String setTempPassword(String to, String authCode);
+
+    String updatePassword(String email, String tempPW);
 }

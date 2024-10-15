@@ -18,10 +18,13 @@ const fetchReissue = async () => {
       authStore.setAccessToken(newAccessToken); // Pinia에 access 토큰 저장
       window.localStorage.setItem('access', newAccessToken)
       window.localStorage.setItem('accessTime', accessTime);
+
+      // 페이지 새로고침
+      window.location.reload(); // 페이지를 새로고침하여 변경사항을 반영
       return true;
     } else { // 토큰 재발급 실패
       authStore.setAccessToken(null); // Pinia에서 access 토큰 제거
-      window.localStorage.removeItem('access')
+      window.localStorage.removeItem('access');
       cookies.set("refresh", null, { maxAge: 0 });
     }
   } catch (error) {

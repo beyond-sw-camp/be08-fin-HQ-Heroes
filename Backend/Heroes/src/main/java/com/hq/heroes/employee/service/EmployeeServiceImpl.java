@@ -14,6 +14,7 @@ import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final JobRepository jobRepository;
     private final PositionRepository positionRepository;
     private final TeamRepository teamRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public List<EmployeeDTO> getAllEmployees() {
@@ -112,5 +114,37 @@ public class EmployeeServiceImpl implements EmployeeService {
             log.info("프로필 이미지가 존재하지 않음");
         }
         return employeeRepository.save(employee);
+    }
+
+    // 임시 비밀번호로 비밀번호 변경
+    @Override
+    public String setTempPassword(String email, String tempPW) {
+        Employee employee = employeeRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원"));
+
+        try {
+            employee.setPassword(bCryptPasswordEncoder.encode(tempPW));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("상태 값 이상함");
+        }
+
+        employee = employeeRepository.save(employee);
+        return employee.getEmployeeName().toString() + "님의 임시 비밀번호가 발급되었습니다.\n" + "가입하신 이메일을 확인해주세요";
+    }
+
+    // 비밀번호 변경
+    @Override
+    public String updatePassword(String email, String tempPW) {
+        Employee employee = employeeRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원"));
+
+        try {
+            employee.setPassword(bCryptPasswordEncoder.encode(tempPW));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("상태 값 이상함");
+        }
+
+        employee = employeeRepository.save(employee);
+        return employee.getEmployeeName() + "님의 비밀번호가 변경되었습니다.\n다시 로그인을 해주세요";
     }
 }

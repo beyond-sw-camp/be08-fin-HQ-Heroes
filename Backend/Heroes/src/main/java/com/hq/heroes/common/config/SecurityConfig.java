@@ -5,6 +5,7 @@ import com.hq.heroes.auth.handler.CustomFormSuccessHandler;
 import com.hq.heroes.auth.handler.CustomLogoutFilter;
 import com.hq.heroes.auth.jwt.JWTFilter;
 import com.hq.heroes.auth.jwt.JWTUtil;
+import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.auth.service.RefreshTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +41,7 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
     private final RefreshTokenService refreshTokenService;
+    private final EmployeeRepository employeeRepository;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -47,7 +49,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler(){
+    public AuthenticationFailureHandler authenticationFailureHandler() {
         return new AuthenticationFailureHandler() {
             @Override
             public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
@@ -82,7 +84,7 @@ public class SecurityConfig {
                 .formLogin((form) -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .successHandler(new CustomFormSuccessHandler(jwtUtil, refreshTokenService))
+                        .successHandler(new CustomFormSuccessHandler(jwtUtil, redisTemplate, refreshTokenService, employeeRepository))
                         .failureHandler(authenticationFailureHandler())
                         .permitAll())
 
@@ -107,7 +109,7 @@ public class SecurityConfig {
                     }
                 }))
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join", "/reissue", "/reset-password", "/logout", "/**").permitAll()
+                        .requestMatchers("/login", "/", "/join", "/reissue", "/reset-password", "/logout", "/mails/**", "/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
 
