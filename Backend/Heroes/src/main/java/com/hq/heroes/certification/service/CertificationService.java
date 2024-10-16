@@ -10,9 +10,12 @@ public interface CertificationService {
     
     Certification getCertificationById(Long certificationId);
 
+    List<Certification> getCertificationListByDeptName(String deptName);
+
     Certification createCertification(CertificationRequestDTO requestDTO);
 
     Certification updateCertification(Long certificationId, CertificationRequestDTO requestDTO);
 
     boolean deleteCertification(Long certificationId);
+
 }

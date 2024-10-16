@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,6 +50,21 @@ public class CertificationController {
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+    }
+
+    // 부서 이름으로 자격증 목록 조회
+    @GetMapping("/by-department")
+    @Operation(summary = "부서별 자격증 목록 조회", description = "부서 이름으로 자격증 목록을 조회한다.")
+    public ResponseEntity<List<CertificationResponseDTO>> getCertificationsByDepartment(
+            @Parameter(description = "부서 이름", example = "IT기술본부")
+            @RequestParam("deptName") String deptName) {
+
+        List<Certification> certification = certificationService.getCertificationListByDeptName(deptName);
+        List<CertificationResponseDTO> certificationDTOs = certification.stream()
+                .map(Certification::toResponseDTO)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(certificationDTOs, HttpStatus.OK);
     }
 
     // 자격증 정보 등록
