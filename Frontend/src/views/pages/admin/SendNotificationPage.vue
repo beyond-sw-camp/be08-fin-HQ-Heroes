@@ -4,15 +4,26 @@
       <!-- 검색 필드 -->
       <div class="search-container">
         <i class="pi pi-search search-icon"></i>
-        <input type="text" placeholder="Search employees..." v-model="searchQuery" class="search-input" />
+        <input 
+          type="text" 
+          placeholder="Search employees..." 
+          v-model="searchQuery" 
+          class="search-input"
+          @keyup.enter="onSearchEnter"
+        />
       </div>
 
       <!-- 사원 목록 트리 구조 -->
       <div class="panelmenu-container">
         <div class="card">
           <div class="font-semibold text-xl">사원 목록</div>
-          <Tree v-model:selectionKeys="selectedKeys" :value="filteredTreeData" selectionMode="checkbox"
-            class="w-full md:w-[20rem]">
+          <Tree 
+            v-model:selectionKeys="selectedKeys" 
+            :value="filteredTreeData" 
+            :expandedKeys="expandedKeys"
+            selectionMode="checkbox" 
+            class="w-full md:w-[20rem]"
+          >
             <template #default="slotProps">
               <div class="flex items-center">
                 <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X"
@@ -31,15 +42,15 @@
     <div class="notification-container">
       <div class="compose-message-container">
         <div class="compose-message">
-          <h3 class="mb-2"><b>발송자</b></h3>
-          <InputText type="text" v-model="sender" class="to-input" />
-
+          <h3 class="mb-2 text-xl"><b>발송자:</b> {{ authStore.employeeData.teamName }} {{ authStore.employeeData.employeeName }}</h3>
+          <hr class="divider" />
+          
           <!-- Notification Category Dropdown -->
-          <h3 class="mb-2 mt-5"><b>카테고리</b></h3>
+          <h3 class="mb-2 mt-5 text-xl"><b>카테고리</b></h3>
           <Select v-model="selectedCategory" :options="categories" optionLabel="categoryName"
             placeholder="카테고리를 선택하세요" />
 
-          <h3 class="mb-2 mt-5"><b>메시지</b></h3>
+          <h3 class="mb-2 mt-5 text-xl"><b>메시지</b></h3>
           <div ref="editor" class="message-editor"></div>
 
           <div class="button-container">
@@ -63,7 +74,6 @@ import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import Tree from 'primevue/tree';
 import Avatar from 'primevue/avatar';
-import InputText from 'primevue/inputtext';
 import { fetchPost, fetchGet } from '../auth/service/AuthApiService'; // Replace with your API service
 import Select from 'primevue/select';
 import ProgressBar from 'primevue/progressbar';
@@ -72,13 +82,13 @@ import { useAuthStore } from '@/stores/authStore';
 
 const authStore = useAuthStore();
 const searchQuery = ref(''); // 검색어 상태
-const sender = ref(authStore.employeeName);
 const message = ref('');
 const editor = ref(null);
 const employeeData = ref([]); // 전체 사원 데이터를 저장
-const selectedKeys = ref({});
-const categories = ref([]); // List of notification categories
-const selectedCategory = ref(''); // Currently selected category
+const selectedKeys = ref({}); // 선택된 노드 상태
+const expandedKeys = ref({}); // 트리의 확장 상태를 관리하는 ref
+const categories = ref([]);
+const selectedCategory = ref('');
 
 const progressValue = ref(0); // ProgressBar의 현재 값
 const progressVisible = ref(false); // ProgressBar 모달 표시 여부
@@ -162,82 +172,86 @@ const convertToTreeModel = (data) => {
 
 // 검색 필터링
 const filteredTreeData = computed(() => {
-  if (!searchQuery.value) return employeeData.value;
+  // 검색어가 없을 경우 전체 데이터를 반환하여 초기화
+  if (!searchQuery.value.trim()) {
+    expandedKeys.value = {};  // 트리 확장 상태 초기화
+    return employeeData.value; // 전체 데이터를 반환
+  }
 
   const filterTree = (items, query) => {
+    const queryLower = query.toLowerCase();
+
     return items
       .map((item) => {
+        // 자식 노드가 있는 경우(부서나 팀)
         if (item.children) {
           const filteredChildren = filterTree(item.children, query);
-          if (filteredChildren.length || item.label.toLowerCase().includes(query)) {
-            return { ...item, children: filteredChildren };
+          
+          // 부서나 팀 이름이 검색어와 일치하거나, 자식 중에 검색 결과가 있을 경우
+          if (item.label.toLowerCase().includes(queryLower) || filteredChildren.length) {
+            return {
+              ...item,
+              children: filteredChildren.length ? filteredChildren : item.children // 자식이 없으면 원래 자식 노드 그대로 반환
+            };
           }
-        } else if (item.label.toLowerCase().includes(query)) {
+        }
+        
+        // 사원 검색: 사원 이름이 검색어와 일치하는 경우 해당 사원 반환
+        if (item.label.toLowerCase().includes(queryLower)) {
           return item;
         }
         return null;
       })
-      .filter((item) => item !== null);
+      .filter((item) => item !== null); // null인 경우 제거
   };
 
-  return filterTree(employeeData.value, searchQuery.value.toLowerCase());
+  const result = filterTree(employeeData.value, searchQuery.value.toLowerCase());
+
+  // 검색 결과를 기반으로 상위 부서, 팀 노드를 추가로 확장하기
+  if (searchQuery.value) {
+    expandMatchingNodes(result, searchQuery.value.toLowerCase());
+  }
+
+  return result;
 });
 
-// 단일 알림 발송
-const sendNotification = async (notificationPayload) => {
-  try {
-    const response = await fetchPost('http://localhost:8080/api/v1/notification-service/notification', notificationPayload);
-    if (response) {
-      console.log('Notification sent successfully:', response);
-    } else {
-      console.error('Failed to send notification.');
+// 검색 결과에 따라 상위 노드를 확장
+const expandMatchingNodes = (items, query) => {
+  items.forEach((item) => {
+    if (item.children) {
+      const hasMatchingChildren = item.children.some((child) =>
+        child.label.toLowerCase().includes(query)
+      );
+      
+      // 자식 중에 검색어와 일치하는 항목이 있으면 부모 노드를 확장
+      if (hasMatchingChildren || item.label.toLowerCase().includes(query)) {
+        expandedKeys.value[item.key] = true; // 트리 노드 확장
+      }
+      // 자식들도 재귀적으로 검사
+      expandMatchingNodes(item.children, query);
     }
-  } catch (error) {
-    console.error('Error sending notification:', error);
-  }
+  });
 };
 
-// 알림 발송 시 진행률 표시
-const sendMessage = async () => {
-  const selectedEmployeeIds = Object.keys(selectedKeys.value)
-    .filter((key) => key.startsWith('emp-'))
-    .map((key) => key.replace('emp-', ''));
+// 검색어 입력 후 엔터 시 호출
+const onSearchEnter = () => {
+  const filteredData = filteredTreeData.value;
 
-  if (!selectedCategory.value) {
-    alert('카테고리를 선택하세요.');
-    return;
-  }
+  // 검색된 데이터에서 선택 항목을 찾아서 selectedKeys에 추가
+  const selectMatchingNodes = (items) => {
+    items.forEach((item) => {
+      if (item.key.startsWith('emp-') || item.key.startsWith('team-') || item.key.startsWith('dept-')) {
+        selectedKeys.value[item.key] = true; // 선택된 노드 업데이트
+      }
+      if (item.children) {
+        selectMatchingNodes(item.children); // 자식 노드도 검색
+      }
+    });
+  };
 
-  if (selectedEmployeeIds.length === 0) {
-    alert('직원을 선택하세요.');
-    return;
-  }
-
-  const senderId = window.localStorage.getItem('employeeId');
-  progressVisible.value = true; // ProgressBar 모달을 표시
-  progressValue.value = 0; // ProgressBar 초기화
-
-  for (let i = 0; i < selectedEmployeeIds.length; i++) {
-    const receiverId = selectedEmployeeIds[i];
-    const payload = {
-      senderId,
-      receiverId,
-      categoryId: selectedCategory.value.notificationCategoryId,
-      message: message.value,
-      status: 'UNREAD' // 기본 상태 설정
-    };
-
-    await sendNotification(payload);
-    // ProgressBar 값 업데이트
-    progressValue.value = Math.round(((i + 1) / selectedEmployeeIds.length) * 100);
-  }
-
-  progressVisible.value = false; // ProgressBar 모달 닫기;
-
-  setTimeout(() => {
-    alert('알림 발송 완료');
-  }, 100);
+  selectMatchingNodes(filteredData);
 };
+
 </script>
 
 <style scoped>
@@ -318,7 +332,7 @@ const sendMessage = async () => {
 .message-editor {
   flex-grow: 1;
   font-size: 16px;
-  height: 25rem;
+  height: 28rem;
   overflow-y: auto;
   border: 1px solid #ddd;
   border-radius: 5px;
