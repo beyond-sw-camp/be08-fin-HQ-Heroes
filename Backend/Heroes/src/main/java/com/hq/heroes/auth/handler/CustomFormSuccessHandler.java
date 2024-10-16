@@ -65,7 +65,8 @@ public class CustomFormSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         }
 
         // 일반 사용자이거나 인증 코드 검증이 완료된 경우 JWT 발급
-        String access = jwtUtil.createJwt("access", username, role, 30 * 60 * 1000L);
+        // access 토큰 5분
+        String access = jwtUtil.createJwt("access", username, role, 5 * 60 * 1000L);
         response.setHeader("access", access);
 
         // refresh 1일

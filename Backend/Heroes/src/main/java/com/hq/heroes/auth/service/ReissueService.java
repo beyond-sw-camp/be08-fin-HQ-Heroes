@@ -57,8 +57,8 @@ public class ReissueService {
         }
 
         // 새로운 토큰 생성
-        // access 30분
-        String newAccess = jwtUtil.createJwt("access", username, role, 30 * 60 * 1000L);
+        // access 5분
+        String newAccess = jwtUtil.createJwt("access", username, role, 5 * 60 * 1000L);
 
         // refresh 1일
         Integer expiredS = 60 * 60 * 24;
