@@ -3,7 +3,6 @@
     <div class="salary-management">
       <div class="header">
         <label class="text-2xl font-bold text-gray-800">급여 관리</label>
-        <p class="text-gray-600 mt-2">급여와 내역을 확인한 후 신규 급여를 생성할 수 있습니다.</p>
       </div>
 
       <div class="year-selection">
@@ -18,7 +17,6 @@
           class="calendar"
         />
       </div>
-
       <div class="salary-cards">
         <div class="grid grid-cols-12 gap-6">
           <div v-for="month in monthsList" :key="month.id" class="col-span-12 lg:col-span-6 xl:col-span-4">
@@ -48,34 +46,34 @@
           </div>
         </div>
       </div>
-
-      <Dialog
-        :header="salaryDialogHeader"
-        v-model:visible="displayModal"
-        :style="{ width: '70vw', marginLeft: '15%', marginTop: '5%' }"
-        class="salary-dialog"
-      >
-      <div class="salary-modal">
-          <div class="salary-details">
-            <div class="left-panel">
-              <h3 class="text-xl font-semibold text-gray-800">급여 상세 정보</h3>
-              <div class="info-item">
-                <span>총 근무시간 :</span>
-                <span>{{ selectedMonth?.totalWorkHours }} 시간</span>
+      <div :class="['salary-management', { blur : isBlurred }]">
+        <Dialog
+          :header="salaryDialogHeader"
+          v-model:visible="displayModal"
+          :style="{ width: '70vw', marginLeft: '15%', marginTop: '5%' }"
+          class="salary-dialog"
+        >
+        <div class="salary-modal">
+            <div class="salary-details">
+              <div class="left-panel">
+                <h3 class="text-xl font-semibold text-gray-800">급여 상세 정보</h3>
+                <div class="info-item">
+                  <span>총 근무시간 :</span>
+                  <span>{{ selectedMonth?.totalWorkHours }} 시간</span>
+                </div>
+                <div class="info-item">
+                  <span>기본 급여 :</span>
+                  <span>{{ formatCurrency(selectedMonth?.baseSalary) }}</span>
+                </div>
+                <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(selectedMonth.salaryMonth) === '1월' || getMonthLabel(selectedMonth.salaryMonth) === '7월')" class="info-item">
+                  <span>성과급 :</span>
+                  <span>{{ formatCurrency(selectedMonth?.bonus || 0) }}</span>
+                </div>
+                <div class="total-deductions font-semibold mt-4">
+                  <span>급여 합계 :</span>
+                  <span>{{ formatCurrency(selectedMonth?.baseSalary + (selectedMonth?.bonus || 0)) }}</span>
+                </div>
               </div>
-              <div class="info-item">
-                <span>기본 급여 :</span>
-                <span>{{ formatCurrency(selectedMonth?.baseSalary) }}</span>
-              </div>
-              <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(selectedMonth.salaryMonth) === '1월' || getMonthLabel(selectedMonth.salaryMonth) === '7월')" class="info-item">
-                <span>성과급 :</span>
-                <span>{{ formatCurrency(selectedMonth?.bonus || 0) }}</span>
-              </div>
-              <div class="total-deductions font-semibold mt-4">
-                <span>급여 합계 :</span>
-                <span>{{ formatCurrency(selectedMonth?.baseSalary + (selectedMonth?.bonus || 0)) }}</span>
-              </div>
-            </div>
 
             <div class="right-panel">
               <h3 class="text-xl font-semibold text-gray-800">공제액</h3>
@@ -100,6 +98,7 @@
         </div>
       </Dialog>
     </div>
+    </div>
   </div>
 </template>
 
@@ -123,6 +122,7 @@ const currentYear = new Date().getFullYear();
 const yearRange = `${1900}:${currentYear}`;
 const monthsList = ref([]);
 const salaryDialogHeader = ref("급여 내역");
+const isBlurred = ref(false);
 
 const deductionNameMapping = {
   nationalPension: "국민연금",
@@ -162,6 +162,7 @@ const showSalaryModal = async (month) => {
   salaryDialogHeader.value = `${authStore.employeeData.employeeName}님의 급여 내역`;
   await fetchDeductionsData(month.salaryMonth); // 급여 월 정보 전달
   displayModal.value = true;
+  isBlurred.value = true;
 };
 
 const fetchDeductionsData = async (salaryMonth) => {
@@ -255,11 +256,11 @@ onMounted(async () => {
 }
 
 .PAID {
-  background-color: #28a745;
+  background-color: #6366f1;
 }
 
 .PENDING {
-  background-color: #dc3545;
+  background-color: #e0e7ff;
 }
 
 .salary-modal {
