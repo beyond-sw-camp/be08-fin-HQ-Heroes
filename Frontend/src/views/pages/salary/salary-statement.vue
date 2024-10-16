@@ -32,8 +32,8 @@
 
                 <div class="text-surface-900 font-medium text-lg mt-2">
                   <div>총 급여 : {{ formatCurrency(month.preTaxTotal) }}</div>
-                  <div>공제액 : {{ formatCurrency(month.preTaxTotal - month.postTaxTotal) }}</div>
-                  <div>실지급액 : {{ formatCurrency(month.postTaxTotal) }}</div>
+                  <div>공제액 : {{ formatCurrency(calculateTotalDeductions(month)) }}</div>
+                  <div>실지급액 : {{ formatCurrency(month.preTaxTotal - calculateTotalDeductions(month)) }}</div>
                 </div>
                 <Button
                   label="급여내역보기"
@@ -136,6 +136,18 @@ const deductionNameMapping = {
 // 화폐 포맷팅 함수
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(value);
+};
+
+// 공제액 합계 계산 함수
+const calculateTotalDeductions = (month) => {
+  return (
+    month.nationalPension +
+    month.healthInsurance +
+    month.longTermCare +
+    month.employmentInsurance +
+    month.incomeTax +
+    month.localIncomeTax
+  );
 };
 
 // 선택한 연도에 따라 월별 데이터 가져오기
