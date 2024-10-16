@@ -105,4 +105,22 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public AttendanceDTO getLatestAttendance(String employeeId) {
+        Employee employee = employeeRepository.findByEmployeeId(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("직원 정보를 찾을 수 없습니다."));
+        Attendance attendance = attendanceRepository.findTopByEmployeeAndStatusAndCheckOutIsNullOrderByCheckInDesc(employee, AttendanceStatus.NORMAL)
+                .orElseThrow(() -> new IllegalArgumentException("출근 기록이 없습니다."));
+
+        // DTO로 변환하여 반환
+        return new AttendanceDTO(
+                attendance.getAttendanceId(),
+                employee.getEmployeeName(),
+                employee.getEmployeeId(),
+                attendance.getCheckIn(),
+                attendance.getCheckOut(),
+                attendance.getStatus()
+        );
+    }
+
 }

@@ -17,7 +17,5 @@ public class AttendanceDTO {
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
     private AttendanceStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
 }

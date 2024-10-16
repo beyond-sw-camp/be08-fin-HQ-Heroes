@@ -12,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -66,8 +63,6 @@ public class AttendanceController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-
-
     // 퇴근 요청
     @PostMapping("/check-out")
     public ResponseEntity<?> checkOut() {
@@ -100,6 +95,12 @@ public class AttendanceController {
             return ResponseEntity.ok(Map.of("isCheckedIn", isCheckedIn));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @GetMapping("/latest/{employeeId}")
+    public ResponseEntity<AttendanceDTO> getLatestAttendance(@PathVariable String employeeId) {
+        AttendanceDTO attendanceDTO = attendanceService.getLatestAttendance(employeeId);
+        return ResponseEntity.ok(attendanceDTO);
     }
 
 }
