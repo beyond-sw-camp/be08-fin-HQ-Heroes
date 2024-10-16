@@ -26,7 +26,7 @@ public class EmployeeCertificationController {
     private final EmployeeCertificationService employeeCertificationService;
 
     // 사원 ID로 자격증 조회하기
-    @GetMapping("/my-certification")
+    @GetMapping("/my-certification/by-employeeId")
     @Operation(summary = "사원 ID로 사원 자격증 목록 조회", description = "해당 사원의 자격증 목록을 조회한다.")
     public ResponseEntity<List<EmployeeCertificationResponseDTO>> getMyCertificationByEmployeeId() {
         String employeeId = "";
@@ -48,11 +48,7 @@ public class EmployeeCertificationController {
         }
 
         List<EmployeeCertification> employeeCertification = employeeCertificationService.getMyCertificationByEmployeeId(employeeId);
-
         List<EmployeeCertificationResponseDTO> employeeCertificationResponseDTOs = employeeCertification.stream().map(EmployeeCertification::toECResponseDTO).collect(Collectors.toList());
-
-        // 반환되는 데이터 확인
-        System.out.println("Returned Certifications: " + employeeCertificationResponseDTOs);
 
         return new ResponseEntity<>(employeeCertificationResponseDTOs, HttpStatus.OK);
     }

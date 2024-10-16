@@ -1,11 +1,5 @@
 <template>
     <div class="card">
-        <!-- 로그인된 사용자 이름을 출력 -->
-        <div class="logged-in-user">
-            <p>
-                로그인한 사용자: <strong>{{ employeeData.employeeName }}</strong>
-            </p>
-        </div>
         <h2 class="font-semibold text-xl mb-4">자격증 목록</h2>
         <DataTable
             :value="filteredCertifications"
@@ -20,8 +14,10 @@
             selectionMode="single"
             :globalFilterFields="['certificationName', 'institution', 'name']"
             showGridlines
-            style="table-layout: fixed !important;"
-            @row-click="showCertificationDetails"
+            style="table-layout: fixed;"
+            @row-click="showEmployeeCertificationDetails" 
+            @rowSelect="onRowSelect"
+            @rowUnselect="onRowUnselect"
         >
             <template #header>
                 <div class="flex items-center justify-between mb-4">
@@ -46,6 +42,13 @@
                 </template>
             </Column>
         </DataTable>
+
+        <!-- EmployeeCertificationDetail 모달 추가 -->
+        <EmployeeCertificationDetail
+            :visible="showDetailModal"
+            :certificationDetail="selectedCertification"
+            @update:visible="showDetailModal = $event"
+        />
     </div>
 
     <!-- 자격증 추가 모달 -->
@@ -75,7 +78,7 @@
         <h2 class="font-semibold text-xl my-6">회사가 추천하는 자격증</h2>
         <div class="grid grid-cols-12 gap-4">
             <div class="col-span-12 lg:col-span-6 xl:col-span-3" v-for="cert in recommendedCertifications" :key="cert.registrationId">
-                <div class="card mb-1 border border-gray-300 p-4">
+                <div class="card mb-1 border border-gray-300 p-4" @click="showCertificationDetails(cert)">
                     <div class="flex justify-between mb-4">
                         <div>
                             <span class="block text-muted-color font-medium mb-4">{{ cert.deptName }}</span>
@@ -89,19 +92,27 @@
                 </div>
             </div>
         </div>
+
+        <!-- CertificationDetail 모달 컴포넌트 -->
+        <CertificationDetail
+            v-model:visible="isDialogVisible"
+            :certification-detail="selectedCertification"
+        />
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
-import axios from 'axios';
-import { fetchGet } from '../../auth/service/AuthApiService';
+import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
+import CertificationDetail from './CertificationDetail.vue';  // 모달 컴포넌트 가져오기
+import EmployeeCertificationDetail from './EmployeeCertificationDetail.vue'; // 모달 컴포넌트 import
+
 
 const certifications = ref([]); 
 const filteredCertifications = ref([...certifications.value]); 
 const filters = ref(null);
-const selectedCertification = ref(null);
+const displayDialog = ref(false);
 const addDialogVisible = ref(false);
 const isEditing = ref(false);
 const selectedDept = ref(null);
@@ -109,6 +120,17 @@ const selectedInstitution = ref(null);
 const institutions = ref([]); 
 const recommendedCertifications = ref([]); 
 const newCertification = ref({});
+const currentEmployeeId = ref(null); // 현재 직원 ID를 저장할 ref 추가
+const isModalOpen = ref(false);
+const isDialogVisible = ref(false); // 모달 가시성
+const selectedCertification = ref(null); // 선택된 자격증 정보
+const showDetailModal = ref(false); // 모달 상태
+
+// 인증서 클릭 시 호출되는 함수
+function showEmployeeCertificationDetails(event) {
+    selectedCertification.value = event.data; // 클릭된 행의 데이터
+    showDetailModal.value = true; // 모달 표시
+}
 
 const employeeData = ref({
     employeeName: '',
@@ -118,26 +140,42 @@ const employeeData = ref({
 // 추천 자격증 목록 가져오기
 async function fetchRecommendedCertifications() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/certification-service/certification');
-        recommendedCertifications.value = response.data;
+        if (!employeeData.value.deptName) {
+            console.error("부서명이 없습니다.");
+            return;
+        }
+
+        // 부서에 따른 자격증 목록 가져오기
+        const allCertifications = await fetchGet(`http://localhost:8080/api/v1/certification-service/by-department?deptName=${employeeData.value.deptName}`);
+
+        // 사원 자격증 목록 가져오기
+        const employeeCertificationsData = await fetchGet('http://localhost:8080/api/v1/employee-certification/my-certification/by-employeeId');
+        
+        // 사원 자격증 이름 목록 만들기
+        const employeeCertificationNames = new Set(employeeCertificationsData.map(cert => cert.certificationName));
+
+        if (allCertifications && Array.isArray(allCertifications)) {
+            // 추천 자격증 목록 필터링 (사원 자격증 이름이 아닌 것만 포함)
+            recommendedCertifications.value = allCertifications.filter(cert => 
+                cert.deptName === employeeData.value.deptName && !employeeCertificationNames.has(cert.certificationName)
+            );
+        } else {
+            console.error("자격증 목록을 불러오는 데 실패했습니다.", allCertifications);
+        }
     } catch (error) {
-        console.error("추천 자격증 목록을 불러오지 못했습니다.", error);
+        console.error("추천 자격증 목록을 불러오는 중 오류 발생:", error);
     }
 }
 
 // 사원 자격증 목록 가져오기
 async function fetchEmployeeCertifications() {
     try {
-        const data = await fetchGet('http://localhost:8080/api/v1/employee-certification/my-certification');
+        const data = await fetchGet('http://localhost:8080/api/v1/employee-certification/my-certification/by-employeeId');
 
-        // 응답 데이터 확인
-        console.log('응답 데이터:', data);  // 응답 데이터 확인
-
-        // 데이터가 존재하고 배열인지 확인
         if (data && Array.isArray(data)) {
-            certifications.value = data;  // 배열일 경우만 할당
+            // registrationId 순서대로 정렬 (최신순)
+            certifications.value = data.sort((a, b) => b.registrationId - a.registrationId);  
             filteredCertifications.value = [...certifications.value];
-            console.log('Certifications:', certifications.value);  // 가져온 데이터 확인
         } else {
             console.error('응답 데이터가 배열이 아닙니다.', data);
         }
@@ -150,32 +188,50 @@ async function fetchEmployeeCertifications() {
 async function saveCertification() {
     try {
         const requestBody = {
-            certificationName: newCertification.value.certificationName,
-            acquisitionDate: newCertification.value.acquisitionDate,
-            institution: newCertification.value.institution,
+            ...newCertification.value, // newCertification에서 필요한 필드를 바로 가져오기
+            employeeId: currentEmployeeId.value
         };
 
-        // 백엔드로 POST 요청 보내기
-        const response = await axios.post('http://localhost:8080/api/v1/employee-certification/my-certification', requestBody, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+        console.log('Sending request body:', requestBody); 
 
-        await fetchEmployeeCertifications();
-        addDialogVisible.value = false;
-        newCertification.value = {};
+        const { registrationId } = await fetchPost('http://localhost:8080/api/v1/employee-certification/my-certification', requestBody);
 
-        alert('자격증이 성공적으로 추가되었습니다.');
+        if (registrationId) {
+            await fetchEmployeeCertifications();
+            addDialogVisible.value = false;
+            newCertification.value = {};
+            alert('자격증이 성공적으로 추가되었습니다.');
+        } else {
+            throw new Error('등록 실패');
+        }
     } catch (error) {
-        console.error('자격증 추가 중 오류가 발생했습니다:', error);
+        console.error('자격증 추가 중 오류:', error);
+        alert('자격증 추가 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
 }
 
-// 자격증 세부 사항 보여주기
-function showCertificationDetails(event) {
+function onRowSelect(event) {
     selectedCertification.value = event.data;
-    isEditing.value = true;
+    console.log('선택된 자격증:', selectedCertification.value); // 로그 추가
+    displayDialog.value = true;
+}
+
+function onRowUnselect(event) {
+    console.log('선택 해제된 자격증:', event.data);
+    selectedCertification.value = null;
+    displayDialog.value = false;
+}
+
+// 자격증 클릭 시 상세 정보를 모달로 전달하는 함수
+const showCertificationDetails = (cert) => {
+    selectedCertification.value = cert; // 선택된 자격증 정보 설정
+    isDialogVisible.value = true; // 모달 표시
+};
+
+// 날짜 포맷 함수
+function formatDate(date) {
+    const formattedDate = new Date(date);
+    return `${formattedDate.getFullYear()}-${formattedDate.getMonth() + 1}-${formattedDate.getDate()}`;
 }
 
 // 자격증 추가하기 또는 수정하기 모달 보여주기
@@ -208,9 +264,9 @@ function filterCertifications() {
 }
 
 // 날짜 형식 포맷팅 함수
-function formatDate(date) {
-    return new Date(date).toLocaleDateString('ko-KR');
-}
+// function formatDate(date) {
+//     return new Date(date).toLocaleDateString('ko-KR');
+// }
 
 // 컴포넌트가 마운트된 후 실행될 코드
 onMounted(async () => {
@@ -219,13 +275,13 @@ onMounted(async () => {
 
     if (data) {
         employeeData.value = data;
+        currentEmployeeId.value = data.employeeId; // currentEmployeeId에 직원 ID 할당
     }
 
     await fetchEmployeeCertifications();
     await fetchRecommendedCertifications();
 });
 </script>
-
 
 <style scoped>
 .search-container {

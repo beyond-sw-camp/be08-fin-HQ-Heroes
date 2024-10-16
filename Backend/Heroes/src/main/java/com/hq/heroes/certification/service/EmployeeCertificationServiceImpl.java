@@ -18,7 +18,6 @@ public class EmployeeCertificationServiceImpl implements EmployeeCertificationSe
 
     @Override
     public List<EmployeeCertification> getMyCertificationByEmployeeId(String employeeId) {
-
         return employeeCertificationRepository.findByEmployee_EmployeeId(employeeId);
     }
 

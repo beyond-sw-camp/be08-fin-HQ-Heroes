@@ -28,6 +28,14 @@ public class CertificationServiceImpl implements CertificationService {
     }
 
     @Override
+    public List<Certification> getCertificationListByDeptName (String deptName) {
+        Department department = departmentRepository.findByDeptName(deptName)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid department name: " + deptName));
+
+        return certificationRepository.findByDepartment(department);
+    }
+
+    @Override
     @Transactional
     public Certification createCertification(CertificationRequestDTO requestDTO) {
         Department department = departmentRepository.findById(requestDTO.getDeptId())

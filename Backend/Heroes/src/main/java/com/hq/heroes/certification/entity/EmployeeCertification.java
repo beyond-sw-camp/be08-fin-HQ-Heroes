@@ -45,7 +45,7 @@ public class EmployeeCertification {
                 .certificationName(this.certificationName)
                 .institution(this.institution)
                 .acquisitionDate(this.acquisitionDate)
-                .employeeName(this.employee.getEmployeeName())  // 사원 이름 변환 추가
+                .employeeId(this.employee.getEmployeeId())
                 .build();
     }
 }
