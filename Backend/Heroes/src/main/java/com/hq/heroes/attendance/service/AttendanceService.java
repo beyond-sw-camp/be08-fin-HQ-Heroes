@@ -17,4 +17,6 @@ public interface AttendanceService {
     boolean isAlreadyCheckedIn(String employeeId);
 
     List<AttendanceDTO> getAttendancesByEmployeeId(String employeeId);
+
+    AttendanceDTO getLatestAttendance(String employeeId);
 }

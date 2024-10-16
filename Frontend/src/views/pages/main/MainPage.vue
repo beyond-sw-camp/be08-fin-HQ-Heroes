@@ -12,7 +12,7 @@
                         <i class="pi pi-check-circle text-blue-500 !text-xl"></i>
                     </div>
                 </div>
-                <span class="text-muted-color">{{ currentDate }}</span>
+                <span class="text-muted-color">{{ checkInTime }}</span>
             </div>
         </div>
 
@@ -151,6 +151,7 @@
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import { onMounted, ref } from 'vue';
+import { getAttendanceTimes } from './service/attendanceService';
 import { getNotices } from './service/noticeService';
 import { getNotificationsByEmployeeId } from './service/notificationService';
 
@@ -169,15 +170,17 @@ onMounted(async () => {
     announcements.value = await getNotices();
     const employeeId = window.localStorage.getItem('employeeId');
     notifications.value = await getNotificationsByEmployeeId(employeeId);
-    setAttendanceTimes();
+    await setAttendanceTimes(employeeId);
     calculateSalaryDday();
     currentDate.value = new Date().toLocaleString();
 });
 
-const setAttendanceTimes = () => {
-    const currentTime = new Date();
-    checkInTime.value = formatTime(currentTime);
-    checkOutTime.value = formatTime(new Date(currentTime.getTime() + 9 * 60 * 60 * 1000)); // +9 hours for checkout time
+const setAttendanceTimes = async (employeeId) => {
+    const attendanceTimes = await getAttendanceTimes(employeeId);
+    if (attendanceTimes) {
+        checkInTime.value = attendanceTimes.checkIn ? formatTime(new Date(attendanceTimes.checkIn)) : '출근 전';
+        checkOutTime.value = attendanceTimes.checkOut ? formatTime(new Date(attendanceTimes.checkOut)) : '퇴근 전';
+    }
 };
 
 const calculateSalaryDday = () => {
