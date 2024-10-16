@@ -93,4 +93,10 @@ public class NotificationController {
         return new ResponseEntity<>(notificationDTOs, HttpStatus.OK);
     }
 
+    @GetMapping("/unread-count/{employeeId}")
+    public ResponseEntity<Integer> getUnreadNotificationCount(@PathVariable String employeeId) {
+        int unreadCount = notificationService.getUnreadNotificationCount(employeeId);
+        return ResponseEntity.ok(unreadCount);
+    }
+
 }

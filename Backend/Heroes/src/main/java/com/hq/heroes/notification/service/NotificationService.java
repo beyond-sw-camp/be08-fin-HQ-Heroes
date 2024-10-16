@@ -22,4 +22,6 @@ public interface NotificationService {
     boolean deleteNotification(Long notificationId);
 
     List<Notification> getNotificationsByReceiverId(String employeeId);
+
+    int getUnreadNotificationCount(String employeeId);
 }
