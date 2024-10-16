@@ -12,7 +12,7 @@
             filterDisplay="menu"
             :filters="filters"
             selectionMode="single"
-            :globalFilterFields="['courseName', 'category', 'instructorName', 'institute']"
+            :globalFilterFields="['courseName', 'categoryName', 'instructorName', 'institute']"
             showGridlines
             @row-click="showCourseDetails"
             :metaKeySelection="false"
@@ -22,8 +22,8 @@
             <template #header>
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <Dropdown v-model="selectedCategory" :options="categories" optionLabel="name" placeholder="카테고리를 선택하세요" @change="filterByCategoryAndInstructor" class="mr-2" />
-                        <Dropdown v-model="selectedInstructor" :options="instructors" optionLabel="name" placeholder="강사명을 선택하세요" @change="filterByCategoryAndInstructor" class="mr-2" />
+                        <Dropdown v-model="selectedCategoryName" :options="categories" optionLabel="name" placeholder="카테고리를 선택하세요" @change="filterByCategoryNameAndInstructor" class="mr-2" />
+                        <Dropdown v-model="selectedInstructor" :options="instructors" optionLabel="name" placeholder="강사명을 선택하세요" @change="filterByCategoryNameAndInstructor" class="mr-2" />
                     </div>
                     <div class="relative search-container">
                         <i class="pi pi-search search-icon" />
@@ -39,9 +39,9 @@
                     {{ data.courseId }}
                 </template>
             </Column>
-            <Column field="category" sortable header="카테고리" style="min-width: 6rem; text-align: left;">
+            <Column field="categoryName" sortable header="카테고리" style="min-width: 6rem; text-align: left;">
                 <template #body="{ data }">
-                    {{ data.category }}
+                    {{ data.categoryName }}
                 </template>
             </Column>
             <Column field="educationName" sortable header="강의명" style="min-width: 20rem; text-align: left;">
@@ -68,10 +68,8 @@
 <script setup>
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
-import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
-import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import { fetchGet } from '../../auth/service/AuthApiService';
@@ -84,7 +82,7 @@ const selectedCourse = ref(null);  // 선택된 강의
 const displayDialog = ref(false);  // 모달 창 제어
 const categories = ref([]);  // 카테고리 목록
 const instructors = ref([]);  // 강사 목록
-const selectedCategory = ref(null);  // 선택된 카테고리
+const selectedCategoryName = ref(null);  // 선택된 카테고리
 const selectedInstructor = ref(null);  // 선택된 강사
 
 const employeeData = ref({
@@ -115,7 +113,7 @@ function initFilters() {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         courseName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-        category: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        categoryName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
         startDate: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] }
     };
 }
