@@ -3,9 +3,9 @@
         <div class="flex justify-between mb-0 items-center">
             <!-- 왼쪽: 이름 및 팀 정보 -->
             <div class="flex flex-col">
-                <span class="block text-muted-color font-medium">{{ authStore.employeeData.teamName }} {{ authStore.employeeData.employeeName }}님</span>
-                <div class="text-surface-900 dark:text-surface-0 font-medium text-l">{{ currentDay }}</div>
-                <div class="text-surface-900 dark:text-surface-0 font-medium">{{ currentTime }}</div>
+                <span class="block text-surface-900 font-bold">{{ authStore.employeeData.teamName }} {{ authStore.employeeData.employeeName }}님</span>
+                <div class="text-muted-color font-medium text-l">{{ currentDay }}</div>
+                <div class="text-muted-color font-medium">{{ currentTime }}</div>
             </div>
 
             <!-- 오른쪽: 프로필 이미지 및 배지 -->
