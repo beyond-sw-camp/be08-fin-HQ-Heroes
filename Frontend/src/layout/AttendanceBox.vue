@@ -3,14 +3,14 @@
         <div class="flex justify-between mb-0 items-center">
             <!-- 왼쪽: 이름 및 팀 정보 -->
             <div class="flex flex-col">
-                <span class="block text-muted-color font-medium"> {{ authStore.employeeData.teamName }} {{ authStore.employeeData.employeeName }}님 </span>
+                <span class="block text-muted-color font-medium">{{ authStore.employeeData.teamName }} {{ authStore.employeeData.employeeName }}님</span>
                 <div class="text-surface-900 dark:text-surface-0 font-medium text-l">{{ currentDay }}</div>
                 <div class="text-surface-900 dark:text-surface-0 font-medium">{{ currentTime }}</div>
             </div>
 
             <!-- 오른쪽: 프로필 이미지 및 배지 -->
             <div class="ml-4">
-                <OverlayBadge value="4" severity="danger" class="inline-flex">
+                <OverlayBadge :value="unreadNotificationCount" severity="danger" class="inline-flex">
                     <Avatar class="p-overlay-badge custom-avatar" :image="authStore.employeeData.profileImageUrl" size="custom" />
                 </OverlayBadge>
             </div>
@@ -35,6 +35,7 @@ const authStore = useAuthStore();
 const currentDay = ref('');
 const currentTime = ref('');
 const isCheckedIn = ref(false); // 출근 여부를 나타내는 상태
+const unreadNotificationCount = ref(0); // 읽지 않은 알림 개수
 
 const getKoreanDate = () => {
     const date = new Date();
@@ -68,7 +69,6 @@ const handleAttendance = async () => {
         } else {
             // 퇴근 처리
             const response = await fetchPost('http://localhost:8080/api/v1/attendance/check-out', { checkOutTime: attendanceTime });
-
             isCheckedIn.value = false; // 퇴근 상태로 변경
         }
     } catch (error) {
@@ -76,7 +76,19 @@ const handleAttendance = async () => {
     }
 };
 
-// 컴포넌트가 로드될 때 출근 여부 상태 확인
+// 읽지 않은 알림 개수 가져오기
+const fetchUnreadNotificationCount = async () => {
+    try {
+        const response = await fetchGet(`http://localhost:8080/api/v1/notification-service/unread-count/${authStore.employeeData.employeeId}`);
+        if (response) {
+            unreadNotificationCount.value = response;
+        }
+    } catch (error) {
+        console.error('읽지 않은 알림 개수 가져오기 실패:', error);
+    }
+};
+
+// 컴포넌트가 로드될 때 출근 여부 및 알림 상태 확인
 onMounted(async () => {
     getKoreanDate();
 
@@ -102,6 +114,9 @@ onMounted(async () => {
     if (employeeData) {
         authStore.setEmployeeData(employeeData); // store에 직접 저장
     }
+
+    // 읽지 않은 알림 개수 가져오기
+    fetchUnreadNotificationCount();
 });
 </script>
 
