@@ -11,12 +11,12 @@
         </div>
 
         <!-- 이벤트 생성 모달 -->
-        <Dialog v-model:visible="isModalOpen" :style="{ width: '450px' }" header="이벤트 생성" :modal="true">
+        <Dialog v-model:visible="isModalOpen" :style="{ width: '450px' }" header="일정 생성" :modal="true">
             <div class="flex flex-col gap-6">
                 <div>
-                    <label for="title" class="block font-bold mb-3">이벤트 이름</label>
+                    <label for="title" class="block font-bold mb-3">일정 이름</label>
                     <InputText id="title" v-model.trim="eventData.title" required="true" autofocus :invalid="submitted && !eventData.title" fluid />
-                    <small v-if="submitted && !eventData.title" class="text-red-500">이벤트 이름이 필요합니다.</small>
+                    <small v-if="submitted && !eventData.title" class="text-red-500">일정 이름이 필요합니다.</small>
                 </div>
                 <div>
                     <label for="start" class="block font-bold mb-3">시작 날짜 및 시간</label>
@@ -27,8 +27,8 @@
                     <InputText type="datetime-local" id="end" v-model="eventData.end" fluid />
                 </div>
                 <div>
-                    <label for="category" class="block font-bold mb-3">카테고리</label>
-                    <Select id="category" v-model="eventData.category" :options="categories" optionLabel="label" placeholder="카테고리 선택" fluid />
+                    <label for="description" class="block font-bold mb-3">설명</label>
+                    <InputText id="description" v-model="eventData.description" placeholder="일정 설명을 입력하세요" fluid />
                 </div>
             </div>
 
@@ -79,6 +79,7 @@ export default {
                 events: [], // 승인된 휴가 일정이 여기에 표시됩니다.
                 editable: true,
                 selectable: true,
+                dateClick: this.handleDateClick, // 날짜 클릭 시 이벤트 추가
                 eventClick: this.handleEventClick
             },
             isModalOpen: false,
@@ -113,7 +114,6 @@ export default {
 
                             return {
                                 id: vacation.vacationId,
-                                // vacationType만 한글로 변환하고 employeeName은 그대로 유지
                                 title: `${this.translateVacationType(vacation.vacationType)} - ${vacation.employeeName}`,
                                 start: startDateTime,
                                 end: endDateTime,
@@ -132,7 +132,11 @@ export default {
                 console.error('휴가 데이터 로드 실패:', error);
             }
         },
-        // 휴가 타입을 한글로 변환하는 함수
+        handleDateClick(info) {
+            // 날짜 클릭 시 모달 열고, 클릭한 날짜를 기본 값으로 설정
+            this.eventData.start = info.dateStr;
+            this.isModalOpen = true;
+        },
         translateVacationType(vacationType) {
             switch (vacationType) {
                 case 'DAY_OFF':
@@ -144,21 +148,21 @@ export default {
                 case 'EVENT_LEAVE':
                     return '경조';
                 default:
-                    return vacationType; // 알 수 없는 타입은 영어 그대로 반환
+                    return vacationType;
             }
         },
         getEventColor(vacationType) {
             switch (vacationType) {
                 case 'DAY_OFF':
-                    return '#ffcccc'; // 월차
+                    return '#ffcccc';
                 case 'HALF_DAY_OFF':
-                    return '#ffeb99'; // 반차
+                    return '#ffeb99';
                 case 'SICK_LEAVE':
-                    return '#ccffcc'; // 병가
+                    return '#ccffcc';
                 case 'EVENT_LEAVE':
-                    return '#ccccff'; // 경조
+                    return '#ccccff';
                 default:
-                    return '#cccccc'; // 기본 색상
+                    return '#cccccc';
             }
         },
         handleEventClick(eventInfo) {
@@ -166,21 +170,25 @@ export default {
             this.isDetailModalOpen = true;
         },
         saveEvent() {
-            // 새로운 이벤트 저장 (사용자가 직접 추가하는 일정)
             if (this.eventData.title.trim()) {
-                let calendarApi = this.$refs.calendar.getApi();
-                calendarApi.addEvent({
-                    id: Date.now(), // 새로운 이벤트 ID 생성
+                fetchPost('http://localhost:8080/api/v1/event/create', {
                     title: this.eventData.title,
                     start: this.eventData.start,
                     end: this.eventData.end,
-                    backgroundColor: '#ccffcc', // 사용자 일정 색상
-                    extendedProps: {
-                        category: this.eventData.category
-                    }
-                });
-                this.isModalOpen = false;
-                this.resetEventData();
+                    description: this.eventData.description, // 카테고리 대신 설명 필드로 대체
+                    employee: { employeeId: '현재 로그인된 사용자의 ID' } // 로그인된 사용자 정보
+                })
+                    .then((data) => {
+                        if (data) {
+                            console.log('이벤트가 성공적으로 생성되었습니다.');
+                            this.isModalOpen = false;
+                            this.resetEventData();
+                            this.fetchApprovedVacationEvents(); // 새로 생성된 이벤트를 로드
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('이벤트 생성 중 오류가 발생했습니다:', error);
+                    });
             }
         },
         deleteEvent(event) {
@@ -191,7 +199,7 @@ export default {
         },
         closeModal() {
             this.isModalOpen = false;
-            this.resetEventData(); // 모달을 닫을 때 데이터 리셋
+            this.resetEventData();
         },
         closeDetailModal() {
             this.isDetailModalOpen = false;
@@ -230,19 +238,16 @@ export default {
     color: black !important; /* 글자색을 검정으로 고정 */
 }
 
-/* 이벤트 블럭 스타일 */
 .fc-event {
     border-radius: 5px;
     padding: 4px;
     background-color: var(--background-color); /* 배경색 적용 */
 }
 
-/* FullCalendar 기본 시간 텍스트 스타일 */
 .fc-time {
     font-weight: bold;
 }
 
-/* FullCalendar 기본 제목 스타일 */
 .fc-title {
     font-size: 14px;
     color: black !important; /* 글자 색을 검정으로 고정 */
