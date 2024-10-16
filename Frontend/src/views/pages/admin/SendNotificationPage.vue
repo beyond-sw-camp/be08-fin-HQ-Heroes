@@ -4,26 +4,16 @@
       <!-- 검색 필드 -->
       <div class="search-container">
         <i class="pi pi-search search-icon"></i>
-        <input 
-          type="text" 
-          placeholder="Search employees..." 
-          v-model="searchQuery" 
-          class="search-input"
-          @keyup.enter="onSearchEnter"
-        />
+        <input type="text" placeholder="Search employees..." v-model="searchQuery" class="search-input"
+          @keyup.enter="onSearchEnter" />
       </div>
 
       <!-- 사원 목록 트리 구조 -->
       <div class="panelmenu-container">
         <div class="card">
           <div class="font-semibold text-xl">사원 목록</div>
-          <Tree 
-            v-model:selectionKeys="selectedKeys" 
-            :value="filteredTreeData" 
-            :expandedKeys="expandedKeys"
-            selectionMode="checkbox" 
-            class="w-full md:w-[20rem]"
-          >
+          <Tree v-model:selectionKeys="selectedKeys" :value="filteredTreeData" :expandedKeys="expandedKeys"
+            selectionMode="checkbox" class="w-full md:w-[20rem]">
             <template #default="slotProps">
               <div class="flex items-center">
                 <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X"
@@ -42,9 +32,11 @@
     <div class="notification-container">
       <div class="compose-message-container">
         <div class="compose-message">
-          <h3 class="mb-2 text-xl"><b>발송자:</b> {{ authStore.employeeData.teamName }} {{ authStore.employeeData.employeeName }}</h3>
+          <h3 class="mb-2 text-xl"><b>발송자:</b> {{ authStore.employeeData.teamName }} {{
+            authStore.employeeData.employeeName
+          }}</h3>
           <hr class="divider" />
-          
+
           <!-- Notification Category Dropdown -->
           <h3 class="mb-2 mt-5 text-xl"><b>카테고리</b></h3>
           <Select v-model="selectedCategory" :options="categories" optionLabel="categoryName"
@@ -186,7 +178,7 @@ const filteredTreeData = computed(() => {
         // 자식 노드가 있는 경우(부서나 팀)
         if (item.children) {
           const filteredChildren = filterTree(item.children, query);
-          
+
           // 부서나 팀 이름이 검색어와 일치하거나, 자식 중에 검색 결과가 있을 경우
           if (item.label.toLowerCase().includes(queryLower) || filteredChildren.length) {
             return {
@@ -195,7 +187,7 @@ const filteredTreeData = computed(() => {
             };
           }
         }
-        
+
         // 사원 검색: 사원 이름이 검색어와 일치하는 경우 해당 사원 반환
         if (item.label.toLowerCase().includes(queryLower)) {
           return item;
@@ -222,7 +214,7 @@ const expandMatchingNodes = (items, query) => {
       const hasMatchingChildren = item.children.some((child) =>
         child.label.toLowerCase().includes(query)
       );
-      
+
       // 자식 중에 검색어와 일치하는 항목이 있으면 부모 노드를 확장
       if (hasMatchingChildren || item.label.toLowerCase().includes(query)) {
         expandedKeys.value[item.key] = true; // 트리 노드 확장
@@ -250,6 +242,62 @@ const onSearchEnter = () => {
   };
 
   selectMatchingNodes(filteredData);
+};
+
+// 단일 알림 발송
+const sendNotification = async (notificationPayload) => {
+  try {
+    const response = await fetchPost('http://localhost:8080/api/v1/notification-service/notification', notificationPayload);
+    if (response) {
+      console.log('Notification sent successfully:', response);
+    } else {
+      console.error('Failed to send notification.');
+    }
+  } catch (error) {
+    console.error('Error sending notification:', error);
+  }
+};
+
+// 알림 발송 시 진행률 표시
+const sendMessage = async () => {
+  const selectedEmployeeIds = Object.keys(selectedKeys.value)
+    .filter((key) => key.startsWith('emp-'))
+    .map((key) => key.replace('emp-', ''));
+
+  if (!selectedCategory.value) {
+    alert('카테고리를 선택하세요.');
+    return;
+  }
+
+  if (selectedEmployeeIds.length === 0) {
+    alert('직원을 선택하세요.');
+    return;
+  }
+
+  const senderId = window.localStorage.getItem('employeeId');
+  progressVisible.value = true; // ProgressBar 모달을 표시
+  progressValue.value = 0; // ProgressBar 초기화
+
+  for (let i = 0; i < selectedEmployeeIds.length; i++) {
+    const receiverId = selectedEmployeeIds[i];
+    const payload = {
+      senderId,
+      receiverId,
+      categoryId: selectedCategory.value.notificationCategoryId,
+      message: message.value,
+      status: 'UNREAD' // 기본 상태 설정
+    };
+
+    await sendNotification(payload);
+    // ProgressBar 값 업데이트
+    progressValue.value = Math.round(((i + 1) / selectedEmployeeIds.length) * 100);
+  }
+
+  progressVisible.value = false; // ProgressBar 모달 닫기;
+
+  setTimeout(() => {
+    alert('알림 발송 완료');
+  }, 100);
 };
 
 </script>
