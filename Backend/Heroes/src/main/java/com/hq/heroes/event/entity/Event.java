@@ -1,7 +1,6 @@
 package com.hq.heroes.event.entity;
 
 import com.hq.heroes.auth.entity.Employee;
-import com.hq.heroes.vacation.entity.Vacation;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,18 +29,10 @@ public class Event {
     @Column(name = "evnet_end", nullable = false)
     private LocalDateTime eventEnd;
 
-    @Column(name = "event_type", nullable = false)
-    private String eventType;
-
     @Column(name = "description", nullable = false)
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vacation_id", nullable = false)
-    private Vacation vacation;
-
 }
