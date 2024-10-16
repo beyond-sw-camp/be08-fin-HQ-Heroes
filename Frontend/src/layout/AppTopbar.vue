@@ -41,7 +41,7 @@ const updateRemainingTime = () => {
     const accessTime = parseInt(window.localStorage.getItem('accessTime'), 10);
     const currentTime = Date.now();
     const timeElapsed = currentTime - accessTime;
-    const timeLeft = 5 * 60 * 1000 - timeElapsed; // 30분에서 경과된 시간 차감
+    const timeLeft = 30 * 60 * 1000 - timeElapsed; // 30분에서 경과된 시간 차감
 
     if (timeLeft > 0) {
         remainingTime.value = formatTime(timeLeft);
