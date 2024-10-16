@@ -3,7 +3,8 @@
         <div class="card">
             <div class="flex flex-row justify-between mb-4">
                 <label class="text-xl font-bold">공지사항 목록</label>
-                <Button label="공지사항 추가" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
+                <Button v-if="authStore.employeeData.isAdmin === 'ROLE_ADMIN'"
+                label="공지사항 추가" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
             </div>
             <div class="flex flex-row justify-between mb-4">
                 <Dropdown class="mr-2" v-model="selectedCategory" :options="categories" optionLabel="categoryName" placeholder="카테고리 선택" @change="filterNotices" />
@@ -11,33 +12,31 @@
                     <InputGroupAddon>
                         <i class="pi pi-search"></i>
                     </InputGroupAddon>
-                    <InputText placeholder="제목, 작성자" v-model="globalFilter" @input="filterNotices" />
+                    <InputText placeholder="제목 및 작성자로 검색하세요." v-model="globalFilter" @input="filterNotices" />
                 </InputGroup>
             </div>
 
             <DataTable
                 :value="filteredNotices"
+                style="table-layout: fixed;"
                 :globalFilterFields="['title', 'categoryName', 'employeeName']"
                 paginator
                 :rows="10"
                 removableSort
-                :rowsPerPageOptions="[10, 20, 30, 50]"
                 dataKey="id"
-                style="min-height: 400px"
                 @row-click="(event) => showNoticeDetail(event.data.noticeId)"
                 :metaKeySelection="false"
             >
-                <Column field="noticeId" header="번호" sortable />
-                <Column field="categoryName" header="카테고리" :sortable="true" sortField="category" />
-                <Column field="title" header="제목" sortable />
-                <Column field="employeeName" header="작성자" sortable />
                 <Column field="createdAt" header="날짜" sortable>
                     <template #body="slotProps">
                         {{ formatDateTime(slotProps.data.createdAt) }}
                     </template>
                 </Column>
+                <Column field="categoryName" header="카테고리" :sortable="true" sortField="category" />
+                <Column field="title" header="제목" :style="{ width: '60%' }" sortable />
+                <Column field="employeeName" header="작성자" sortable />
 
-                <Column header="수정 / 삭제">
+                <Column v-if="authStore.employeeData.isAdmin === 'ROLE_ADMIN'" header="수정 / 삭제">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click.stop="editNotice(slotProps.data)" />
                         <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" />
@@ -158,7 +157,7 @@ const formatDateTime = (dateString) => {
         return ''; // 잘못된 날짜일 경우 빈 문자열 반환
     }
 
-    return format(date, 'yyyy-MM-dd HH:mm:ss'); // HH:mm:ss로 수정
+    return format(date, 'MM월 dd일'); // HH:mm:ss로 수정
 };
 
 const updaterInterval = ref(null); // Interval을 저장할 변수
