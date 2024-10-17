@@ -1,185 +1,291 @@
 <template>
   <div class="notice-detail-page">
     <div class="card">
-      <label class="text-xl font-bold">공지사항 내용 {{ isEditMode ? '수정' : '보기' }}</label>
+      <label class="text-xl font-bold" style="margin-bottom: 4rem;">공지사항 내용</label>
 
-      <!-- 제목 -->
-      <p><strong>제목 : </strong>
-        <template v-if="isEditMode">
-          <input v-model="editableNotice.title" class="input-field" />
-        </template>
-        <template v-else>
-          {{ notice.title }}
-        </template>
-      </p>
+      <div class="input-group">
+        <h3 class="input-title">제 목</h3>
+        <input
+          type="text"
+          v-model="editableNotice.title"
+          class="message-input"
+          :readonly="!isEditMode"
+          placeholder="제목을 입력하세요"
+        />
+      </div>
 
-      <!-- 카테고리 -->
-      <p><strong>카테고리 : </strong>
-        <template v-if="isEditMode">
-          <select v-model="editableNotice.categoryName" class="input-field">
-            <option v-for="category in categories" :key="category.value" :value="category.value">
-              {{ category.label }}
-            </option>
-          </select>
-        </template>
-        <template v-else>
-          {{ notice.categoryName }}
-        </template>
-      </p>
+      <div class="input-group">
+        <h3 class="input-title">작성시간</h3>
+        <input
+          type="text"
+          :value="formatDateTime(editableNotice.createdAt)"
+          class="message-input"
+          readonly
+        />
+      </div>
 
-      <!-- 작성자 -->
-      <p><strong>작성자 : </strong> {{ notice.employeeName }}</p>
-      <p><strong>작성 날짜 : </strong> {{ formatDateTime(notice.createdAt) }}</p>
+      <div class="input-group">
+        <h3 class="input-title">작성자</h3>
+        <input
+          type="text"
+          v-model="editableNotice.employeeName"
+          class="message-input"
+          :readonly="!isEditMode"
+        />
+      </div>
 
-      <!-- 수정자 -->
-      <p><strong>수정자 : </strong> {{ notice.updaterName }}</p>
-      <p><strong>수정 시간 : </strong> {{ formatDateTime(notice.updateAt) }}</p>
+      <div class="input-group">
+        <h3 class="input-title">카테고리</h3>
+        <select v-model="editableNotice.categoryName" class="message-input" :disabled="!isEditMode">
+          <option v-for="category in categories" :key="category.categoryId" :value="category.categoryName">
+            {{ category.categoryName }}
+          </option>
+        </select>
+      </div>
 
-      <!-- 내용 -->
-      <p><strong>내용 : </strong></p>
-      <div class="content-scroll">
-        <template v-if="isEditMode">
-          <textarea v-model="editableNotice.content" class="textarea-field"></textarea>
-        </template>
-        <template v-else>
-          {{ notice.content }}
-        </template>
+      <div class="input-group">
+        <h3 class="input-title">수정자</h3>
+        <input
+          type="text"
+          :value="!isEditMode ? editableNotice.updaterName : authStore.employeeData.employeeName"
+          class="message-input"
+          readonly
+        />
+      </div>
+
+      <div class="input-group">
+        <h3 class="input-title">수정시간</h3>
+        <input
+          type="text"
+          :value="!isEditMode ? formatDateTime(editableNotice.updateAt) : formatDateTime(new Date())"
+          class="message-input"
+          readonly
+        />
+      </div>
+
+      <div class="input-group">
+        <h3 class="input-title">내 용</h3>
+        <div v-if="isEditMode" ref="editor" class="message-editor"></div>
+        <div v-else v-html="editableNotice.content" class="message-content"></div>
       </div>
 
       <div class="button-group">
-        <Button v-if="isEditMode" label="저장" icon="pi pi-check" class="p-button-success" @click="saveNotice" />
+        <Button v-if="!isEditMode" label="수정" icon="pi pi-pencil" class="p-button-primary" @click="enableEditMode" />
+        <Button v-if="isEditMode" label="저장" icon="pi pi-save" class="p-button-primary" @click="saveNotice" />
         <Button v-if="isEditMode" label="취소" icon="pi pi-times" class="p-button-secondary" @click="cancelEdit" />
-        <Button v-if="!isEditMode" label="수정" icon="pi pi-pencil" class="p-button-warning" @click="enableEditMode" />
-        <Button v-if="!isEditMode" label="삭제" icon="pi pi-trash" class="p-button-danger" @click="handleDeleteNotice" />
+        <Button label="삭제" icon="pi pi-trash" class="p-button-danger" @click="showDeleteDialog" />
       </div>
     </div>
+
+    <Dialog
+      header="삭제 확인"
+      v-model:visible="deleteDialogVisible"
+      :modal="true"
+      :style="{ width: '30vw' }"
+      @hide="deleteDialogVisible = false"
+    >
+      <p>정말로 이 공지사항을 삭제하시겠습니까?</p>
+      <template #footer>
+        <Button label="취소" icon="pi pi-times" @click="deleteDialogVisible = false" />
+        <Button label="삭제" icon="pi pi-trash" @click="handleDeleteNotice" class="p-button-danger" />
+      </template>
+    </Dialog>
+
   </div>
 </template>
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
-import { onMounted, ref } from 'vue';
+import { format } from 'date-fns';
+import Quill from 'quill';
+import { nextTick, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { fetchCategories } from './service/adminNoticeCategoryService';
 import { deleteNotice, fetchNoticeById, updateNotice } from './service/adminNoticeService';
 
 const route = useRoute();
 const router = useRouter();
-const notice = ref({}); // 공지사항 데이터
-const editableNotice = ref({}); // 수정 가능한 데이터
-const originalNotice = ref({}); // 원본 공지사항 데이터
-const isEditMode = ref(false); // 수정 모드 상태
-const authStore = useAuthStore(); // 로그인 정보 가져오기
-const categories = ref([]); // 카테고리 데이터를 저장할 변수
+const authStore = useAuthStore();
 
-// 공지사항 ID로 데이터 가져오기
-const loadNotice = async () => {
-  const noticeId = route.params.id;
-  try {
-    const result = await fetchNoticeById(noticeId); // Axios 사용
-    notice.value = result;
-    editableNotice.value = { ...result }; // 수정 가능 데이터 초기화
-    originalNotice.value = { ...result }; // 원본 데이터 저장
-  } catch (error) {
-    console.error('Error fetching notice:', error);
-  }
+const editableNotice = ref({});
+const isEditMode = ref(false);
+const isNewNotice = ref(!route.params.id);
+const categories = ref([]);
+const editor = ref(null);
+const quillInstance = ref(null);
+const deleteDialogVisible = ref(false); // 삭제 확인 다이얼로그 상태
+
+const formatDateTime = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return format(date, 'yyyy년 MM월 dd일 HH시 mm분 ss초');
 };
 
-// 카테고리 데이터 로드
-const loadCategories = async () => {
-  try {
-    const result = await fetchCategories(); // 카테고리 데이터 가져오기
-    categories.value = result.map(category => ({ value: category.id, label: category.name }));
-  } catch (error) {
-    console.error('Error fetching categories:', error);
+// Quill 에디터 초기화 함수
+const initializeEditor = () => {
+  if (!editor.value) return; // editor가 존재하는지 확인
+
+  quillInstance.value = new Quill(editor.value, {
+    theme: 'snow',
+    readOnly: !isEditMode.value,
+    modules: {
+      toolbar: isEditMode.value
+        ? [
+            [{ header: [1, 2, false] }],
+            ['bold', 'italic', 'underline'],
+            ['link', 'image'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+          ]
+        : false, // 툴바가 비활성화될 때는 false로 설정
+    },
+  });
+  // 에디터 초기화 후, 기존 내용 설정
+  if (editableNotice.value.content) {
+    quillInstance.value.setContents(quillInstance.value.clipboard.convert(editableNotice.value.content));
+  }
+
+  if (!isEditMode.value && quillInstance.value) {
+    quillInstance.value.disable(); // 비활성화 상태로 설정
+    quillInstance.value.enable(false); // 툴바 비활성화
   }
 };
 
 // 수정 모드 활성화
 const enableEditMode = () => {
   isEditMode.value = true;
-  editableNotice.value.updaterName = authStore.employeeData.employeeName; // 수정자가 현재 로그인된 사용자로 설정
+  nextTick(() => {
+    initializeEditor();
+    quillInstance.value.enable(true);
+  });
 };
 
-// 수정 저장 처리
+// 공지사항 데이터 불러오기 및 Quill 에디터에 표시
+const loadNotice = async () => {
+  const noticeId = route.params.id;
+  try {
+    const result = await fetchNoticeById(noticeId);
+    editableNotice.value = { ...result };
+    if (quillInstance.value) {
+      // 에디터에 기존 데이터 설정
+      nextTick(() => {
+        quillInstance.value.setContents(quillInstance.value.clipboard.convert(result.content));
+      });
+    }
+  } catch (error) {
+    console.error('공지사항 조회 오류:', error);
+  }
+};
+
+// 공지사항 저장
 const saveNotice = async () => {
+  editableNotice.value.content = quillInstance.value.root.innerHTML; // 에디터 내용 저장
   try {
-    editableNotice.value.updaterName = authStore.employeeData.employeeName; // authStore에서 이름 가져오기
-    editableNotice.value.updateAt = new Date().toISOString(); // 현재 시간을 업데이트
-    await updateNotice(notice.value.id, editableNotice.value); // 공지사항 업데이트
-    notice.value = { ...editableNotice.value }; // 변경된 공지사항 데이터 저장
-    originalNotice.value = { ...editableNotice.value }; // 수정 후 원본 데이터 갱신
-    isEditMode.value = false; // 수정 모드 해제
+    if (isNewNotice.value) {
+      await createNotice(editableNotice.value);
+    } else {
+      await updateNotice(editableNotice.value);
+    }
+    router.push('/manage-notices');
   } catch (error) {
-    console.error('Error updating notice:', error);
+    console.error('공지사항 저장 오류:', error);
   }
 };
 
-// 수정 취소 처리
+const loadCategories = async () => {
+  try {
+    const result = await fetchCategories();
+    categories.value = result;
+  } catch (error) {
+    console.error('카테고리 조회 오류:', error);
+  }
+};
+
+// 수정 취소
 const cancelEdit = () => {
-  editableNotice.value = { ...originalNotice.value }; // 원본 데이터로 복원
-  isEditMode.value = false; // 수정 모드 해제
+  isEditMode.value = false; // 수정 모드 비활성화
+  if (quillInstance.value) {
+    quillInstance.value.disable(); // 에디터 비활성화
+    console.log(editableNotice.content);
+    quillInstance.value.enable(false); // 툴바 비활성화
+  }
+  loadNotice(); // 기존 데이터로 복원
 };
 
-// 삭제 처리
+// 삭제 확인 다이얼로그 표시
+const showDeleteDialog = () => {
+  deleteDialogVisible.value = true;
+};
+
+// 공지사항 삭제
 const handleDeleteNotice = async () => {
-  const noticeId = notice.value.id; // 공지사항 ID 가져오기
-  if (!noticeId) return; // ID가 없으면 함수 종료
   try {
-    await deleteNotice(noticeId); // ID 전달하여 삭제
-    router.push({ name: 'ManageNoticePage' }); // 삭제 후 관리 페이지로 이동
+    await deleteNotice(editableNotice.value.noticeId);
+    deleteDialogVisible.value = false; // 다이얼로그 닫기
+    router.push('/manage-notices');
   } catch (error) {
-    console.error('Error deleting notice:', error);
+    console.error('공지사항 삭제 오류:', error);
   }
 };
 
-// 날짜 포맷팅 함수
-const formatDateTime = (dateString) => {
-  if (!dateString) return ''; // 유효하지 않은 경우 빈 문자열 반환
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }) + ' ' + date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-};
-
-// 공지사항, 카테고리 로드
-onMounted(() => {
-  loadNotice();
-  loadCategories();
+// 컴포넌트가 마운트될 때 실행
+onMounted(async () => {
+  await loadCategories();
+  if (!isNewNotice.value) await loadNotice(); // 데이터 로드
+  initializeEditor(); // 에디터 초기화
 });
 </script>
 
 <style scoped>
+.notice-detail-page {
+  display: flex;
+  justify-content: center;
+}
+
 .card {
-  padding: 2rem;
-  border-radius: 8px;
-  background-color: #ffffff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.card p {
-  margin-top: 2rem;
-}
-
-.input-field, .textarea-field {
   width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.5rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-title {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.message-input {
+  width: 100%;
+  padding: 0.75rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+  font-size: 1rem;
 }
 
-.content-scroll {
-  max-height: 300px;
+.message-editor {
+  height: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.75rem;
   overflow-y: auto;
-  padding: 1rem 0;
+}
+
+.message-content {
+  min-height: 300px;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  word-wrap: break-word;
 }
 
 .button-group {
-  margin-top: 1rem;
   display: flex;
   justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 </style>
