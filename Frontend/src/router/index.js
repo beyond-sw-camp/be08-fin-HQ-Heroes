@@ -126,7 +126,7 @@ const router = createRouter({
                 {
                     path: '/send-notifications', // 기존 send-notification에서 복수형으로 변경
                     name: 'send-notifications',
-                    component: () => import('@/views/pages/admin/SendNotificationPage.vue')
+                    component: () => import('@/views/pages/notification/SendNotificationPage.vue')
                 },
                 {
                     path: '/manage-notices',

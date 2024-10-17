@@ -1,27 +1,52 @@
-import { fetchGet } from '../../auth/service/AuthApiService'; // Use the existing fetchGet from AuthApiService.js
+import { fetchGet } from '../../auth/service/AuthApiService'; 
 
-const baseUrl = 'http://localhost:8080/api/v1/notification-service'; // Replace with your actual backend URL
+const baseUrl = 'http://localhost:8080/api/v1/notification-service';
 
-// Fetch notifications for a specific employee based on their ID
-export const getNotificationsByEmployeeId = async (employeeId) => {
+const getReceiveNotificationsByEmployeeId = async (employeeId) => {
     try {
         const url = `${baseUrl}/notifications/receiver/${employeeId}`;
-        const response = await fetchGet(url); // Using fetchGet instead of axios.get
-        return response;
+        const response = await fetchGet(url);
+
+        // receiveDelete가 false인 알림들을 리스트로 반환
+        const filteredNotifications = response.filter(notification => notification.receiveDelete === false);
+
+        return filteredNotifications;
     } catch (error) {
         console.error('Error fetching notifications:', error);
         return [];
     }
 };
 
-// Fetch a single notification by its ID
-export const getNotificationById = async (notificationId) => {
+
+const getSendNotificationsByEmployeeId = async (employeeId) => {
+    try {
+        const url = `${baseUrl}/notifications/receiver/${employeeId}`;
+        const response = await fetchGet(url);
+
+        
+        // sendDelete가 false인 알림들을 리스트로 반환
+        const filteredNotifications = response.filter(notification => notification.sendDelete === false);
+
+        return filteredNotifications;
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        return [];
+    }
+};
+
+const getNotificationById = async (notificationId) => {
     try {
         const url = `${baseUrl}/notification/${notificationId}`;
-        const response = await fetchGet(url); // Using fetchGet instead of axios.get
+        const response = await fetchGet(url); 
         return response;
     } catch (error) {
         console.error('Error fetching notification:', error);
         return null;
     }
 };
+
+export{
+    getReceiveNotificationsByEmployeeId,
+    getSendNotificationsByEmployeeId,
+    getNotificationById
+}

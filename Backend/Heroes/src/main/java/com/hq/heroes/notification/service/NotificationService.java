@@ -18,12 +18,12 @@ public interface NotificationService {
     @Transactional
     Notification updateNotification(Long notificationId, NotificationReqDTO requestDTO);
 
-    @Transactional
-    boolean deleteNotification(Long notificationId);
-
     List<Notification> getNotificationsByReceiverId(String employeeId);
 
     int getUnreadNotificationCount(String employeeId);
 
     boolean markAsRead(Long notificationId, String employeeId);
+
+    @Transactional
+    boolean deleteNotification(Long notificationId, String employeeId);
 }

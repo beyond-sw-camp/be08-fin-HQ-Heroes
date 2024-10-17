@@ -153,7 +153,7 @@ import Dialog from 'primevue/dialog';
 import { onMounted, ref } from 'vue';
 import { getAttendanceTimes } from './service/attendanceService';
 import { getNotices } from './service/noticeService';
-import { getNotificationsByEmployeeId } from './service/notificationService';
+import { getReceiveNotificationsByEmployeeId } from './service/notificationService';
 import { useAuthStore } from '@/stores/authStore';
 import { fetchPut } from '../auth/service/AuthApiService';
 
@@ -172,7 +172,7 @@ const authStore = useAuthStore();
 onMounted(async () => {
     announcements.value = await getNotices();
     const employeeId = window.localStorage.getItem('employeeId');
-    notifications.value = await getNotificationsByEmployeeId(employeeId);
+    notifications.value = await getReceiveNotificationsByEmployeeId(employeeId);
     await setAttendanceTimes(employeeId);
     calculateSalaryDday();
     currentDate.value = new Date().toLocaleString();
@@ -211,8 +211,8 @@ function closeDialog() {
 }
 
 const openNotificationModal = async (event) => {
-    selectedNotification.value = event.data;
 
+    selectedNotification.value = event.data;
     const notificationId = event.data.notificationId;
     const employeeId = authStore.employeeData.employeeId;
 

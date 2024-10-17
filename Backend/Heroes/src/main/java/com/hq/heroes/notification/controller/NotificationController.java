@@ -1,5 +1,6 @@
 package com.hq.heroes.notification.controller;
 
+import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.notification.dto.NotificationReqDTO;
 import com.hq.heroes.notification.dto.NotificationResDTO;
 import com.hq.heroes.notification.entity.Notification;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,19 +71,6 @@ public class NotificationController {
         }
     }
 
-    @DeleteMapping("/notification/{notification-id}")
-    @Operation(summary = "알림 삭제", description = "알림 ID로 해당 알림을 삭제한다.")
-    public ResponseEntity<Void> deleteNotification(
-            @Parameter(description = "알림 ID", example = "1") @PathVariable("notification-id") Long notificationId) {
-        boolean isDeleted = notificationService.deleteNotification(notificationId);
-
-        if (isDeleted) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
     @GetMapping("/notifications/receiver/{employeeId}")
     @Operation(summary = "수신된 알림 목록 조회", description = "수신자의 ID로 알림 목록을 조회한다.")
     public ResponseEntity<List<NotificationResDTO>> getNotificationsByReceiverId(
@@ -115,5 +105,36 @@ public class NotificationController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    // 알림 상태 업데이트 API
+    @PutMapping("/notification/{notification-id}/delete")
+    @Operation(summary = "알림 삭제 처리", description = "알림의 삭제 상태를 true로 업데이트한다.")
+    public ResponseEntity<Void> setNotificationDeleteStatus(
+            @Parameter(description = "알림 ID", example = "1") @PathVariable("notification-id") Long notificationId) {
+
+        String employeeId = "";
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof CustomEmployeeDetails) {
+                CustomEmployeeDetails userDetails = (CustomEmployeeDetails) principal;
+                employeeId = userDetails.getUsername();
+            } else {
+                System.out.println("Principal is not an instance of CustomEmployeeDetails.");
+            }
+        } else {
+            System.out.println("No authenticated user found.");
+        }
+
+        boolean updated = notificationService.deleteNotification(notificationId, employeeId);
+
+        if (updated) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 }

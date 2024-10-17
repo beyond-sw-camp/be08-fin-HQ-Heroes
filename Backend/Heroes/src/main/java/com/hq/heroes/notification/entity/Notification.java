@@ -44,6 +44,12 @@ public class Notification {
     @Column(name = "status", nullable = false)
     private NotificationStatus status = NotificationStatus.UNREAD;
 
+    @Column(name="recieve_delete", nullable = false)
+    private boolean recieveDelete = false;
+
+    @Column(name="send_delete", nullable = false)
+    private boolean sendDelete = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Date createdAt;
@@ -58,6 +64,8 @@ public class Notification {
                 .message(this.message)
                 .status(this.status)
                 .createdAt(this.createdAt)
+                .receiveDelete(this.recieveDelete)
+                .sendDelete(this.sendDelete)
                 .build();
     }
 
