@@ -92,4 +92,23 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationRepository.countByReceiver_EmployeeIdAndStatus(employeeId, NotificationStatus.UNREAD);
     }
 
+
+    @Override
+    @Transactional
+    public boolean markAsRead(Long notificationId, String employeeId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 알림이 존재하지 않습니다."));
+
+        // 수신자의 ID가 맞는지 확인
+        if (!notification.getReceiver().getEmployeeId().equals(employeeId)) {
+            throw new IllegalArgumentException("잘못된 수신자 ID입니다.");
+        }
+
+        // 알림 상태를 READ로 변경
+        notification.setStatus(NotificationStatus.READ);
+        notificationRepository.save(notification);
+
+        return true;
+    }
+
 }

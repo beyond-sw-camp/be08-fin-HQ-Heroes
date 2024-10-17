@@ -99,4 +99,21 @@ public class NotificationController {
         return ResponseEntity.ok(unreadCount);
     }
 
+
+    // 알림 상태 업데이트 API
+    @PutMapping("/notification/{notification-id}/read")
+    @Operation(summary = "알림 읽음 처리", description = "알림을 읽은 후 상태를 'READ'로 업데이트한다.")
+    public ResponseEntity<Void> markNotificationAsRead(
+            @Parameter(description = "알림 ID", example = "1") @PathVariable("notification-id") Long notificationId,
+            @Parameter(description = "수신자의 사원 ID", example = "employeeId") @RequestParam String employeeId) {
+
+        boolean updated = notificationService.markAsRead(notificationId, employeeId);
+
+        if (updated) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }
