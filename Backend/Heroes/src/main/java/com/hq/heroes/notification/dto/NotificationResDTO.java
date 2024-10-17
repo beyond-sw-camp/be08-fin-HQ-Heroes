@@ -21,4 +21,7 @@ public class NotificationResDTO {
     private String message;
     private NotificationStatus status;
     private Date createdAt;
+    private Boolean receiveDelete;
+    private Boolean sendDelete;
+
 }
