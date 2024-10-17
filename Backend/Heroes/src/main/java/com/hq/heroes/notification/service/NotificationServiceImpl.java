@@ -73,16 +73,6 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationRepository.save(notification);
     }
 
-    @Override
-    @Transactional
-    public boolean deleteNotification(Long notificationId) {
-        if (notificationRepository.existsById(notificationId)) {
-            notificationRepository.deleteById(notificationId);
-            return true;
-        }
-        return false;
-    }
-
     public List<Notification> getNotificationsByReceiverId(String employeeId) {
         return notificationRepository.findByReceiver_EmployeeId(employeeId);
     }
@@ -107,6 +97,37 @@ public class NotificationServiceImpl implements NotificationService {
         // 알림 상태를 READ로 변경
         notification.setStatus(NotificationStatus.READ);
         notificationRepository.save(notification);
+
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteNotification(Long notificationId, String employeeId) {
+
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 알림이 존재하지 않습니다."));
+
+        // 수신자 또는 발신자인지 확인
+        boolean isSender = notification.getSender().getEmployeeId().equals(employeeId);
+        boolean isReceiver = notification.getReceiver().getEmployeeId().equals(employeeId);
+
+        if (isSender) {
+            // 발신자인 경우 sendDelete를 true로 설정
+            notification.setSendDelete(true);
+        } else if (isReceiver) {
+            // 수신자인 경우 receiveDelete를 true로 설정
+            notification.setRecieveDelete(true);
+        } else {
+            throw new IllegalArgumentException("해당 알림과 관련된 사용자가 아닙니다.");
+        }
+
+        // 만약 발신자와 수신자가 모두 삭제한 경우 알림을 삭제
+        if (notification.isSendDelete() && notification.isRecieveDelete()) {
+            notificationRepository.deleteById(notificationId);
+        } else {
+            notificationRepository.save(notification); // 플래그 업데이트 후 저장
+        }
 
         return true;
     }
