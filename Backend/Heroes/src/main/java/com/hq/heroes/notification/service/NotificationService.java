@@ -24,4 +24,6 @@ public interface NotificationService {
     List<Notification> getNotificationsByReceiverId(String employeeId);
 
     int getUnreadNotificationCount(String employeeId);
+
+    boolean markAsRead(Long notificationId, String employeeId);
 }

@@ -154,6 +154,8 @@ import { onMounted, ref } from 'vue';
 import { getAttendanceTimes } from './service/attendanceService';
 import { getNotices } from './service/noticeService';
 import { getNotificationsByEmployeeId } from './service/notificationService';
+import { useAuthStore } from '@/stores/authStore';
+import { fetchPut } from '../auth/service/AuthApiService';
 
 const displayDialog = ref(false);
 const alarmDisplayDialog = ref(false);
@@ -165,6 +167,7 @@ const checkInTime = ref('');
 const checkOutTime = ref('');
 const salaryDday = ref('');
 const currentDate = ref(new Date().toLocaleDateString());
+const authStore = useAuthStore();
 
 onMounted(async () => {
     announcements.value = await getNotices();
@@ -207,10 +210,31 @@ function closeDialog() {
     selectedAnnouncement.value = null;
 }
 
-function openNotificationModal(event) {
-    selectedNotification.value = event.data; // `event.data` contains the clicked row's data
+const openNotificationModal = async (event) => {
+    selectedNotification.value = event.data;
+
+    const notificationId = event.data.notificationId;
+    const employeeId = authStore.employeeData.employeeId;
+
+    try {
+        // 백엔드로 알림 상태 변경 요청
+        const url = `http://localhost:8080/api/v1/notification-service/notification/${notificationId}/read?employeeId=${employeeId}`;
+        await fetchPut(url, {});
+
+        // 성공적으로 업데이트된 경우 UI에 반영
+        console.log('알림 상태가 READ로 변경되었습니다.');
+
+        // 상태 변경 후, 해당 알림의 상태를 'READ'로 변경
+        const notificationIndex = notifications.value.findIndex((n) => n.notificationId === notificationId);
+        if (notificationIndex !== -1) {
+            notifications.value[notificationIndex].status = 'READ';
+        }
+    } catch (error) {
+        console.error('알림 상태 업데이트 중 오류 발생:', error);
+    }
+
     alarmDisplayDialog.value = true;
-}
+};
 
 function closeNotificationModal() {
     alarmDisplayDialog.value = false;

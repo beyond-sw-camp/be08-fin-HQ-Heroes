@@ -73,7 +73,7 @@ const fetchPut = async (url, data) => {
             }
         });
 
-        if (response.status === 201) {
+        if (response.status === 201 || response.status === 200) {
             return response.data;
         } else {
             throw new Error(`Unexpected status code: ${response.status}`);
