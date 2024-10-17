@@ -100,6 +100,7 @@ onMounted(async () => {
         // 역할과 포지션 정보를 가져와서 관리자 또는 팀장 여부 확인
         const roleResponse = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
         const { role, positionId } = roleResponse;
+        const loggedInEmployeeId = roleResponse.employeeId;
 
         if (role === 'ROLE_ADMIN' || (role === 'ROLE_USER' && positionId === 1)) {
             isAdminOrTeamLead.value = true; // 관리자나 팀장일 경우 승인/반려 버튼 보이도록 설정
@@ -107,17 +108,19 @@ onMounted(async () => {
 
         // 휴가 목록 불러오기
         const response = await fetchGet('http://localhost:8080/api/v1/vacation/list');
-        employees.value = response.map((record) => ({
-            vacationId: record.vacationId,
-            employeeName: record.employeeName, // 신청인 이름
-            vacationType: mapVacationType(record.vacationType), // 휴가 종류 (한국어로 매핑)
-            vacationStart: new Date(record.vacationStartDate).toLocaleDateString(), // 시작일
-            vacationStartTime: record.vacationStartTime.substring(0, 5), // 시작 시간 (시간과 분만 표시)
-            vacationEnd: new Date(record.vacationEndDate).toLocaleDateString(), // 종료일
-            vacationEndTime: record.vacationEndTime.substring(0, 5), // 종료 시간 (시간과 분만 표시)
-            approverName: record.approverName, // 결재자 이름
-            vacationStatus: mapStatus(record.vacationStatus) // 상태 매핑 (한국어로 매핑)
-        }));
+        employees.value = response
+            .filter((record) => record.employeeId === loggedInEmployeeId)
+            .map((record) => ({
+                vacationId: record.vacationId,
+                employeeName: record.employeeName,
+                vacationType: mapVacationType(record.vacationType),
+                vacationStart: new Date(record.vacationStartDate).toLocaleDateString(),
+                vacationStartTime: record.vacationStartTime.substring(0, 5),
+                vacationEnd: new Date(record.vacationEndDate).toLocaleDateString(),
+                vacationEndTime: record.vacationEndTime.substring(0, 5),
+                approverName: record.approverName,
+                vacationStatus: mapStatus(record.vacationStatus)
+            }));
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.' });
     }

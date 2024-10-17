@@ -158,6 +158,7 @@ public class EmployeeController {
         if (employeeOptional.isPresent()) {
             Employee employee = employeeOptional.get();
             Map<String, Object> response = Map.of(
+                    "employeeId", employee.getEmployeeId(),  // employeeId 추가 반환
                     "role", employee.getRole().toString(),  // 역할: ROLE_ADMIN, ROLE_USER 등
                     "positionId", employee.getPosition().getPositionId() // positionId
             );
