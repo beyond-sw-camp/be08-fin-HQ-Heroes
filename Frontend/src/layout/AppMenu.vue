@@ -41,6 +41,7 @@ const model = ref([
                         icon: 'pi pi-fw pi-envelope',
                         items: [
                             { label: '휴가 신청', icon: 'pi pi-fw pi-calendar-times', to: '/apply-vacation' },
+                            { label: '휴가 신청 현황', icon: 'pi pi-fw pi-calendar-times', to: '/status-vacation' },
                             { label: '휴가 승인', icon: 'pi pi-fw pi-check-square', to: '/approve-vacation' }
                         ]
                     },
