@@ -84,6 +84,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/HQattendance/vacation/apply-vacation.vue')
                 },
                 {
+                    path: '/status-vacation',
+                    name: 'status-vacation',
+                    component: () => import('@/views/pages/HQattendance/vacation/status-vacation.vue')
+                },
+                {
                     path: '/approve-vacation',
                     name: 'approve-leave',
                     component: () => import('@/views/pages/HQattendance/vacation/approve-vacation.vue')
