@@ -3,7 +3,7 @@
         <div class="card">
             <div class="flex flex-row justify-between mb-4">
                 <label class="text-xl font-bold">공지사항 목록</label>
-                <Button v-if="authStore.employeeData.isAdmin === 'ROLE_ADMIN'"
+                <Button v-if="isAdmin"
                 label="공지사항 추가" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
             </div>
             <div class="flex flex-row justify-between mb-4">
@@ -33,10 +33,20 @@
                     </template>
                 </Column>
                 <Column field="categoryName" header="카테고리" :sortable="true" sortField="category" />
-                <Column field="title" header="제목" :style="{ width: '60%' }" sortable />
+                <Column field="title" header="제목"  sortable />
+                <Column field="content" header="내용" :style="{ width: '40%' }" sortable>
+                    <template #body="slotProps">
+                        <span v-if="slotProps.data.content.length > 100">
+                            {{ slotProps.data.content.slice(0, 100) }}... <!-- 내용이 100자 초과 시 잘라내고 '...' 추가 -->
+                        </span>
+                        <span v-else>
+                            {{ slotProps.data.content }}
+                        </span>
+                    </template>
+                </Column>
                 <Column field="employeeName" header="작성자" sortable />
 
-                <Column v-if="authStore.employeeData.isAdmin === 'ROLE_ADMIN'" header="수정 / 삭제">
+                <Column v-if="isAdmin">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click.stop="editNotice(slotProps.data)" />
                         <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" />
@@ -45,7 +55,7 @@
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="displayAddDialog" modal="true" :header="'공지사항 수정'" :style="{ width: '450px' }" :draggable="false" :closable="true">
+        <Dialog v-model:visible=displayAddDialog modal="true" :header="'공지사항 수정'" :style="{ width: '450px' }" :draggable=false :closable=true>
             <div class="flex flex-col gap-6">
                 <div>
                     <label for="noticeTitle" class="block font-bold mb-3">제목</label>
@@ -123,6 +133,11 @@ const isEditMode = ref(false);
 const selectedNotice = ref(null); // 선택된 공지사항
 const router = useRouter();
 
+// 관리자인지 확인
+const isAdmin = () => {
+  return authStore.employeeData.isAdmin === 'ROLE_ADMIN';
+};
+
 // 공지사항 데이터 필터링
 const filterNotices = () => {
     filteredNotices.value = notices.value.filter((notice) => {
@@ -157,7 +172,7 @@ const formatDateTime = (dateString) => {
         return ''; // 잘못된 날짜일 경우 빈 문자열 반환
     }
 
-    return format(date, 'MM월 dd일'); // HH:mm:ss로 수정
+    return format(date, 'MM월 dd일');
 };
 
 const updaterInterval = ref(null); // Interval을 저장할 변수
@@ -275,3 +290,12 @@ onBeforeUnmount(() => {
     }
 });
 </script>
+
+<style scoped>
+.card {
+    width: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+</style>
