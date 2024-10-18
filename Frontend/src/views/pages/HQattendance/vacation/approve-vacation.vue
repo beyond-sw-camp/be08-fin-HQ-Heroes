@@ -1,7 +1,16 @@
 <template>
     <div>
         <div class="card">
-            <DataTable ref="dt" :value="employees" dataKey="vacationId" :paginator="true" :rows="10" :filters="filters" paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport" currentPageReportTemplate="">
+            <DataTable
+                ref="dt"
+                :value="filteredEmployees"
+                dataKey="vacationId"
+                :paginator="true"
+                :rows="10"
+                :filters="filters"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                currentPageReportTemplate=""
+            >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <h4 class="m-0 title">휴가 관리</h4>
@@ -23,8 +32,8 @@
                 <Column field="approverName" header="결재자" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationStatus" header="상태" sortable style="min-width: 5rem"></Column>
 
-                <!-- 승인/반려 버튼 (관리자나 팀장만 표시) -->
-                <Column v-if="isAdminOrTeamLead" header="승인/반려" style="min-width: 8rem">
+                <!-- 승인/반려 버튼 (항상 표시되도록 수정) -->
+                <Column header="승인/반려" style="min-width: 8rem">
                     <template #body="slotProps">
                         <Button label="승인" :disabled="isLoading" @click="approveVacation(slotProps.data.vacationId)" class="p-button-success" />
                         <Button label="반려" :disabled="isLoading" @click="rejectVacation(slotProps.data.vacationId)" class="p-button-danger" />
@@ -78,46 +87,40 @@
 <script setup>
 import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref } from 'vue';
-import { fetchGet, fetchPost } from '../../auth/service/AuthApiService'; // 수정된 fetch 함수 사용
+import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
 
 const employees = ref([]);
 const filters = ref({ global: { value: null } });
 const selectedEmployee = ref({});
 const infoDialog = ref(false);
 const toast = useToast();
-const isAdminOrTeamLead = ref(false); // 관리자 또는 팀장 여부 확인
 
-// 관리자나 팀장일 경우 승인/반려된 항목을 제외하고 대기중인 휴가만 필터링
+// 대기중인 휴가 상태만 필터링한 직원 목록
 const filteredEmployees = computed(() => {
-    if (isAdminOrTeamLead.value) {
-        return employees.value.filter((employee) => employee.vacationStatus === '대기 중');
-    }
-    return employees.value; // 사원인 경우 모든 항목을 표시
+    return employees.value.filter((emp) => emp.vacationStatus === '대기 중');
 });
 
+// 관리자나 팀장과 상관없이 모든 사원이 볼 수 있는 페이지
 onMounted(async () => {
     try {
-        // 역할과 포지션 정보를 가져와서 관리자 또는 팀장 여부 확인
+        // 로그인한 사용자의 employeeId와 이름 가져오기
         const roleResponse = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
-        const { role, positionId } = roleResponse;
-        const loggedInEmployeeId = roleResponse.employeeId;
-
-        if (role === 'ROLE_ADMIN' || (role === 'ROLE_USER' && positionId === 1)) {
-            isAdminOrTeamLead.value = true; // 관리자나 팀장일 경우 승인/반려 버튼 보이도록 설정
-        }
+        const loggedInEmployeeName = roleResponse.employeeName; // 이름 가져오기
 
         // 휴가 목록 불러오기
         const response = await fetchGet('http://localhost:8080/api/v1/vacation/list');
+
+        // approverName이 로그인한 사용자의 이름과 일치하는 항목만 필터링
         employees.value = response
-            .filter((record) => record.employeeId === loggedInEmployeeId)
+            .filter((record) => record.approverName === loggedInEmployeeName) // 승인자 이름과 로그인한 사용자 이름 비교
             .map((record) => ({
                 vacationId: record.vacationId,
                 employeeName: record.employeeName,
                 vacationType: mapVacationType(record.vacationType),
                 vacationStart: new Date(record.vacationStartDate).toLocaleDateString(),
-                vacationStartTime: record.vacationStartTime.substring(0, 5),
+                vacationStartTime: record.vacationStartTime?.substring(0, 5),
                 vacationEnd: new Date(record.vacationEndDate).toLocaleDateString(),
-                vacationEndTime: record.vacationEndTime.substring(0, 5),
+                vacationEndTime: record.vacationEndTime?.substring(0, 5),
                 approverName: record.approverName,
                 vacationStatus: mapStatus(record.vacationStatus)
             }));
@@ -130,39 +133,35 @@ const isLoading = ref(false); // 로딩 상태 변수
 
 // 휴가 승인
 async function approveVacation(vacationId) {
-    if (isLoading.value) return; // 이미 로딩 중이면 중복 요청 방지
-    isLoading.value = true; // 로딩 시작
+    if (isLoading.value) return; // 중복 요청 방지
+    isLoading.value = true;
 
     try {
         await fetchPost(`http://localhost:8080/api/v1/vacation/approve/${vacationId}`);
         employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '승인됨' } : emp));
         toast.add({ severity: 'success', summary: 'Success', detail: '휴가가 승인되었습니다.' });
-
-        // 승인 후 새로고침
-        window.location.reload(); // 페이지 새로고침
+        window.location.reload(); // 새로고침
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: '휴가 승인 실패.' });
     } finally {
-        isLoading.value = false; // 로딩 완료
+        isLoading.value = false;
     }
 }
 
 // 휴가 반려
 async function rejectVacation(vacationId) {
-    if (isLoading.value) return; // 이미 로딩 중이면 중복 요청 방지
-    isLoading.value = true; // 로딩 시작
+    if (isLoading.value) return; // 중복 요청 방지
+    isLoading.value = true;
 
     try {
         await fetchPost(`http://localhost:8080/api/v1/vacation/reject/${vacationId}`);
         employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '반려됨' } : emp));
         toast.add({ severity: 'success', summary: 'Success', detail: '휴가가 반려되었습니다.' });
-
-        // 반려 후 새로고침
-        window.location.reload(); // 페이지 새로고침
+        window.location.reload();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: '휴가 반려 실패.' });
     } finally {
-        isLoading.value = false; // 로딩 완료
+        isLoading.value = false;
     }
 }
 
@@ -194,11 +193,6 @@ function mapVacationType(vacationType) {
         default:
             return '기타';
     }
-}
-
-function showEmployeeInfo(employee) {
-    selectedEmployee.value = employee;
-    infoDialog.value = true;
 }
 </script>
 

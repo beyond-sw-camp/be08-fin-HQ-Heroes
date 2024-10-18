@@ -135,6 +135,7 @@ public class EmployeeController {
     @GetMapping("/role-check")
     public ResponseEntity<Map<String, Object>> checkUserRoleAndPosition() {
         String employeeId = "";
+        String employeeName = "";  // 로그인한 사용자 이름 추가
         String role = "";
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -143,6 +144,7 @@ public class EmployeeController {
             if (principal instanceof CustomEmployeeDetails) {
                 CustomEmployeeDetails userDetails = (CustomEmployeeDetails) principal;
                 employeeId = userDetails.getUsername();
+                employeeName = userDetails.getUsername();
                 role = userDetails.getRole();
                 System.out.println("User is authenticated: " + employeeId + ", Role: " + role);
             } else {
@@ -159,6 +161,7 @@ public class EmployeeController {
             Employee employee = employeeOptional.get();
             Map<String, Object> response = Map.of(
                     "employeeId", employee.getEmployeeId(),  // employeeId 추가 반환
+                    "employeeName", employee.getEmployeeName(),
                     "role", employee.getRole().toString(),  // 역할: ROLE_ADMIN, ROLE_USER 등
                     "positionId", employee.getPosition().getPositionId() // positionId
             );
