@@ -165,7 +165,7 @@ const router = createRouter({
                 },
                 {
                     path: '/notice/:id',
-                    name: 'NoticeDetailPage',
+                    name: 'notice-detail',
                     component: () => import('@/views/pages/admin/NoticeDetailPage.vue')
                 }
             ]
