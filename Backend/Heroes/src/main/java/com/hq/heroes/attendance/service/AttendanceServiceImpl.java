@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -122,5 +124,24 @@ public class AttendanceServiceImpl implements AttendanceService {
                 attendance.getStatus()
         );
     }
+
+    @Override
+    public List<AttendanceDTO> findByEmployee_IdAndDateBetween(String employeeId, LocalDate startDate, LocalDate endDate) {
+        return attendanceRepository.findByEmployee_EmployeeIdAndCheckInBetween(employeeId, startDate, endDate)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // 총 근무 시간 계산
+    public int calculateTotalWorkHours(String employeeId, YearMonth targetMonth) {
+        Integer totalHours = attendanceRepository.findTotalWorkHours(
+                employeeId,
+                targetMonth.getYear(),
+                targetMonth.getMonthValue()
+        );
+        return totalHours != null ? totalHours : 0;  // null일 경우 기본값 0 반환
+    }
+
 
 }

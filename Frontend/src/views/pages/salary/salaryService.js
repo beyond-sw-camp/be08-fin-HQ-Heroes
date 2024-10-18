@@ -27,3 +27,17 @@ export const fetchSalaryByEmployeeIdAndMonth = async (employeeId, year, month) =
     throw error;
   }
 };
+
+// 해당 년도, 해당 월의 성과급 데이터 가져오기
+export const fetchBonusByEmployeeIdAndMonth = async (employeeId, year, month) => {
+  try {
+    const response = await axios.get(`${API_URL}/salaries/${employeeId}/year/${year}/month/${month}`, {
+      params: { employeeId, year, month},
+    });
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching salary data by year:', error);
+    throw error;
+  }
+};
