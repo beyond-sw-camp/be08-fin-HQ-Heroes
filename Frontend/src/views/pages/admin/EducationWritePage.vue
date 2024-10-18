@@ -34,7 +34,7 @@
                         <h3 class="input-title"><b>카테고리</b></h3>
                         <select v-model="selectedCategory" class="message-input">
                             <option value="" disabled selected>카테고리를 선택하세요</option>
-                            <option v-for="category in categories" :key="category.id" :value="category.name">
+                            <option v-for="category in categories" :key="category.id" :value="category.categoryName">
                                 {{ category.categoryName }}
                             </option>
                         </select>
@@ -72,7 +72,8 @@
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import { onBeforeMount, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { fetchPost } from '../auth/service/AuthApiService'; // fetchPost 사용
+import Swal from 'sweetalert2';
 
 export default {
     setup() {
@@ -81,16 +82,17 @@ export default {
         const instructor = ref(''); // 강사명
         const capacity = ref(0); // 수강정원
         const selectedCategory = ref(''); // 선택된 카테고리
-        const startDate = ref(''); // 시작 날짜
-        const endDate = ref(''); // 종료 날짜
         const categories = ref([]); // 카테고리 목록
         const message = ref(''); // Quill 에디터 내용
         const editor = ref(null); // Quill 에디터 참조 변수
-        const route = useRoute();
+        const startDate = ref(''); // 시작 날짜
+        const endDate = ref(''); // 종료 날짜
+
+        let quillEditor = null; // quillEditor 변수
 
         // Quill 에디터 초기화
         onMounted(() => {
-            const quillEditor = new Quill(editor.value, {
+            quillEditor = new Quill(editor.value, {
                 theme: 'snow',
                 modules: {
                     toolbar: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']]
@@ -112,12 +114,54 @@ export default {
             loadCategoriesFromStorage(); // 카테고리 로드
         });
 
+        // 카테고리 이름을 ID로 변환
+        const getCategoryById = (categoryName) => {
+            // 카테고리 목록에서 categoryName이 일치하는 항목 찾기
+            const category = categories.value.find((cat) => cat.categoryName === categoryName);
+
+            if (!category) {
+                console.error('카테고리 ID를 찾을 수 없습니다.');
+            }
+
+            // categoryId를 반환
+            return category ? category.categoryId : null;
+        };
+
         // 메시지 전송 로직
-        const sendMessage = () => {
-            console.log(
-                `교육기관: ${institution.value}, 교육명: ${subject.value}, 강사명: ${instructor.value}, 수강정원: ${capacity.value}, 카테고리: ${selectedCategory.value}, 시작 날짜: ${startDate.value}, 종료 날짜: ${endDate.value}, 내용: ${message.value}`
-            );
-            // 실제 메시지 전송 로직 추가
+        const sendMessage = async () => {
+            try {
+                const requestBody = {
+                    educationName: subject.value, // 교육명
+                    instructorName: instructor.value, // 강사명
+                    institution: institution.value, // 교육기관
+                    educationStart: startDate.value, // 시작 날짜
+                    educationEnd: endDate.value, // 종료 날짜
+                    categoryId: getCategoryById(selectedCategory.value), // 카테고리 ID
+                    educationCurriculum: message.value, // 교육 커리큘럼 (Quill 에디터 내용)
+                    participants: capacity.value // 수강정원
+                };
+
+                console.log('전송 데이터:', requestBody);
+
+                const result = await fetchPost('http://localhost:8080/api/v1/education-service/education', requestBody);
+
+                if (result) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '교육 작성 완료',
+                        text: '교육 정보가 성공적으로 작성되었습니다.',
+                        confirmButtonText: '확인'
+                    });
+                }
+            } catch (error) {
+                console.error('API 요청 실패:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '오류 발생',
+                    text: '교육 정보 작성 중 문제가 발생했습니다.',
+                    confirmButtonText: '확인'
+                });
+            }
         };
 
         return {

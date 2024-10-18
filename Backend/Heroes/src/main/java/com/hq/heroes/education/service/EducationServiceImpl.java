@@ -51,6 +51,7 @@ public class EducationServiceImpl implements EducationService {
                 .institution(requestDTO.getInstitution()) // 교육 기관
                 .startDate(LocalDate.from(requestDTO.getEducationStart())) // 교육 시작일
                 .endDate(LocalDate.from(requestDTO.getEducationEnd())) // 교육 종료일
+                .participants(requestDTO.getParticipants()) // 수강 정원
                 .educationCategory(category) // 카테고리
                 .educationCurriculum(requestDTO.getEducationCurriculum()) // 커리큘럼
                 .build();

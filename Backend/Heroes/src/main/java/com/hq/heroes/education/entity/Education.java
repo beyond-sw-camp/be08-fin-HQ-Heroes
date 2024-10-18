@@ -49,6 +49,7 @@ public class Education {
     @Column(name = "current_participant", nullable = false)
     private int currentParticipant = 0;
 
+    // 교육 커리쿨럼
     @Column(name = "educationCurriculum", nullable = false)
     private String educationCurriculum;
 
@@ -67,6 +68,7 @@ public class Education {
                 .educationEnd(LocalDate.from(this.endDate))
                 .participants(this.participants)
                 .categoryName(this.educationCategory.getCategoryName())  // 카테고리 이름 추가
+                .educationCurriculum(this.educationCurriculum)
                 .currentParticipant(this.currentParticipant)
                 .build();
     }
