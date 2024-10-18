@@ -17,7 +17,6 @@ import java.util.List;
 public class EducationServiceImpl implements EducationService {
     private final EducationRepository educationRepository;
     private final EducationCategoryRepository educationCategoryRepository;
-    private final EducationCurriculumRepository educationCurriculumRepository;
 
     @Override
     public List<Education> getEducations() {
@@ -46,9 +45,6 @@ public class EducationServiceImpl implements EducationService {
         EducationCategory category = educationCategoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
-        EducationCurriculum curriculum = educationCurriculumRepository.findById(requestDTO.getCurriculumId())
-                .orElseThrow(() -> new IllegalArgumentException("Curriculum not found"));
-
         Education education = Education.builder()
                 .educationName(requestDTO.getEducationName()) // 교육 이름
                 .instructorName(requestDTO.getInstructorName()) // 강사 이름
@@ -56,7 +52,7 @@ public class EducationServiceImpl implements EducationService {
                 .startDate(LocalDate.from(requestDTO.getEducationStart())) // 교육 시작일
                 .endDate(LocalDate.from(requestDTO.getEducationEnd())) // 교육 종료일
                 .educationCategory(category) // 카테고리
-                .educationCurriculum(curriculum) // 커리큘럼
+                .educationCurriculum(requestDTO.getEducationCurriculum()) // 커리큘럼
                 .build();
 
         return educationRepository.save(education);

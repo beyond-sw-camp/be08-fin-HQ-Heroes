@@ -19,7 +19,7 @@ public class Education {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "education_id")
-    private long educationId;
+    private Long educationId;
 
     // 강사 이름
     @Column(name = "instructor_name", nullable = false)
