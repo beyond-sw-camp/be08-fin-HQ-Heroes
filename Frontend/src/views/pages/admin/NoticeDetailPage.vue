@@ -70,7 +70,7 @@
       </div>
 
       <div class="button-group">
-        <Button v-if="!isEditMode" label="수정" icon="pi pi-pencil" class="p-button-primary" @click="enableEditMode" />
+        <Button v-if="!isEditMode" label="수정" icon="pi pi-pencil" class="p-button-primary" @click="toggleEditMode" />
         <Button v-if="isEditMode" label="저장" icon="pi pi-save" class="p-button-primary" @click="saveNotice" />
         <Button v-if="isEditMode" label="취소" icon="pi pi-times" class="p-button-secondary" @click="cancelEdit" />
         <Button label="삭제" icon="pi pi-trash" class="p-button-danger" @click="showDeleteDialog" />
@@ -122,42 +122,82 @@ const formatDateTime = (dateString) => {
 };
 
 // Quill 에디터 초기화 함수
-const initializeEditor = () => {
-  if (!editor.value) return; // editor가 존재하는지 확인
+const initializeEditor = async () => {
+  await nextTick(); // DOM이 렌더링될 때까지 대기
 
-  quillInstance.value = new Quill(editor.value, {
-    theme: 'snow',
-    readOnly: !isEditMode.value,
-    modules: {
-      toolbar: isEditMode.value
-        ? [
-            [{ header: [1, 2, false] }],
-            ['bold', 'italic', 'underline'],
-            ['link', 'image'],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-          ]
-        : false, // 툴바가 비활성화될 때는 false로 설정
-    },
-  });
-  // 에디터 초기화 후, 기존 내용 설정
-  if (editableNotice.value.content) {
-    quillInstance.value.setContents(quillInstance.value.clipboard.convert(editableNotice.value.content));
+  if (!editor.value) {
+    console.error('Quill container를 찾을 수 없습니다.');
+    return; // editor가 없으면 초기화하지 않음
   }
 
-  if (!isEditMode.value && quillInstance.value) {
-    quillInstance.value.disable(); // 비활성화 상태로 설정
-    quillInstance.value.enable(false); // 툴바 비활성화
+  if (!quillInstance.value) {
+    console.log('새 Quill 인스턴스를 생성합니다.'); // 새 인스턴스 생성
+    quillInstance.value = new Quill(editor.value, {
+      theme: 'snow',
+      modules: {
+        toolbar: isEditMode.value ? [
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline'],
+          ['link', 'image'],
+          [{ list: 'ordered' }, { list: 'bullet' }]
+        ] : false,
+      },
+    });
+  } else {
+    console.log('기존 Quill 인스턴스를 활성화합니다.');
+  }
+
+  // 수정 모드일 때만 에디터를 활성화하고 내용을 설정
+  if (isEditMode.value) {
+    quillInstance.value.enable(true); // 수정 모드일 때만 활성화
+    quillInstance.value.root.innerHTML = editableNotice.value.content || ''; // 내용 적용
+    console.log('에디터에 내용을 설정했습니다:', quillInstance.value.root.innerHTML);
+  } else {
+    if (quillInstance.value) {
+      quillInstance.value.enable(false); // 수정 모드가 아닐 때 비활성화
+    }
   }
 };
 
-// 수정 모드 활성화
-const enableEditMode = () => {
-  isEditMode.value = true;
+// 수정 모드 토글
+const toggleEditMode = () => {
+  isEditMode.value = !isEditMode.value; // 수정 모드 토글
+
   nextTick(() => {
-    initializeEditor();
-    quillInstance.value.enable(true);
+    console.log(`수정 모드 상태: ${isEditMode.value}`); // 수정 모드 상태 로그
+    initializeEditor(); // 상태 변화 후에 에디터 초기화 및 내용 설정
+
+    const editorElement = editor.value; // editor ref 사용
+    if (isEditMode.value) {
+      if (editorElement) {
+        editorElement.classList.remove('quill-editor-disabled'); // 수정 모드 활성화 시 클래스 제거
+      }
+    } else {
+      if (editorElement) {
+        editorElement.classList.add('quill-editor-disabled'); // 수정 모드 비활성화 시 클래스 추가
+      }
+    }
   });
 };
+
+
+// 수정 취소
+const cancelEdit = () => {
+  console.log('수정 모드를 취소합니다.'); // 수정 취소 로그
+  isEditMode.value = false; // 수정 모드 비활성화
+  if (quillInstance.value) {
+    quillInstance.value.enable(false); // 에디터 비활성화
+    console.log('Quill 인스턴스를 비활성화했습니다.'); // 비활성화 로그
+  }
+  
+  const editorElement = editor.value; // editor ref 사용
+  if (editorElement) {
+    editorElement.classList.add('quill-editor-disabled'); // 비활성화 클래스 추가
+  }
+  
+  loadNotice(); // 기존 데이터로 복원
+};
+
 
 // 공지사항 데이터 불러오기 및 Quill 에디터에 표시
 const loadNotice = async () => {
@@ -200,16 +240,6 @@ const loadCategories = async () => {
   }
 };
 
-// 수정 취소
-const cancelEdit = () => {
-  isEditMode.value = false; // 수정 모드 비활성화
-  if (quillInstance.value) {
-    quillInstance.value.disable(); // 에디터 비활성화
-    console.log(editableNotice.content);
-    quillInstance.value.enable(false); // 툴바 비활성화
-  }
-  loadNotice(); // 기존 데이터로 복원
-};
 
 // 삭제 확인 다이얼로그 표시
 const showDeleteDialog = () => {
@@ -287,5 +317,11 @@ onMounted(async () => {
   justify-content: flex-end;
   gap: 0.5rem;
   margin-top: 1rem;
+}
+
+/* 비활성화 스타일 추가 */
+.quill-editor-disabled {
+  pointer-events: none;
+  opacity: 0.5; /* 선택적: 비활성화 시 불투명도 조정 */
 }
 </style>

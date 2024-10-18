@@ -26,6 +26,7 @@
                 dataKey="id"
                 @row-click="(event) => showNoticeDetail(event.data.noticeId)"
                 :metaKeySelection="false"
+                selectionMode="single"
                 :rowHover="true"
             >
                 <Column field="createdAt" header="날짜" sortable>
