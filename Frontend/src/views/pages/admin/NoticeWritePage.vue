@@ -7,7 +7,7 @@
 
                     <div class="input-group">
                         <h3 class="input-title"><b>작성자 *</b></h3>
-                        <input type="text" v-model="to" class="message-input" placeholder="작성자를 입력하세요" />
+                        <input type="text" v-model="to" class="message-input readonly-input" readonly />
                     </div>
 
                     <div class="input-group">
@@ -46,6 +46,7 @@ import Swal from 'sweetalert2';
 import { onBeforeMount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchPost } from '../auth/service/AuthApiService';
+import { getLoginEmployeeInfo } from '../auth/service/authService';
 
 export default {
     setup() {
@@ -60,7 +61,7 @@ export default {
         let quillEditor = null; // quillEditor 변수 선언
 
         // Quill 에디터 초기화
-        onMounted(() => {
+        onMounted(async () => {
             quillEditor = new Quill(editor.value, {
                 theme: 'snow',
                 modules: {
@@ -79,6 +80,14 @@ export default {
 
             // 로컬 스토리지에서 employeeId 가져오기
             employeeId.value = window.localStorage.getItem('employeeId');
+
+            // 직원 정보 불러오기
+            if (employeeId.value) {
+                const employeeData = await getLoginEmployeeInfo(employeeId.value); // 로그인한 직원 정보 불러오기
+                if (employeeData && employeeData.employeeName) {
+                    to.value = employeeData.employeeName; // 작성자 이름 설정
+                }
+            }
         });
 
         // 이미지 핸들러 함수
@@ -266,5 +275,10 @@ body {
 
 .send-button:hover {
     background-color: #4f46e5;
+}
+
+.readonly-input[readonly] {
+    background-color: #f0f0f0; /* 회색 배경 */
+    cursor: not-allowed; /* 커서를 not-allowed로 변경 */
 }
 </style>

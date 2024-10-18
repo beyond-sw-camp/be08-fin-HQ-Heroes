@@ -41,14 +41,16 @@ public class Education {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
+    // 수강 정원
+    @Column(name = "participants", nullable = false)
+    private int participants;
+
     // 신청 인원
     @Column(name = "current_participant", nullable = false)
     private int currentParticipant = 0;
 
-    // EducationCurriculum과 Many-to-One 관계 (카테고리 번호)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "curriculum_id", nullable = false)
-    private EducationCurriculum educationCurriculum;
+    @Column(name = "educationCurriculum", nullable = false)
+    private String educationCurriculum;
 
     // EducationCategory과 Many-to-One 관계 (카테고리 번호)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -63,10 +65,8 @@ public class Education {
                 .institution(this.institution)
                 .educationStart(LocalDate.from(this.startDate))
                 .educationEnd(LocalDate.from(this.endDate))
-                .participants(this.educationCurriculum.getParticipants())
+                .participants(this.participants)
                 .categoryName(this.educationCategory.getCategoryName())  // 카테고리 이름 추가
-                .applicationStartDate(this.educationCurriculum.getApplicationStartDate()) // 신청 시작일 추가
-                .applicationEndDate(this.educationCurriculum.getApplicationEndDate()) // 신청 종료일 추가
                 .currentParticipant(this.currentParticipant)
                 .build();
     }

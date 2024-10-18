@@ -3,9 +3,7 @@ package com.hq.heroes.education.service;
 import com.hq.heroes.education.dto.EducationRequestDTO;
 import com.hq.heroes.education.entity.Education;
 import com.hq.heroes.education.entity.EducationCategory;
-import com.hq.heroes.education.entity.EducationCurriculum;
 import com.hq.heroes.education.repository.EducationCategoryRepository;
-import com.hq.heroes.education.repository.EducationCurriculumRepository;
 import com.hq.heroes.education.repository.EducationRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

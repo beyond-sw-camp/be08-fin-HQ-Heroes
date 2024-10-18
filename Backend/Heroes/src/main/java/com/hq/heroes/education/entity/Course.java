@@ -18,7 +18,7 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "course_id")
-    private int courseId;
+    private Long courseId;
 
     // Employee와의 Many-to-One 연관관계 매핑
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,8 +41,6 @@ public class Course {
                 .employeeName(this.employee.getEmployeeName())
                 .startDate(this.education.getStartDate())
                 .endDate(this.education.getEndDate())
-                .applicationStartDate(this.education.getEducationCurriculum().getApplicationStartDate())
-                .applicationEndDate(this.education.getEducationCurriculum().getApplicationEndDate())
                 .categoryName(this.education.getEducationCategory().getCategoryName())
                 .status(this.courseStatus)
                 .build();
