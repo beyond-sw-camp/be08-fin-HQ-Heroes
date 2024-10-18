@@ -68,7 +68,7 @@
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">공지사항</div>
-                <DataTable :value="announcements" :rows="5" :paginator="true" dataKey="noticeId" responsiveLayout="scroll" :rowHover="true" selectionMode="single" @row-click="showNoticeDetail" :metaKeySelection="false">
+                <DataTable :value="announcements" :rows="5" :paginator="true" dataKey="noticeId" responsiveLayout="scroll" :rowHover="true" selectionMode="single" @row-click="(e) => showNoticeDetail(e.data.noticeId)" :metaKeySelection="false">
                     <Column field="categoryName" header="카테고리" style="width: 20%; text-align: left" headerStyle="text-align: center" />
                     <Column field="title" header="제목" style="width: 45%; text-align: left" headerStyle="text-align: center">
                         <template #body="slotProps">
@@ -83,16 +83,6 @@
                     </Column>
                 </DataTable>
             </div>
-            <Dialog header="공지사항" v-model:visible="displayDialog" :style="{ width: '30vw' }" modal>
-                <template v-if="selectedAnnouncement">
-                    <p class="text-lg font-bold">{{ selectedAnnouncement.title }}</p>
-                    <p class="text-sm text-gray-500">{{ new Date(selectedAnnouncement.createdAt).toLocaleDateString('ko-KR') }}</p>
-                    <p class="mt-4 leading-normal">{{ selectedAnnouncement.content }}</p>
-                </template>
-                <template #footer>
-                    <Button label="Close" @click="closeDialog" />
-                </template>
-            </Dialog>
         </div>
 
         <!-- 알림 -->
@@ -148,14 +138,15 @@
 </template>
 
 <script setup>
+import router from '@/router';
+import { useAuthStore } from '@/stores/authStore';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import { onMounted, ref } from 'vue';
+import { fetchPut } from '../auth/service/AuthApiService';
 import { getAttendanceTimes } from './service/attendanceService';
 import { getNotices } from './service/noticeService';
 import { getReceiveNotificationsByEmployeeId } from './service/notificationService';
-import { useAuthStore } from '@/stores/authStore';
-import { fetchPut } from '../auth/service/AuthApiService';
 
 const displayDialog = ref(false);
 const alarmDisplayDialog = ref(false);
@@ -200,10 +191,9 @@ const formatTime = (date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
-function showNoticeDetail(event) {
-    selectedAnnouncement.value = event.data;
-    displayDialog.value = true;
-}
+const showNoticeDetail = (noticeId) => {
+  router.push({ name: 'notice-detail', params: { id: noticeId } });
+};
 
 function closeDialog() {
     displayDialog.value = false;

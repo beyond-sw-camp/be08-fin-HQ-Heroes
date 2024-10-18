@@ -26,6 +26,7 @@
                 dataKey="id"
                 @row-click="(event) => showNoticeDetail(event.data.noticeId)"
                 :metaKeySelection="false"
+                :rowHover="true"
             >
                 <Column field="createdAt" header="날짜" sortable>
                     <template #body="slotProps">
@@ -36,12 +37,9 @@
                 <Column field="title" header="제목"  sortable />
                 <Column field="content" header="내용" :style="{ width: '40%' }" sortable>
                     <template #body="slotProps">
-                        <span v-if="slotProps.data.content.length > 100">
-                            {{ slotProps.data.content.slice(0, 100) }}... <!-- 내용이 100자 초과 시 잘라내고 '...' 추가 -->
-                        </span>
-                        <span v-else>
-                            {{ slotProps.data.content }}
-                        </span>
+                        <!-- 내용이 100자 초과 시 잘라내고 '...' 추가 -->
+                        <span v-if="slotProps.data.content.length > 100" v-html="slotProps.data.content.slice(0, 100)"></span>
+                        <span v-else v-html="slotProps.data.content"></span>
                     </template>
                 </Column>
                 <Column field="employeeName" header="작성자" sortable />
