@@ -14,6 +14,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +38,51 @@ public class AttendanceController {
 
             List<AttendanceDTO> records = attendanceService.getAttendancesByEmployeeId(employeeId);
             return ResponseEntity.ok(records);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    // 특정 사원의 월별 총 근무 시간 조회
+    @GetMapping("/total-work-hours")
+    @Operation(summary = "로그인한 사용자의 월별 총 근무 시간 조회")
+    public ResponseEntity<Integer> getTotalWorkHours(
+            Authentication authentication,
+            @RequestParam("year") int year,
+            @RequestParam("month") int month
+    ) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            CustomEmployeeDetails userDetails = (CustomEmployeeDetails) authentication.getPrincipal();
+            String employeeId = userDetails.getUsername();
+
+            YearMonth targetMonth = YearMonth.of(year, month);
+            int totalWorkHours = attendanceService.calculateTotalWorkHours(employeeId, targetMonth);
+
+            return ResponseEntity.ok(totalWorkHours);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+
+    @GetMapping("/my-work-time")
+    @Operation(summary = "로그인한 사용자의 근무 시간 조회")
+    public ResponseEntity<Map<String, Double>> getMyWorkTime(Authentication authentication, @RequestParam YearMonth yearMonth) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            CustomEmployeeDetails userDetails = (CustomEmployeeDetails) authentication.getPrincipal();
+            String employeeId = userDetails.getUsername(); // employeeId 가져오기
+
+            // YearMonth를 기반으로 해당 기간의 첫날과 마지막 날 계산
+            LocalDate startDate = yearMonth.atDay(1);
+            LocalDate endDate = yearMonth.atEndOfMonth();
+
+            // 해당 기간 동안의 근태 기록 조회
+            List<AttendanceDTO> records = attendanceService.findByEmployee_IdAndDateBetween(employeeId, startDate, endDate);
+
+            // 총 근무 시간 계산
+            double totalWorkHours = records.stream()
+                    .mapToDouble(AttendanceDTO::getWorkHours)
+                    .sum();
+
+            return ResponseEntity.ok(Map.of("totalWorkHours", totalWorkHours));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }

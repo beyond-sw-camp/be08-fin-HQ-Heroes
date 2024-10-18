@@ -4,6 +4,8 @@ import com.hq.heroes.attendance.dto.AttendanceDTO;
 import com.hq.heroes.attendance.entity.Attendance;
 import com.hq.heroes.auth.entity.Employee;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 public interface AttendanceService {
@@ -19,4 +21,8 @@ public interface AttendanceService {
     List<AttendanceDTO> getAttendancesByEmployeeId(String employeeId);
 
     AttendanceDTO getLatestAttendance(String employeeId);
+
+    List<AttendanceDTO> findByEmployee_IdAndDateBetween(String employeeId, LocalDate startDate, LocalDate endDate);
+
+    public int calculateTotalWorkHours(String employeeId, YearMonth targetMonth);
 }
