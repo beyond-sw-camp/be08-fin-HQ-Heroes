@@ -39,4 +39,5 @@ public class EducationCurriculum {
     @OneToOne
     @JoinColumn(name = "education_id", referencedColumnName = "education_id")
     private Education education;
+
 }

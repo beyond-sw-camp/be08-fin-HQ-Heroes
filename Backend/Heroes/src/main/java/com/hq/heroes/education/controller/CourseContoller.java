@@ -62,8 +62,6 @@ public class CourseContoller {
                 .map(Course::toResponseDTO)
                 .collect(Collectors.toList());
 
-        System.out.println("Returned Certifications====================== " + courseDTOs);
-
         // 응답 반환
         return new ResponseEntity<>(courseDTOs, HttpStatus.OK);
     }

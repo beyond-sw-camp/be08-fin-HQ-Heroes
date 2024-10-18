@@ -15,4 +15,8 @@ public interface EducationService {
     Education updateEducation(Long educationId, EducationRequestDTO requestDTO);
 
     boolean deleteEducation(Long educationId);
+
+    boolean incrementCurrentParticipants(Long educationId);
+
+//    void incrementCurrentParticipants(Long curriculumId);
 }
