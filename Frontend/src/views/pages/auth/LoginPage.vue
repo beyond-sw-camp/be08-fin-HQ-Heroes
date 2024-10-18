@@ -1,40 +1,58 @@
 <template>
-    <div class="login-page flex items-center justify-center min-h-screen">
-        <div class="login-container bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-            <div class="text-center mb-8">
-                <div class="text-surface-900 dark:text-surface-0 text-4xl font-medium mb-4">HeRoes</div>
-                <span class="text-muted-color font-medium">로그인</span>
+    <div class="flex lg:flex-row flex-col bg-surface-0 min-h-screen">
+        <div class="flex-1 flex items-center justify-center">
+            <div class="bg-surface-0 px-6 py-20 md:px-12 lg:px-20 min-h-screen flex items-center justify-center">
+                <div class="bg-surface-0 p-6">
+                    <div class="text-center mb-8">
+                    <!-- FontAwesome 아이콘 사용 -->
+                    <font-awesome-icon icon="user" class="mb-4 text-dark" style="font-size: 4rem" />
+
+                    <div class="text-surface-900 text-3xl font-medium mb-4">HeRoes</div>
+                    <span class="text-surface-600 font-semibold leading-normal">로그인</span>
+                </div>
+
+                    <form @submit.prevent="handleLogin" class="space-y-3">
+                        <!-- 사원 코드 입력 -->
+                        <div class="flex flex-1 gap-2 items-center">
+                            <label for="employeeId" class="text-surface-900 font-semibold block">사원번호</label>
+                            <InputText type="text" id="employeeId" v-model="employeeId" placeholder="사원 번호를 입력해주세요" class="flex-1" />
+                        </div>
+
+                        <!-- 비밀번호 입력 -->
+                        <div class="flex flex-1 gap-2 items-center">
+                            <label for="password" class="text-surface-900 font-semibold block">비밀번호</label>
+                            <Password id="password" v-model="password" placeholder="비밀번호를 입력해주세요" :toggleMask="true" class="flex-1" fluid :feedback="false" />
+                        </div>
+
+                        <!-- 기억하기 체크박스 및 비밀번호 재발급 링크 -->
+                        <div class="flex items-center justify-between">
+                            <a @click="goToResetPassword" class="font-medium no-underline text-surface-600 cursor-pointer hover:text-primary">비밀번호 재발급</a>
+                        </div>
+
+                        <!-- 로그인 버튼 -->
+                        <Button type="submit" label="로그인" icon="pi pi-user" class="w-full p-3 bg-primary text-white rounded-md hover:bg-primary-600" style="width: 20rem;" />
+
+                        <!-- 회원가입 및 관리자 로그인 -->
+                        <div class="flex flex-col items-center gap-2">
+                            <a @click="goToSignUp" class="text-sm text-surface-600 font-medium leading-normal cursor-pointer hover:text-primary">회원가입</a>
+                            <a @click="goToAdminLogin" class="text-sm text-surface-600 font-medium leading-normal cursor-pointer hover:text-primary">관리자 로그인</a>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <form @submit.prevent="handleLogin" class="space-y-4">
-                <div class="flex flex-col gap-2">
-                    <label for="employeeId" class="font-medium text-gray-700">사원 코드</label>
-                    <InputText type="text" id="employeeId" v-model="employeeId" placeholder="사원 코드를 입력해주세요" class="p-3 bg-gray-100 border border-gray-300 rounded-md" />
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <label for="password" class="font-medium text-gray-700">비밀번호</label>
-                    <Password id="password" v-model="password" placeholder="비밀번호를 입력해주세요." :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
-                </div>
-
-                <div class="flex items-center justify-end">
-                    <a href="#" @click="goToResetPassword" class="text-sm text-gray-500 hover:text-primary">비밀번호 재발급</a>
-                </div>
-
-                <Button type="submit" class="w-full p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"> 로그인 </Button>
-
-                <div class="flex flex-col items-center gap-4 mt-4">
-                    <a @click="goToSignUp" class="text-sm text-gray-500 hover:text-primary cursor-pointer">회원가입</a>
-                    <a @click="goToAdminLogin" class="text-sm text-gray-500 hover:text-primary cursor-pointer">관리자 로그인</a>
-                </div>
-            </form>
+        </div>
+        <div class="flex-1 overflow-hidden">
+            <img src="https://fqjltiegiezfetthbags.supabase.co/storage/v1/render/image/public/block.images/blocks/hero/hero-1.png" alt="hero-1" class="h-screen w-screen object-cover lg:[clip-path:polygon(12%_0,100%_0%,100%_100%,0_100%)]" />
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'; // onMounted 추가
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import Button from 'primevue/button';
+import InputText from 'primevue/inputtext';
+import Password from 'primevue/password';
 import authService, { getLoginEmployeeInfo } from '../auth/service/authService';
 import { useAuthStore } from '../../../stores/authStore';
 
@@ -44,7 +62,6 @@ const password = ref('');
 const router = useRouter();
 const authStore = useAuthStore();
 
-// 컴포넌트가 마운트될 때 initializeAuth 호출
 onMounted(() => {
     authStore.initializeAuth();
 });
@@ -59,7 +76,7 @@ const handleLogin = async () => {
         if (response.success) {
             alert('로그인 성공!');
             router.push('/');
-            await authStore.setEmployeeData(getLoginEmployeeInfo(employeeId));
+            authStore.setEmployeeData(getLoginEmployeeInfo(employeeId));
         } else {
             alert('로그인 실패. 다시 시도해주세요.');
         }
@@ -68,20 +85,3 @@ const handleLogin = async () => {
     }
 };
 </script>
-
-<style scoped>
-.login-page {
-    background-color: #f9fafb;
-}
-
-.login-container {
-    background-color: #fff;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-input[type='text'],
-input[type='password'] {
-    width: 100%;
-}
-</style>
