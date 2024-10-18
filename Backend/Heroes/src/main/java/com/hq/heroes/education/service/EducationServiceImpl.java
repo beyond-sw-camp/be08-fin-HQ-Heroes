@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,17 @@ public class EducationServiceImpl implements EducationService {
     @Override
     public Education getEducationById(Long educationId) {
         return educationRepository.findById(educationId).orElse(null);
+    }
+
+    @Override
+    public boolean incrementCurrentParticipants(Long educationId) {
+        Education education = educationRepository.findById(educationId)
+                .orElseThrow(() -> new IllegalArgumentException("교육을 찾을 수 없습니다."));
+
+        // 현재 인원 수 증가
+        education.setCurrentParticipant(education.getCurrentParticipant() + 1);
+        educationRepository.save(education);
+        return true;
     }
 
     @Override

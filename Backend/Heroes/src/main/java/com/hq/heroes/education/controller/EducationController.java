@@ -51,6 +51,20 @@ public class EducationController {
         }
     }
 
+    // 교육 신청하기
+    @PostMapping("/apply/{educationId}")
+    @Operation(summary = "교육 신청하기", description = "교육 커리큘럼 ID로 교육을 신청한다.")
+    public ResponseEntity<String> applyForCourse(@PathVariable Long educationId) {
+        try {
+            educationService.incrementCurrentParticipants(educationId);
+            return ResponseEntity.ok("교육이 신청되었습니다.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("신청 실패");
+        }
+    }
+
     // 교육 정보 등록
     @PostMapping("/education")
     @Operation(summary = "교육 등록", description = "교육 정보를 받아서 등록한다.")

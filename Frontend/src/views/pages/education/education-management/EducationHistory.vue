@@ -58,7 +58,7 @@
             </Column>
             <Column field="status" sortable header="이수 여부" style="min-width: 6rem">
                 <template #body="{ data }">
-                    {{ data.status }}
+                    {{ mapStatus(data.status) }}
                 </template>
             </Column>
         </DataTable>
@@ -121,6 +121,18 @@ function initFilters() {
 // 날짜 포맷팅
 function formatDate(date) {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
+
+// 상태에 따라 이수 여부를 매핑
+function mapStatus(status) {
+    switch (status) {
+        case 'PASS':
+            return '이수';
+        case 'FAIL':
+            return '미이수';
+        default:
+            return '알 수 없음';
+    }
 }
 
 onBeforeMount(() => {

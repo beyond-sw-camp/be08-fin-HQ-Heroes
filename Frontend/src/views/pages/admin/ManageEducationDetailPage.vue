@@ -60,7 +60,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import axios from 'axios';
 
 // 라우터에서 educationId를 가져옴
 const route = useRoute();
@@ -78,10 +77,17 @@ const institution = ref(''); // institution 상태 추가
 const editMode = ref(false);
 
 // API 호출하여 교육 정보를 가져오는 함수
+const fetchGet = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error('네트워크 응답이 좋지 않습니다.');
+    }
+    return response.json();
+};
+
 const fetchEducationDetails = async (educationId) => {
     try {
-        const response = await axios.get(`http://localhost:8080/api/v1/education-service/education/${educationId}`);
-        const education = response.data;
+        const education = await fetchGet(`http://localhost:8080/api/v1/education-service/education/${educationId}`);
         educationName.value = education.educationName;
         categoryName.value = education.categoryName;
         applicationStartDate.value = education.applicationStartDate;
@@ -111,6 +117,20 @@ function enableEditMode() {
 }
 
 // 변경 사항을 저장하는 함수
+const fetchPut = async (url, data) => {
+    const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        throw new Error('네트워크 응답이 좋지 않습니다.');
+    }
+    return response.json();
+};
+
 const saveChanges = async () => {
     try {
         const educationId = route.params.educationId;
@@ -125,15 +145,13 @@ const saveChanges = async () => {
         };
 
         // 백엔드에 PUT 요청으로 수정된 내용을 저장
-        const response = await axios.put(`http://localhost:8080/api/v1/education-service/education/${educationId}`, updatedEducation);
+        const response = await fetchPut(`http://localhost:8080/api/v1/education-service/education/${educationId}`, updatedEducation);
         
-        if (response.status === 200) {
+        if (response) {
             // 저장 후 수정 모드 해제
             editMode.value = false; 
             // 변경된 값을 다시 가져와서 반영
             fetchEducationDetails(educationId);
-        } else {
-            console.error('교육 정보를 수정하는 데 실패했습니다:', response);
         }
     } catch (error) {
         console.error('변경 사항을 저장하는 데 오류가 발생했습니다:', error);
