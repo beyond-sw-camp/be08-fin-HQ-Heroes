@@ -1,9 +1,6 @@
 package com.hq.heroes.education.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,6 +17,7 @@ public class EducationResponseDTO {
     private LocalDate educationStart;  // 교육 시작일
     private LocalDate educationEnd;    // 교육 종료일
     private String categoryName; // 카테고리 이름 추가
+    private String educationCurriculum; // 교육 커리큘럼
     private int currentParticipant; // 신청인원
     private int participants; // 수강정원
 }
