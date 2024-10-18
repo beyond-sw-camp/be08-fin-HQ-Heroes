@@ -1,18 +1,18 @@
 <template>
     <div class="card">
-        <div class="font-semibold text-xl mb-4">교육 이력</div>
+        <div class="font-semibold text-xl mb-4">신청한 교육 목록</div>
         <DataTable
             :value="filteredEmployees"
             :paginator="true"
             :rows="10"
             removableSort
-            dataKey="employeeNo"
+            dataKey="courseId"
             :rowHover="true"
             v-model:filters="filters"
             filterDisplay="menu"
             :filters="filters"
             selectionMode="single"
-            :globalFilterFields="['courseName', 'categoryName', 'instructorName', 'institute']"
+            :globalFilterFields="['educationName', 'categoryName', 'instructorName', 'institute']"
             showGridlines
             @row-click="showCourseDetails"
             :metaKeySelection="false"
@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </template>
-            <template #empty> No courseId found. </template>
+            <template #empty> No courses found. </template>
 
             <!-- 테이블 컬럼들 -->
             <Column field="courseId" sortable header="No." style="min-width: 2rem; text-align: left;">
@@ -95,11 +95,12 @@ async function fetchCourseList() {
     try {
         const response = await fetchGet('http://localhost:8080/api/v1/course-service/my-courses');
         
-        // 응답 데이터가 배열인지 확인
+        console.log('API 응답:', response);  // 응답 확인
+
         if (Array.isArray(response)) {
-            courseId.value = response;  // 배열일 경우만 할당
-            filteredEmployees.value = [...courseId.value];  // filteredCertifications를 filteredEmployees로 수정
-            console.log('courseId:', courseId.value);  // 가져온 데이터 확인
+            courseId.value = response;  // API로부터 받은 데이터를 courseId에 저장
+            filteredEmployees.value = [...courseId.value];  // filteredEmployees를 업데이트
+            console.log('courseId:', courseId.value);
         } else {
             console.error('응답 데이터가 배열이 아닙니다.', response);
         }
@@ -133,6 +134,13 @@ function mapStatus(status) {
         default:
             return '알 수 없음';
     }
+}
+
+// 클릭 시 교육 상세보기
+function openEducationDetail(course) {
+    // 세부 정보 모달 또는 페이지로 이동하는 로직을 여기에 추가
+    console.log('Selected Course:', course);
+    // displayDialog.value = true;  // 모달을 열려면 주석 해제
 }
 
 onBeforeMount(() => {

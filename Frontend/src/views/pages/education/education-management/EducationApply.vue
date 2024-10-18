@@ -48,11 +48,6 @@
                     </span>
                 </template>
             </Column>
-            <Column field="educationStart" sortable header="신청 기간" dataType="date" style="min-width: 8rem; text-align: left;">
-                <template #body="{ data }">
-                    {{ formatDate(new Date(data.applicationStartDate)) }} ~ {{ formatDate(new Date(data.applicationEndDate)) }}
-                </template>
-            </Column>
             <Column field="educationEnd" sortable header="수강 기간" dataType="date" style="min-width: 8rem; text-align: left;">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.educationStart)) }} ~ {{ formatDate(new Date(data.educationEnd)) }}
@@ -89,13 +84,20 @@ const categories = ref([]);
 // 교육 목록 함수 (GET)
 async function fetchEducations() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/education-service/education');
+        // 백엔드에서 API 경로가 정확한지 확인하세요
+        const response = await axios.get('http://localhost:8080/api/v1/education-service/education'); 
         courses.value = response.data; // 가져온 데이터를 courses에 저장
         filteredEducations.value = courses.value; // 필터링된 데이터를 설정
     } catch (error) {
         console.error("교육 목록을 불러오지 못했습니다.", error);
+        // 에러가 발생한 URL과 상태 코드 출력
+        if (error.response) {
+            console.error("Status code:", error.response.status);
+            console.error("Error data:", error.response.data);
+        }
     }
 }
+
 
 // 카테고리 목록 가져오기 함수
 async function fetchCategories() {
