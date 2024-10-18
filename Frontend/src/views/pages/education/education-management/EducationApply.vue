@@ -2,7 +2,7 @@
     <div class="card">
         <div class="font-semibold text-xl mb-4">교육 신청</div>
         <DataTable
-            :value="filteredEmployees"
+            :value="filteredEducations"
             :paginator="true"
             :rows="10"
             removableSort
@@ -20,8 +20,8 @@
             <template #header>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <Dropdown v-model="selectedCategoryName" :options="categories" optionLabel="name" placeholder="카테고리를 선택하세요" @change="filterByCategoryNameAndInstructor" class="mr-2" />
-                        <Dropdown v-model="selectedInstructor" :options="instructors" optionLabel="name" placeholder="강사명을 선택하세요" @change="filterByCategoryNameAndInstructor" class="mr-2" />
+                        <Dropdown v-model="selectedcategoryName" :options="categories" optionLabel="categoryName" placeholder="카테고리를 선택하세요" @change="filterEducations" class="mr-2" />
+                        <Calendar v-model="selectedDate" placeholder="날짜를 선택하세요" :showIcon="true" class="mr-2" @change="filterEducations" />
                     </div>
                     <div class="relative search-container ml-auto">
                         <i class="pi pi-search search-icon" />
@@ -31,7 +31,6 @@
             </template>
 
             <!-- 테이블 컬럼들 -->
-            <!-- No. 부분의 너비를 줄임 -->
             <Column field="educationId" sortable header="No." style="min-width: 2rem; text-align: left;">
                 <template #body="{ data }">
                     {{ data.educationId }}
@@ -70,48 +69,52 @@ import DataTable from 'primevue/datatable';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import { onBeforeMount, ref } from 'vue';
-import { useRouter } from 'vue-router'; // useRouter 추가
-import axios from 'axios'; // axios 추가
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
-const router = useRouter(); // 라우터 객체 가져오기
+const router = useRouter();
 
 // 데이터 및 상태 관리
 const courses = ref([]); // 초기값을 빈 배열로 설정
-const filteredEmployees = ref([]);
+const filteredEducations = ref([]); // 변수명 통일
 const filters = ref(null);
 const selectedCourse = ref(null);
 const applyDialogVisible = ref(false); // 신청 모달 가시성 상태
+const selectedcategoryName = ref(null);
+const selectedDate = ref(null);
+
+// 카테고리 목록
 const categories = ref([]);
-const instructors = ref([]);
-const selectedCategoryName = ref(null);
-const selectedInstructor = ref(null);
-
-// 카테고리 및 강사 목록 가져오기
-async function fetchCategories() {
-    categories.value = [{ name: '전체' }, { name: '개발' }, { name: '디자인' }, { name: '관리' }];
-}
-
-async function fetchInstructors() {
-    instructors.value = [{ name: '전체' }, { name: '홍길동' }, { name: '이순신' }, { name: '김유신' }];
-}
 
 // 교육 목록 함수 (GET)
 async function fetchEducations() {
     try {
         const response = await axios.get('http://localhost:8080/api/v1/education-service/education');
         courses.value = response.data; // 가져온 데이터를 courses에 저장
-        filteredEmployees.value = courses.value; // 필터링된 데이터를 설정
+        filteredEducations.value = courses.value; // 필터링된 데이터를 설정
     } catch (error) {
         console.error("교육 목록을 불러오지 못했습니다.", error);
     }
 }
 
-// 필터링
-function filterByCategoryNameAndInstructor() {
-    filteredEmployees.value = courses.value.filter((course) => {
-        const matchesCategoryName = selectedCategoryName.value && selectedCategoryName.value.name !== '전체' ? course.categoryName === selectedCategoryName.value.name : true;
-        const matchesInstructor = selectedInstructor.value && selectedInstructor.value.name !== '전체' ? course.instructorName === selectedInstructor.value.name : true;
-        return matchesCategoryName && matchesInstructor;
+// 카테고리 목록 가져오기 함수
+async function fetchCategories() {
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/educationCategory-service/categories');
+        categories.value = [{ categoryName: '전체' }, ...response.data]; // '전체' 카테고리를 추가
+    } catch (error) {
+        console.error('카테고리 목록을 불러오지 못했습니다.', error);
+    }
+}
+
+// 필터링 함수
+function filterEducations() {
+    filteredEducations.value = educations.value.filter((education) => {
+        const matchesCategoryName = selectedcategoryName.value?.categoryName !== '전체' ? education.categoryName === selectedcategoryName.value.categoryName : true;
+        const matchesDate = selectedDate.value ? new Date(education.educationStart) <= new Date(selectedDate.value) && new Date(education.educationEnd) >= new Date(selectedDate.value) : true;
+        const matchesGlobalFilter = globalFilter.value ? education.educationName.toLowerCase().includes(globalFilter.value.toLowerCase()) : true;
+
+        return matchesCategoryName && matchesDate && matchesGlobalFilter;
     });
 }
 
@@ -134,23 +137,11 @@ function openEducationDetail(course) {
     router.push({ path: `/education-apply/education-detail/${course.educationId}` });
 }
 
-// 신청 모달 열기
-function openApplyModal(course) {
-    if (!course.educationId) {
-        console.error('educationId가 존재하지 않습니다:', course);
-        return;
-    }
-    selectedCourse.value = course;
-    applyDialogVisible.value = true;
-}
-
 // 초기화
 onBeforeMount(() => {
     initFilters();
     fetchCategories();
-    fetchInstructors();
     fetchEducations(); // 교육 목록 가져오기
-    filterByCategoryNameAndInstructor(); // 필터 적용
 });
 
 // 날짜 형식 변환
