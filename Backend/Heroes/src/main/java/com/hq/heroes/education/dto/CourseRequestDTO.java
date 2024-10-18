@@ -20,8 +20,6 @@ public class CourseRequestDTO {
     private String employeeName; // 사원 이름
     private LocalDate startDate; // 교육 시작일
     private LocalDate endDate; // 교육 종료일
-    private LocalDate applicationStartDate; // 신청 시작일
-    private LocalDate applicationEndDate; // 신청 종료일
     private String categoryName; // 카테고리 이름
 
     // 기본 상태값을 'FAIL (미이수)'로 설정

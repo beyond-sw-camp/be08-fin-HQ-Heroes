@@ -20,8 +20,6 @@ public class EducationResponseDTO {
     private LocalDate educationStart;  // 교육 시작일
     private LocalDate educationEnd;    // 교육 종료일
     private String categoryName; // 카테고리 이름 추가
-    private LocalDate applicationStartDate; // 신청 시작일 추가
-    private LocalDate applicationEndDate; // 신청 종료일 추가
-    private Integer currentParticipant;
-    private Integer participants;
+    private int currentParticipant; // 신청인원
+    private int participants; // 수강정원
 }

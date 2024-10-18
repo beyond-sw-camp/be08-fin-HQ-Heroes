@@ -18,8 +18,6 @@ public class CourseResponseDTO {
     private String employeeName; // 사원 이름
     private LocalDate startDate; // 강의 시작일
     private LocalDate endDate; // 강의 종료일
-    private LocalDate applicationStartDate; // 신청 시작일
-    private LocalDate applicationEndDate; // 신청 종료일
     private String categoryName; // 카테고리 이름
     private CourseStatus status; // 이수 여부
 }
