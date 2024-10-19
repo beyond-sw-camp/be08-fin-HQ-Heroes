@@ -1,18 +1,24 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import 'primeicons/primeicons.css';
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import authService from '../views/pages/auth/service/authService';
 import router from '@/router';
 import fetchReissue from '@/views/pages/auth/service/fetchReissue'; // 토큰 갱신 함수
 import Button from 'primevue/button'; // PrimeVue 버튼 import
 import Dialog from 'primevue/dialog';
+import { getReceiveNotificationsByEmployeeId, getSendNotificationsByEmployeeId } from '@/views/pages/main/service/notificationService';
 
 const { onMenuToggle } = useLayout();
 const authStore = useAuthStore();
 const remainingTime = ref(''); // 남은 시간 표시를 위한 변수
 const showReissueDialog = ref(false);
+const notificationDrawerVisible = ref(false);
+const notifications = ref([]);
+const selectedNotification = ref(null);
+const selectNotificationsList = ref(false); // false = 받은 알림, true 보낸 알림
+
 let timer = null;
 
 // 로그아웃 처리
@@ -71,10 +77,76 @@ const handleReissue = async () => {
     }
 };
 
+const fetchNotifications = async () => {
+    const employeeId = window.localStorage.getItem('employeeId');
+    notifications.value = null;
+    if (!employeeId) return;
+
+    if (selectNotificationsList.value) {
+        notifications.value = await getSendNotificationsByEmployeeId(employeeId);
+    } else {
+        notifications.value = await getReceiveNotificationsByEmployeeId(employeeId);
+    }
+};
+
+const openNotificationDrawer = async () => {
+    await fetchNotifications();
+    notificationDrawerVisible.value = true;
+};
+
+watch(selectNotificationsList, async () => {
+    await fetchNotifications();
+});
+
+const openNotificationModal = async (event) => {
+    selectedNotification.value = event.data;
+    alarmDisplayDialog.value = true;
+};
+
+const formatDate = (createdAt) => {
+    const now = new Date();
+    const notificationDate = new Date(createdAt);
+    const timeDifference = now - notificationDate;
+    const oneDayInMillis = 1000 * 60 * 60 * 24;
+
+    if (timeDifference < oneDayInMillis) {
+        return notificationDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    } else {
+        const daysAgo = Math.floor(timeDifference / oneDayInMillis);
+        return `${daysAgo}일 전`;
+    }
+};
+
+const toggleButtonStyle = computed(() => {
+    return selectNotificationsList.value
+        ? {
+              backgroundColor: '#000',
+              color: '#fff',
+              border: '2px solid #fff',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              cursor: 'pointer'
+          }
+        : {
+              backgroundColor: '#fff',
+              color: '#000',
+              border: '2px solid gray',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              cursor: 'pointer'
+          };
+});
+
 // 페이지가 로드될 때 타이머 시작
-onMounted(() => {
+onMounted(async () => {
     timer = setInterval(updateRemainingTime, 1000); // 1초마다 업데이트
     updateRemainingTime(); // 첫 화면 로드 시 바로 호출
+    const employeeId = window.localStorage.getItem('employeeId');
+    if (!selectNotificationsList) {
+        notifications.value = await getReceiveNotificationsByEmployeeId(employeeId);
+    } else {
+        notifications.value = await getSendNotificationsByEmployeeId(employeeId);
+    }
 });
 
 // 페이지가 닫힐 때 타이머 정리
@@ -136,17 +208,20 @@ const goToSignUp = () => router.push('/signup');
         </div>
 
         <div class="layout-topbar-actions">
-            <div v-if="authStore.isLoggedIn" class="token-info flex items-center">
+            <div v-if="authStore.isLoggedIn" class="token-info">
                 <!-- 남은 시간 표시 -->
-                <div>
-                    <span class="mr-1">남은 시간</span>
+                <div class="flex-row">
+                    <span class="mr-1 row">남은 시간</span>
                     <span>{{ remainingTime }}</span>
 
                     <!-- PrimeVue 버튼을 사용하여 재갱신 버튼 생성 -->
-                    <Button icon="pi pi-refresh" label="재갱신" severity="info" outlined rounded @click="handleReissue" class="ml-2" />
+                    <Button icon="pi pi-refresh" severity="info" outlined rounded @click="handleReissue" class="ml-2" />
 
                     <!-- PrimeVue 로그아웃 버튼 -->
-                    <Button icon="pi pi-sign-out" label="로그아웃" severity="danger" outlined rounded @click="handleLogout" class="ml-2" />
+                    <Button icon="pi pi-sign-out" severity="danger" outlined rounded @click="handleLogout" class="ml-2" />
+
+                    <!-- 알림 Drawer 띄우는 버튼 -->
+                    <Button class="ml-2" rounded icon="pi pi-bell" @click="openNotificationDrawer" />
                 </div>
             </div>
 
@@ -177,4 +252,56 @@ const goToSignUp = () => router.push('/signup');
             <Button icon="pi pi-refresh" label="시간 갱신" @click="handleReissue" class="w-full py-2 px-4 font-bold rounded-lg text-white" />
         </div>
     </Dialog>
+
+    <Drawer v-model:visible="notificationDrawerVisible" position="right" style="width: 40%">
+        <template #header>
+            <div class="flex items-center gap-2">
+                <Avatar :image="authStore.employeeData.profileImageUrl" shape="circle" />
+                <span class="font-bold">{{ authStore.employeeData.teamName }} {{ authStore.employeeData.employeeName }}</span>
+            </div>
+        </template>
+
+        <div class="flex items-center justify-start gap-3 mb-4">
+            <ToggleButton unstyled v-model="selectNotificationsList" onLabel="보낸 알림" offLabel="받은 알림" :style="toggleButtonStyle" />
+        </div>
+        <div class="col ml-4">
+            <span class="font-bold">알림</span>
+        </div>
+
+        <DataTable :value="notifications" :rows="9" :paginator="true" responsiveLayout="scroll" selectionMode="single" @row-click="openNotificationModal" removableSort>
+            <!-- 시간 컬럼 -->
+            <Column style="width: 25%" header="시간" sortable>
+                <template #body="slotProps">
+                    <span>{{ formatDate(slotProps.data.createdAt) }}</span>
+                </template>
+            </Column>
+
+            <!-- 보낸 사람 컬럼 -->
+            <Column field="senderName" header="보낸 사람" style="width: 25%" sortable>
+                <template #body="slotProps">
+                    <span>{{ slotProps.data.senderName }}</span>
+                </template>
+            </Column>
+
+            <!-- 카테고리 -->
+            <Column field="categoryName" header="카테고리" style="width: 25%" sortable>
+                <template #body="slotProps">
+                    <span>{{ slotProps.data.categoryName }}</span>
+                </template>
+            </Column>
+
+            <!-- 상태 -->
+            <Column field="notificationStatus" header="상태" style="width: 20%" sortable>
+                <template #body="slotProps">
+                    <span>{{ slotProps.data.status === 'READ' ? '읽음' : '안 읽음' }}</span>
+                </template>
+            </Column>
+        </DataTable>
+
+        <template #footer>
+            <div class="flex items-center gap-2">
+                <Button label="Close" icon="pi pi-times" class="flex-auto" outlined @click="notificationDrawerVisible = false" />
+            </div>
+        </template>
+    </Drawer>
 </template>
