@@ -8,10 +8,15 @@ import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
 import 'quill/dist/quill.snow.css'; // Quill의 스타일 추가
 import { createApp } from 'vue';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faUser } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import App from './App.vue';
 import router from './router';
 const app = createApp(App);
 const pinia = createPinia();
+
+library.add(faUser)
 
 const indigoPalette = {
   50: '#EEF2FF',
@@ -25,6 +30,7 @@ const indigoPalette = {
   800: '#3730A3',
   900: '#312E81',
 };
+
 // 기존 Aura 테마를 복사한 뒤 primary 색상을 indigo로 변경
 const customTheme = {
   ...Aura,
@@ -46,4 +52,5 @@ app.use(PrimeVue, {
 app.use(ToastService);
 app.use(ConfirmationService);
 app.use(pinia);
+app.component('font-awesome-icon', FontAwesomeIcon)
 app.mount('#app');
