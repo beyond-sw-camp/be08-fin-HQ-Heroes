@@ -29,8 +29,11 @@ import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
 import Avatar from 'primevue/avatar'; // PrimeVue Avatar 가져오기
 import OverlayBadge from 'primevue/overlaybadge'; // PrimeVue OverlayBadge 가져오기
 import { onMounted, ref } from 'vue';
-import { fetchGet, fetchPost } from '../views/pages/auth/service/AuthApiService'; // fetchPost, fetchGet 메서드 가져오기
+import { useRouter } from 'vue-router';
+import { fetchGet, fetchPost } from '../views/pages/auth/service/AuthApiService';
+import authService from '../views/pages/auth/service/authService'; // fetchPost, fetchGet 메서드 가져오기
 
+const router = useRouter(); // useRouter 훅 호출
 const authStore = useAuthStore();
 const currentDay = ref('');
 const currentTime = ref('');
@@ -63,16 +66,34 @@ const handleAttendance = async () => {
             const response = await fetchPost('http://localhost:8080/api/v1/attendance/check-in', { checkInTime: attendanceTime });
             if (response && response.attendanceId) {
                 isCheckedIn.value = true; // 출근 상태로 변경
+
+                // 페이지 새로고침
+                window.location.reload(); // 페이지를 다시 로드
             } else {
                 console.error('출근 처리 실패');
             }
         } else {
             // 퇴근 처리
             const response = await fetchPost('http://localhost:8080/api/v1/attendance/check-out', { checkOutTime: attendanceTime });
-            isCheckedIn.value = false; // 퇴근 상태로 변경
+            await handleLogout();
+            // 퇴근 상태로 변경
         }
     } catch (error) {
         console.error('오류 발생', error);
+    }
+};
+
+const handleLogout = async () => {
+    try {
+        isCheckedIn.value = false;
+        await authService.logout(); // 서버 로그아웃 처리
+        // authStore.logout(); // Pinia 스토어에서 로그아웃 처리
+
+        // 로그아웃 완료 후 로그인 화면으로 이동
+        await router.push('/login');
+    } catch (err) {
+        console.error('로그아웃 오류: ', err.message);
+        alert('로그아웃 중 오류가 발생했습니다.');
     }
 };
 
