@@ -83,6 +83,18 @@ public class NotificationController {
         return new ResponseEntity<>(notificationDTOs, HttpStatus.OK);
     }
 
+    @GetMapping("/notifications/sender/{employeeId}")
+    @Operation(summary = "수신된 알림 목록 조회", description = "발신자의 ID로 알림 목록을 조회한다.")
+    public ResponseEntity<List<NotificationResDTO>> getNotificationsBySenderId(
+            @Parameter(description = "수신자의 사원 ID", example = "1") @PathVariable("employeeId") String employeeId) {
+        List<Notification> notifications = notificationService.getNotificationsBySenderId(employeeId);
+        List<NotificationResDTO> notificationDTOs = notifications.stream()
+                .map(Notification::toResDTO)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(notificationDTOs, HttpStatus.OK);
+    }
+
     @GetMapping("/unread-count/{employeeId}")
     public ResponseEntity<Integer> getUnreadNotificationCount(@PathVariable String employeeId) {
         int unreadCount = notificationService.getUnreadNotificationCount(employeeId);

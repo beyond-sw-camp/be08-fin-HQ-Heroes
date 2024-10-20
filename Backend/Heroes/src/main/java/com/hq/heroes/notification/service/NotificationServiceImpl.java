@@ -78,6 +78,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public List<Notification> getNotificationsBySenderId(String employeeId) {
+        return notificationRepository.findBySender_EmployeeId(employeeId);
+    }
+
+    @Override
     public int getUnreadNotificationCount(String employeeId) {
         return notificationRepository.countByReceiver_EmployeeIdAndStatus(employeeId, NotificationStatus.UNREAD);
     }
