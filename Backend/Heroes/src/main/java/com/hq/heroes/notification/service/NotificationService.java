@@ -20,6 +20,8 @@ public interface NotificationService {
 
     List<Notification> getNotificationsByReceiverId(String employeeId);
 
+    List<Notification> getNotificationsBySenderId(String employeeId);
+
     int getUnreadNotificationCount(String employeeId);
 
     boolean markAsRead(Long notificationId, String employeeId);
