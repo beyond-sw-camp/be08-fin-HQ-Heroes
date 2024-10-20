@@ -8,6 +8,7 @@ import router from '@/router';
 import fetchReissue from '@/views/pages/auth/service/fetchReissue'; // 토큰 갱신 함수
 import Button from 'primevue/button'; // PrimeVue 버튼 import
 import Dialog from 'primevue/dialog';
+import Divider from 'primevue/divider';
 import { getReceiveNotificationsByEmployeeId, getSendNotificationsByEmployeeId } from '@/views/pages/main/service/notificationService';
 
 const { onMenuToggle } = useLayout();
@@ -262,7 +263,7 @@ const goToSignUp = () => router.push('/signup');
 
   <!-- 재갱신 요청 다이얼로그 -->
   <Dialog v-model:visible="showReissueDialog" :modal="true" :closable="false"
-    pt:mask:class="backdrop-blur-sm bg-black/50" header="시간 만료"
+    pt:mask:class="backdrop-blur-sm bg-black/50" header="시간 만료" showCloseIcon="false"
     :style="{ width: '25rem', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }" class="custom-dialog">
     <p class="text-gray-900 text-center mb-1">접근 시간이 만료되었습니다.</p>
     <p class="text-gray-700 text-sm text-center mb-4">시간을 갱신해 주세요.</p>
@@ -273,21 +274,27 @@ const goToSignUp = () => router.push('/signup');
     </div>
   </Dialog>
 
-  <Drawer v-model:visible="notificationDrawerVisible" position="right" style="width: 40%">
-    <template #header>
-      <div class="flex items-center gap-2">
-        <Avatar :image="authStore.employeeData.profileImageUrl" shape="circle" />
-        <span class="font-bold">{{ authStore.employeeData.teamName }} {{ authStore.employeeData.employeeName }}</span>
+  <Drawer v-model:visible="notificationDrawerVisible" position="right" style="width: 40%" :show-close-icon="false">
+    <div class="flex items-center justify-between mb-2">
+      <div class="col">
+        <span class="font-bold text-xl">내 알림 관리</span>
       </div>
-    </template>
 
-    <div class="flex items-center justify-start gap-3 mb-4">
+      <div class="col flex items-center gap-2 mr-2">
+        <Avatar :image="authStore.employeeData.profileImageUrl" shape="circle" />
+        <span class="font-bold">
+          {{ authStore.employeeData.teamName }} {{ authStore.employeeData.employeeName }}
+        </span>
+      </div>
+    </div>
+
+    <Divider type="solid" />
+
+    <div class="flex items-center justify-end mb-2">
       <ToggleButton unstyled v-model="selectNotificationsList" onLabel="보낸 알림" offLabel="받은 알림"
         :style="toggleButtonStyle" />
     </div>
-    <div class="col ml-4">
-      <span class="font-bold">알림</span>
-    </div>
+
 
     <!-- 받은 알림 -->
     <DataTable v-if="!selectNotificationsList" :value="notifications" :rows="9" :paginator="true"
