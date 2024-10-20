@@ -45,7 +45,15 @@ const model = ref([
                             { label: '휴가 승인', icon: 'pi pi-fw pi-check-square', to: '/approve-vacation' }
                         ]
                     },
-                    { label: '연장 근로 신청', icon: 'pi pi-fw pi-stopwatch', to: '/apply-overtime' },
+                    {
+                        label: '연장 근로',
+                        icon: 'pi pi-fw pi-stopwatch',
+                        items: [
+                            { label: '연장 근로 신청', icon: 'pi pi-fw pi-calendar-times', to: '/apply-overtime' },
+                            { label: '연장 근로 신청 현황', icon: 'pi pi-fw pi-calendar-times', to: '/status-overtime' },
+                            { label: '연장 근로 승인', icon: 'pi pi-fw pi-check-square', to: '/approve-overtime' }
+                        ]
+                    },
                     { label: '월 근태 현황', icon: 'pi pi-fw pi-chart-line', to: '/monthly-attendance-status' }
                 ]
             },

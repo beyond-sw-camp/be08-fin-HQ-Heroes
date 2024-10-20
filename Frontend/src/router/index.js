@@ -99,6 +99,16 @@ const router = createRouter({
                     component: () => import('@/views/pages/HQattendance/overtime/apply-overtime.vue')
                 },
                 {
+                    path: '/status-overtime',
+                    name: 'status-overtime',
+                    component: () => import('@/views/pages/HQattendance/overtime/status-overtime.vue')
+                },
+                {
+                    path: '/approve-overtime',
+                    name: 'approve-overtime',
+                    component: () => import('@/views/pages/HQattendance/overtime/approve-overtime.vue')
+                },
+                {
                     path: '/monthly-attendance-status',
                     name: 'monthly-attendance-status',
                     component: () => import('@/views/pages/HQattendance/attendanceStatus/monthly-attendance-status.vue')
