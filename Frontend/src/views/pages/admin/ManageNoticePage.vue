@@ -3,8 +3,7 @@
         <div class="card">
             <div class="flex flex-row justify-between mb-4">
                 <label class="text-xl font-bold">공지사항 목록</label>
-                <Button v-if="isAdmin"
-                label="공지사항 추가" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
+                <Button v-if="isAdmin()" label="공지사항 추가" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
             </div>
             <div class="flex flex-row justify-between mb-4">
                 <Dropdown class="mr-2" v-model="selectedCategory" :options="categories" optionLabel="categoryName" placeholder="카테고리 선택" @change="filterNotices" />
@@ -18,7 +17,7 @@
 
             <DataTable
                 :value="filteredNotices"
-                style="table-layout: fixed;"
+                style="table-layout: fixed"
                 :globalFilterFields="['title', 'categoryName', 'employeeName']"
                 paginator
                 :rows="10"
@@ -35,7 +34,7 @@
                     </template>
                 </Column>
                 <Column field="categoryName" header="카테고리" :sortable="true" sortField="category" />
-                <Column field="title" header="제목"  sortable />
+                <Column field="title" header="제목" sortable />
                 <Column field="content" header="내용" :style="{ width: '40%' }" sortable>
                     <template #body="slotProps">
                         <!-- 내용이 100자 초과 시 잘라내고 '...' 추가 -->
@@ -45,16 +44,16 @@
                 </Column>
                 <Column field="employeeName" header="작성자" sortable />
 
-                <Column v-if="isAdmin">
+                <Column v-if="isAdmin()">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click.stop="editNotice(slotProps.data)" />
+                        <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click="showNoticeDetail(slotProps.data.noticeId)" />
                         <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
         </div>
 
-        <Dialog v-model:visible=displayAddDialog modal="true" :header="'공지사항 수정'" :style="{ width: '450px' }" :draggable=false :closable=true>
+        <Dialog v-model:visible="displayAddDialog" modal="true" :header="'공지사항 수정'" :style="{ width: '450px' }" :draggable="false" :closable="true">
             <div class="flex flex-col gap-6">
                 <div>
                     <label for="noticeTitle" class="block font-bold mb-3">제목</label>
@@ -134,7 +133,8 @@ const router = useRouter();
 
 // 관리자인지 확인
 const isAdmin = () => {
-  return authStore.employeeData.isAdmin === 'ROLE_ADMIN';
+    // return authStore.employeeData.isAdmin === 'ROLE_ADMIN';
+    return true;
 };
 
 // 공지사항 데이터 필터링
@@ -287,6 +287,7 @@ onBeforeUnmount(() => {
     if (updaterInterval.value) {
         clearInterval(updaterInterval.value);
     }
+    isAdmin();
 });
 </script>
 

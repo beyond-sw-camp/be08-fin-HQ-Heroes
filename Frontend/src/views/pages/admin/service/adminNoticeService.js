@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { fetchPut } from '../../auth/service/AuthApiService';
 
 const API_URL = 'http://localhost:8080/api/v1/notice-service';
 
@@ -15,8 +16,8 @@ export const createNotice = async (noticeData) => {
 // 공지사항 수정
 export const updateNotice = async (noticeId, updatedData) => {
   try {
-    const response = await axios.patch(`${API_URL}/notice/${noticeId}`, updatedData);
-    return response.data;
+    const response = await fetchPut(`${API_URL}/notice/${noticeId}`, updatedData);
+    return response;
   } catch (error) {
     throw error;
   }
