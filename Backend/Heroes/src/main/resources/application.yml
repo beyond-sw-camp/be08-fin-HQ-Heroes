@@ -39,6 +39,7 @@ Spring:
         dialect: org.hibernate.dialect.MariaDBDialect
         format_sql: true
 
+
   security:
     oauth2:
       client:

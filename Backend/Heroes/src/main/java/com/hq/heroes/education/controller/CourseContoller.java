@@ -31,6 +31,7 @@ public class CourseContoller {
     @GetMapping("/my-courses")
     @Operation(summary = "사원 ID로 신청한 교육 목록 조회", description = "해당 사원이 신청한 교육 목록을 조회한다.")
     public ResponseEntity<List<CourseResponseDTO>> getCourseByEmployeeId() {
+
         String employeeId = "";
 
         // Spring Security를 통해 인증된 사용자 정보 가져오기

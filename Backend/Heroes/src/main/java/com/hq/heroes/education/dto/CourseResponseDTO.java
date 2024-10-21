@@ -1,10 +1,7 @@
 package com.hq.heroes.education.dto;
 
 import com.hq.heroes.education.entity.enums.CourseStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 

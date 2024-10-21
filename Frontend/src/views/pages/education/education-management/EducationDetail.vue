@@ -113,6 +113,7 @@ onMounted(() => {
 const handleApplyClick = async () => {
     const totalParticipants = participants.value;
     const newParticipantCount = currentParticipant.value + 1;
+    const employeeId = window.localStorage.getItem('employeeId'); // 로컬스토리지에서 ID 가져오기
 
     if (newParticipantCount > totalParticipants) {
         alert("신청 인원이 초과하였습니다");
@@ -124,7 +125,7 @@ const handleApplyClick = async () => {
     };
 
     try {
-        const response = await fetchPost(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}`, data);
+        const response = await fetchPost(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
         
         if (!response.ok) {
             throw new Error(`서버 오류: ${response.status}`);

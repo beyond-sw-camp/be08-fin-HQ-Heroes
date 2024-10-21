@@ -1,8 +1,13 @@
 package com.hq.heroes.education.service;
 
+import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.education.dto.EducationRequestDTO;
+import com.hq.heroes.education.entity.Course;
 import com.hq.heroes.education.entity.Education;
 import com.hq.heroes.education.entity.EducationCategory;
+import com.hq.heroes.education.entity.enums.CourseStatus;
+import com.hq.heroes.education.repository.CourseRepository;
 import com.hq.heroes.education.repository.EducationCategoryRepository;
 import com.hq.heroes.education.repository.EducationRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,12 +16,16 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class EducationServiceImpl implements EducationService {
+
     private final EducationRepository educationRepository;
     private final EducationCategoryRepository educationCategoryRepository;
+    private final CourseRepository courseRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Override
     public List<Education> getEducations() {
@@ -29,13 +38,31 @@ public class EducationServiceImpl implements EducationService {
     }
 
     @Override
-    public boolean incrementCurrentParticipants(Long educationId) {
+    public boolean incrementCurrentParticipants(Long educationId, String employeeId) {
+
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(() -> new IllegalArgumentException("교육을 찾을 수 없습니다."));
+
+        Employee employee = employeeRepository.findByEmployeeId(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("사원을 찾을 수 없습니다."));
 
         // 현재 인원 수 증가
         education.setCurrentParticipant(education.getCurrentParticipant() + 1);
         educationRepository.save(education);
+
+        System.out.println("employee = " + employee);
+        System.out.println("education = " + education);
+
+        Course course = Course.builder()
+                .education(education)
+                .employee(employee)
+                .courseStatus(CourseStatus.FAIL)
+                .build();
+
+        System.out.println("course = " + course);
+
+        courseRepository.save(course);
+
         return true;
     }
 

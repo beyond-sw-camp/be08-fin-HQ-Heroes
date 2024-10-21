@@ -16,7 +16,7 @@ public interface EducationService {
 
     boolean deleteEducation(Long educationId);
 
-    boolean incrementCurrentParticipants(Long educationId);
+    boolean incrementCurrentParticipants(Long educationId, String employeeId);
 
 //    void incrementCurrentParticipants(Long curriculumId);
 }
