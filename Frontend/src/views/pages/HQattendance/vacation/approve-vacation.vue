@@ -23,7 +23,7 @@
                     </div>
                 </template>
 
-                <Column field="employeeName" header="이름" sortable style="min-width: 5rem"></Column>
+                <Column field="applicantName" header="이름" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationType" header="휴가 종류" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationStart" header="시작일" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationEnd" header="종료일" sortable style="min-width: 5rem"></Column>
@@ -45,8 +45,8 @@
         <Dialog v-model:visible="infoDialog" :style="{ width: '450px' }" header="휴가 정보" :modal="true">
             <div class="flex flex-col gap-4">
                 <div>
-                    <label for="employeeName" class="block font-bold mb-2">이름</label>
-                    <p id="employeeName">{{ selectedEmployee.employeeName }}</p>
+                    <label for="applicantName" class="block font-bold mb-2">이름</label>
+                    <p id="applicantName">{{ selectedEmployee.applicantName }}</p>
                 </div>
                 <div>
                     <label for="vacationType" class="block font-bold mb-2">휴가 종류</label>
@@ -115,7 +115,7 @@ onMounted(async () => {
             .filter((record) => record.approverName === loggedInEmployeeName) // 승인자 이름과 로그인한 사용자 이름 비교
             .map((record) => ({
                 vacationId: record.vacationId,
-                employeeName: record.employeeName,
+                applicantName: record.applicantName,
                 vacationType: mapVacationType(record.vacationType),
                 vacationStart: new Date(record.vacationStartDate).toLocaleDateString(),
                 vacationStartTime: record.vacationStartTime?.substring(0, 5),

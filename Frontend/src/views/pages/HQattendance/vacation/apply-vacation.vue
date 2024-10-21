@@ -56,7 +56,7 @@
                         <div class="name-block">
                             <label for="applicant" class="label">신청인</label>
                             <!-- TreeSelect로 신청인 선택 -->
-                            <TreeSelect v-model="form.employeeName" :options="employeeTreeData" @node-select="handleEmployeeChange" optionLabel="label" selectionMode="single" class="input" placeholder="신청인을 선택하세요">
+                            <TreeSelect v-model="form.applicantName" :options="employeeTreeData" @node-select="handleEmployeeChange" optionLabel="label" selectionMode="single" class="input" placeholder="신청인을 선택하세요">
                                 <template #default="slotProps">
                                     <div class="flex items-center">
                                         <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X" size="normal" shape="circle" class="mr-2" style="background-color: #dee9fc; color: #1a2551" />
@@ -99,6 +99,9 @@ import axios from 'axios';
 import Avatar from 'primevue/avatar'; // Avatar 컴포넌트
 import TreeSelect from 'primevue/treeselect'; // TreeSelect 컴포넌트
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const form = ref({
     vacationType: 'DAY_OFF', // 기본적으로 월차가 선택됨
@@ -106,7 +109,7 @@ const form = ref({
     vacationEndDate: '', // 기본값: 오늘 날짜
     vacationStartTime: '09:00', // 시작 시간 기본값
     vacationEndTime: '18:00', // 종료 시간 기본값
-    employeeName: '', // 신청인 이름
+    applicantName: '', // 신청인 이름
     approverName: '', // 결재자 이름
     approverId: '',
     comment: ''
@@ -122,7 +125,7 @@ const employeeTreeData = ref([]); // 트리 형식의 사원 목록 데이터
 const approverTreeData = ref([]); // 트리 형식의 결재자 목록 데이터 (팀장만)
 
 const selectedApproverName = ref('');
-const selectedEmployeeName = ref('');
+const selectedApplicantName = ref('');
 const selectedApplicantId = ref('');
 const selectedApproverId = ref('');
 
@@ -214,7 +217,7 @@ onMounted(() => {
 
 const handleEmployeeChange = (selectedEmployee) => {
     selectedApplicantId.value = selectedEmployee.key; // 선택된 신청인의 ID 추출
-    selectedEmployeeName.value = Object(selectedEmployee).label; // 선택된 신청인의 이름 설정
+    selectedApplicantName.value = Object(selectedEmployee).label; // 선택된 신청인의 이름 설정
 };
 
 const handleApproverChange = (selectedApprover) => {
@@ -233,8 +236,9 @@ const submitForm = async () => {
             vacationStartTime: form.value.vacationStartTime || '00:00',
             vacationEndDate: form.value.vacationEndDate,
             vacationEndTime: form.value.vacationEndTime || '23:59',
-            employeeName: selectedEmployeeName.value,
+            employeeName: employeeData.value.employeeName,
             approverName: selectedApproverName.value,
+            applicantName: selectedApplicantName.value,
             comment: form.value.comment
         };
 
@@ -244,6 +248,7 @@ const submitForm = async () => {
             headers: { 'Content-Type': 'application/json' }
         });
         alert('휴가 신청이 완료되었습니다.');
+        await router.push('/status-vacation');
     } catch (error) {
         console.error('휴가 신청 중 오류가 발생했습니다:', error);
         alert('휴가 신청 중 오류가 발생했습니다. 다시 시도해주세요.');
