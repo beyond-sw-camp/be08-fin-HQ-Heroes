@@ -78,8 +78,8 @@
 
 <script setup>
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService'; // 메서드 가져오기
-import axios from 'axios';
 import { onMounted, ref } from 'vue';
+import { fetchPost } from '../../auth/service/AuthApiService';
 
 const form = ref({
     vacationType: 'DAY_OFF', // 기본적으로 월차가 선택됨
@@ -158,12 +158,13 @@ const submitForm = async () => {
 
         console.log('Request body:', requestBody); // 백엔드로 전송되는 데이터 확인
 
-        const response = await axios.post('http://localhost:8080/api/v1/vacation/submit', requestBody, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        alert('휴가 신청이 완료되었습니다.');
+        const response = await fetchPost('http://localhost:8080/api/v1/vacation/submit', requestBody);
+
+        if (response) {
+            alert('휴가 신청이 완료되었습니다.');
+        } else {
+            alert('휴가 신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+        }
     } catch (error) {
         console.error('휴가 신청 중 오류가 발생했습니다:', error);
         alert('휴가 신청 중 오류가 발생했습니다. 다시 시도해주세요.');
