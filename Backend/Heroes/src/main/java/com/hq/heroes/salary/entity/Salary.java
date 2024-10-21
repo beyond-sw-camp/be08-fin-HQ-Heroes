@@ -4,6 +4,7 @@ import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.employee.entity.Position;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -36,6 +37,7 @@ public class Salary {
     private LocalDateTime performanceDate; // 성과급 지급 날짜
 
     // 성과급 계산 메서드 (1월, 7월에 지급)
+    @Transactional(readOnly = true)
     public Double calculatePerformanceBonus() {
         return position.getBaseSalary() * performanceBonus;
     }

@@ -5,7 +5,9 @@ import com.hq.heroes.salary.dto.SalaryHistoryDTO;
 import java.util.List;
 
 public interface SalaryHistoryService {
-    List<SalaryHistoryDTO> getSalariesUpToCurrentMonth(String employeeId, int year);
-    SalaryHistoryDTO getSalaryByEmployeeIdAndMonth(String employeeId, int year, int month);
+    List<SalaryHistoryDTO> getAllSalaries(String employeeId); // 전체 급여 기록 조회 메서드
+
     SalaryHistoryDTO createSalary(SalaryHistoryDTO SalaryHistoryDTO);
+
+    Double getLastThreeMonthsSalarySum(String employeeId);
 }
