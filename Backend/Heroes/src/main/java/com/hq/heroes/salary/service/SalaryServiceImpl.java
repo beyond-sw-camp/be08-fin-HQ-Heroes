@@ -1,5 +1,7 @@
 package com.hq.heroes.salary.service;
 
+import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.salary.dto.SalaryDTO;
@@ -9,50 +11,27 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class SalaryServiceImpl implements SalaryService {
 
     private final SalaryRepository salaryRepository;
-    private final PositionRepository positionRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Override
-    public SalaryDTO getSalaryByPositionId(Long positionId) {
-        Position position = positionRepository.findById(positionId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid position ID"));
+    public Optional<Double> getBaseSalaryByPositionId(String employeeId) {
+        // 1. 직원 조회 (employeeId로 직원의 positionId 찾기)
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 직원이 존재하지 않습니다."));
 
-        Salary salary = salaryRepository.findByPosition(position)
-                .orElseThrow(() -> new IllegalArgumentException("No salary record found for this position"));
-
-        return SalaryDTO.builder()
-                .salaryId(salary.getSalaryId())
-                .positionId(positionId)
-                .employeeId(salary.getEmployee().getEmployeeId())
-                .performanceBonus(salary.getPerformanceBonus())
-                .baseSalary(position.getBaseSalary())
-                .build();
+        // 2. 직책 정보 조회 (positionId로 baseSalary 찾기)
+        return Optional.ofNullable(employee.getPosition().getBaseSalary());
     }
 
     @Override
-    public List<SalaryDTO> getSalariesByEmployeeIdAndYear(String employeeId, int year) {
-        List<Salary> salaries = salaryRepository.findByEmployeeIdAndYear(employeeId, year);
-        return salaries.stream().map(this::convertToDTO).toList(); // 엔티티를 DTO로 변환
-    }
-
-    @Override
-    public List<SalaryDTO> getSalariesByEmployeeIdAndYearAndMonth(String employeeId, int year, int month) {
-        List<Salary> salaries = salaryRepository.findByEmployeeIdAndYearAndMonth(employeeId, year, month);
-        return salaries.stream().map(this::convertToDTO).toList(); // 엔티티를 DTO로 변환
-    }
-
-    private SalaryDTO convertToDTO(Salary salary) {
-        return SalaryDTO.builder()
-                .salaryId(salary.getSalaryId())
-                .positionId(salary.getPosition().getPositionId())
-                .employeeId(salary.getEmployee().getEmployeeId())
-                .performanceBonus(salary.getPerformanceBonus())
-                .baseSalary(salary.getPosition().getBaseSalary())
-                .build();
+    public List<SalaryDTO> getAllSalariesByEmployeeId(String employeeId) {
+        return salaryRepository.findByEmployeeId(employeeId);
     }
 }

@@ -1,5 +1,8 @@
 package com.hq.heroes.salary.service;
 
+import com.hq.heroes.attendance.dto.AttendanceDTO;
+import com.hq.heroes.attendance.repository.AttendanceRepository;
+import com.hq.heroes.attendance.service.AttendanceService;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.entity.Position;
@@ -7,13 +10,16 @@ import com.hq.heroes.salary.dto.SalaryHistoryDTO;
 import com.hq.heroes.salary.entity.Deduct;
 import com.hq.heroes.salary.entity.Salary;
 import com.hq.heroes.salary.entity.SalaryHistory;
+import com.hq.heroes.salary.entity.enums.Status;
 import com.hq.heroes.salary.repository.DeductRepository;
 import com.hq.heroes.salary.repository.SalaryHistoryRepository;
 import com.hq.heroes.salary.repository.SalaryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,28 +27,21 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SalaryHistoryServiceImpl implements SalaryHistoryService {
-
     private final SalaryHistoryRepository salaryHistoryRepository;
     private final SalaryRepository salaryRepository;
     private final EmployeeRepository employeeRepository;
     private final DeductRepository deductRepository;
+    private final AttendanceService attendanceService;
 
     @Override
-    public List<SalaryHistoryDTO> getSalariesUpToCurrentMonth(String employeeId, int year) {
-        List<SalaryHistory> salaries = salaryHistoryRepository.findByEmployee_employeeIdAndYear(employeeId, year);
-        int currentMonth = LocalDate.now().getMonthValue();
-        List<SalaryHistory> filteredSalaries = salaries.stream()
-                .filter(s -> s.getSalaryMonth().getMonthValue() <= currentMonth)
+    public List<SalaryHistoryDTO> getAllSalaries(String employeeId) {
+        List<SalaryHistory> histories = salaryHistoryRepository.findByEmployee_EmployeeId(employeeId);
+
+        return histories.stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
-
-        return filteredSalaries.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    @Override
-    public SalaryHistoryDTO getSalaryByEmployeeIdAndMonth(String employeeId, int year, int month) {
-        List<SalaryHistory> salaries = salaryHistoryRepository.findByEmployee_employeeIdAndYearAndMonth(employeeId, year, month);
-        return salaries.isEmpty() ? null : convertToDTO(salaries.get(0));
-    }
 
     @Override
     public SalaryHistoryDTO createSalary(SalaryHistoryDTO dto) {
@@ -126,6 +125,31 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
                 .incomeTax(salaryHistory.getIncomeTax())
                 .localIncomeTax(salaryHistory.getLocalIncomeTax())
                 .build();
+    }
+
+    @Override
+    public Double getLastThreeMonthsSalarySum(String employeeId) {
+        // 마지막 출퇴근 기록 가져오기
+        AttendanceDTO latestAttendance = attendanceService.getLatestAttendance(employeeId);
+        LocalDateTime latestCheckOut = latestAttendance.getCheckOut(); // 마지막 퇴근 시간
+
+        if (latestCheckOut == null) {
+            // 퇴근 시간이 없는 경우 0.0 반환
+            return 0.0;
+        }
+
+        // 퇴근 날짜 기준 3개월 전 시작 날짜 계산
+        LocalDateTime threeMonthsAgo = latestCheckOut.minusMonths(3).withHour(0).withMinute(0);
+
+        // 3개월 기간의 급여 기록 조회
+        List<SalaryHistory> salaryHistories = salaryHistoryRepository.findLastThreeMonthsSalaries(
+                employeeId, threeMonthsAgo, latestCheckOut
+        );
+
+        // 급여 합계 계산 후 반환
+        return salaryHistories.stream()
+                .mapToDouble(SalaryHistory::getPostTaxTotal) // 세후 급여 합계
+                .sum();
     }
 
 }

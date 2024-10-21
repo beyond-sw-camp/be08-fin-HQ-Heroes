@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card salary-management-wrapper" :class="{ blur: isBlurred }">
     <div class="salary-management">
       <div class="header">
         <label class="text-2xl font-bold text-gray-800">급여 관리</label>
@@ -17,22 +17,22 @@
           class="calendar"
         />
       </div>
+
       <div class="salary-cards">
         <div class="grid grid-cols-12 gap-6">
           <div v-if="monthsList.length === 0" class="col-span-12">
             <p class="text-center text-gray-500">급여 데이터가 없습니다.</p>
           </div>
           <div v-for="month in monthsList" :key="month.id" class="col-span-12 lg:col-span-6 xl:col-span-4">
-            <div class="card mb-0 p-4 custom-box relative transition-transform duration-200 hover:scale-105">
+            <div class="card p-4 custom-box relative transition-transform duration-200 hover:scale-105">
               <div class="text-left">
                 <div class="flex items-center justify-between mb-4">
                   <i :class="month.icon" class="text-gray-600 text-3xl"></i>
                 </div>
-                <span class="block text-muted-color font-medium text-lg">{{ getMonthLabel(month.salaryMonth) }} 급여</span>
+                <span class="block text-muted-color font-medium text-lg">{{ getMonthLabel(new Date(month.salaryMonth).getMonth()) }} 급여</span>
                 <div class="status-badge" :class="month.status === 'PAID' ? 'PAID' : 'PENDING'">
                   {{ month.status === 'PAID' ? '지급' : '미지급' }}
                 </div>
-
                 <div class="text-surface-900 font-medium text-lg mt-2">
                   <div>총 급여 : {{ formatCurrency(month.preTaxTotal) }}</div>
                   <div>공제액 : {{ formatCurrency(calculateTotalDeductions(month)) }}</div>
@@ -42,83 +42,83 @@
                   label="급여내역보기"
                   class="p-button-secondary mt-4"
                   style="width: 100%;"
-                  @click="() => { showSalaryModal(month); }"
+                  @click="showSalaryModal(month)"
                 />
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div :class="['salary-management', { blur : isBlurred }]">
-        <Dialog
-          :header="salaryDialogHeader"
-          v-model:visible="displayModal"
-          :style="{ width: '70vw', marginLeft: '15%', marginTop: '5%' }"
-          class="salary-dialog"
-        >
-          <div class="salary-modal">
-            <div class="salary-details">
-              <div class="left-panel">
-                <h3 class="text-xl font-semibold text-gray-800">급여 상세 정보</h3>
-                <div class="info-item">
-                  <span>총 근무시간 :</span>
-                  <span>{{ selectedMonth?.totalWorkHours }} 시간</span>
-                </div>
-                <div class="info-item">
-                  <span>시급 :</span>
-                  <span>{{ formatCurrency(selectedMonth?.baseSalary) }}</span>
-                </div>
-                <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(selectedMonth.salaryMonth) === '1월' || getMonthLabel(selectedMonth.salaryMonth) === '7월')" class="info-item">
-                  <span>성과급 :</span>
-                  <span>{{ formatCurrency(selectedMonth?.performanceBonus || 0) }}</span>
-                </div>
-                <div class="total-deductions font-semibold mt-4">
-                  <span>급여 합계 :</span>
-                  <span>{{ formatCurrency(selectedMonth?.baseSalary + (selectedMonth?.bonus || 0)) }}</span>
-                </div>
-              </div>
 
-              <div class="right-panel">
-                <h3 class="text-xl font-semibold text-gray-800">공제액</h3>
-                <div v-if="deductions && deductions.length">
-                  <div class="deduction-item" v-for="deduction in deductions" :key="deduction.type">
-                    <span>{{ deduction.type }} :</span>
-                    <span>{{ formatCurrency(deduction.amount) }}</span>
-                  </div>
-                </div>
-                <div v-else>
-                  <p>급여 데이터가 없습니다.</p>
-                </div>
-                <div class="total-deductions font-semibold mt-4">
-                  <span>공제액 합계:</span>
-                  <span>{{ formatCurrency(totalDeductions) }}</span>
-                </div>
+      <Dialog
+        :header="salaryDialogHeader"
+        v-model:visible="displayModal"
+        :style="{ width: '70vw', marginLeft: '15%', marginTop: '5%' }"
+        class="salary-dialog"
+        @hide="closeSalaryModal"
+        :draggable="false"
+      >
+        <div class="salary-modal">
+          <div class="salary-details">
+            <div class="left-panel">
+              <h3 class="text-xl font-semibold text-gray-800">급여 상세 정보</h3>
+              <div class="info-item">
+                <span>총 근무시간 :</span>
+                <span>{{ selectedMonth?.totalWorkHours }} 시간</span>
+              </div>
+              <div class="info-item">
+                <span>시급 :</span>
+                <span>{{ formatCurrency(selectedMonth?.baseSalary) }}</span>
+              </div>
+              <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(selectedMonth.salaryMonth) === '1월' || getMonthLabel(selectedMonth.salaryMonth) === '7월')" class="info-item">
+                <span>성과급 :</span>
+                <span>{{ formatCurrency(selectedMonth?.performanceBonus || 0) }}</span>
+              </div>
+              <div class="total-deductions font-semibold mt-4">
+                <span>급여 합계 :</span>
+                <span>{{ formatCurrency(selectedMonth?.totalWorkHours * selectedMonth?.baseSalary + (selectedMonth?.bonus || 0)) }}</span>
               </div>
             </div>
-            <div class="modal-footer">
-              <Button label="닫기" class="p-button-text" @click="displayModal = false" />
+
+            <div class="right-panel">
+              <h3 class="text-xl font-semibold text-gray-800">공제액</h3>
+              <div v-if="deductions.length">
+                <div v-for="deduction in deductions" :key="deduction.type" class="deduction-item">
+                  <span>{{ deduction.type }} :</span>
+                  <span>{{ formatCurrency(deduction.amount) }}</span>
+                </div>
+              </div>
+              <div v-else>
+                <p>급여 데이터가 없습니다.</p>
+              </div>
+              <div class="total-deductions font-semibold mt-4">
+                <span>공제액 합계:</span>
+                <span>{{ formatCurrency(totalDeductions) }}</span>
+              </div>
             </div>
           </div>
-        </Dialog>
-      </div>
+          <div class="modal-footer">
+            <Button label="닫기" class="p-button-text" @click="closeSalaryModal" />
+          </div>
+        </div>
+      </Dialog>
     </div>
   </div>
 </template>
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
-import { fetchDeductions } from '@/views/pages/salary/deductService';
-import { fetchSalariesByEmployeeIdAndYear, fetchSalaryByEmployeeIdAndMonth } from '@/views/pages/salary/salaryService';
 import { fetchTotalWorkHours } from '@/views/pages/salary/workService';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
 import { onMounted, ref } from 'vue';
+import { fetchbaseSalary, fetchBonus, fetchSalary } from './salaryService';
 const authStore = useAuthStore();
 
 const selectedDate = ref(new Date());
 const selectedYear = ref(selectedDate.value.getFullYear());
 const displayModal = ref(false);
-const selectedMonth = ref(null);
+const selectedMonth = ref({});
 const deductions = ref([]);
 const totalDeductions = ref(0);
 const currentYear = new Date().getFullYear();
@@ -127,13 +127,12 @@ const monthsList = ref([]);
 const salaryDialogHeader = ref("급여 내역");
 const isBlurred = ref(false);
 
-const deductionNameMapping = {
-  nationalPension: "국민연금",
-  healthInsurance: "건강보험",
-  longTermCare: "장기요양",
-  employmentInsurance: "고용보험",
-  incomeTax: "소득세",
-  localIncomeTax: "지방 소득세"
+const getMonthLabel = (monthIndex) => {
+  const monthNames = [
+    '1월', '2월', '3월', '4월', '5월', '6월',
+    '7월', '8월', '9월', '10월', '11월', '12월'
+  ];
+  return monthNames[monthIndex];
 };
 
 // 화폐 포맷팅 함수
@@ -161,78 +160,72 @@ const updateSelectedYear = async (date) => {
 
 // 월별 데이터 가져오기 함수
 const loadMonthlyData = async () => {
-  const salaryData = await fetchSalariesByEmployeeIdAndYear(authStore.loginUserId, selectedYear.value);
-  // 월별 데이터 정렬
-  monthsList.value = salaryData.sort((a, b) => {
-    const monthA = new Date(a.salaryMonth).getMonth();
-    const monthB = new Date(b.salaryMonth).getMonth();
-    return monthB - monthA;
-  });
+  try {
+    const salaryData = await fetchSalary(authStore.loginUserId);
+    if (salaryData && salaryData.length > 0) {
+      const filteredData = salaryData.filter((item) => {
+        const salaryYear = new Date(item.salaryMonth).getFullYear();
+        return salaryYear === selectedYear.value;
+      });
+
+      // 필터링된 데이터를 월별 내림차순으로 정렬
+      monthsList.value = filteredData.sort(
+        (a, b) => new Date(b.salaryMonth) - new Date(a.salaryMonth)
+      );
+    } else {
+      monthsList.value = [];
+    }
+  } catch (error) {
+    console.error("Error loading salary data:", error);
+  }
 };
 
 // 급여 상세 모달 열기
 const showSalaryModal = async (month) => {
   selectedMonth.value = month;
   salaryDialogHeader.value = `${authStore.employeeData.employeeName}님의 급여 내역`;
-  await fetchDeductionsData(month.salaryMonth); // 급여 월 정보 전달
+
+  const baseSalary = await fetchbaseSalary(authStore.loginUserId); // 급여 세부 정보 가져오기
+  selectedMonth.value.baseSalary = baseSalary;
 
   // 총 근무 시간 가져오기
   const monthNumber = new Date(month.salaryMonth).getMonth() + 1; // 월은 1부터 시작하므로 +1
   const totalWorkHours = await fetchTotalWorkHours(selectedYear.value, monthNumber);
   selectedMonth.value.totalWorkHours = totalWorkHours; // 총 근무 시간을 selectedMonth에 저장
 
+  // 성과급 가져오기
+  const performanceBonus = await fetchBonus(authStore.loginUserId);
+  selectedMonth.value.performanceBonus = performanceBonus;
+  
+  await fetchDeductionsData(month.salaryMonth);
+
   displayModal.value = true;
   isBlurred.value = true;
 };
 
+// 공제 데이터 가져오기 함수
 const fetchDeductionsData = async (salaryMonth) => {
-  const month = new Date(salaryMonth).getMonth() + 1;
-  const year = selectedYear.value;
+  deductions.value = [
+    { type: '국민연금', amount: selectedMonth.value.nationalPension },
+    { type: '건강보험', amount: selectedMonth.value.healthInsurance },
+    { type: '장기요양보험', amount: selectedMonth.value.longTermCare },
+    { type: '고용보험', amount: selectedMonth.value.employmentInsurance },
+    { type: '소득세', amount: selectedMonth.value.incomeTax },
+    { type: '지방소득세', amount: selectedMonth.value.localIncomeTax },
+  ];
 
-  try {
-    // API에서 해당 월의 급여 데이터 가져오기
-    const salaryResponse = await fetchSalaryByEmployeeIdAndMonth(
-      authStore.loginUserId, year, month
-    );
-    
-    // 공제 데이터 가져오기
-    const deductionResponse = await fetchDeductions();
-
-    console.log('공제 항목:', deductionResponse);
-
-    // 공제 항목 매핑
-    const mappedDeductions = deductionResponse.map((item) => {
-      const englishType = Object.keys(deductionNameMapping).find(
-        (key) => deductionNameMapping[key] === item.deductName
-      );
-
-      const amount = englishType ? salaryResponse[englishType] || 0 : 0;
-
-      return {
-        type: item.deductName,
-        amount: amount,
-      };
-    });
-    
-    console.log('매핑된 공제 데이터:', mappedDeductions);
-
-    deductions.value = mappedDeductions;
-    totalDeductions.value = mappedDeductions.reduce((sum, item) => sum + item.amount, 0);
-  } catch (error) {
-    console.error('Error fetching deductions data:', error);
-    deductions.value = [];
-    totalDeductions.value = 0;
-  }
+  totalDeductions.value = calculateTotalDeductions(selectedMonth.value); // 공제액 합계
 };
 
-const getMonthLabel = (dateString) => {
-  const monthIndex = new Date(dateString).getMonth();
-  const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
-  return months[monthIndex];
+// 모달 닫기 함수
+const closeSalaryModal = () => {
+  displayModal.value = false;
+  isBlurred.value = false;
 };
 
-onMounted(() => {
-  loadMonthlyData();
+// 컴포넌트 마운트 시 초기 데이터 로드
+onMounted(async () => {
+  await loadMonthlyData(); // 마운트 시 월별 데이터 로드
 });
 </script>
 
