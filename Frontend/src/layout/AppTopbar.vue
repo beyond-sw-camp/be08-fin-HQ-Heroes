@@ -10,6 +10,7 @@ import Button from 'primevue/button'; // PrimeVue 버튼 import
 import Dialog from 'primevue/dialog';
 import Divider from 'primevue/divider';
 import { getReceiveNotificationsByEmployeeId, getSendNotificationsByEmployeeId } from '@/views/pages/main/service/notificationService';
+import { fetchPut } from '@/views/pages/auth/service/AuthApiService';
 
 const { onMenuToggle } = useLayout();
 const authStore = useAuthStore();
@@ -20,6 +21,8 @@ const alarmDisplayDialog = ref(false);
 const notifications = ref([]);
 const selectedNotification = ref(null);
 const selectNotificationsList = ref(false); // false = 받은 알림, true 보낸 알림
+const progressVisible= ref(false); // ProgressBar 모달 표시
+const progressValue = ref(); // ProgressBar 초기화
 
 let timer = null;
 
@@ -81,7 +84,8 @@ const handleReissue = async () => {
 
 const fetchNotifications = async () => {
     const employeeId = window.localStorage.getItem('employeeId');
-    notifications.value = null;
+    notifications.value = [];
+
     if (!employeeId) return;
 
     if (selectNotificationsList.value) {
@@ -92,6 +96,12 @@ const fetchNotifications = async () => {
 };
 
 const openNotificationDrawer = async () => {
+    const employeeId = window.localStorage.getItem('employeeId');
+    if (!selectNotificationsList) {
+        notifications.value = await getReceiveNotificationsByEmployeeId(employeeId);
+    } else {
+        notifications.value = await getSendNotificationsByEmployeeId(employeeId);
+    }
     await fetchNotifications();
     notificationDrawerVisible.value = true;
 };
@@ -102,6 +112,27 @@ watch(selectNotificationsList, async () => {
 
 const openNotificationModal = async (data) => {
     selectedNotification.value = data;
+    const employeeId = authStore.employeeData.employeeId;
+    const notificationId = selectedNotification.value.notificationId;
+    console.log(notificationId);
+
+    try {
+        // 백엔드로 알림 상태 변경 요청
+        const url = `http://localhost:8080/api/v1/notification-service/notification/${notificationId}/read?employeeId=${employeeId}`;
+        await fetchPut(url, {});
+
+        // 성공적으로 업데이트된 경우 UI에 반영
+        console.log('알림 상태가 READ로 변경되었습니다.');
+
+        // 상태 변경 후, 해당 알림의 상태를 'READ'로 변경
+        const notificationIndex = notifications.value.findIndex((n) => n.notificationId === notificationId);
+        if (notificationIndex !== -1) {
+            notifications.value[notificationIndex].status = 'READ';
+        }
+    } catch (error) {
+        console.error('알림 상태 업데이트 중 오류 발생:', error);
+    }
+
     alarmDisplayDialog.value = true;
 };
 
@@ -154,16 +185,60 @@ const getFirstText = (htmlString) => {
     return firstText.length > 10 ? firstText.slice(0, 10) + '…' : firstText;
 };
 
+// 알림 삭제 함수
+const deleteNotifications = async () => {
+    const employeeId = window.localStorage.getItem('employeeId');
+
+    // 선택된 알림 목록에서 각 notificationId를 사용하여 삭제 API 호출
+    const selectedNotificationIds = selectedNotification.value.map((n) => n.notificationId);
+
+    // 선택된 알림의 개수를 계산
+    const notificationCount = selectedNotificationIds.length;
+
+    // 삭제 확인을 위한 alert 창을 띄움
+    const userConfirmed = window.confirm(`${notificationCount}개의 알림을 삭제하시겠습니까?`);
+
+    // 사용자가 확인을 누르면 삭제 진행
+    if (userConfirmed) {
+        progressVisible.value = true; // ProgressBar 모달 표시
+        progressValue.value = 0; // ProgressBar 초기화
+
+        try {
+            // 선택된 알림들에 대해 삭제 API 호출
+            for (let i = 0; i < selectedNotificationIds.length; i++) {
+                const notificationId = selectedNotificationIds[i];
+                const url = `http://localhost:8080/api/v1/notification-service/notification/${notificationId}/delete`;
+
+                // 서버에 삭제 요청 (receiveDelete 또는 sendDelete 값 변경)
+                await fetchPut(url, { employeeId });
+
+                // ProgressBar 값 업데이트
+                progressValue.value = Math.round(((i + 1) / notificationCount) * 100);
+            }
+
+            // 삭제가 성공하면 알림 목록을 다시 가져와 화면 갱신
+            await fetchNotifications();
+
+            // 선택된 알림 목록 초기화
+            selectedNotification.value = [];
+
+            console.log('알림 삭제 완료 및 목록 갱신');
+        } catch (error) {
+            console.error('알림 삭제 중 오류 발생:', error.message);
+        } finally {
+            // 삭제 작업이 완료되면 ProgressBar 숨기기
+            progressVisible.value = false;
+        }
+    } else {
+        // 사용자가 삭제를 취소한 경우
+        console.log('알림 삭제가 취소되었습니다.');
+    }
+};
+
 // 페이지가 로드될 때 타이머 시작
 onMounted(async () => {
     timer = setInterval(updateRemainingTime, 1000); // 1초마다 업데이트
     updateRemainingTime(); // 첫 화면 로드 시 바로 호출
-    const employeeId = window.localStorage.getItem('employeeId');
-    if (!selectNotificationsList) {
-        notifications.value = await getReceiveNotificationsByEmployeeId(employeeId);
-    } else {
-        notifications.value = await getSendNotificationsByEmployeeId(employeeId);
-    }
 });
 
 // 페이지가 닫힐 때 타이머 정리
@@ -286,7 +361,7 @@ const goToSignUp = () => router.push('/signup');
         <Divider type="solid" />
 
         <div class="flex items-center justify-end gap-3 mb-2">
-            <Button label="삭제" icon="pi pi-trash" @click="console.log(selectedNotification)" severity="danger"></Button>
+            <Button label="삭제" icon="pi pi-trash" @click="deleteNotifications" severity="danger"></Button>
 
             <ToggleButton unstyled v-model="selectNotificationsList" onLabel="보낸 알림" offLabel="받은 알림" :style="toggleButtonStyle" />
         </div>
@@ -330,7 +405,7 @@ const goToSignUp = () => router.push('/signup');
                 </template>
             </Column>
 
-            <Column class="w-24 !text-end">
+            <Column class="w-24 !text-end" header="보기">
                 <template #body="{ data }">
                     <Button icon="pi pi-search" @click="openNotificationModal(data)" severity="secondary" rounded></Button>
                 </template>
@@ -338,15 +413,18 @@ const goToSignUp = () => router.push('/signup');
         </DataTable>
 
         <!-- 보낸 알림 -->
-        <DataTable v-else :value="notifications" :rows="9" :paginator="true" responsiveLayout="scroll" selectionMode="single" @row-click="openNotificationModal" removableSort>
+        <DataTable v-else sortField="createdAt" :sortOrder="-1" v-model:selection="selectedNotification" :value="notifications" dataKey="notificationId" :rows="9" :paginator="true" responsiveLayout="scroll">
+            <!-- 알림 선택 컬럼 -->
+            <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+
             <!-- 시간 컬럼 -->
-            <Column field="createAt" header="시간" style="width: 20%" sortable>
+            <Column field="createdAt" style="width: 20%" header="시간" :sortable="true">
                 <template #body="slotProps">
                     <span>{{ formatDate(slotProps.data.createdAt) }}</span>
                 </template>
             </Column>
 
-            <!-- 보낸 사람 컬럼 -->
+            <!-- 받은 사람 컬럼 -->
             <Column field="receiverName" header="받은 사람" style="width: 15%" sortable>
                 <template #body="slotProps">
                     <span>{{ slotProps.data.receiverName }}</span>
@@ -354,15 +432,21 @@ const goToSignUp = () => router.push('/signup');
             </Column>
 
             <!-- 카테고리 -->
-            <Column field="categoryName" header="카테고리" style="width: 25%" sortable>
+            <Column field="categoryName" header="카테고리" style="width: 23%" sortable>
                 <template #body="slotProps">
                     <span>{{ slotProps.data.categoryName }}</span>
                 </template>
             </Column>
 
-            <Column field="message" header="내용" style="width: 26%" sortable>
+            <Column field="message" header="내용" style="width: 20%" sortable>
                 <template #body="slotProps">
                     <span>{{ getFirstText(slotProps.data.message) }}</span>
+                </template>
+            </Column>
+
+            <Column class="w-24 !text-end" header="보기">
+                <template #body="{ data }">
+                    <Button icon="pi pi-search" @click="openNotificationModal(data)" severity="secondary" rounded></Button>
                 </template>
             </Column>
         </DataTable>
@@ -384,5 +468,9 @@ const goToSignUp = () => router.push('/signup');
         <template #footer>
             <Button label="닫기" @click="closeNotificationModal" />
         </template>
+    </Dialog>
+    <Dialog header="알림 삭제 진행 중" v-model:visible="progressVisible" :modal="true" :closable="false" style="width: 50vw">
+        <ProgressBar :value="progressValue"></ProgressBar>
+        <p>{{ progressValue }}% 완료</p>
     </Dialog>
 </template>
