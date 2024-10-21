@@ -24,12 +24,16 @@ public class Vacation {
     private Long vacationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)  // 신청인
+    @JoinColumn(name = "employee_id", nullable = false)  // 대리인
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "approver_id", nullable = true)  // 결재자, Employee 엔티티 재사용
     private Employee approver;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "applicant_id", nullable = true)  // 신청인
+    private Employee applicant;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "vacation_type", nullable = false)

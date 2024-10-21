@@ -25,8 +25,10 @@ public class VacationServiceImpl implements VacationService {
         System.out.println("============================");
         System.out.println("Employee ID: " + vacationDTO.getEmployeeId());
         System.out.println("Approver Name: " + vacationDTO.getApproverName());
+        System.out.println("Applicant Name: " + vacationDTO.getApplicantName());
         System.out.println("Start Date: " + vacationDTO.getVacationStartDate());
         System.out.println("End Date: " + vacationDTO.getVacationEndDate());
+        System.out.println("DTO" +  vacationDTO.toString());
         System.out.println("============================");
 
         // null 체크 및 로그 출력
@@ -36,10 +38,13 @@ public class VacationServiceImpl implements VacationService {
 
 
         Employee employee = employeeRepository.findByEmployeeId(vacationDTO.getEmployeeId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 신청인을 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 대리인을 찾을 수 없습니다."));
 
         Employee approver = employeeRepository.findByEmployeeName(vacationDTO.getApproverName())
                 .orElseThrow(() -> new IllegalArgumentException("해당 이름의 결재자를 찾을 수 없습니다."));
+
+        Employee applicant = employeeRepository.findByEmployeeName(vacationDTO.getApplicantName())
+                .orElseThrow(() -> new IllegalArgumentException("해당 이름의 신청인을 찾을 수 없습니다."));
 
         // 날짜 비교 전 null 체크
         if (vacationDTO.getVacationStartDate().isAfter(vacationDTO.getVacationEndDate())) {
@@ -49,6 +54,7 @@ public class VacationServiceImpl implements VacationService {
         Vacation vacation = Vacation.builder()
                 .employee(employee)
                 .approver(approver)
+                .applicant(applicant)
                 .vacationType(vacationDTO.getVacationType())
                 .vacationStartDate(vacationDTO.getVacationStartDate())
                 .vacationStartTime(vacationDTO.getVacationStartTime())
@@ -101,6 +107,8 @@ public class VacationServiceImpl implements VacationService {
                 .employeeName(vacation.getEmployee().getEmployeeName()) // 신청인 이름 추가
                 .approverId(vacation.getApprover() != null ? vacation.getApprover().getEmployeeId() : null) // 결재자 ID
                 .approverName(vacation.getApprover() != null ? vacation.getApprover().getEmployeeName() : null) // 결재자 이름 추가
+                .applicantId(vacation.getApplicant() != null ? vacation.getApplicant().getEmployeeId() : null) // 결재자 ID
+                .applicantName(vacation.getApplicant() != null ? vacation.getApplicant().getEmployeeName() : null) // 결재자 이름 추가
                 .vacationType(vacation.getVacationType())
                 .vacationStartDate(vacation.getVacationStartDate())
                 .vacationStartTime(vacation.getVacationStartTime())

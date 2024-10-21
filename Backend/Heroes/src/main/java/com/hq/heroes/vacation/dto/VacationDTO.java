@@ -2,25 +2,25 @@ package com.hq.heroes.vacation.dto;
 
 import com.hq.heroes.vacation.entity.enums.VacationStatus;
 import com.hq.heroes.vacation.entity.enums.VacationType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Getter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class VacationDTO {
 
     private Long vacationId; // 휴가 ID
-    private String employeeId; // 신청인 ID
+    private String employeeId; // 대리인 ID
     private String approverId; // 결재자 ID
-    private String employeeName; // 신청인 이름
+    private String applicantId; // 신청인 ID
+    private String employeeName; // 대리인 이름
     private String approverName; // 결재자 이름
+    private String applicantName; // 신청인 이름
     private VacationType vacationType; // 휴가 종류
     private LocalDate vacationStartDate; // 시작 일시
     private LocalTime vacationStartTime;

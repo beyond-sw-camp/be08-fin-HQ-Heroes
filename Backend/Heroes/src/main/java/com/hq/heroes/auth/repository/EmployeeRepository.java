@@ -23,7 +23,7 @@ public interface EmployeeRepository extends JpaRepository<Employee,String> {
 
     Optional<Employee> findByEmployeeId(String employeeId);
 
-    Optional<Employee> findByEmployeeName(String approverName);
+    Optional<Employee> findByEmployeeName(String name);
 
     Optional<Employee> findByEmail(String email);
 }

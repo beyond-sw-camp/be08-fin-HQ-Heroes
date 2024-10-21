@@ -14,7 +14,7 @@
                     </div>
                 </template>
 
-                <Column field="employeeName" header="이름" sortable style="min-width: 5rem"></Column>
+                <Column field="applicantName" header="이름" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationType" header="휴가 종류" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationStart" header="시작일" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationEnd" header="종료일" sortable style="min-width: 5rem"></Column>
@@ -29,7 +29,7 @@
             <div class="flex flex-col gap-4">
                 <div>
                     <label for="employeeName" class="block font-bold mb-2">이름</label>
-                    <p id="employeeName">{{ selectedEmployee.employeeName }}</p>
+                    <p id="applicantName">{{ selectedEmployee.applicantName }}</p>
                 </div>
                 <div>
                     <label for="vacationType" class="block font-bold mb-2">휴가 종류</label>
@@ -86,10 +86,10 @@ onMounted(async () => {
         // 휴가 목록 불러오기
         const response = await fetchGet('http://localhost:8080/api/v1/vacation/list');
         employees.value = response
-            .filter((record) => record.employeeId === loggedInEmployeeId)
+            .filter((record) => record.applicantId === loggedInEmployeeId)
             .map((record) => ({
                 vacationId: record.vacationId,
-                employeeName: record.employeeName,
+                applicantName: record.applicantName,
                 vacationType: mapVacationType(record.vacationType),
                 vacationStart: new Date(record.vacationStartDate).toLocaleDateString(),
                 vacationStartTime: record.vacationStartTime.substring(0, 5),
@@ -131,11 +131,6 @@ function mapVacationType(vacationType) {
         default:
             return '기타';
     }
-}
-
-function showEmployeeInfo(employee) {
-    selectedEmployee.value = employee;
-    infoDialog.value = true;
 }
 </script>
 
