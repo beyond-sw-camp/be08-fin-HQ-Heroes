@@ -1,8 +1,17 @@
 <template>
     <div class="main-container">
         <h1 class="main-title">직원 정보</h1>
-        <span class="edit-icon" @click="enableEditing"><i class="pi pi-pencil"></i></span>
-        <!-- 연필 아이콘 위치 변경 -->
+
+        <!-- 비밀번호 수정 버튼과 연필 아이콘 -->
+        <div class="icon-group">
+            <!-- 비밀번호 수정 버튼 -->
+            <button class="change-password-button" @click="changePassword">비밀번호 변경</button>
+
+            <!-- 연필 아이콘 (편집 버튼) -->
+            <span class="edit-icon" @click="enableEditing">
+                <i class="pi pi-pencil"></i>
+            </span>
+        </div>
 
         <div class="content-wrapper">
             <div class="left-column">
@@ -194,6 +203,10 @@ const enableEditing = () => {
         });
 };
 
+const changePassword = () => {
+    
+};
+
 onMounted(async () => {
     const employeeId = window.localStorage.getItem('employeeId'); // 로컬스토리지에서 ID 가져오기
     const data = await getLoginEmployeeInfo(employeeId); // 직원 정보 API 호출
@@ -367,10 +380,15 @@ label {
     transform: scale(1.05); /* 호버 시 살짝 커지는 효과 */
 }
 
-.edit-icon {
+.icon-group {
     position: absolute;
     top: 20px; /* 상단 여백 */
     right: 30px; /* 우측 여백 */
+    display: flex;
+    align-items: center;
+}
+
+.edit-icon {
     font-size: 1.5em;
     cursor: pointer;
     color: #6366f1;
@@ -378,6 +396,23 @@ label {
 
 .edit-icon:hover {
     color: #4f46e5; /* 호버 시 색상 */
+}
+.change-password-button {
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 10px; /* 연필 아이콘과 간격 */
+    cursor: pointer;
+    font-size: 1rem;
+    transition:
+        background-color 0.3s ease,
+        transform 0.3s ease;
+}
+
+.change-password-button:hover {
+    background-color: #4f46e5;
 }
 
 .photo-upload-container .form-control {
