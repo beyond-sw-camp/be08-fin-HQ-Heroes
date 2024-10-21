@@ -114,6 +114,7 @@ const categories = ref([]);
 const editor = ref(null);
 const quillInstance = ref(null);
 const deleteDialogVisible = ref(false); // 삭제 확인 다이얼로그 상태
+const originalNotice = ref({}); // 초기 상태를 저장할 변수 추가
 
 const formatDateTime = (dateString) => {
   if (!dateString) return '';
@@ -127,11 +128,11 @@ const initializeEditor = async () => {
 
   if (!editor.value) {
     console.error('Quill container를 찾을 수 없습니다.');
-    return; // editor가 없으면 초기화하지 않음
+    return;
   }
 
+  // Quill 인스턴스가 없으면 새로 생성
   if (!quillInstance.value) {
-    console.log('새 Quill 인스턴스를 생성합니다.'); // 새 인스턴스 생성
     quillInstance.value = new Quill(editor.value, {
       theme: 'snow',
       modules: {
@@ -143,60 +144,53 @@ const initializeEditor = async () => {
         ] : false,
       },
     });
-  } else {
-    console.log('기존 Quill 인스턴스를 활성화합니다.');
   }
 
-  // 수정 모드일 때만 에디터를 활성화하고 내용을 설정
+  // 수정 모드에 따라 에디터를 활성화/비활성화
+  quillInstance.value.enable(isEditMode.value);
+
   if (isEditMode.value) {
-    quillInstance.value.enable(true); // 수정 모드일 때만 활성화
-    quillInstance.value.root.innerHTML = editableNotice.value.content || ''; // 내용 적용
-    console.log('에디터에 내용을 설정했습니다:', quillInstance.value.root.innerHTML);
+    // 수정 모드일 때 에디터에 내용 설정
+    quillInstance.value.root.innerHTML = editableNotice.value.content || ''; // null 체크 추가
   } else {
-    if (quillInstance.value) {
-      quillInstance.value.enable(false); // 수정 모드가 아닐 때 비활성화
-    }
+    // 수정 모드가 아닐 때는 비활성화
+    quillInstance.value.root.innerHTML = editableNotice.value.content || '';
   }
 };
 
-// 수정 모드 토글
+// 수정 모드 토글 함수
 const toggleEditMode = () => {
-  isEditMode.value = !isEditMode.value; // 수정 모드 토글
+  isEditMode.value = !isEditMode.value;
+  router.replace({ query: { edit: isEditMode.value ? 'true' : 'false' } }); // URL에 edit 파라미터 추가
 
   nextTick(() => {
-    console.log(`수정 모드 상태: ${isEditMode.value}`); // 수정 모드 상태 로그
-    initializeEditor(); // 상태 변화 후에 에디터 초기화 및 내용 설정
-
-    const editorElement = editor.value; // editor ref 사용
+    initializeEditor();
+    const editorElement = editor.value;
     if (isEditMode.value) {
-      if (editorElement) {
-        editorElement.classList.remove('quill-editor-disabled'); // 수정 모드 활성화 시 클래스 제거
-      }
+      editorElement.classList.remove('quill-editor-disabled');
     } else {
-      if (editorElement) {
-        editorElement.classList.add('quill-editor-disabled'); // 수정 모드 비활성화 시 클래스 추가
-      }
+      editorElement.classList.add('quill-editor-disabled');
     }
   });
 };
 
 
 // 수정 취소
-const cancelEdit = () => {
-  console.log('수정 모드를 취소합니다.'); // 수정 취소 로그
+const cancelEdit = async () => {
   isEditMode.value = false; // 수정 모드 비활성화
   if (quillInstance.value) {
     quillInstance.value.enable(false); // 에디터 비활성화
-    console.log('Quill 인스턴스를 비활성화했습니다.'); // 비활성화 로그
   }
-  
-  const editorElement = editor.value; // editor ref 사용
+  const editorElement = editor.value;
   if (editorElement) {
-    editorElement.classList.add('quill-editor-disabled'); // 비활성화 클래스 추가
+    editorElement.classList.add('quill-editor-disabled');
   }
-  
-  loadNotice(); // 기존 데이터로 복원
+
+  // 공지사항 내용을 원래 상태로 복원
+  editableNotice.value = { ...originalNotice.value };
+  quillInstance.value.root.innerHTML = originalNotice.value.content || ''; // 원래 내용 복원
 };
+
 
 
 // 공지사항 데이터 불러오기 및 Quill 에디터에 표시
@@ -205,8 +199,8 @@ const loadNotice = async () => {
   try {
     const result = await fetchNoticeById(noticeId);
     editableNotice.value = { ...result };
+    originalNotice.value = { ...result }; // 원본 데이터를 저장해둠
     if (quillInstance.value) {
-      // 에디터에 기존 데이터 설정
       nextTick(() => {
         quillInstance.value.setContents(quillInstance.value.clipboard.convert(result.content));
       });
@@ -259,9 +253,11 @@ const handleDeleteNotice = async () => {
 
 // 컴포넌트가 마운트될 때 실행
 onMounted(async () => {
+  const editModeQuery = route.query.edit;
+  isEditMode.value = editModeQuery === 'true'; // URL 파라미터에서 값 복구
   await loadCategories();
-  if (!isNewNotice.value) await loadNotice(); // 데이터 로드
-  initializeEditor(); // 에디터 초기화
+  if (!isNewNotice.value) await loadNotice();
+  initializeEditor();
 });
 </script>
 
