@@ -24,6 +24,7 @@ public class EmployeeDTO {
     private Long positionId;
     private String positionName;
     private LocalDate joinDate;
+    private Long annualLeave;
 
     private LocalDate birthDate;
     private String phoneNumber;

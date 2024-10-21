@@ -1,5 +1,6 @@
 package com.hq.heroes.salary.controller;
 
+import com.hq.heroes.attendance.service.AttendanceService;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.salary.dto.SalaryHistoryDTO;
 import com.hq.heroes.salary.entity.SalaryHistory;
@@ -22,6 +23,7 @@ import java.util.Optional;
 public class SalaryHistoryController {
 
     private final SalaryHistoryService salaryHistoryService;
+    private final AttendanceService attendanceService;
 
     @GetMapping("/{employeeId}")
     @Operation(summary = "로그인한 사용자의 전체 급여 기록 조회")
@@ -36,9 +38,9 @@ public class SalaryHistoryController {
         return salaryHistoryService.createSalary(SalaryHistoryDTO);
     }
 
-    @GetMapping("/last-three-months/sum")
+    @GetMapping("/last-three-months/sum/{employeeId}")
     @Operation(summary = "마지막 출퇴근 날짜로부터 3개월 동안의 급여 합계 조회")
-    public ResponseEntity<Double> getLastThreeMonthsSalarySum(@AuthenticationPrincipal String employeeId) {
+    public ResponseEntity<Double> getLastThreeMonthsSalarySum(@PathVariable String employeeId) {
         Double totalSalary = salaryHistoryService.getLastThreeMonthsSalarySum(employeeId);
         return ResponseEntity.ok(totalSalary);
     }

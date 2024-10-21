@@ -1,13 +1,8 @@
-import axios from 'axios';
+import { fetchGet } from "../../auth/service/AuthApiService";
 
-const API_URL = 'http://localhost:8080';
+const API_URL = 'http://localhost:8080/api/v1/salary-service/histories';
 
-export const fetchAverageSalary = async (employeeId) => {
-  try {
-    const response = await axios.get(`${API_URL}/api/v1/retire-service/retire`, { params: { employeeId } });
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching average salary with ID ${employeeId}:`, error);
-    return null;
-  }
+// 최근 3개월 급여 합계 가져오기
+export const fetchSalarySum = async (employeeId) => {
+    return await fetchGet(`${API_URL}/last-three-months/sum/${employeeId}`) / 3;
 };

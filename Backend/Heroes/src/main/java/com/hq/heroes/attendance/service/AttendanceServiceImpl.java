@@ -143,5 +143,14 @@ public class AttendanceServiceImpl implements AttendanceService {
         return totalHours != null ? totalHours : 0;  // null일 경우 기본값 0 반환
     }
 
+    public AttendanceDTO getLatestAttendanceRecord(String employeeId) {
+        Employee employee = employeeRepository.findByEmployeeId(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("직원 정보를 찾을 수 없습니다."));
+
+        Attendance latestAttendance = attendanceRepository.findTopByEmployeeOrderByCheckInDesc(employee)
+                .orElseThrow(() -> new IllegalArgumentException("출퇴근 기록이 없습니다."));
+
+        return convertToDTO(latestAttendance);
+    }
 
 }
