@@ -118,7 +118,7 @@ public class NotificationController {
         }
     }
 
-    // 알림 상태 업데이트 API
+    // 알림 삭제 API
     @PutMapping("/notification/{notification-id}/delete")
     @Operation(summary = "알림 삭제 처리", description = "알림의 삭제 상태를 true로 업데이트한다.")
     public ResponseEntity<Void> setNotificationDeleteStatus(
