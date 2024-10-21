@@ -95,7 +95,12 @@ export default {
             quillEditor = new Quill(editor.value, {
                 theme: 'snow',
                 modules: {
-                    toolbar: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']]
+                    toolbar: {
+                        container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
+                        handlers: {
+                            image: imageHandler // 이미지 핸들러 추가
+                        }
+                    }
                 }
             });
 
@@ -103,6 +108,39 @@ export default {
                 message.value = quillEditor.root.innerHTML; // Quill 에디터 내용 업데이트
             });
         });
+
+        // 이미지 핸들러 함수
+        const imageHandler = () => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+
+            input.onchange = async () => {
+                const file = input.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    // 이미지 업로드 API 호출
+                    const response = await fetch('http://localhost:8080/api/v1/upload-image', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    const imageUrl = data.imageUrl; // 서버에서 반환된 이미지 URL
+
+                    // quillEditor가 정의되었는지 확인
+                    if (quillEditor) {
+                        const range = quillEditor.getSelection();
+                        quillEditor.insertEmbed(range.index, 'image', imageUrl); // 에디터에 이미지 URL 삽입
+                    }
+                } catch (error) {
+                    console.error('Image upload failed:', error);
+                }
+            };
+        };
 
         // 카테고리 로드
         const loadCategoriesFromStorage = () => {
