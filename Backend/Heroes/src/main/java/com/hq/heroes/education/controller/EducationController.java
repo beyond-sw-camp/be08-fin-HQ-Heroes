@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,19 +53,61 @@ public class EducationController {
     }
 
     // 교육 신청하기
-    @PostMapping("/apply/{educationId}/{employeeId}")
-    @Operation(summary = "교육 신청하기", description = "교육 커리큘럼 ID로 교육을 신청한다.")
-    public ResponseEntity<String> applyForCourse(@PathVariable Long educationId, @PathVariable String employeeId) {
+//    @PostMapping("/apply/{educationId}/{employeeId}")
+//    @Operation(summary = "교육 신청하기", description = "교육 커리큘럼 ID로 교육을 신청한다.")
+//    public ResponseEntity<String> applyForCourse(@PathVariable Long educationId, @PathVariable String employeeId) {
+//
+//        try {
+//            educationService.incrementCurrentParticipants(educationId, employeeId);
+//            return ResponseEntity.ok("교육이 신청되었습니다.");
+//        } catch (IllegalStateException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("신청 실패");
+//        }
+//    }
 
+    // 교육 신청하기
+//    @PostMapping("/apply/{educationId}/{employeeId}")
+//    @Operation(summary = "교육 신청하기", description = "교육 커리큘럼 ID로 교육을 신청한다.")
+//    public ResponseEntity<String> applyForCourse(@PathVariable Long educationId, @PathVariable String employeeId) {
+//        try {
+//            educationService.incrementCurrentParticipants(educationId, employeeId);
+//            return ResponseEntity.ok("교육이 신청되었습니다.");
+//        } catch (IllegalStateException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // 중복 신청 처리
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("신청 실패");
+//        }
+//    }
+
+
+    @PostMapping("/apply/{educationId}/{employeeId}")
+    public ResponseEntity<?> applyForEducation(@PathVariable Long educationId, @PathVariable String employeeId) {
         try {
+            // 신청 인원 수 증가 로직 (중복 신청 시 IllegalStateException 발생)
             educationService.incrementCurrentParticipants(educationId, employeeId);
-            return ResponseEntity.ok("교육이 신청되었습니다.");
+
+            // 성공 시 JSON 응답
+            return ResponseEntity.ok(Collections.singletonMap("message", "교육이 신청되었습니다."));
+
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            // 이미 신청한 교육인 경우 409 상태와 함께 메시지 반환
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Collections.singletonMap("message", "이미 신청한 교육입니다."));
+
+        } catch (IllegalArgumentException e) {
+            // 교육 또는 사원을 찾을 수 없는 경우
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("message", e.getMessage()));
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("신청 실패");
+            // 기타 예외 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "서버 오류가 발생했습니다."));
         }
     }
+
 
     // 교육 정보 등록
     @PostMapping("/education")

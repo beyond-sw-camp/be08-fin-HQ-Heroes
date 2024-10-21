@@ -10,4 +10,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("SELECT c FROM Course c JOIN FETCH c.employee JOIN FETCH c.education WHERE c.employee.employeeId = :employeeId")
     List<Course> findByEmployee_EmployeeId(String employeeId);
+
+    boolean existsByEducation_EducationIdAndEmployee_EmployeeId(Long educationId, String employeeId);
+
 }

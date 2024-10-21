@@ -10,4 +10,5 @@ import java.util.List;
 public interface EducationRepository extends JpaRepository<Education,Long> {
     // 교육 이름으로 교육 정보를 찾는 메서드 추가
     List<Education> findByEducationName(String educationName);
+
 }
