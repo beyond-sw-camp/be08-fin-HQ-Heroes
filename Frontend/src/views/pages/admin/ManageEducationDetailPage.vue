@@ -7,16 +7,6 @@
 
             <div class="education-info">
                 <p>
-                    <strong>신청 기간 :</strong>
-                    <template v-if="editMode">
-                        <input type="date" v-model="applicationStartDate" /> ~ 
-                        <input type="date" v-model="applicationEndDate" />
-                    </template>
-                    <template v-else>
-                        {{ formatDate(applicationStartDate) }} ~ {{ formatDate(applicationEndDate) }}
-                    </template>
-                </p>
-                <p>
                     <strong>교육 기간 :</strong>
                     <template v-if="editMode">
                         <input type="date" v-model="educationStart" /> ~ 

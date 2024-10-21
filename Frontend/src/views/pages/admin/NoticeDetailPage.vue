@@ -15,16 +15,6 @@
       </div>
 
       <div class="input-group">
-        <h3 class="input-title">작성시간</h3>
-        <input
-          type="text"
-          :value="formatDateTime(editableNotice.createdAt)"
-          class="message-input"
-          readonly
-        />
-      </div>
-
-      <div class="input-group">
         <h3 class="input-title">작성자</h3>
         <input
           type="text"
@@ -43,7 +33,7 @@
         </select>
       </div>
 
-      <div class="input-group">
+      <!-- <div class="input-group">
         <h3 class="input-title">수정자</h3>
         <input
           type="text"
@@ -51,21 +41,11 @@
           class="message-input"
           readonly
         />
-      </div>
-
-      <div class="input-group">
-        <h3 class="input-title">수정시간</h3>
-        <input
-          type="text"
-          :value="!isEditMode ? formatDateTime(editableNotice.updateAt) : formatDateTime(new Date())"
-          class="message-input"
-          readonly
-        />
-      </div>
+      </div> -->
 
       <div class="input-group">
         <h3 class="input-title">내 용</h3>
-        <div v-if="isEditMode" ref="editor" class="message-editor"></div>
+        <div v-if="isEditMode" ref="editor" class="message-editor edit-mode"></div> <!-- 수정됨 -->
         <div v-else v-html="editableNotice.content" class="message-content"></div>
       </div>
 
@@ -122,16 +102,15 @@ const formatDateTime = (dateString) => {
   return format(date, 'yyyy년 MM월 dd일 HH시 mm분 ss초');
 };
 
-// Quill 에디터 초기화 함수
+// Quill 에디터 초기화
 const initializeEditor = async () => {
-  await nextTick(); // DOM이 렌더링될 때까지 대기
+  await nextTick();
 
   if (!editor.value) {
     console.error('Quill container를 찾을 수 없습니다.');
     return;
   }
 
-  // Quill 인스턴스가 없으면 새로 생성
   if (!quillInstance.value) {
     quillInstance.value = new Quill(editor.value, {
       theme: 'snow',
@@ -146,16 +125,8 @@ const initializeEditor = async () => {
     });
   }
 
-  // 수정 모드에 따라 에디터를 활성화/비활성화
   quillInstance.value.enable(isEditMode.value);
-
-  if (isEditMode.value) {
-    // 수정 모드일 때 에디터에 내용 설정
-    quillInstance.value.root.innerHTML = editableNotice.value.content || ''; // null 체크 추가
-  } else {
-    // 수정 모드가 아닐 때는 비활성화
-    quillInstance.value.root.innerHTML = editableNotice.value.content || '';
-  }
+  quillInstance.value.root.innerHTML = editableNotice.value.content || '';
 };
 
 // 수정 모드 토글 함수
@@ -174,24 +145,23 @@ const toggleEditMode = () => {
   });
 };
 
-
 // 수정 취소
 const cancelEdit = async () => {
-  isEditMode.value = false; // 수정 모드 비활성화
-  if (quillInstance.value) {
-    quillInstance.value.enable(false); // 에디터 비활성화
-  }
-  const editorElement = editor.value;
-  if (editorElement) {
-    editorElement.classList.add('quill-editor-disabled');
-  }
+  isEditMode.value = false;
 
   // 공지사항 내용을 원래 상태로 복원
   editableNotice.value = { ...originalNotice.value };
-  quillInstance.value.root.innerHTML = originalNotice.value.content || ''; // 원래 내용 복원
+
+  // URL의 edit 파라미터를 업데이트하지 않고 특정 경로로 이동
+  const noticeId = editableNotice.value.noticeId;
+  router.replace({ path: `/notice/${noticeId}` });
+
+  // Quill 에디터의 내용을 원래 상태로 복원 및 비활성화
+  if (quillInstance.value) {
+    quillInstance.value.root.innerHTML = originalNotice.value.content || '';
+    quillInstance.value.enable(false); // Quill 비활성화
+  }
 };
-
-
 
 // 공지사항 데이터 불러오기 및 Quill 에디터에 표시
 const loadNotice = async () => {
@@ -300,6 +270,10 @@ onMounted(async () => {
   overflow-y: auto;
 }
 
+.message-editor.edit-mode {
+  height: 600px; /* 수정 모드일 때 높이를 600px로 설정 */
+}
+
 .message-content {
   min-height: 300px;
   padding: 1rem;
@@ -315,9 +289,9 @@ onMounted(async () => {
   margin-top: 1rem;
 }
 
-/* 비활성화 스타일 추가 */
 .quill-editor-disabled {
-  pointer-events: none;
-  opacity: 0.5; /* 선택적: 비활성화 시 불투명도 조정 */
+  pointer-events: none; /* 퀼 에디터를 비활성화하여 클릭을 무시함 */
+  opacity: 0.5; /* 비활성화된 상태에서 약간의 불투명도를 추가 */
 }
+
 </style>

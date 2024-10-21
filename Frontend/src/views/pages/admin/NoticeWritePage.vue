@@ -247,7 +247,7 @@ body {
 
 .message-editor {
     flex-grow: 1;
-    height: 280px; /* 에디터의 높이를 줄였습니다 */
+    height: 400px; /* 에디터의 높이를 줄였습니다 */
     background-color: #ffffff;
     border: 1px solid #ddd;
     border-radius: 5px;
