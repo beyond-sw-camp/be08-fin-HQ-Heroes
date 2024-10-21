@@ -52,11 +52,12 @@ public class EducationController {
     }
 
     // 교육 신청하기
-    @PostMapping("/apply/{educationId}")
+    @PostMapping("/apply/{educationId}/{employeeId}")
     @Operation(summary = "교육 신청하기", description = "교육 커리큘럼 ID로 교육을 신청한다.")
-    public ResponseEntity<String> applyForCourse(@PathVariable Long educationId) {
+    public ResponseEntity<String> applyForCourse(@PathVariable Long educationId, @PathVariable String employeeId) {
+
         try {
-            educationService.incrementCurrentParticipants(educationId);
+            educationService.incrementCurrentParticipants(educationId, employeeId);
             return ResponseEntity.ok("교육이 신청되었습니다.");
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

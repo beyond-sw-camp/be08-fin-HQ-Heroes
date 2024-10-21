@@ -34,11 +34,6 @@
             <template #empty> No courses found. </template>
 
             <!-- 테이블 컬럼들 -->
-            <Column field="courseId" sortable header="No." style="min-width: 2rem; text-align: left;">
-                <template #body="{ data }">
-                    {{ data.courseId }}
-                </template>
-            </Column>
             <Column field="categoryName" sortable header="카테고리" style="min-width: 6rem; text-align: left;">
                 <template #body="{ data }">
                     {{ data.categoryName }}
@@ -51,9 +46,14 @@
                     </span>
                 </template>
             </Column>
-            <Column field="applicationDate" sortable header="신청일" dataType="date" style="min-width: 8rem; text-align: left;">
+            <Column field="applicationStartDate" sortable header="교육 신청일" dataType="date" style="min-width: 10rem; text-align: left;">
                 <template #body="{ data }">
-                    {{ formatDate(new Date(data.applicationStartDate)) }} ~ {{ formatDate(new Date(data.applicationEndDate)) }}
+                    {{ formatDate(new Date(data.startDate)) }}
+                </template>
+            </Column>
+            <Column field="endDate" sortable header="교육 종료일" dataType="date" style="min-width: 10rem; text-align: left;">
+                <template #body="{ data }">
+                    {{ formatDate(new Date(data.endDate)) }}
                 </template>
             </Column>
             <Column field="status" sortable header="이수 여부" style="min-width: 6rem">

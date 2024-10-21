@@ -15,6 +15,7 @@
             :globalFilterFields="['educationName', 'categoryName', 'instructorName', 'institution']"
             showGridlines
             style="table-layout: fixed !important;"
+            @row-click="openEducationDetail"
         >
             <!-- 필터와 테이블 헤더 -->
             <template #header>
@@ -43,9 +44,7 @@
             </Column>
             <Column field="educationName" sortable header="강의명" style="min-width: 20rem; text-align: left;">
                 <template #body="{ data }">
-                    <span @click="openEducationDetail(data)" style="cursor: pointer;">
-                        {{ data.educationName }}
-                    </span>
+                    {{ data.educationName }} <!-- 클릭 이벤트 제거 -->
                 </template>
             </Column>
             <Column field="educationEnd" sortable header="수강 기간" dataType="date" style="min-width: 8rem; text-align: left;">
@@ -98,7 +97,6 @@ async function fetchEducations() {
     }
 }
 
-
 // 카테고리 목록 가져오기 함수
 async function fetchCategories() {
     try {
@@ -111,10 +109,10 @@ async function fetchCategories() {
 
 // 필터링 함수
 function filterEducations() {
-    filteredEducations.value = educations.value.filter((education) => {
+    filteredEducations.value = courses.value.filter((education) => { // courses로 변경
         const matchesCategoryName = selectedcategoryName.value?.categoryName !== '전체' ? education.categoryName === selectedcategoryName.value.categoryName : true;
         const matchesDate = selectedDate.value ? new Date(education.educationStart) <= new Date(selectedDate.value) && new Date(education.educationEnd) >= new Date(selectedDate.value) : true;
-        const matchesGlobalFilter = globalFilter.value ? education.educationName.toLowerCase().includes(globalFilter.value.toLowerCase()) : true;
+        const matchesGlobalFilter = filters.value?.global?.value ? education.educationName.toLowerCase().includes(filters.value.global.value.toLowerCase()) : true; // filters로 수정
 
         return matchesCategoryName && matchesDate && matchesGlobalFilter;
     });
@@ -130,7 +128,8 @@ function initFilters() {
     };
 }
 
-function openEducationDetail(course) {
+function openEducationDetail(event) {
+    const course = event.data; // 클릭한 행의 데이터
     if (!course.educationId) {
         console.error('educationId 존재하지 않습니다:', course);
         return;
