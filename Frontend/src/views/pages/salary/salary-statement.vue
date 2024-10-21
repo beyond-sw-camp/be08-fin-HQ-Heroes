@@ -1,5 +1,5 @@
 <template>
-  <div class="card salary-management-wrapper" :class="{ blur: isBlurred }">
+  <div class="card">
     <div class="salary-management">
       <div class="header">
         <label class="text-2xl font-bold text-gray-800">급여 관리</label>
@@ -57,6 +57,7 @@
         class="salary-dialog"
         @hide="closeSalaryModal"
         :draggable="false"
+        pt:mask:class="backdrop-blur-sm"
       >
         <div class="salary-modal">
           <div class="salary-details">
@@ -70,7 +71,7 @@
                 <span>시급 :</span>
                 <span>{{ formatCurrency(selectedMonth?.baseSalary) }}</span>
               </div>
-              <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(selectedMonth.salaryMonth) === '1월' || getMonthLabel(selectedMonth.salaryMonth) === '7월')" class="info-item">
+              <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '1월' || getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '7월')" class="info-item">
                 <span>성과급 :</span>
                 <span>{{ formatCurrency(selectedMonth?.performanceBonus || 0) }}</span>
               </div>
@@ -125,7 +126,6 @@ const currentYear = new Date().getFullYear();
 const yearRange = `${1900}:${currentYear}`;
 const monthsList = ref([]);
 const salaryDialogHeader = ref("급여 내역");
-const isBlurred = ref(false);
 
 const getMonthLabel = (monthIndex) => {
   const monthNames = [
@@ -200,7 +200,6 @@ const showSalaryModal = async (month) => {
   await fetchDeductionsData(month.salaryMonth);
 
   displayModal.value = true;
-  isBlurred.value = true;
 };
 
 // 공제 데이터 가져오기 함수
@@ -220,7 +219,6 @@ const fetchDeductionsData = async (salaryMonth) => {
 // 모달 닫기 함수
 const closeSalaryModal = () => {
   displayModal.value = false;
-  isBlurred.value = false;
 };
 
 // 컴포넌트 마운트 시 초기 데이터 로드

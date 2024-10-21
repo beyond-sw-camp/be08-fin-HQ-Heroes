@@ -1,5 +1,6 @@
 <template>
-    <Dialog :visible.sync="localVisible" header="사원 상세 정보" :modal="true" :closable="true" @update:visible="handleVisibilityUpdate" :style="{ width: '500px', maxWidth: '90vw' }">
+    <Dialog :visible.sync="localVisible" header="사원 상세 정보" :modal="true" :closable="true" @update:visible="handleVisibilityUpdate" :style="{ width: '500px', maxWidth: '90vw' }" 
+    pt:mask:class="backdrop-blur-sm">
         <div class="employee-details-container">
             <div class="employee-details">
                 <p><strong>이름 :</strong> {{ employee.employeeName }}</p>
