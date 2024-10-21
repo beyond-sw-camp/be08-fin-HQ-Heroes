@@ -121,6 +121,9 @@ const employeeData = ref({
 const employeeTreeData = ref([]); // 트리 형식의 사원 목록 데이터
 const approverTreeData = ref([]); // 트리 형식의 결재자 목록 데이터 (팀장만)
 
+const selectedApproverName = ref('');
+const selectedEmployeeName = ref('');
+
 const loadEmployeeData = async () => {
     const employeeId = window.localStorage.getItem('employeeId');
     if (employeeId) {
@@ -209,12 +212,12 @@ onMounted(() => {
 
 const handleEmployeeChange = (selectedEmployee) => {
     form.value.employeeId = selectedEmployee.key.replace('emp-', ''); // 선택된 신청인의 ID 추출
-    form.value.employeeName = selectedEmployee.label; // 선택된 신청인의 이름 설정
+    selectedEmployeeName.value = Object(selectedEmployee).label; // 선택된 신청인의 이름 설정
 };
 
 const handleApproverChange = (selectedApprover) => {
     form.value.approverId = selectedApprover.key.replace('emp-', ''); // 선택된 결재자의 ID 추출
-    form.value.approverName = selectedApprover.label; // 선택된 결재자의 이름 설정
+    selectedApproverName.value = Object(selectedApprover).label; // 선택된 결재자의 이름 설정
 };
 
 const submitForm = async () => {
@@ -227,8 +230,8 @@ const submitForm = async () => {
             vacationStartTime: form.value.vacationStartTime || '00:00',
             vacationEndDate: form.value.vacationEndDate,
             vacationEndTime: form.value.vacationEndTime || '23:59',
-            employeeName: form.value.employeeName,
-            approverName: form.value.approverName,
+            employeeName: selectedEmployeeName.value,
+            approverName: selectedApproverName.value,
             comment: form.value.comment
         };
 
