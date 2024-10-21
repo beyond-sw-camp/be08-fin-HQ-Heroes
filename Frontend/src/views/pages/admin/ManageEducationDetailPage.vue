@@ -36,6 +36,10 @@
                         {{ institution }}
                     </template>
                 </p>
+                <div>
+                    <strong>교육 커리큘럼 :</strong>
+                    <div v-html="educationCurriculum" class="curriculum-content"></div> <!-- HTML 콘텐츠 렌더링 -->
+                </div>
             </div>
 
             <div class="button-group">
@@ -64,6 +68,7 @@ const educationStart = ref('');
 const educationEnd = ref('');
 const participants = ref(0); // 기본값을 0으로 설정
 const institution = ref(''); // institution 상태 추가
+const educationCurriculum = ref('');
 const editMode = ref(false);
 
 // API 호출하여 교육 정보를 가져오는 함수
@@ -86,6 +91,7 @@ const fetchEducationDetails = async (educationId) => {
         educationEnd.value = education.educationEnd;
         participants.value = education.participants; // 참가자 수 할당
         institution.value = education.institution; // 교육 기관 할당
+        educationCurriculum.value = education.educationCurriculum;
     } catch (error) {
         console.error('교육 정보를 가져오는 데 오류가 발생했습니다:', error);
     }
@@ -131,7 +137,8 @@ const saveChanges = async () => {
             educationStart: educationStart.value,
             educationEnd: educationEnd.value,
             participants: participants.value, // participants를 제대로 포함
-            institution: institution.value // institution 추가
+            institution: institution.value, // institution 추가
+            educationCurriculum: educationCurriculum.value
         };
 
         // 백엔드에 PUT 요청으로 수정된 내용을 저장
