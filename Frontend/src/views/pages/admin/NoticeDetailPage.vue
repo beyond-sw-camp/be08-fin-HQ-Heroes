@@ -50,10 +50,10 @@
       </div>
 
       <div class="button-group">
-        <Button v-if="!isEditMode" label="수정" icon="pi pi-pencil" class="p-button-primary" @click="toggleEditMode" />
+        <Button v-if="!isEditMode && isAdmin()" label="수정" icon="pi pi-pencil" class="p-button-primary" @click="toggleEditMode" />
         <Button v-if="isEditMode" label="저장" icon="pi pi-save" class="p-button-primary" @click="saveNotice" />
         <Button v-if="isEditMode" label="취소" icon="pi pi-times" class="p-button-secondary" @click="cancelEdit" />
-        <Button label="삭제" icon="pi pi-trash" class="p-button-danger" @click="showDeleteDialog" />
+        <Button v-if="isAdmin()" label="삭제" icon="pi pi-trash" class="p-button-danger" @click="showDeleteDialog" />
       </div>
     </div>
 
@@ -95,6 +95,12 @@ const editor = ref(null);
 const quillInstance = ref(null);
 const deleteDialogVisible = ref(false); // 삭제 확인 다이얼로그 상태
 const originalNotice = ref({}); // 초기 상태를 저장할 변수 추가
+
+// 관리자인지 확인
+const isAdmin = () => {
+    // return authStore.employeeData.isAdmin === 'ROLE_ADMIN';
+  return true;
+};
 
 const formatDateTime = (dateString) => {
   if (!dateString) return '';
@@ -184,11 +190,7 @@ const loadNotice = async () => {
 const saveNotice = async () => {
   editableNotice.value.content = quillInstance.value.root.innerHTML; // 에디터 내용 저장
   try {
-    if (isNewNotice.value) {
-      await createNotice(editableNotice.value);
-    } else {
-      await updateNotice(editableNotice.value);
-    }
+    await updateNotice(editableNotice.value);
     router.push('/manage-notices');
   } catch (error) {
     console.error('공지사항 저장 오류:', error);
@@ -228,6 +230,7 @@ onMounted(async () => {
   await loadCategories();
   if (!isNewNotice.value) await loadNotice();
   initializeEditor();
+  isAdmin();
 });
 </script>
 

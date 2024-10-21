@@ -47,10 +47,13 @@ public class NoticeController {
     @Operation(summary = "공지사항 상세 조회", description = "공지사항 ID로 해당공지사항의 정보를 조회한다.")
     public ResponseEntity<NoticeResponseDTO> getNoticeById(
             @Parameter(description = "공지사항 ID", example = "1") @PathVariable("notice-id") Long noticeId) {
+        System.out.println("noticeId = " + noticeId);
         Notice notice = noticeService.getNoticeById(noticeId);
+        System.out.println("notice = " + notice);
 
         if (notice != null) {
             NoticeResponseDTO noticeDTO = notice.toResponseDTO();
+            System.out.println("noticeDTO = " + noticeDTO);
             return new ResponseEntity<>(noticeDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

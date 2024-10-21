@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Table(name = "tb_notice")
+@ToString
 public class Notice {
 
     @Id

@@ -74,6 +74,7 @@ import 'quill/dist/quill.snow.css';
 import { onBeforeMount, onMounted, ref } from 'vue';
 import { fetchPost } from '../auth/service/AuthApiService'; // fetchPost 사용
 import Swal from 'sweetalert2';
+import router from '@/router';
 
 export default {
     setup() {
@@ -118,8 +119,12 @@ export default {
 
             input.onchange = async () => {
                 const file = input.files[0];
+
+                // 이미지 크기 조정
+                const resizedImage = await resizeImage(file, 700, 700); // 원하는 크기로 조정 (800x800 예시)
+
                 const formData = new FormData();
-                formData.append('file', file);
+                formData.append('file', resizedImage);
 
                 try {
                     // 이미지 업로드 API 호출
@@ -140,6 +145,48 @@ export default {
                     console.error('Image upload failed:', error);
                 }
             };
+        };
+
+        // 이미지 크기 조정 함수
+        const resizeImage = (file, maxWidth, maxHeight) => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const reader = new FileReader();
+
+                reader.onload = (event) => {
+                    img.src = event.target.result;
+                };
+
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    let width = img.width;
+                    let height = img.height;
+
+                    // 크기 비율 유지하며 조정
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        resolve(new File([blob], file.name, { type: file.type })); // 새로운 파일 반환
+                    }, file.type);
+                };
+
+                reader.readAsDataURL(file);
+            });
         };
 
         // 카테고리 로드
@@ -183,12 +230,19 @@ export default {
 
                 const result = await fetchPost('http://localhost:8080/api/v1/education-service/education', requestBody);
 
+                // 요청 결과 로그
+                console.log('API 응답:', result);
+
                 if (result) {
                     Swal.fire({
                         icon: 'success',
                         title: '교육 작성 완료',
                         text: '교육 정보가 성공적으로 작성되었습니다.',
                         confirmButtonText: '확인'
+                    }).then(() => {
+                        // 확인 버튼 클릭 후 다른 페이지로 이동
+                        console.log('이동할 경로:', '/education-apply'); // 이동할 경로 로그
+                        router.push({ path: '/education-apply' }); // 원하는 페이지의 경로로 수정
                     });
                 }
             } catch (error) {
