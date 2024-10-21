@@ -24,5 +24,7 @@ public interface AttendanceService {
 
     List<AttendanceDTO> findByEmployee_IdAndDateBetween(String employeeId, LocalDate startDate, LocalDate endDate);
 
-    public int calculateTotalWorkHours(String employeeId, YearMonth targetMonth);
+    int calculateTotalWorkHours(String employeeId, YearMonth targetMonth);
+
+    AttendanceDTO getLatestAttendanceRecord(String employeeId);
 }

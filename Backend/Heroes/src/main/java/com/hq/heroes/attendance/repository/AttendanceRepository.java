@@ -33,4 +33,5 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     Integer findTotalWorkHours(@Param("employeeId") String employeeId,
                                @Param("year") int year,
                                @Param("month") int month);
+    Optional<Attendance> findTopByEmployeeOrderByCheckInDesc(Employee employee);
 }

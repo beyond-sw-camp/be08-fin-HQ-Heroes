@@ -6,6 +6,7 @@ import com.hq.heroes.attendance.service.AttendanceService;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.entity.Position;
+import com.hq.heroes.salary.dto.RetireDTO;
 import com.hq.heroes.salary.dto.SalaryHistoryDTO;
 import com.hq.heroes.salary.entity.Deduct;
 import com.hq.heroes.salary.entity.Salary;
@@ -16,6 +17,8 @@ import com.hq.heroes.salary.repository.SalaryHistoryRepository;
 import com.hq.heroes.salary.repository.SalaryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -127,29 +130,43 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
                 .build();
     }
 
-    @Override
+    // 마지막 출퇴근 날짜로부터 3개월 동안의 급여 합계 조회
     public Double getLastThreeMonthsSalarySum(String employeeId) {
-        // 마지막 출퇴근 기록 가져오기
-        AttendanceDTO latestAttendance = attendanceService.getLatestAttendance(employeeId);
-        LocalDateTime latestCheckOut = latestAttendance.getCheckOut(); // 마지막 퇴근 시간
+        LocalDateTime lastCheckInDate = getLastCheckInDate(employeeId);
+        LocalDateTime threeMonthsAgo = lastCheckInDate.minusMonths(3);
 
-        if (latestCheckOut == null) {
-            // 퇴근 시간이 없는 경우 0.0 반환
-            return 0.0;
-        }
+        List<SalaryHistory> salaryHistories = salaryHistoryRepository.findByEmployee_EmployeeIdAndSalaryMonthBetween(
+                employeeId, threeMonthsAgo, lastCheckInDate);
 
-        // 퇴근 날짜 기준 3개월 전 시작 날짜 계산
-        LocalDateTime threeMonthsAgo = latestCheckOut.minusMonths(3).withHour(0).withMinute(0);
+        // SalaryHistory를 SalaryHistoryDTO로 변환
+        List<RetireDTO> salaryHistoryDTOs = convertToRetireDTO(salaryHistories);
 
-        // 3개월 기간의 급여 기록 조회
-        List<SalaryHistory> salaryHistories = salaryHistoryRepository.findLastThreeMonthsSalaries(
-                employeeId, threeMonthsAgo, latestCheckOut
-        );
-
-        // 급여 합계 계산 후 반환
-        return salaryHistories.stream()
-                .mapToDouble(SalaryHistory::getPostTaxTotal) // 세후 급여 합계
+        return salaryHistoryDTOs.stream()
+                .mapToDouble(RetireDTO::getPostTaxTotal) // 세후 총액을 기준으로 합산
                 .sum();
+    }
+
+    private List<RetireDTO> convertToRetireDTO(List<SalaryHistory> salaryHistories) {
+        return salaryHistories.stream()
+                .map(salaryHistory -> {
+                    AttendanceDTO latestAttendance = attendanceService.getLatestAttendanceRecord(salaryHistory.getEmployee().getEmployeeId());
+                    return new RetireDTO(
+                            salaryHistory.getEmployee().getEmployeeId(),
+                            latestAttendance.getCheckIn(),
+                            salaryHistory.getPostTaxTotal()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+    private LocalDateTime getLastCheckInDate(String employeeId) {
+        // 최신 출석 기록을 가져오기
+        AttendanceDTO response = attendanceService.getLatestAttendanceRecord(employeeId);
+
+        if (response != null) {
+            return response.getCheckIn(); // checkInDate 반환
+        } else {
+            return LocalDateTime.now(); // 데이터가 없을 경우 현재 날짜 반환
+        }
     }
 
 }

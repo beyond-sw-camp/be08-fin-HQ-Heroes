@@ -151,4 +151,16 @@ public class AttendanceController {
         return ResponseEntity.ok(attendanceDTO);
     }
 
+    @GetMapping("/latest-record/{employeeId}")
+    public ResponseEntity<AttendanceDTO> getLatestAttendanceRecord(@PathVariable String employeeId) {
+        // 사용자 ID를 사용하여 최신 출석 기록 가져오기
+        AttendanceDTO latestAttendance = attendanceService.getLatestAttendanceRecord(employeeId);
+
+        if (latestAttendance != null) {
+            return ResponseEntity.ok(latestAttendance);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 데이터가 없는 경우 404 응답
+        }
+    }
+
 }
