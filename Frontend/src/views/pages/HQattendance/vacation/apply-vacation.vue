@@ -55,12 +55,29 @@
                     <div class="name-section">
                         <div class="name-block">
                             <label for="applicant" class="label">신청인</label>
-                            <!-- 신청인 이름을 기본값으로 설정 -->
-                            <input type="text" id="applicant" v-model="form.employeeName" class="input" :placeholder="employeeData.employeeName" />
+                            <!-- TreeSelect로 신청인 선택 -->
+                            <TreeSelect v-model="form.employeeName" :options="employeeTreeData" @node-select="handleEmployeeChange" optionLabel="label" selectionMode="single" class="input" placeholder="신청인을 선택하세요">
+                                <template #default="slotProps">
+                                    <div class="flex items-center">
+                                        <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X" size="normal" shape="circle" class="mr-2" style="background-color: #dee9fc; color: #1a2551" />
+                                        <Avatar v-else-if="slotProps.node.key.startsWith('emp-')" :image="slotProps.node.profileImageUrl" size="normal" shape="circle" class="mr-2" />
+                                        <span>{{ slotProps.node.label }}</span>
+                                    </div>
+                                </template>
+                            </TreeSelect>
                         </div>
                         <div class="name-block">
                             <label for="approver" class="label">결재자</label>
-                            <input type="text" id="approver" v-model="form.approverName" class="input" placeholder="결재자 이름" />
+                            <!-- TreeSelect로 결재자 선택 -->
+                            <TreeSelect v-model="form.approverName" :options="approverTreeData" @node-select="handleApproverChange" optionLabel="label" selectionMode="single" class="input" placeholder="결재자를 선택하세요">
+                                <template #default="slotProps">
+                                    <div class="flex items-center">
+                                        <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X" size="normal" shape="circle" class="mr-2" style="background-color: #dee9fc; color: #1a2551" />
+                                        <Avatar v-else-if="slotProps.node.key.startsWith('emp-')" :image="slotProps.node.profileImageUrl" size="normal" shape="circle" class="mr-2" />
+                                        <span>{{ slotProps.node.label }}</span>
+                                    </div>
+                                </template>
+                            </TreeSelect>
                         </div>
                     </div>
                 </div>
@@ -77,8 +94,10 @@
 </template>
 
 <script setup>
-import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService'; // 메서드 가져오기
+import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
 import axios from 'axios';
+import Avatar from 'primevue/avatar'; // Avatar 컴포넌트
+import TreeSelect from 'primevue/treeselect'; // TreeSelect 컴포넌트
 import { onMounted, ref } from 'vue';
 
 const form = ref({
@@ -89,6 +108,7 @@ const form = ref({
     vacationEndTime: '18:00', // 종료 시간 기본값
     employeeName: '', // 신청인 이름
     approverName: '', // 결재자 이름
+    approverId: '',
     comment: ''
 });
 
@@ -98,22 +118,13 @@ const employeeData = ref({
     employeeId: ''
 });
 
-// 오늘 날짜를 yyyy-mm-dd 형식으로 변환하는 함수
-const getTodayDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-    const day = String(today.getDate()).padStart(2, '0'); // 일이 한 자리수일 경우 0을 채움
-    return `${year}-${month}-${day}`;
-};
+const employeeTreeData = ref([]); // 트리 형식의 사원 목록 데이터
+const approverTreeData = ref([]); // 트리 형식의 결재자 목록 데이터 (팀장만)
 
-// 로그인된 사용자 정보를 가져오는 함수
 const loadEmployeeData = async () => {
     const employeeId = window.localStorage.getItem('employeeId');
-    console.log('EmployeeId:', employeeId); // employeeId 확인
     if (employeeId) {
         const data = await getLoginEmployeeInfo(employeeId);
-        console.log('Employee data:', data); // 받아온 사용자 데이터 확인
         if (data) {
             employeeData.value = data;
             form.value.employeeName = data.employeeName; // 신청인 이름 설정
@@ -121,47 +132,110 @@ const loadEmployeeData = async () => {
     }
 };
 
-// 휴가 종류 변경 시 자동으로 시간 설정
-const handleVacationTypeChange = () => {
-    if (form.value.vacationType === 'DAY_OFF') {
-        form.value.vacationStartTime = '09:00'; // 월차 시작 시간은 1쿼터
-        form.value.vacationEndTime = '18:00'; // 월차 종료 시간은 4쿼터
-    } else {
-        form.value.vacationStartTime = ''; // 다른 휴가의 경우 시작 시간 초기화
-        form.value.vacationEndTime = ''; // 다른 휴가의 경우 종료 시간 초기화
+// 전체 사원 목록을 트리 구조로 변환하는 함수
+const loadEmployeeTreeData = async () => {
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/employees');
+        // 로그인된 사용자의 부서명을 기준으로 필터링
+        const filteredEmployees = response.data.filter(
+            (employee) => employee.deptName === employeeData.value.deptName // 부서명이 같은 직원만 포함
+        );
+        employeeTreeData.value = convertToTreeModel(filteredEmployees); // 필터링된 데이터를 트리 구조로 변환
+    } catch (error) {
+        console.error('Error fetching employee data:', error);
     }
 };
 
+// 결재자 목록을 팀장으로만 필터링하는 함수
+const loadApproverTreeData = async () => {
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/employee/employees');
+        // 부서명이 같고 "팀장"인 경우만 필터링 (팀장만 포함)
+        const filteredApprovers = response.data.filter(
+            (employee) =>
+                employee.deptName === employeeData.value.deptName && // 같은 부서
+                employee.positionName === '팀장' // 팀장 직위만 포함
+        );
+        approverTreeData.value = convertToTreeModel(filteredApprovers); // 필터링된 팀장 목록을 트리 구조로 변환
+    } catch (error) {
+        console.error('Error fetching approver data:', error);
+    }
+};
+
+// 사원 데이터를 트리 구조로 변환하는 함수
+const convertToTreeModel = (data) => {
+    const departments = data.reduce((acc, employee) => {
+        const dept = acc.find((d) => d.label === employee.deptName);
+        if (!dept) {
+            acc.push({
+                key: `dept-${employee.deptName}`,
+                label: employee.deptName,
+                icon: 'pi pi-building',
+                children: []
+            });
+        }
+        const deptIndex = acc.findIndex((d) => d.label === employee.deptName);
+        const team = acc[deptIndex].children.find((t) => t.label === employee.teamName);
+        if (!team) {
+            acc[deptIndex].children.push({
+                key: `team-${employee.teamName}`,
+                label: employee.teamName,
+                icon: 'pi pi-users',
+                children: []
+            });
+        }
+        const teamIndex = acc[deptIndex].children.findIndex((t) => t.label === employee.teamName);
+        acc[deptIndex].children[teamIndex].children.push({
+            key: `emp-${employee.employeeId}`,
+            label: employee.employeeName,
+            profileImageUrl: employee.profileImageUrl,
+            jobName: employee.jobName,
+            positionName: employee.positionName
+        });
+        return acc;
+    }, []);
+    return departments;
+};
+
 onMounted(() => {
-    form.value.vacationStartDate = getTodayDate();
-    form.value.vacationEndDate = getTodayDate();
-    console.log('휴가 시작일:', form.value.vacationStartDate); // 시작 날짜 로그
-    console.log('휴가 종료일:', form.value.vacationEndDate); // 종료 날짜 로그
-    loadEmployeeData(); // 로그인된 사용자 정보 로드
+    form.value.vacationStartDate = new Date().toISOString().split('T')[0];
+    form.value.vacationEndDate = new Date().toISOString().split('T')[0];
+
+    loadEmployeeData().then(() => {
+        loadEmployeeTreeData(); // 신청자 목록 로드
+        loadApproverTreeData(); // 결재자 목록 로드 (팀장만)
+    });
 });
+
+const handleEmployeeChange = (selectedEmployee) => {
+    form.value.employeeId = selectedEmployee.key.replace('emp-', ''); // 선택된 신청인의 ID 추출
+    form.value.employeeName = selectedEmployee.label; // 선택된 신청인의 이름 설정
+};
+
+const handleApproverChange = (selectedApprover) => {
+    form.value.approverId = selectedApprover.key.replace('emp-', ''); // 선택된 결재자의 ID 추출
+    form.value.approverName = selectedApprover.label; // 선택된 결재자의 이름 설정
+};
 
 const submitForm = async () => {
     try {
-        // vacationStart와 vacationEnd를 각각 Date와 Time으로 분리해서 보냄
         const requestBody = {
-            employeeId: employeeData.value.employeeId, // 로그인된 사용자 ID 포함
+            employeeId: employeeData.value.employeeId,
             approverId: employeeData.value.approverId, // 결재자 ID 추가
-            vacationType: form.value.vacationType, // 휴가 종류
-            vacationStartDate: form.value.vacationStartDate, // 시작 날짜
-            vacationStartTime: form.value.vacationStartTime || '00:00', // 시작 시간
-            vacationEndDate: form.value.vacationEndDate, // 종료 날짜
-            vacationEndTime: form.value.vacationEndTime || '23:59', // 종료 시간
-            employeeName: form.value.employeeName, // 신청인 이름
-            approverName: form.value.approverName, // 결재자 이름
-            comment: form.value.comment // 사유
+            vacationType: form.value.vacationType,
+            vacationStartDate: form.value.vacationStartDate,
+            vacationStartTime: form.value.vacationStartTime || '00:00',
+            vacationEndDate: form.value.vacationEndDate,
+            vacationEndTime: form.value.vacationEndTime || '23:59',
+            employeeName: form.value.employeeName,
+            approverName: form.value.approverName,
+            comment: form.value.comment
         };
 
-        console.log('Request body:', requestBody); // 백엔드로 전송되는 데이터 확인
+        console.log(requestBody); // 전송 데이터 확인
 
-        const response = await axios.post('http://localhost:8080/api/v1/vacation/submit', requestBody, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
+        await axios.post('http://localhost:8080/api/v1/vacation/submit', requestBody, {
+            headers: { 'Content-Type': 'application/json' }
         });
         alert('휴가 신청이 완료되었습니다.');
     } catch (error) {
@@ -172,7 +246,6 @@ const submitForm = async () => {
 </script>
 
 <style scoped>
-/* 스타일 그대로 유지 */
 .vacation-page {
     padding: 20px 40px;
     width: 100%;
