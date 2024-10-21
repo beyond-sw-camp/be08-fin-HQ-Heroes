@@ -34,9 +34,6 @@
                 <Column field="categoryName" sortable header="카테고리" />
                 <Column field="educationName" sortable header="교육 명" />
                 <Column field="institution" sortable header="교육 기관" />
-                <Column field="applicationStartDate" sortable header="신청 기간">
-                    <template #body="{ data }"> {{ formatDate(data.applicationStartDate) }} ~ {{ formatDate(data.applicationEndDate) }} </template>
-                </Column>
                 <Column field="educationStart" sortable header="교육 시작일">
                     <template #body="{ data }"> {{ formatDate(data.educationStart) }} ~ {{ formatDate(data.educationEnd) }} </template>
                 </Column>
