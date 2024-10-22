@@ -44,7 +44,7 @@
             </Column>
             <Column field="educationName" sortable header="강의명" style="min-width: 20rem; text-align: left;">
                 <template #body="{ data }">
-                    {{ data.educationName }} <!-- 클릭 이벤트 제거 -->
+                    {{ data.educationName }}
                 </template>
             </Column>
             <Column field="educationEnd" sortable header="수강 기간" dataType="date" style="min-width: 8rem; text-align: left;">

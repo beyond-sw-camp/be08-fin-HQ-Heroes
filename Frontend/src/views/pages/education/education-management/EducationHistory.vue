@@ -2,7 +2,7 @@
     <div class="card">
         <div class="font-semibold text-xl mb-4">신청한 교육 목록</div>
         <DataTable
-            :value="filteredEmployees"
+            :value="filteredCourses"
             :paginator="true"
             :rows="10"
             removableSort
@@ -22,8 +22,8 @@
             <template #header>
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <Dropdown v-model="selectedCategoryName" :options="categories" optionLabel="name" placeholder="카테고리를 선택하세요" @change="filterByCategoryNameAndInstructor" class="mr-2" />
-                        <Dropdown v-model="selectedInstructor" :options="instructors" optionLabel="name" placeholder="강사명을 선택하세요" @change="filterByCategoryNameAndInstructor" class="mr-2" />
+                        <Dropdown v-model="selectedCategory" :options="categories" optionLabel="name" placeholder="카테고리를 선택하세요" @change="filterByCategoryAndInstructor" class="mr-2" />
+                        <Dropdown v-model="selectedInstructor" :options="instructors" optionLabel="name" placeholder="강사명을 선택하세요" @change="filterByCategoryAndInstructor" class="mr-2" />
                     </div>
                     <div class="relative search-container">
                         <i class="pi pi-search search-icon" />
@@ -41,12 +41,10 @@
             </Column>
             <Column field="educationName" sortable header="강의명" style="min-width: 20rem; text-align: left;">
                 <template #body="{ data }">
-                    <span @click="openEducationDetail(data)" style="cursor: pointer;">
                         {{ data.educationName }}
-                    </span>
                 </template>
             </Column>
-            <Column field="applicationStartDate" sortable header="교육 신청일" dataType="date" style="min-width: 10rem; text-align: left;">
+            <Column field="startDate" sortable header="교육 신청일" dataType="date" style="min-width: 10rem; text-align: left;">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.startDate)) }}
                 </template>
@@ -62,6 +60,13 @@
                 </template>
             </Column>
         </DataTable>
+
+        <!-- 모달창 컴포넌트 추가 -->
+        <EducationDetailModal
+            v-model:visible="isDialogVisible"
+            :courseDetail="selectedCourse"
+            @refreshCourses="fetchCourseList"
+        />
     </div>
 </template>
 
@@ -74,16 +79,17 @@ import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import { fetchGet } from '../../auth/service/AuthApiService';
 import { onBeforeMount, ref, onMounted } from 'vue';
+import EducationDetailModal from '../education-management/EducationDetailModal.vue';  // 모달 컴포넌트 가져오기
 
-const courseId = ref([]);  // 전체 교육 목록
-const filteredEmployees = ref([]);  // 필터링된 교육 목록
+const courseList = ref([]);  // 전체 교육 목록
+const filteredCourses = ref([]);  // 필터링된 교육 목록
 const filters = ref(null);  // 필터 설정
 const selectedCourse = ref(null);  // 선택된 강의
-const displayDialog = ref(false);  // 모달 창 제어
 const categories = ref([]);  // 카테고리 목록
 const instructors = ref([]);  // 강사 목록
-const selectedCategoryName = ref(null);  // 선택된 카테고리
+const selectedCategory = ref(null);  // 선택된 카테고리
 const selectedInstructor = ref(null);  // 선택된 강사
+const isDialogVisible = ref(false); // 모달 가시성
 
 const employeeData = ref({
     employeeName: '',
@@ -95,12 +101,9 @@ async function fetchCourseList() {
     try {
         const response = await fetchGet('http://localhost:8080/api/v1/course-service/my-courses');
         
-        console.log('API 응답:', response);  // 응답 확인
-
         if (Array.isArray(response)) {
-            courseId.value = response;  // API로부터 받은 데이터를 courseId에 저장
-            filteredEmployees.value = [...courseId.value];  // filteredEmployees를 업데이트
-            console.log('courseId:', courseId.value);
+            courseList.value = response.reverse();  // API로부터 받은 데이터를 courseList에 저장하고 반전
+            filteredCourses.value = [...courseList.value];  // filteredCourses 업데이트
         } else {
             console.error('응답 데이터가 배열이 아닙니다.', response);
         }
@@ -113,7 +116,7 @@ async function fetchCourseList() {
 function initFilters() {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        courseName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+        educationName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
         categoryName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
         startDate: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] }
     };
@@ -134,13 +137,22 @@ function mapStatus(status) {
         default:
             return '알 수 없음';
     }
+};
+
+// 교육 클릭 시 상세 정보를 모달로 전달하는 함수
+const showCourseDetails = (course) => {
+    selectedCourse.value = course;  // 선택된 교육 정보 설정
+    isDialogVisible.value = true;  // 모달 표시
+};
+
+function onRowSelect(event) {
+    selectedCourse.value = event.data;
+    isDialogVisible.value = true; // 모달 표시
 }
 
-// 클릭 시 교육 상세보기
-function openEducationDetail(course) {
-    // 세부 정보 모달 또는 페이지로 이동하는 로직을 여기에 추가
-    console.log('Selected Course:', course);
-    // displayDialog.value = true;  // 모달을 열려면 주석 해제
+function onRowUnselect() {
+    selectedCourse.value = null;
+    isDialogVisible.value = false; // 모달 닫기
 }
 
 onBeforeMount(() => {
@@ -161,10 +173,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-:deep(.p-datatable-frozen-tbody) {
-    font-weight: bold;
-}
-
 .search-container {
     display: flex;
     align-items: center;

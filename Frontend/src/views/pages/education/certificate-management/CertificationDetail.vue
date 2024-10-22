@@ -1,5 +1,5 @@
 <template>
-    <Dialog :visible="visible" header="자격증 상세 정보" modal @hide="closeModal">
+    <Dialog :visible="visible" header="자격증 상세 정보" modal @hide="closeModal" :closable="false">
         <template #header>
             <div class="font-bold text-lg">{{ certificationDetail.certificationName }}</div>
         </template>
