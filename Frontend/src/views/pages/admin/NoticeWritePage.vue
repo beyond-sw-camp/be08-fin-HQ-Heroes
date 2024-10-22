@@ -43,11 +43,15 @@
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Quill의 스타일
 import Swal from 'sweetalert2';
-import { onBeforeMount, onMounted, ref } from 'vue';
+import { onBeforeMount, onMounted, ref } from 'vue';    
 import { useRoute } from 'vue-router';
 import { fetchPost } from '../auth/service/AuthApiService';
 import { getLoginEmployeeInfo } from '../auth/service/authService';
 import router from '@/router';
+
+import ImageResize from 'quill-image-resize'; // import 수정
+
+Quill.register('modules/imageResize', ImageResize); // 여기에서 등록
 
 export default {
     setup() {
@@ -71,6 +75,10 @@ export default {
                         handlers: {
                             image: imageHandler // 이미지 핸들러 추가
                         }
+                    },
+                    /* 추가된 코드 */
+                    ImageResize: {
+                        parchment: Quill.import('parchment')
                     }
                 }
             });
@@ -101,11 +109,8 @@ export default {
             input.onchange = async () => {
                 const file = input.files[0];
 
-                // 이미지 크기 조정
-                const resizedImage = await resizeImage(file, 700, 700); // 원하는 크기로 조정 (800x800 예시)
-
                 const formData = new FormData();
-                formData.append('file', resizedImage);
+                formData.append('file', file);
 
                 try {
                     // 이미지 업로드 API 호출
@@ -129,46 +134,46 @@ export default {
         };
 
         // 이미지 크기 조정 함수
-        const resizeImage = (file, maxWidth, maxHeight) => {
-            return new Promise((resolve) => {
-                const img = new Image();
-                const reader = new FileReader();
+        // const resizeImage = (file, maxWidth, maxHeight) => {
+        //     return new Promise((resolve) => {
+        //         const img = new Image();
+        //         const reader = new FileReader();
 
-                reader.onload = (event) => {
-                    img.src = event.target.result;
-                };
+        //         reader.onload = (event) => {
+        //             img.src = event.target.result;
+        //         };
 
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
+        //         img.onload = () => {
+        //             const canvas = document.createElement('canvas');
+        //             const ctx = canvas.getContext('2d');
 
-                    let width = img.width;
-                    let height = img.height;
+        //             let width = img.width;
+        //             let height = img.height;
 
-                    // 크기 비율 유지하며 조정
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height *= maxWidth / width;
-                            width = maxWidth;
-                        }
-                    } else {
-                        if (height > maxHeight) {
-                            width *= maxHeight / height;
-                            height = maxHeight;
-                        }
-                    }
+        //             // 크기 비율 유지하며 조정
+        //             if (width > height) {
+        //                 if (width > maxWidth) {
+        //                     height *= maxWidth / width;
+        //                     width = maxWidth;
+        //                 }
+        //             } else {
+        //                 if (height > maxHeight) {
+        //                     width *= maxHeight / height;
+        //                     height = maxHeight;
+        //                 }
+        //             }
 
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    canvas.toBlob((blob) => {
-                        resolve(new File([blob], file.name, { type: file.type })); // 새로운 파일 반환
-                    }, file.type);
-                };
+        //             canvas.width = width;
+        //             canvas.height = height;
+        //             ctx.drawImage(img, 0, 0, width, height);
+        //             canvas.toBlob((blob) => {
+        //                 resolve(new File([blob], file.name, { type: file.type })); // 새로운 파일 반환
+        //             }, file.type);
+        //         };
 
-                reader.readAsDataURL(file);
-            });
-        };
+        //         reader.readAsDataURL(file);
+        //     });
+        // };
 
         // 카테고리 로드
         const loadCategoriesFromStorage = () => {

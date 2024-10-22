@@ -29,8 +29,6 @@ public class NoticeController {
     @GetMapping("/notice")
     @Operation(summary = "공지사항 목록 조회", description = "전체 공지사항의 목록을 조회한다.")
     public ResponseEntity<List<NoticeResponseDTO>> getNotices() {
-
-        System.out.println("noticeService = " + noticeService);
         
         List<Notice> notices = noticeService.getNotices();
         List<NoticeResponseDTO> noticeDTOs = notices.stream().map(Notice::toResponseDTO).collect(Collectors.toList());
@@ -47,13 +45,10 @@ public class NoticeController {
     @Operation(summary = "공지사항 상세 조회", description = "공지사항 ID로 해당공지사항의 정보를 조회한다.")
     public ResponseEntity<NoticeResponseDTO> getNoticeById(
             @Parameter(description = "공지사항 ID", example = "1") @PathVariable("notice-id") Long noticeId) {
-        System.out.println("noticeId = " + noticeId);
         Notice notice = noticeService.getNoticeById(noticeId);
-        System.out.println("notice = " + notice);
 
         if (notice != null) {
             NoticeResponseDTO noticeDTO = notice.toResponseDTO();
-            System.out.println("noticeDTO = " + noticeDTO);
             return new ResponseEntity<>(noticeDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -65,18 +60,19 @@ public class NoticeController {
     @Operation(summary = "공지사항 등록", description = "공지사항 정보를 받아서 등록한다.")
     public ResponseEntity<NoticeResponseDTO> create(@RequestBody NoticeRequestDTO requestDTO) {
 
-        System.out.println("requestDTO = " + requestDTO);
-
         Notice notice = noticeService.createNotice(requestDTO);
         return new ResponseEntity<>(notice.toResponseDTO(), HttpStatus.CREATED);
     }
 
     // 공지사항 수정
-    @PatchMapping("/notice/{notice-id}")
+    @PutMapping("/notice/{notice-id}")
     @Operation(summary = "공지사항 수정", description = "공지사항 정보를 받아 수정한다.")
     public ResponseEntity<NoticeResponseDTO> update(
             @Parameter(description = "공지사항 ID", example = "1") @PathVariable("notice-id") Long noticeId,
             @RequestBody NoticeUpdateRequestDTO requestDTO) {
+
+        System.out.println("공지사항 수정 noticeId = " + noticeId);
+        System.out.println("공지사항 수정 requestDTO = " + requestDTO);
 
         Notice notice = noticeService.updateNotice(noticeId, requestDTO);
 
