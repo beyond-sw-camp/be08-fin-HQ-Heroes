@@ -94,8 +94,21 @@ public class AttendanceServiceImpl implements AttendanceService {
         if (employeeOptional.isPresent()) {
             Employee employee = employeeOptional.get();
             // 직원의 가장 최근 출근 상태 확인 (상태가 NORMAL이고 퇴근 시간이 NULL인 경우만 확인)
-            Optional<Attendance> attendance = attendanceRepository.findTopByEmployeeAndStatusAndCheckOutIsNullOrderByCheckInDesc(employee, AttendanceStatus.NORMAL);
-            return attendance.isPresent(); // 퇴근 기록이 없는 경우 출근 상태로 판단
+            Optional<Attendance> attendanceOptional = attendanceRepository.findTopByEmployeeAndStatusAndCheckOutIsNullOrderByCheckInDesc(employee, AttendanceStatus.NORMAL);
+
+            if (attendanceOptional.isPresent()) {
+                Attendance attendance = attendanceOptional.get();
+                LocalDateTime now = LocalDateTime.now();
+
+                // 오후 6시 10분 이후 퇴근 시간이 없으면 상태를 ON_HOLD로 변경
+                if (now.isAfter(LocalDate.now().atTime(18, 10)) && attendance.getCheckOut() == null) {
+                    attendance.setStatus(AttendanceStatus.ON_HOLD);
+                    attendanceRepository.save(attendance);  // 상태 업데이트
+                }
+
+                // 퇴근 기록이 없는 경우 출근 상태로 판단
+                return attendance.getCheckOut() == null;
+            }
         }
         return false;
     }
