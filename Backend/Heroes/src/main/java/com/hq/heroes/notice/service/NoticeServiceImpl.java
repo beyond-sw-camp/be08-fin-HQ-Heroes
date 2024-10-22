@@ -55,9 +55,6 @@ public class NoticeServiceImpl implements NoticeService {
             throw new IllegalArgumentException("Invalid employee ID");
         }
 
-        System.out.println("requestDTO.categoryId = " + requestDTO.getCategoryId());
-
-
         Employee employeeEntity = employee.get();
 
         // 카테고리 정보를 가져옴
@@ -85,11 +82,17 @@ public class NoticeServiceImpl implements NoticeService {
         Notice notice = noticeRepository.findById(noticeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공지사항 ID : " + noticeId));
 
+        Employee employee = employeeRepository.findByEmployeeId(requestDTO.getEmployeeId())
+                .orElseThrow(() -> new IllegalArgumentException("사원이 존재하지 않습니다"));
+
+        NoticeCategory category = noticeCategoryRepository.findById(requestDTO.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리 ID : " + requestDTO.getCategoryId()));
+
         // 공지사항 정보 업데이트
         notice.setTitle(requestDTO.getTitle());
         notice.setContent(requestDTO.getContent());
-        notice.setUpdater(requestDTO.getUpdater());
-        notice.setCategory(requestDTO.getCategory());
+        notice.setUpdater(employee);
+        notice.setCategory(category);
 
         return noticeRepository.save(notice);
     }
