@@ -23,6 +23,7 @@
                 <Button label="신청하기" icon="pi pi-pencil" @click="handleApplyClick" />
                 <Button label="목록" icon="pi pi-fw pi-book" @click="goBackToList" class="gray-button" />
             </div>
+
         </div>
     </div>
 </template>
@@ -63,7 +64,9 @@ const educationEnd = ref('');
 const educationCurriculum = ref(''); // HTML 형식의 커리큘럼
 const participants = ref(0);
 const institution = ref('');
-const currentParticipant = ref('');
+const currentParticipant = ref(0);
+
+const isApplied = ref(false); // 신청 여부 상태
 
 // 로컬 스토리지에서 현재 참가자 수 가져오기
 const loadCurrentParticipant = () => {
@@ -73,26 +76,31 @@ const loadCurrentParticipant = () => {
     }
 };
 
-const currentParticipants = ref([]); // 이미 신청한 사원 ID 목록
-
-// 교육 정보를 가져오는 함수
 const fetchEducationDetails = async (courseId) => {
     try {
         const education = await fetchGet(`http://localhost:8080/api/v1/education-service/education/${courseId}`);
         educationName.value = education.educationName;
         categoryName.value = education.categoryName;
+        educationStart.value = education.educationStart;
+        educationEnd.value = education.educationEnd;
+        institution.value = education.institution;
         educationCurriculum.value = education.educationCurriculum;
         participants.value = education.participants;
         currentParticipant.value = education.currentParticipant;
-        currentParticipants.value = education.currentParticipants || [];
+        isApplied.value = currentParticipant.value > 0; // 이미 신청한 경우 true로 설정
     } catch (error) {
         console.error('교육 정보를 가져오는 데 오류가 발생했습니다:', error);
     }
 };
 
-// 신청하기 클릭 핸들러
 const handleApplyClick = async () => {
     const employeeId = window.localStorage.getItem('employeeId'); // 로컬스토리지에서 ID 가져오기
+
+    // 이미 신청한 경우
+    if (isApplied.value) {
+        alert("이미 신청한 교육입니다."); // 이미 신청한 교육 메시지
+        return;
+    }
 
     const newParticipantCount = currentParticipant.value + 1;
 
@@ -106,31 +114,47 @@ const handleApplyClick = async () => {
 
     try {
         // 교육 신청 요청
-        const response = await fetchPost(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
-
-        // JSON 응답 처리
-        const responseData = await response.json(); 
-
-        // 상태 코드에 따른 처리
-        if (response.ok) {
-            // 성공 시
-            if (responseData.message === "교육이 신청되었습니다.") {
-                currentParticipant.value = newParticipantCount; // 새로 신청한 인원 수 업데이트
-                currentParticipants.value.push(employeeId); // 신청한 사원 ID를 배열에 추가
-                alert(responseData.message); // 성공 메시지 출력
-                router.push('/education-history'); // 신청 완료 후 "/education-history" 페이지로 이동
-            }
-        } else if (response.status === 409) {
-            // 중복 신청 시 (409 상태)
-            alert(responseData.message); // "이미 신청한 교육입니다" 메시지 출력
-        } else {
-            // 기타 에러 처리
-            alert("서버 오류: " + responseData.message);
-        }
-
+        const responseText = await fetchPost(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
+        
+        alert("교육이 추가되었습니다"); // 성공 메시지 표시
+        currentParticipant.value = newParticipantCount; // 새로 신청한 인원 수 업데이트
+        localStorage.setItem(`currentParticipant${route.params.courseId}`, currentParticipant.value); // 로컬스토리지에 저장
+        isApplied.value = true; // 신청 상태 업데이트
+        router.push('/education-history'); // 신청 완료 후 "/education-history" 페이지로 이동
     } catch (error) {
-        console.error('신청 중 오류가 발생했습니다:', error);
-        alert("신청 중 오류가 발생했습니다.");
+        alert("신청 중 오류가 발생했습니다: " + error.message); // 그 외 오류 처리
+    }
+};
+
+// 취소 버튼 클릭 시 호출되는 함수
+const handleCancelClick = async () => {
+    const employeeId = window.localStorage.getItem('employeeId'); // 로컬스토리지에서 ID 가져오기
+    const courseId = route.params.courseId; // 현재 코스 ID 가져오기
+    
+    const confirmCancel = confirm("교육을 취소하시겠습니까?"); // 취소 확인
+    
+    if (confirmCancel) {
+        try {
+            // 서버에 DELETE 요청 보내기
+            const response = await fetch(`http://localhost:8080/api/v1/course-service/cancel/${courseId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                alert("신청이 취소되었습니다."); // 취소 메시지
+                currentParticipant.value--; // 참가자 수 감소
+                localStorage.setItem(`currentParticipant${courseId}`, currentParticipant.value); // 로컬스토리지 업데이트
+                isApplied.value = false; // 신청 상태 업데이트
+            } else {
+                alert("취소에 실패했습니다. 다시 시도해 주세요.");
+            }
+        } catch (error) {
+            console.error('취소 중 오류 발생:', error);
+            alert("오류가 발생했습니다. 나중에 다시 시도해 주세요.");
+        }
     }
 };
 

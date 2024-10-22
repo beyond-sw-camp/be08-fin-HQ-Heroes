@@ -20,6 +20,5 @@ public interface EducationService {
 
     String incrementCurrentParticipants(Long educationId, String employeeId);
 
-
 //    void incrementCurrentParticipants(Long curriculumId);
 }

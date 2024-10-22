@@ -3,6 +3,7 @@ package com.hq.heroes.education.controller;
 import com.hq.heroes.education.dto.EducationRequestDTO;
 import com.hq.heroes.education.dto.EducationResponseDTO;
 import com.hq.heroes.education.entity.Education;
+import com.hq.heroes.education.service.CourseService;
 import com.hq.heroes.education.service.EducationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @Tag(name = "Education APIs", description = "교육 관련 API 목록")
 public class EducationController {
     private final EducationService educationService;
+    private final CourseService courseService;
 
     // 교육 목록 조회하기
     @GetMapping("/education")
@@ -53,35 +55,6 @@ public class EducationController {
     }
 
     // 교육 신청하기
-//    @PostMapping("/apply/{educationId}/{employeeId}")
-//    @Operation(summary = "교육 신청하기", description = "교육 커리큘럼 ID로 교육을 신청한다.")
-//    public ResponseEntity<String> applyForCourse(@PathVariable Long educationId, @PathVariable String employeeId) {
-//
-//        try {
-//            educationService.incrementCurrentParticipants(educationId, employeeId);
-//            return ResponseEntity.ok("교육이 신청되었습니다.");
-//        } catch (IllegalStateException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("신청 실패");
-//        }
-//    }
-
-    // 교육 신청하기
-//    @PostMapping("/apply/{educationId}/{employeeId}")
-//    @Operation(summary = "교육 신청하기", description = "교육 커리큘럼 ID로 교육을 신청한다.")
-//    public ResponseEntity<String> applyForCourse(@PathVariable Long educationId, @PathVariable String employeeId) {
-//        try {
-//            educationService.incrementCurrentParticipants(educationId, employeeId);
-//            return ResponseEntity.ok("교육이 신청되었습니다.");
-//        } catch (IllegalStateException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // 중복 신청 처리
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("신청 실패");
-//        }
-//    }
-
-
     @PostMapping("/apply/{educationId}/{employeeId}")
     public ResponseEntity<?> applyForEducation(@PathVariable Long educationId, @PathVariable String employeeId) {
         try {
@@ -107,6 +80,7 @@ public class EducationController {
                     .body(Collections.singletonMap("message", "서버 오류가 발생했습니다."));
         }
     }
+
 
 
     // 교육 정보 등록
