@@ -1,6 +1,9 @@
 <template>
     <div class="card">
-        <h2 class="font-semibold text-xl mb-4">자격증 목록</h2>
+        <div class="flex flex-row justify-between mb-4">
+            <label class="text-xl font-bold">자격증 목록</label>
+            <Button label="추가하기" icon="pi pi-plus" class="custom-button" @click="showAddOrUpdateDialog(null)" />
+        </div>
         <DataTable
             :value="filteredCertifications"
             :paginator="true"
@@ -20,16 +23,14 @@
             @rowUnselect="onRowUnselect"
         >
             <template #header>
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <Dropdown v-model="selectedDept" :options="departments" optionLabel="name" placeholder="부서를 선택하세요" @change="filterCertifications" class="mr-2" />
                         <Dropdown v-model="selectedInstitution" :options="institutions" optionLabel="name" placeholder="발급기관을 선택하세요" @change="filterCertifications" class="mr-2" />
-                        <div class="relative search-container">
-                            <InputText v-model="globalFilter" placeholder="검색" class="pl-8 search-input" />
-                            <i class="pi pi-search search-icon" />
-                        </div>
                     </div>
-                    <Button label="추가하기" icon="pi pi-plus" class="custom-button" @click="showAddOrUpdateDialog(null)" />
+                    <div class="relative search-container ml-auto">
+                        <i class="pi pi-search search-icon" />
+                        <InputText v-model="globalFilter" placeholder="Keyword Search" class="pl-8 search-input" />
+                    </div>
                 </div>
             </template>
 
@@ -285,16 +286,25 @@ onMounted(async () => {
 
 <style scoped>
 .search-container {
+    display: flex;
+    align-items: center;
     position: relative;
 }
+
 .search-icon {
     position: absolute;
+    left: 10px;
     top: 50%;
-    left: 0.5rem;
     transform: translateY(-50%);
-    color: #999;
+    color: #888;
 }
+
 .search-input {
-    padding-left: 2rem;
+    padding-left: 30px;
 }
+
+.custom-button {
+    align-items: right;
+}
+
 </style>

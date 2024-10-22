@@ -22,15 +22,22 @@
             <template #header>
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <Dropdown v-model="selectedCategory" :options="categories" optionLabel="name" placeholder="카테고리를 선택하세요" @change="filterByCategoryAndInstructor" class="mr-2" />
-                        <Dropdown v-model="selectedInstructor" :options="instructors" optionLabel="name" placeholder="강사명을 선택하세요" @change="filterByCategoryAndInstructor" class="mr-2" />
+                        <Dropdown 
+                            v-model="selectedStatus" 
+                            :options="status" 
+                            optionLabel="name" 
+                            placeholder="이수 여부를 선택하세요" 
+                            @change="filterCourses" 
+                            class="mr-2" 
+                        />
                     </div>
-                    <div class="relative search-container">
+                    <div class="relative search-container ml-auto">
                         <i class="pi pi-search search-icon" />
-                        <InputText v-model="filters['global'].value" placeholder="Keyword Search" class="pl-8 search-input" />
+                        <InputText v-model="globalFilter" placeholder="Keyword Search" class="pl-8 search-input" />
                     </div>
                 </div>
             </template>
+
             <template #empty> No courses found. </template>
 
             <!-- 테이블 컬럼들 -->
@@ -41,7 +48,7 @@
             </Column>
             <Column field="educationName" sortable header="강의명" style="min-width: 20rem; text-align: left;">
                 <template #body="{ data }">
-                        {{ data.educationName }}
+                    {{ data.educationName }}
                 </template>
             </Column>
             <Column field="startDate" sortable header="교육 신청일" dataType="date" style="min-width: 10rem; text-align: left;">
@@ -78,17 +85,20 @@ import DataTable from 'primevue/datatable';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import { fetchGet } from '../../auth/service/AuthApiService';
-import { onBeforeMount, ref, onMounted } from 'vue';
-import EducationDetailModal from '../education-management/EducationDetailModal.vue';  // 모달 컴포넌트 가져오기
+import { onBeforeMount, ref, onMounted, watch } from 'vue';
+import EducationDetailModal from '../education-management/EducationDetailModal.vue';
 
 const courseList = ref([]);  // 전체 교육 목록
 const filteredCourses = ref([]);  // 필터링된 교육 목록
 const filters = ref(null);  // 필터 설정
 const selectedCourse = ref(null);  // 선택된 강의
-const categories = ref([]);  // 카테고리 목록
-const instructors = ref([]);  // 강사 목록
-const selectedCategory = ref(null);  // 선택된 카테고리
-const selectedInstructor = ref(null);  // 선택된 강사
+const status = ref([
+    { name: '전체', value: null },  // 전체 옵션 추가
+    { name: '이수', value: 'PASS' },
+    { name: '미이수', value: 'FAIL' }
+]);  // 상태 목록
+const selectedStatus = ref(null);  // 선택된 상태
+const globalFilter = ref(''); // 글로벌 필터
 const isDialogVisible = ref(false); // 모달 가시성
 
 const employeeData = ref({
@@ -122,6 +132,27 @@ function initFilters() {
     };
 }
 
+// 필터링 함수
+function filterCourses() {
+    // 상태에 따라 필터링
+    let tempCourses = [...courseList.value];
+
+    if (selectedStatus.value) {
+        if (selectedStatus.value.value !== null) { // "전체"가 아닐 때
+            tempCourses = tempCourses.filter(course => course.status === selectedStatus.value.value);
+        }
+    }
+
+    // 글로벌 필터 적용
+    if (globalFilter.value) {
+        tempCourses = tempCourses.filter(course =>
+            course.educationName.toLowerCase().includes(globalFilter.value.toLowerCase())
+        );
+    }
+
+    filteredCourses.value = tempCourses; // 필터링된 교육 목록 업데이트
+}
+
 // 날짜 포맷팅
 function formatDate(date) {
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -137,7 +168,7 @@ function mapStatus(status) {
         default:
             return '알 수 없음';
     }
-};
+}
 
 // 교육 클릭 시 상세 정보를 모달로 전달하는 함수
 const showCourseDetails = (course) => {
@@ -170,6 +201,9 @@ onMounted(async () => {
 
     await fetchCourseList();
 });
+
+// 선택된 상태가 변경될 때마다 필터링을 다시 수행하도록 설정
+watch([selectedStatus, globalFilter], filterCourses);
 </script>
 
 <style scoped>

@@ -14,13 +14,14 @@
                 </p>
                 <p><strong>강의 형식 :</strong> 오프라인</p>
                 <p><strong>교육 기관 :</strong> {{ institution }}</p>
-                <div>
+                <p>
                     <strong>교육 커리큘럼 :</strong>
                     <div v-html="educationCurriculum" class="curriculum-content"></div>
-                </div>
+                </p>
             </div>
             <div class="button-group">
-                <Button label="신청하기" icon="pi pi-pencil" @click="handleApplyClick" />
+                <Button label="신청하기" icon="pi pi-pencil" @click="handleApplyClick" 
+                />
                 <Button label="목록" icon="pi pi-fw pi-book" @click="goBackToList" class="gray-button" />
             </div>
 
@@ -95,12 +96,6 @@ const fetchEducationDetails = async (courseId) => {
 
 const handleApplyClick = async () => {
     const employeeId = window.localStorage.getItem('employeeId'); // 로컬스토리지에서 ID 가져오기
-
-    // 이미 신청한 경우
-    if (isApplied.value) {
-        alert("이미 신청한 교육입니다."); // 이미 신청한 교육 메시지
-        return;
-    }
 
     const newParticipantCount = currentParticipant.value + 1;
 
