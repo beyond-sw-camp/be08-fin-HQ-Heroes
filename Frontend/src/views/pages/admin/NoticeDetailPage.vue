@@ -160,7 +160,7 @@ const cancelEdit = async () => {
 
   // URL의 edit 파라미터를 업데이트하지 않고 특정 경로로 이동
   const noticeId = editableNotice.value.noticeId;
-  router.replace({ path: `/notice/${noticeId}` });
+  router.replace({ path: `/manage-notices` });
 
   // Quill 에디터의 내용을 원래 상태로 복원 및 비활성화
   if (quillInstance.value) {
