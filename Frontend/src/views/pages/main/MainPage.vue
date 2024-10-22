@@ -28,7 +28,7 @@
                         <i class="pi pi-map text-orange-500 !text-xl"></i>
                     </div>
                 </div>
-                <span class="text-muted-color">{{ currentDate }}</span>
+                <span class="text-muted-color">{{ checkOutTime }}</span>
             </div>
         </div>
 
@@ -160,8 +160,8 @@ const announcements = ref([]);
 const notifications = ref([]);
 const selectedAnnouncement = ref(null);
 const selectedNotification = ref(null);
-const checkInTime = ref('');
-const checkOutTime = ref('');
+const checkInTime = ref('출근전');
+const checkOutTime = ref('퇴근전');
 const salaryDday = ref('');
 const currentDate = ref(new Date().toLocaleDateString());
 const authStore = useAuthStore();
