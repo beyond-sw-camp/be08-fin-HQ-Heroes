@@ -4,6 +4,7 @@ import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.dto.EmployeeDTO;
+import com.hq.heroes.employee.dto.PasswordUpdateDTO;
 import com.hq.heroes.employee.dto.TeamDTO;
 import com.hq.heroes.employee.repository.DepartmentRepository;
 import com.hq.heroes.employee.repository.JobRepository;
@@ -131,6 +132,44 @@ public class EmployeeController {
         }
     }
 
+    // 비밀번호 변경을 위한 API
+    @PostMapping("/update-password")
+    public ResponseEntity<String> updatePassword(@RequestBody PasswordUpdateDTO passwordUpdateDTO) {
+
+        String employeeId = "";
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof CustomEmployeeDetails) {
+                CustomEmployeeDetails userDetails = (CustomEmployeeDetails) principal;
+                employeeId = userDetails.getUsername();
+            } else {
+                System.out.println("Principal is not an instance of CustomEmployeeDetails.");
+            }
+        } else {
+            System.out.println("No authenticated user found.");
+        }
+
+        try {
+            boolean isUpdated = employeeService.updatePassword(
+                    employeeId,
+                    passwordUpdateDTO.getCurrentPassword(),
+                    passwordUpdateDTO.getNewPassword()
+            );
+
+            if (isUpdated) {
+                return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("현재 비밀번호가 일치하지 않습니다.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("비밀번호 변경 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+
     // 현재 로그인한 사용자의 역할과 positionId를 확인하는 API
     @GetMapping("/role-check")
     public ResponseEntity<Map<String, Object>> checkUserRoleAndPosition() {
@@ -170,5 +209,7 @@ public class EmployeeController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "사용자를 찾을 수 없습니다."));
         }
     }
+
+
 
 }

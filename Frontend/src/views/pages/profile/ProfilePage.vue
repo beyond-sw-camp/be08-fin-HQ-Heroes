@@ -1,8 +1,17 @@
 <template>
     <div class="main-container">
         <h1 class="main-title">직원 정보</h1>
-        <span class="edit-icon" @click="enableEditing"><i class="pi pi-pencil"></i></span>
-        <!-- 연필 아이콘 위치 변경 -->
+
+        <!-- 비밀번호 수정 버튼과 연필 아이콘 -->
+        <div class="icon-group">
+            <!-- 비밀번호 수정 버튼 -->
+            <button class="change-password-button" @click="visible = true">비밀번호 변경</button>
+
+            <!-- 연필 아이콘 (편집 버튼) -->
+            <span class="edit-icon" @click="enableEditing">
+                <i class="pi pi-pencil"></i>
+            </span>
+        </div>
 
         <div class="content-wrapper">
             <div class="left-column">
@@ -108,12 +117,36 @@
             </div>
         </div>
     </div>
+    <!-- 비밀번호 변경 Dialog -->
+    <Dialog v-model:visible="visible" header="비밀번호 변경" modal style="width: 30rem">
+        <div>
+            <div class="form-group">
+                <label for="currentPassword" class="form-label-inline ml-5 mb-1">현재 비밀번호</label>
+                <input type="password" id="currentPassword" v-model="passwordUpdate.currentPassword" class="form-control-inline" />
+                <small v-if="errors.currentPassword" class="error-text ml-5">{{ errors.currentPassword }}</small>
+            </div>
+
+            <div class="form-group">
+                <label for="newPassword" class="form-label-inline ml-5 mb-1">새 비밀번호</label>
+                <input type="password" id="newPassword" v-model="passwordUpdate.newPassword" class="form-control-inline" />
+                <small v-if="errors.newPassword" class="error-text ml-5">{{ errors.newPassword }}</small>
+            </div>
+
+            <div class="flex items-center justify-end gap-2">
+                <Button label="변경" severity="primary" raised @click="submitPasswordChange" />
+                <Button label="취소" severity="secondary" raised @click="visible = false" />
+            </div>
+        </div>
+    </Dialog>
 </template>
 
 <script setup>
 import { getLoginEmployeeInfo, updateEmployeeInfo } from '@/views/pages/auth/service/authService'; // 서비스 파일에서 메소드 가져오기
+import Dialog from 'primevue/dialog';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
+import { fetchPost } from '../auth/service/AuthApiService';
+import authservice from '@/views/pages/auth/service/authService';
 import { useRouter } from 'vue-router';
 
 // 데이터 선언
@@ -192,6 +225,70 @@ const enableEditing = () => {
                 icon: 'error'
             });
         });
+};
+
+const visible = ref(false); // Dialog 표시 여부
+const passwordUpdate = ref({
+    currentPassword: '',
+    newPassword: ''
+});
+
+// 에러 메시지 객체
+const errors = ref({
+    currentPassword: '',
+    newPassword: ''
+});
+
+// 비밀번호 변경 처리 함수
+const submitPasswordChange = async () => {
+    if (!validatePasswords()) {
+        return; // 유효성 검사 실패 시 함수 종료
+    }
+
+    try {
+        const response = await fetchPost('http://localhost:8080/api/v1/employee/update-password', passwordUpdate.value);
+        if (response) {
+            visible.value = false; // Dialog 닫기
+            Swal.fire('성공', '비밀번호가 변경되었습니다.', 'success');
+            await authservice.logout();
+            router.push('/login');
+
+        } else {
+            alert('현재 비밀번호가 일치하지 않습니다.');
+        }
+    } catch (error) {
+        alert('비밀번호 변경 중 문제가 발생했습니다.');
+    }
+};
+
+// 유효성 검사 함수
+const validatePasswords = () => {
+    let isValid = true;
+
+    // 현재 비밀번호와 새로운 비밀번호가 동일한지 확인
+    if (passwordUpdate.value.currentPassword === passwordUpdate.value.newPassword) {
+        errors.value.newPassword = '새로운 비밀번호는 현재 비밀번호와 같을 수 없습니다.';
+        isValid = false;
+    } else {
+        errors.value.newPassword = ''; // 이전 에러 메시지 초기화
+    }
+
+    // 새로운 비밀번호가 최소 8자 이상이고, 숫자 및 특수문자가 포함되어 있는지 확인
+    const passwordPattern = /^(?=.*[0-9])(?=.*[!@#$%^&*])/;
+    if (passwordUpdate.value.newPassword.length < 8 || !passwordPattern.test(passwordUpdate.value.newPassword)) {
+        errors.value.newPassword = '새로운 비밀번호는 8자 이상, 숫자와 특수문자를 포함해야 합니다.';
+        isValid = false;
+    }
+
+    // 현재 비밀번호가 비어있는지 확인
+    if (!passwordUpdate.value.currentPassword) {
+        errors.value.currentPassword = '현재 비밀번호를 입력해주세요.';
+        isValid = false;
+    } else {
+        errors.value.currentPassword = ''; // 이전 에러 메시지 초기화
+    }
+
+    return isValid;
 };
 
 onMounted(async () => {
@@ -319,10 +416,41 @@ h2 {
     margin-bottom: 20px;
 }
 
+/* Form 그룹 전체 디자인 */
 .form-group {
     display: flex;
-    align-items: center;
-    margin-bottom: 15px;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+/* Label과 Input을 같은 줄에 배치 */
+.form-label-inline {
+    width: 30%; /* label의 넓이 조정 */
+    display: inline-block;
+    font-weight: bold;
+}
+
+.form-control-inline {
+    width: 65%; /* input의 넓이 조정 */
+    padding: 8px;
+    margin-left: 5%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* 에러 메시지 디자인 */
+.error-text {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+/* Dialog 푸터 버튼 스타일 */
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
 label {
@@ -367,10 +495,15 @@ label {
     transform: scale(1.05); /* 호버 시 살짝 커지는 효과 */
 }
 
-.edit-icon {
+.icon-group {
     position: absolute;
     top: 20px; /* 상단 여백 */
     right: 30px; /* 우측 여백 */
+    display: flex;
+    align-items: center;
+}
+
+.edit-icon {
     font-size: 1.5em;
     cursor: pointer;
     color: #6366f1;
@@ -378,6 +511,23 @@ label {
 
 .edit-icon:hover {
     color: #4f46e5; /* 호버 시 색상 */
+}
+.change-password-button {
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 10px; /* 연필 아이콘과 간격 */
+    cursor: pointer;
+    font-size: 1rem;
+    transition:
+        background-color 0.3s ease,
+        transform 0.3s ease;
+}
+
+.change-password-button:hover {
+    background-color: #4f46e5;
 }
 
 .photo-upload-container .form-control {

@@ -74,7 +74,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee adminUpdateEmployee(EmployeeDTO employeeDTO) {
-        
 
         Employee employee = employeeRepository.findById(employeeDTO.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 사원을 찾을 수 없습니다."));
@@ -146,5 +145,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employee = employeeRepository.save(employee);
         return employee.getEmployeeName() + "님의 비밀번호가 변경되었습니다.\n다시 로그인을 해주세요";
+    }
+
+    // 비밀번호 변경 로직
+    @Override
+    public boolean updatePassword(String employeeId, String currentPassword, String newPassword) {
+        Employee employee = employeeRepository.findByEmployeeId(employeeId)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
+
+        // 현재 비밀번호 검증
+        if (!bCryptPasswordEncoder.matches(currentPassword, employee.getPassword())) {
+            return false;  // 현재 비밀번호가 일치하지 않으면 false 반환
+        }
+
+        // 새 비밀번호 암호화 후 저장
+        employee.setPassword(bCryptPasswordEncoder.encode(newPassword));
+        employeeRepository.save(employee);
+        return true;
     }
 }

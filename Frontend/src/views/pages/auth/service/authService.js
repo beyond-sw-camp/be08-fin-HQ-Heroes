@@ -134,8 +134,8 @@ const logout = async () => {
             credentials: 'include'
         });
         if (response.ok) {
-            alert('로그아웃 성공');
-            window.localStorage.removeItem('access');
+            console.log('로그아웃');
+            authStore.logout();
         } else {
             alert('로그아웃 실패');
         }

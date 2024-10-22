@@ -125,17 +125,39 @@
                     </Column>
                 </DataTable>
 
-                <!-- 알림 상세 모달 -->
-                <Dialog header="알림 상세 내용" v-model:visible="alarmDisplayDialog" :style="{ width: '30vw' }" modal>
+                <!-- 알림 상세 내용 -->
+                <Dialog header="알림" v-model:visible="alarmDisplayDialog" modal maximizable :style="{ width: '30vw' }" :breakpoints="{ '1199px': '50vw', '575px': '90vw' }" :closable="false" closeOnEscape :blockScroll="true">
                     <template v-if="selectedNotification">
-                        <p><strong>보낸 사람:</strong> {{ selectedNotification.senderName }}</p>
-                        <p><strong>보낸 시간:</strong> {{ new Date(selectedNotification.createdAt).toLocaleString('ko-KR') }}</p>
-                        <p><strong>카테고리:</strong> {{ selectedNotification.categoryName }}</p>
-                        <p><strong>내용:</strong></p>
-                        <div v-html="selectedNotification.message"></div>
+                        <div class="notification-details p-4 rounded-lg bg-white shadow">
+                            <div class="flex items-center justify-between">
+                                <!-- 보낸 사람 -->
+                                <div class="notification-item mb-3">
+                                    <p class="text-sm text-gray-500 font-medium mb-1">보낸 사람</p>
+                                    <p class="text-lg font-semibold text-primary">{{ selectedNotification.senderName }}</p>
+                                </div>
+
+                                <!-- 카테고리 -->
+                                <div class="notification-item mb-3">
+                                    <p class="text-sm text-gray-500 font-medium mb-1">카테고리</p>
+                                    <p class="text-lg">{{ selectedNotification.categoryName }}</p>
+                                </div>
+
+                                <!-- 보낸 시간 -->
+                                <div class="notification-item mb-3">
+                                    <p class="text-sm text-gray-500 font-medium mb-1">보낸 시간</p>
+                                    <p class="text-lg">{{ new Date(selectedNotification.createdAt).toLocaleString('ko-KR') }}</p>
+                                </div>
+                            </div>
+
+                            <!-- 내용 -->
+                            <div class="notification-item">
+                                <p class="text-sm text-gray-500 font-medium mb-1">내용</p>
+                                <div v-html="selectedNotification.message" class="p-3 bg-gray-50 rounded-md border border-gray-300"></div>
+                            </div>
+                        </div>
                     </template>
                     <template #footer>
-                        <Button label="닫기" @click="closeNotificationModal" />
+                        <Button label="닫기" class="p-button-danger" @click="closeNotificationModal" icon="pi pi-times" />
                     </template>
                 </Dialog>
             </div>
