@@ -2,6 +2,7 @@ package com.hq.heroes.education.controller;
 
 import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.education.dto.CourseResponseDTO;
+import com.hq.heroes.education.dto.EducationResponseDTO;
 import com.hq.heroes.education.entity.Course;
 import com.hq.heroes.education.service.CourseService;
 import com.hq.heroes.education.service.EducationService;
@@ -12,9 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,4 +65,19 @@ public class CourseContoller {
         // 응답 반환
         return new ResponseEntity<>(courseDTOs, HttpStatus.OK);
     }
+
+    // 교육 취소하기
+    @DeleteMapping("/cancel/{courseId}")
+    @Operation(summary = "교육 취소하기", description = "교육 커리큘럼 ID로 교육 신청을 취소한다.")
+    public ResponseEntity<Void> cancelEducation(@PathVariable Long courseId) {
+        System.out.println("courseId = " + courseId);
+
+        boolean isCancelled = courseService.cancelEducation(courseId); // 메서드 이름을 적절하게 변경하세요.
+        if (isCancelled) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }

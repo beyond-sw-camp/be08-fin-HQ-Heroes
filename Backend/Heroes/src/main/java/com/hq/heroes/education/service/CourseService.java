@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface CourseService  {
     List<Course> getCourseByEmployeeId(String employeeId);
+
+    boolean cancelEducation(Long courseId);
 }

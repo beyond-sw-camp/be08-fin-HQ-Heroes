@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -78,7 +77,7 @@ public class EducationServiceImpl implements EducationService {
 
         // 이미 신청한 교육이 있는지 확인
         if (courseRepository.existsByEducation_EducationIdAndEmployee_EmployeeId(educationId, employeeId)) {
-            return "이미 신청한 교육입니다."; // 중복 신청 시 메시지 반환
+            throw new IllegalStateException("이미 신청한 교육입니다."); // 중복 신청 시 예외 발생
         }
 
         // 현재 인원 수 증가
@@ -97,6 +96,7 @@ public class EducationServiceImpl implements EducationService {
         return "교육이 신청되었습니다."; // 성공 메시지 반환
     }
 
+    // 교육 취소하기
 
     @Override
     @Transactional

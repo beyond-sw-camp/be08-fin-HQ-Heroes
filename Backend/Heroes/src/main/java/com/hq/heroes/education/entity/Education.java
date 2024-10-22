@@ -50,6 +50,7 @@ public class Education {
     private int currentParticipant = 0;
 
     // 교육 커리쿨럼
+    @Lob
     @Column(name = "educationCurriculum", nullable = false)
     private String educationCurriculum;
 
