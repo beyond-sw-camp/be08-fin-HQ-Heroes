@@ -28,4 +28,7 @@ public interface EmployeeService {
     String setTempPassword(String to, String authCode);
 
     String updatePassword(String email, String tempPW);
+
+    // 비밀번호 변경 로직
+    boolean updatePassword(String employeeId, String currentPassword, String newPassword);
 }
