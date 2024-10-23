@@ -11,12 +11,16 @@ public interface EvaluationCriteriaService {
 
     List<EvaluationCriteria> getEvaluationCriterListByDeptName(String deptName);
 
+    //- 테스트
     EvaluationCriteria getEvaluationCriteriaById(Long criteriaId);
 
+    //- 테스트
     EvaluationCriteria createEvaluationCriteria(EvaluationCriteriaReqDTO requestDTO);
 
+    //- 테스트
     EvaluationCriteria updateEvaluationCriteria(Long criteriaId, EvaluationCriteriaReqDTO requestDTO);
 
+    //- 테스트
     boolean deleteEvaluationCriteria(Long criteriaId);
 
 }

@@ -36,7 +36,7 @@ public class CertificationController {
         }
     }
 
-    // 자격증 상세 조회
+    // 자격증 상세 조회 - 테스트
     @GetMapping("certification/{certification-id}")
     @Operation(summary = "자격증 상세 조회", description = "자격증 ID로 해당 자격증의 정보를 조회한다.")
     public ResponseEntity<CertificationResponseDTO> getCertificationById(
@@ -67,7 +67,7 @@ public class CertificationController {
         return new ResponseEntity<>(certificationDTOs, HttpStatus.OK);
     }
 
-    // 자격증 정보 등록
+    // 자격증 정보 등록 - 테스트
     @PostMapping("/certification")
     @Operation(summary = "자격증 등록", description = "자격증 정보를 받아서 등록한다.")
     public ResponseEntity<CertificationResponseDTO> create(@RequestBody CertificationRequestDTO requestDTO) {
@@ -75,7 +75,7 @@ public class CertificationController {
         return new ResponseEntity<>(certification.toResponseDTO(), HttpStatus.CREATED);
     }
 
-    // 자격증 정보 수정
+    // 자격증 정보 수정 - 테스트
     @PutMapping("/certification/{certification-id}")
     @Operation(summary = "자격증 목록 수정", description = "자격증 정보를 받아 수정한다.")
     public ResponseEntity<CertificationResponseDTO> update(
@@ -91,7 +91,7 @@ public class CertificationController {
         }
     }
 
-    // 자격증 삭제
+    // 자격증 삭제 - 테스트
     @DeleteMapping("/certification/{certification-id}")
     @Operation(summary = "자격증 삭제", description = "자격증 ID로 해당 자격증을 삭제한다.")
     public ResponseEntity<Void> delete(

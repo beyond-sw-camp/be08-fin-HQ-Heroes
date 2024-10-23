@@ -49,7 +49,7 @@ public class EvaluationCriteriaController {
         return new ResponseEntity<>(criteriaDTOs, HttpStatus.OK);
     }
 
-    // 평가 기준 조회
+    // 평가 기준 조회 - 테스트
     @GetMapping("/{criteria-id}")
     @Operation(summary = "평가 기준 상세 조회", description = "평가 기준 ID로 해당 평가 기준 정보를 조회한다.")
     public ResponseEntity<EvaluationCriteriaResDTO> getEvaluationCriteriaById(
@@ -63,7 +63,7 @@ public class EvaluationCriteriaController {
         }
     }
 
-    // 평가 기준 등록
+    // 평가 기준 등록 - 테스트
     @PostMapping
     @Operation(summary = "평가 기준 등록", description = "평가 기준 정보를 받아서 등록한다.")
     public ResponseEntity<EvaluationCriteriaResDTO> createEvaluationCriteria(@RequestBody EvaluationCriteriaReqDTO requestDTO) {
@@ -71,7 +71,7 @@ public class EvaluationCriteriaController {
         return new ResponseEntity<>(criteria.toResponseDTO(), HttpStatus.CREATED);
     }
 
-    // 평가 기준 수정
+    // 평가 기준 수정 - 테스트
     @PutMapping("/{criteria-id}")
     @Operation(summary = "평가 기준 수정", description = "평가 기준 정보를 받아서 수정한다.")
     public ResponseEntity<EvaluationCriteriaResDTO> updateEvaluationCriteria(
@@ -87,7 +87,7 @@ public class EvaluationCriteriaController {
         }
     }
 
-    // 평가 기준 삭제
+    // 평가 기준 삭제 - 테스트
     @DeleteMapping("/{criteria-id}")
     @Operation(summary = "평가 기준 삭제", description = "평가 기준 ID로 해당 평가 기준을 삭제한다.")
     public ResponseEntity<Void> deleteEvaluationCriteria(

@@ -25,7 +25,7 @@ public class EmployeeCertificationController {
 
     private final EmployeeCertificationService employeeCertificationService;
 
-    // 사원 ID로 자격증 조회하기
+    // 사원 ID로 자격증 조회하기 - 테스트
     @GetMapping("/my-certification/by-employeeId")
     @Operation(summary = "사원 ID로 사원 자격증 목록 조회", description = "해당 사원의 자격증 목록을 조회한다.")
     public ResponseEntity<List<EmployeeCertificationResponseDTO>> getMyCertificationByEmployeeId() {
@@ -53,6 +53,7 @@ public class EmployeeCertificationController {
         return new ResponseEntity<>(employeeCertificationResponseDTOs, HttpStatus.OK);
     }
 
+    //- 테스트
     @PostMapping("/my-certification")
     @Operation(summary = "사원 자격증 등록", description = "사원 자격증 정보를 받아서 등록한다.")
     public ResponseEntity<EmployeeCertificationResponseDTO> create(@RequestBody EmployeeCertificationRequestDTO requestDTO) {

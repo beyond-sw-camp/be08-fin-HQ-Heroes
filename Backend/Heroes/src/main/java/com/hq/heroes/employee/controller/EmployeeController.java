@@ -41,6 +41,7 @@ public class EmployeeController {
     private final EmployeeRepository employeeRepository;
 
     // 특정 사원 조회를 위한 API
+    // 테스트 코드 필요
     @GetMapping("/employees/{employee-id}")
     public ResponseEntity<EmployeeDTO> getAllEmployee(
             @Parameter(description = "사원 ID", example = "2024106824") @PathVariable("employee-id") String employeeId
@@ -98,6 +99,7 @@ public class EmployeeController {
         return ResponseEntity.ok((positionRepository.findAllPositions()));
     }
 
+    // 테스트 코드 필요
     @PutMapping("/update")
     public ResponseEntity<String> updateEmployeeInfo(
             @RequestPart("employeeData") @Validated EmployeeDTO employeeDTO,
@@ -105,7 +107,7 @@ public class EmployeeController {
 
         try {
             // 요청 파라미터 로그 출력
-            log.info("Profile Image: {}", (profileImage != null ? profileImage.getOriginalFilename() : "No file uploaded"));
+            log.debug("Profile Image: {}", (profileImage != null ? profileImage.getOriginalFilename() : "No file uploaded"));
 
             // 프로필 이미지 파일 검증 및 처리
             if (profileImage != null && !profileImage.isEmpty()) {
@@ -133,6 +135,7 @@ public class EmployeeController {
     }
 
     // 비밀번호 변경을 위한 API
+    // 테스트 코드 필요
     @PostMapping("/update-password")
     public ResponseEntity<String> updatePassword(@RequestBody PasswordUpdateDTO passwordUpdateDTO) {
 
@@ -171,6 +174,7 @@ public class EmployeeController {
 
 
     // 현재 로그인한 사용자의 역할과 positionId를 확인하는 API
+    // 테스트 코드 필요
     @GetMapping("/role-check")
     public ResponseEntity<Map<String, Object>> checkUserRoleAndPosition() {
         String employeeId = "";

@@ -37,6 +37,7 @@ public class NotificationController {
         return new ResponseEntity<>(notificationDTOs, HttpStatus.OK);
     }
 
+    //- 테스트
     @GetMapping("/notification/{notification-id}")
     @Operation(summary = "알림 상세 조회", description = "알림 ID로 해당 알림 정보를 조회한다.")
     public ResponseEntity<NotificationResDTO> getNotificationById(
@@ -50,6 +51,7 @@ public class NotificationController {
         }
     }
 
+    //- 테스트
     @PostMapping("/notification")
     @Operation(summary = "알림 등록", description = "알림 정보를 받아 등록한다.")
     public ResponseEntity<NotificationResDTO> createNotification(@RequestBody NotificationReqDTO requestDTO) {
@@ -57,6 +59,7 @@ public class NotificationController {
         return new ResponseEntity<>(notification.toResDTO(), HttpStatus.CREATED);
     }
 
+    //- 테스트
     @PutMapping("/notification/{notification-id}")
     @Operation(summary = "알림 수정", description = "알림 정보를 받아 수정한다.")
     public ResponseEntity<NotificationResDTO> updateNotification(
@@ -71,6 +74,7 @@ public class NotificationController {
         }
     }
 
+    //- 테스트
     @GetMapping("/notifications/receiver/{employeeId}")
     @Operation(summary = "수신된 알림 목록 조회", description = "수신자의 ID로 알림 목록을 조회한다.")
     public ResponseEntity<List<NotificationResDTO>> getNotificationsByReceiverId(
@@ -83,10 +87,11 @@ public class NotificationController {
         return new ResponseEntity<>(notificationDTOs, HttpStatus.OK);
     }
 
+    //- 테스트
     @GetMapping("/notifications/sender/{employeeId}")
-    @Operation(summary = "수신된 알림 목록 조회", description = "발신자의 ID로 알림 목록을 조회한다.")
+    @Operation(summary = "발신된 알림 목록 조회", description = "발신자의 ID로 알림 목록을 조회한다.")
     public ResponseEntity<List<NotificationResDTO>> getNotificationsBySenderId(
-            @Parameter(description = "수신자의 사원 ID", example = "1") @PathVariable("employeeId") String employeeId) {
+            @Parameter(description = "발신자의 사원 ID", example = "1") @PathVariable("employeeId") String employeeId) {
         List<Notification> notifications = notificationService.getNotificationsBySenderId(employeeId);
         List<NotificationResDTO> notificationDTOs = notifications.stream()
                 .map(Notification::toResDTO)
@@ -102,7 +107,8 @@ public class NotificationController {
     }
 
 
-    // 알림 상태 업데이트 API
+
+    // 알림 상태 업데이트 API - 테스트
     @PutMapping("/notification/{notification-id}/read")
     @Operation(summary = "알림 읽음 처리", description = "알림을 읽은 후 상태를 'READ'로 업데이트한다.")
     public ResponseEntity<Void> markNotificationAsRead(
@@ -118,7 +124,7 @@ public class NotificationController {
         }
     }
 
-    // 알림 삭제 API
+    // 알림 삭제 API - 테스트
     @PutMapping("/notification/{notification-id}/delete")
     @Operation(summary = "알림 삭제 처리", description = "알림의 삭제 상태를 true로 업데이트한다.")
     public ResponseEntity<Void> setNotificationDeleteStatus(

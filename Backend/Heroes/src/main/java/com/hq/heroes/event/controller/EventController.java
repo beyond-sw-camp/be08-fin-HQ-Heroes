@@ -16,7 +16,7 @@ public class EventController {
 
     private final EventService eventService;
 
-    // 이벤트 생성 메서드
+    // 이벤트 생성 메서드 - 테스트
     @PostMapping("/create")
     public ResponseEntity<String> createEvent(@RequestBody EventDTO eventDTO) {
         try {

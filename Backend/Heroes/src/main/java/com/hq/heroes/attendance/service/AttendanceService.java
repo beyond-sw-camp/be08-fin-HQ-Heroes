@@ -12,8 +12,10 @@ public interface AttendanceService {
 
     List<AttendanceDTO> getAllAttendances();
 
+    // - 테스트
     Attendance checkIn(Employee employee);
 
+    // - 테스트
     void checkOut(Employee employee);
 
     boolean isAlreadyCheckedIn(String employeeId);
@@ -22,8 +24,10 @@ public interface AttendanceService {
 
     AttendanceDTO getLatestAttendance(String employeeId);
 
+    //- 테스트
     List<AttendanceDTO> findByEmployee_IdAndDateBetween(String employeeId, LocalDate startDate, LocalDate endDate);
 
+    // - 테스트
     int calculateTotalWorkHours(String employeeId, YearMonth targetMonth);
 
     AttendanceDTO getLatestAttendanceRecord(String employeeId);

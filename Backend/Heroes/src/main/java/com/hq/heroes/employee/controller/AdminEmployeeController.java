@@ -24,13 +24,14 @@ public class AdminEmployeeController {
 
     private final EmployeeService employeeService;
 
+    // 테스트 코드 필요
     @PutMapping("/update")
     public ResponseEntity<String> adminUpdateEmployeeInfo(
             @RequestPart("employeeData") @Validated EmployeeDTO employeeDTO,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         try {
             // 요청 파라미터 로그 출력
-            log.info("Profile Image: {}", (profileImage != null ? profileImage.getOriginalFilename() : "No file uploaded"));
+            log.debug("Profile Image: {}", (profileImage != null ? profileImage.getOriginalFilename() : "No file uploaded"));
 
             // 프로필 이미지 파일 검증 및 처리
             if (profileImage != null && !profileImage.isEmpty()) {

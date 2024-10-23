@@ -42,7 +42,7 @@ public class AttendanceController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    // 특정 사원의 월별 총 근무 시간 조회
+    // 특정 사원의 월별 총 근무 시간 조회 - 테스트
     @GetMapping("/total-work-hours")
     @Operation(summary = "로그인한 사용자의 월별 총 근무 시간 조회")
     public ResponseEntity<Integer> getTotalWorkHours(
@@ -63,6 +63,7 @@ public class AttendanceController {
     }
 
 
+    // - 테스트
     @GetMapping("/my-work-time")
     @Operation(summary = "로그인한 사용자의 근무 시간 조회")
     public ResponseEntity<Map<String, Double>> getMyWorkTime(Authentication authentication, @RequestParam YearMonth yearMonth) {
@@ -88,7 +89,7 @@ public class AttendanceController {
     }
 
 
-    // 출근 요청
+    // 출근 요청 - 테스트
     @PostMapping("/check-in")
     public ResponseEntity<?> checkIn() {
         // 인증된 사용자의 정보 가져오기
@@ -111,7 +112,7 @@ public class AttendanceController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    // 퇴근 요청
+    // 퇴근 요청 - 테스트
     @PostMapping("/check-out")
     public ResponseEntity<?> checkOut() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

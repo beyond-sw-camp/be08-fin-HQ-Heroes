@@ -76,7 +76,7 @@ public class OvertimeController {
         return ResponseEntity.ok(username);
     }
 
-    // 로그인된 사용자의 승인된 연장 근로 목록을 반환하는 API
+    // 로그인된 사용자의 승인된 연장 근로 목록을 반환하는 API - 테스트
     @GetMapping("/my-overtimes")
     @Operation(summary = "로그인된 사용자의 승인된 연장 근로 내역 조회")
     public ResponseEntity<List<OvertimeDTO>> getMyApprovedOvertimes() {
@@ -94,6 +94,7 @@ public class OvertimeController {
         return ResponseEntity.ok(approvedOvertimes);
     }
 
+    //- 테스트
     @GetMapping("/total-overtime")
     @Operation(summary = "해당 월의 연장 근로 내역 조회")
     public ResponseEntity<Long> getTotalOvertimeForMonth(@RequestParam String employeeId, @RequestParam String yearMonth) {

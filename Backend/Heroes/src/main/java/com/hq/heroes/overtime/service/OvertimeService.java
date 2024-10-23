@@ -15,7 +15,9 @@ public interface OvertimeService {
 
     void rejectOvertime(Long overtimeId);
 
+    //- 테스트
     List<OvertimeDTO> getApprovedOvertimesByEmployeeId(String employeeId);
 
+    //- 테스트
     long getTotalOvertimeHoursForMonth(String employeeId, YearMonth month);
 }

@@ -36,6 +36,7 @@ public class EvaluationController {
         return new ResponseEntity<>(evaluationDTOs, HttpStatus.OK);
     }
 
+    //- 테스트
     @GetMapping("/evaluations/by-employeeId")
     @Operation(summary = "사원 ID로 평가 목록 조회", description = "해당 사원의 평가 목록을 조회한다.")
     public ResponseEntity<List<EvaluationResDTO>> getEvaluationsByEmployeeId() {
@@ -62,7 +63,7 @@ public class EvaluationController {
     }
 
 
-    // 평가 조회
+    // 평가 조회 - 테스트
     @GetMapping("/evaluation/{evaluation-id}")
     @Operation(summary = "평가 상세 조회", description = "평가 ID로 해당 평가 정보를 조회한다.")
     public ResponseEntity<EvaluationResDTO> getEvaluationById(
@@ -76,7 +77,7 @@ public class EvaluationController {
         }
     }
 
-    // 평가 등록
+    // 평가 등록 - 테스트
     @PostMapping("/evaluation")
     @Operation(summary = "평가 등록", description = "평가 정보를 받아서 등록한다.")
     public ResponseEntity<EvaluationResDTO> create(@RequestBody EvaluationReqDTO requestDTO) {
@@ -84,7 +85,7 @@ public class EvaluationController {
         return new ResponseEntity<>(evaluation.toResponseDTO(), HttpStatus.CREATED);
     }
 
-    // 평가 수정
+    // 평가 수정 - 테스트
     @PutMapping("/evaluation/{evaluation-id}")
     @Operation(summary = "평가 수정", description = "평가 정보를 받아 수정한다.")
     public ResponseEntity<EvaluationResDTO> update(
@@ -100,7 +101,7 @@ public class EvaluationController {
         }
     }
 
-    // 평가 삭제
+    // 평가 삭제 - 테스트
     @DeleteMapping("/evaluation/{evaluation-id}")
     @Operation(summary = "평가 삭제", description = "평가 ID로 해당 평가를 삭제한다.")
     public ResponseEntity<Void> delete(
