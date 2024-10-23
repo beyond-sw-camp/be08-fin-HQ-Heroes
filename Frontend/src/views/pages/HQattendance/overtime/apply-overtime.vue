@@ -65,7 +65,6 @@
 
 <script setup>
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService'; // 메서드 가져오기
-import axios from 'axios';
 import { onMounted, ref } from 'vue';
 
 const form = ref({
@@ -138,12 +137,8 @@ const calculateTimeInMinutes = (time) => {
 const loadTotalOvertimeHours = async (employeeId) => {
     const yearMonth = new Date().toISOString().slice(0, 7); // 현재 연도와 월을 yyyy-MM 형식으로 추출
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/overtime/total-overtime', {
-            params: {
-                employeeId: employeeId,
-                yearMonth: yearMonth
-            }
-        });
+        const url = `http://localhost:8080/api/v1/overtime/total-overtime?employeeId=${employeeId}&yearMonth=${yearMonth}`;
+        const response = await fetchGet(url);
         const totalMinutes = response.data; // 백엔드에서 받은 총 연장 근로 시간을 분 단위로 저장
         totalOvertimeHours.value = formatMinutesToHoursAndMinutes(totalMinutes); // 형식화된 연장 근로 시간
         remainingOvertimeHours.value = formatMinutesToHoursAndMinutes(MAX_OVERTIME_HOURS - totalMinutes); // 잔여 연장 근로 시간
@@ -174,11 +169,8 @@ const submitForm = async () => {
             comment: form.value.comment // 사유
         };
 
-        const response = await axios.post('http://localhost:8080/api/v1/overtime/submit', requestBody, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+        const response = await fetchPost('http://localhost:8080/api/v1/overtime/submit', requestBody);
+
         alert('연장 근로 신청이 완료되었습니다.');
     } catch (error) {
         console.error('연장 근로 신청 중 오류가 발생했습니다:', error);

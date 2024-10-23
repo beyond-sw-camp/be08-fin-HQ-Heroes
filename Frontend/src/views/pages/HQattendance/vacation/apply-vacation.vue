@@ -157,14 +157,16 @@ const loadEmployeeTreeData = async () => {
 // 결재자 목록을 팀장으로만 필터링하는 함수
 const loadApproverTreeData = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/employees');
-        // 부서명이 같고 "팀장"인 경우만 필터링 (팀장만 포함)
-        const filteredApprovers = response.data.filter(
-            (employee) =>
-                employee.deptName === employeeData.value.deptName && // 같은 부서
-                employee.positionName === '팀장' // 팀장 직위만 포함
-        );
-        approverTreeData.value = convertToTreeModel(filteredApprovers); // 필터링된 팀장 목록을 트리 구조로 변환
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees');
+        if (response) {
+            // 부서명이 같고 "팀장"인 경우만 필터링 (팀장만 포함)
+            const filteredApprovers = response.filter(
+                (employee) =>
+                    employee.deptName === employeeData.value.deptName && // 같은 부서
+                    employee.positionName === '팀장' // 팀장 직위만 포함
+            );
+            approverTreeData.value = convertToTreeModel(filteredApprovers); // 필터링된 팀장 목록을 트리 구조로 변환
+        }
     } catch (error) {
         console.error('Error fetching approver data:', error);
     }
@@ -244,9 +246,8 @@ const submitForm = async () => {
 
         console.log(requestBody); // 전송 데이터 확인
 
-        await axios.post('http://localhost:8080/api/v1/vacation/submit', requestBody, {
-            headers: { 'Content-Type': 'application/json' }
-        });
+        await fetchPost('http://localhost:8080/api/v1/vacation/submit', requestBody);
+
         alert('휴가 신청이 완료되었습니다.');
         await router.push('/status-vacation');
     } catch (error) {
