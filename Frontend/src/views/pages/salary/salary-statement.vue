@@ -36,13 +36,13 @@
                 <div class="text-surface-900 font-medium text-lg mt-2">
                   <div>총 급여 : {{ formatCurrency(month.preTaxTotal) }}</div>
                   <div>공제액 : {{ formatCurrency(calculateTotalDeductions(month)) }}</div>
-                  <div>실지급액 : {{ formatCurrency(month.preTaxTotal - calculateTotalDeductions(month)) }}</div>
+                  <div>실지급액 : {{ formatCurrency(month.postTaxTotal) }}</div>
                 </div>
                 <Button
                   label="급여내역보기"
                   class="p-button-secondary mt-4"
                   style="width: 100%;"
-                  @click="showSalaryModal(month)"
+                  @click="() => { showSalaryModal(month); }"
                 />
               </div>
             </div>
@@ -73,11 +73,11 @@
               </div>
               <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '1월' || getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '7월')" class="info-item">
                 <span>성과급 :</span>
-                <span>{{ formatCurrency(selectedMonth?.performanceBonus || 0) }}</span>
+                <span>{{ formatCurrency(selectedMonth?.performanceBonus) }}</span>
               </div>
               <div class="total-deductions font-semibold mt-4">
                 <span>급여 합계 :</span>
-                <span>{{ formatCurrency(selectedMonth?.totalWorkHours * selectedMonth?.baseSalary + (selectedMonth?.bonus || 0)) }}</span>
+                <span>{{ formatCurrency(selectedMonth?.totalWorkHours * selectedMonth?.baseSalary + (selectedMonth?.performanceBonus || 0)) }}</span>
               </div>
             </div>
 
@@ -100,6 +100,7 @@
           </div>
           <div class="modal-footer">
             <Button label="닫기" class="p-button-text" @click="closeSalaryModal" />
+            <Button label="내보내기" class="p-button-text" @click="exportModalDataToCSV" />
           </div>
         </div>
       </Dialog>
@@ -185,22 +186,29 @@ const showSalaryModal = async (month) => {
   selectedMonth.value = month;
   salaryDialogHeader.value = `${authStore.employeeData.employeeName}님의 급여 내역`;
 
-  const baseSalary = await fetchbaseSalary(authStore.loginUserId); // 급여 세부 정보 가져오기
-  selectedMonth.value.baseSalary = baseSalary;
-
-  // 총 근무 시간 가져오기
-  const monthNumber = new Date(month.salaryMonth).getMonth() + 1; // 월은 1부터 시작하므로 +1
+  const monthNumber = new Date(month.salaryMonth).getMonth() + 1;
   const totalWorkHours = await fetchTotalWorkHours(selectedYear.value, monthNumber);
-  selectedMonth.value.totalWorkHours = totalWorkHours; // 총 근무 시간을 selectedMonth에 저장
+  selectedMonth.value.totalWorkHours = totalWorkHours;
 
-  // 성과급 가져오기
-  const performanceBonus = await fetchBonus(authStore.loginUserId);
-  selectedMonth.value.performanceBonus = performanceBonus;
-  
+  // 기본 급여 가져오기
+  const baseSalary = await fetchbaseSalary(authStore.loginUserId);
+  selectedMonth.value.baseSalary = baseSalary;
+  console.log(baseSalary);
+
+  // 1월과 7월에만 성과급 계산
+  if (monthNumber === 1 || monthNumber === 7) {
+    const performance = await fetchBonus(authStore.loginUserId);
+    selectedMonth.value.performanceBonus = baseSalary * totalWorkHours * performance[0].performanceBonus;
+    console.log(performance[0].performanceBonus);
+  } else {
+    selectedMonth.value.performanceBonus = 0; // 그 외의 달에는 성과급을 0으로 설정
+  }
+
   await fetchDeductionsData(month.salaryMonth);
-
   displayModal.value = true;
 };
+
+
 
 // 공제 데이터 가져오기 함수
 const fetchDeductionsData = async (salaryMonth) => {
@@ -221,15 +229,46 @@ const closeSalaryModal = () => {
   displayModal.value = false;
 };
 
+const exportModalDataToCSV = () => {
+  const data = [
+    {
+      총근무시간: selectedMonth.value.totalWorkHours,
+      시급: selectedMonth.value.baseSalary,
+      성과급: selectedMonth.value.performanceBonus,
+      급여합계: selectedMonth.value.totalWorkHours * selectedMonth.value.baseSalary + (selectedMonth.value.performanceBonus || 0),
+      공제액합계: totalDeductions.value,
+    }
+  ];
+
+  const csvContent = `data:text/csv;charset=utf-8,${[
+    Object.keys(data[0]).join(','),
+    ...data.map(row => Object.values(row).join(','))
+  ].join('\n')}`;
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `급여_내역_${selectedYear.value}_${getMonthLabel(new Date(selectedMonth.value.salaryMonth).getMonth())}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 // 컴포넌트 마운트 시 초기 데이터 로드
 onMounted(async () => {
-  await loadMonthlyData(); // 마운트 시 월별 데이터 로드
+  await loadMonthlyData();
 });
 </script>
 
 <style scoped>
+.card {
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
 .salary-management {
   padding: 1rem;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .header {
@@ -318,5 +357,16 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

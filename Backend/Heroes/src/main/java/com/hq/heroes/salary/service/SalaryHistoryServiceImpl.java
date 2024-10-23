@@ -1,7 +1,6 @@
 package com.hq.heroes.salary.service;
 
 import com.hq.heroes.attendance.dto.AttendanceDTO;
-import com.hq.heroes.attendance.repository.AttendanceRepository;
 import com.hq.heroes.attendance.service.AttendanceService;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
@@ -11,18 +10,16 @@ import com.hq.heroes.salary.dto.SalaryHistoryDTO;
 import com.hq.heroes.salary.entity.Deduct;
 import com.hq.heroes.salary.entity.Salary;
 import com.hq.heroes.salary.entity.SalaryHistory;
-import com.hq.heroes.salary.entity.enums.Status;
 import com.hq.heroes.salary.repository.DeductRepository;
 import com.hq.heroes.salary.repository.SalaryHistoryRepository;
 import com.hq.heroes.salary.repository.SalaryRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,23 +45,39 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
 
     @Override
     public SalaryHistoryDTO createSalary(SalaryHistoryDTO dto) {
-        Optional<Employee> employee = employeeRepository.findById(dto.getEmployeeId());
-        if (employee.isEmpty()) {
+        Optional<Employee> employeeEntity = employeeRepository.findById(dto.getEmployeeId());
+        if (employeeEntity.isEmpty()) {
             throw new IllegalArgumentException("Invalid employee ID");
         }
 
-        Employee employeeEntity = employee.get();
-        Double baseSalary = employeeEntity.getPosition().getBaseSalary();
-        Position position = employeeEntity.getPosition();
+        Employee employee = employeeEntity.get();
+        Position position = employee.getPosition();
+
+        // 현재 날짜
+        YearMonth currentMonth = YearMonth.now();
+
+        // 해당 사원의 총 근무 시간
+        int totalWorkHours = attendanceService.calculateTotalWorkHours(employee.getEmployeeId(), currentMonth);
+
+        // 근무 년수 계산
+        long years = ChronoUnit.YEARS.between(employee.getJoinDate(), LocalDate.now());
+
+        // baseSalary = 직급의 기본급 * 총 근무 시간
+        Double baseSalary = position.getBaseSalary() * totalWorkHours;
+
+        // 5% 복리 적용
+        for (int i = 0; i < years; i++) {
+            baseSalary *= 1.05; // 매년 5% 증가
+        }
+
+        // 성과급 및 세전 총액 계산
         Salary salary = salaryRepository.findByPosition(position)
                 .orElseThrow(() -> new IllegalArgumentException("No salary record found for this position"));
-
         Double performanceBonus = salary.calculatePerformanceBonus();
         Double preTaxTotal = baseSalary + performanceBonus;
 
         // 각 공제 항목 계산
-        List<Deduct> deducts = deductRepository.findAll(); // 모든 공제 항목 가져오기
-
+        List<Deduct> deducts = deductRepository.findAll();
         Double nationalPension = calculateDeduction(preTaxTotal, deducts, "국민연금");
         Double healthInsurance = calculateDeduction(preTaxTotal, deducts, "건강보험");
         Double longTermCare = healthInsurance * calculateDeductionRate(deducts, "장기요양");
@@ -72,10 +85,13 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         Double incomeTax = calculateDeduction(preTaxTotal, deducts, "소득세");
         Double localIncomeTax = incomeTax * calculateDeductionRate(deducts, "지방소득세");
 
-        Double postTaxTotal = preTaxTotal - (nationalPension + healthInsurance + longTermCare + employmentInsurance + incomeTax + localIncomeTax);
+        // 세후 총액 계산
+        Double postTaxTotal = preTaxTotal - (nationalPension + healthInsurance + longTermCare +
+                employmentInsurance + incomeTax + localIncomeTax);
 
+        // SalaryHistory 엔티티 생성 및 저장
         SalaryHistory salaryHistory = SalaryHistory.builder()
-                .employee(employeeEntity)
+                .employee(employee)
                 .salaryMonth(dto.getSalaryMonth())
                 .preTaxTotal(preTaxTotal)
                 .nationalPension(nationalPension)
@@ -92,6 +108,8 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         SalaryHistory savedSalaryHistory = salaryHistoryRepository.save(salaryHistory);
         return convertToDTO(savedSalaryHistory);
     }
+
+
 
     // 세금 및 공제 항목을 계산하는 메서드
     private Double calculateDeduction(Double preTaxTotal, List<Deduct> deducts, String deductionName) {
