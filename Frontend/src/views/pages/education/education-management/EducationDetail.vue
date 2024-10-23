@@ -20,8 +20,7 @@
                 </p>
             </div>
             <div class="button-group">
-                <Button label="신청하기" icon="pi pi-pencil" @click="handleApplyClick" 
-                />
+                <Button label="신청하기" icon="pi pi-pencil" @click="handleApplyClick" />
                 <Button label="목록" icon="pi pi-fw pi-book" @click="goBackToList" class="gray-button" />
             </div>
 
@@ -117,7 +116,12 @@ const handleApplyClick = async () => {
         isApplied.value = true; // 신청 상태 업데이트
         router.push('/education-history'); // 신청 완료 후 "/education-history" 페이지로 이동
     } catch (error) {
-        alert("신청 중 오류가 발생했습니다: " + error.message); // 그 외 오류 처리
+        // 오류 메시지 검사
+        if (error.message.includes("서버 오류: 409")) {
+            alert("이미 신청한 교육입니다."); // 409 오류일 경우 메시지 변경
+        } else {
+            alert("신청 중 오류가 발생했습니다: " + error.message); // 그 외 오류 처리
+        }
     }
 };
 

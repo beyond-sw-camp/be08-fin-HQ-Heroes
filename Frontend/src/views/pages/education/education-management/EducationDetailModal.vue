@@ -5,12 +5,12 @@
         </template>
         <div class="p-4">
             <p><strong>카테고리:</strong> {{ courseDetail.categoryName }}</p>
-            <p><strong>강사:</strong> {{ courseDetail.instructor }}</p>
-            <p><strong>교육 기관:</strong> {{ courseDetail.institution }}</p>
+            <p><strong>강사:</strong> {{ courseDetail.instructorName }}</p>
+            <p><strong>교육 기관:</strong> {{ courseDetail.institute }}</p>
             <p><strong>교육 신청일:</strong> {{ formatDate(new Date(courseDetail.startDate)) }}</p>
             <p><strong>교육 종료일:</strong> {{ formatDate(new Date(courseDetail.endDate)) }}</p>
             <p><strong>상태:</strong> {{ mapStatus(courseDetail.status) }}</p>
-            <!-- <p><strong>교육 커리큘럼:</strong> {{ courseDetail.educationCurriculum }}</p> -->
+            <p><strong>교육 커리큘럼:</strong> {{ courseDetail.educationCurriculum }}</p>
         </div>
 
         <!-- 취소하기 및 닫기 버튼 추가 -->

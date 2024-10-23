@@ -111,7 +111,8 @@ async function fetchEducations() {
                 ...course,
                 status: educationStartDate > currentDate ? '신청 가능' : '신청 마감'
             };
-        });
+        }).reverse(); // 역순으로 정렬
+
     } catch (error) {
         console.error("신청 기간이 지났습니다.", error);
     }

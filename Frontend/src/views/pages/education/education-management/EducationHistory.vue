@@ -22,14 +22,7 @@
             <template #header>
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <Dropdown 
-                            v-model="selectedStatus" 
-                            :options="status" 
-                            optionLabel="name" 
-                            placeholder="이수 여부를 선택하세요" 
-                            @change="filterCourses" 
-                            class="mr-2" 
-                        />
+                        <Dropdown v-model="selectedStatus" :options="status" optionLabel="name" placeholder="이수 여부를 선택하세요" @change="filterCourses" class="mr-2" />
                     </div>
                     <div class="relative search-container ml-auto">
                         <i class="pi pi-search search-icon" />

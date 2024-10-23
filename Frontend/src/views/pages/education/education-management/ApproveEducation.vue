@@ -1,6 +1,7 @@
 <template>
     <div>
         <div class="card">
+            <div class="font-semibold text-xl mb-4">교육 / 자격증 관리</div>
             <DataTable
                 ref="dt"
                 :value="filteredEmployees"
@@ -13,8 +14,7 @@
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0 title">교육 / 자격증 관리</h4>
-                        <div class="flex gap-2">
+                        <div class="flex gap-1">
                             <Button type="button" label="교육" outlined :class="{ active: selectedEducation === '교육' }" @click="filterByEducation('교육')" />
                             <Button type="button" label="자격증" outlined :class="{ active: selectedEducation === '자격증' }" @click="filterByEducation('자격증')" />
                         </div>

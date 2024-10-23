@@ -34,7 +34,6 @@
                 </div>
             </template>
 
-            <Column field="registrationId" sortable header="번호" style="min-width: 2rem; text-align: left;" />
             <Column field="certificationName" sortable header="자격명" style="min-width: 20rem; text-align: left;" />
             <Column field="institution" sortable header="발급 기관" style="min-width: 8rem; text-align: left;" />
             <Column field="acquisitionDate" sortable header="취득일" dataType="date" style="min-width: 8rem; text-align: left;">
