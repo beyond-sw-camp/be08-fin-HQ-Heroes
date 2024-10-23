@@ -26,7 +26,7 @@ public class CourseContoller {
     private final CourseService courseService;
     private final EducationService educationService;
 
-    // 사원 ID로 신청한 교육 목록 조회하기
+    // 사원 ID로 신청한 교육 목록 조회하기 - 테스트
     @GetMapping("/my-courses")
     @Operation(summary = "사원 ID로 신청한 교육 목록 조회", description = "해당 사원이 신청한 교육 목록을 조회한다.")
     public ResponseEntity<List<CourseResponseDTO>> getCourseByEmployeeId() {
@@ -66,9 +66,9 @@ public class CourseContoller {
         return new ResponseEntity<>(courseDTOs, HttpStatus.OK);
     }
 
-    // 교육 취소하기
+    // 교육 취소하기 - 테스트
     @DeleteMapping("/cancel/{courseId}")
-    @Operation(summary = "교육 취소하기", description = "교육 커리큘럼 ID로 교육 신청을 취소한다.")
+    @Operation(summary = "교육 취소하기", description = "수강 ID로 교육 신청을 취소한다.")
     public ResponseEntity<Void> cancelEducation(@PathVariable Long courseId) {
         System.out.println("courseId = " + courseId);
 
@@ -80,4 +80,19 @@ public class CourseContoller {
         }
     }
 
+    // 교육 이수
+    @PostMapping("/complete/{courseId}")
+    @Operation(summary = "교육 이수하기", description = "수강 ID로 미이수된 교육을 이수로 바꾼다.")
+    public ResponseEntity<String> completeCourse(@PathVariable Long courseId) {
+        courseService.completeCourse(courseId);
+        return ResponseEntity.ok("교육이 이수 되었습니다.");
+    }
+
+    // 수강 목록
+    @GetMapping("/list")
+    @Operation(summary = "수강 신청 목록 조회")
+    public ResponseEntity<List<CourseResponseDTO>> getCourses() {
+        List<CourseResponseDTO> lists = courseService.getAllCourses();
+        return ResponseEntity.ok(lists);
+    }
 }

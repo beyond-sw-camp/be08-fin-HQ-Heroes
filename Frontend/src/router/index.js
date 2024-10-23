@@ -54,6 +54,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/education/education-management/EducationDetail.vue')
                 },
                 {
+                    path: '/approve-education',
+                    name: 'approve-education',
+                    component: () => import('@/views/pages/education/education-management/ApproveEducation.vue')
+                },
+                {
                     path: '/certificate-management',
                     name: 'certification',
                     component: () => import('@/views/pages/education/certificate-management/CertificationList.vue')
