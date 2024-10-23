@@ -1,8 +1,8 @@
 package com.hq.heroes.overtime.service;
 
 import com.hq.heroes.overtime.dto.OvertimeDTO;
-import com.hq.heroes.vacation.dto.VacationDTO;
 
+import java.time.YearMonth;
 import java.util.List;
 
 public interface OvertimeService {
@@ -16,4 +16,6 @@ public interface OvertimeService {
     void rejectOvertime(Long overtimeId);
 
     List<OvertimeDTO> getApprovedOvertimesByEmployeeId(String employeeId);
+
+    long getTotalOvertimeHoursForMonth(String employeeId, YearMonth month);
 }

@@ -8,6 +8,10 @@
                     <div class="logged-in-user">
                         <p>
                             로그인한 사용자: <strong>{{ employeeData.employeeName }}</strong>
+                            <br />
+                            이번 달 연장근로 시간: <strong>{{ totalOvertimeHours }}</strong>
+                            <br />
+                            잔여 연장근로 시간: <strong>{{ remainingOvertimeHours }}</strong>
                         </p>
                     </div>
 
@@ -25,29 +29,20 @@
                     <!-- 쿼터 선택 필드 -->
                     <div class="time-section">
                         <div class="time-block">
-                            <label for="startTime" class="label">시작 시간 (쿼터)</label>
-                            <select id="startTime" v-model="form.overtimeStartTime" class="select">
-                                <option value="18:00">1쿼터 (18:00 ~ 19:00)</option>
-                                <option value="19:00">2쿼터 (19:00 ~ 20:00)</option>
-                                <option value="20:00">3쿼터 (20:00 ~ 21:00)</option>
-                                <option value="21:00">4쿼터 (21:00 ~ 22:00)</option>
-                            </select>
+                            <label for="startTime" class="label">시작 시간</label>
+                            <input type="time" id="startTime" v-model="form.overtimeStartTime" class="input" />
                         </div>
                         <div class="time-block">
-                            <label for="endTime" class="label">종료 시간 (쿼터)</label>
-                            <select id="endTime" v-model="form.overtimeEndTime" class="select">
-                                <option value="18:00">1쿼터 (18:00 ~ 19:00)</option>
-                                <option value="19:00">2쿼터 (19:00 ~ 20:00)</option>
-                                <option value="20:00">3쿼터 (20:00 ~ 21:00)</option>
-                                <option value="21:00">4쿼터 (21:00 ~ 22:00)</option>
-                            </select>
+                            <label for="endTime" class="label">종료 시간</label>
+                            <input type="time" id="endTime" v-model="form.overtimeEndTime" class="input" @input="checkOvertimeExceed" />
+                            <!-- 잔여 시간을 초과하면 경고 표시 -->
+                            <p v-if="overtimeExceed" class="error-message">잔여 시간을 초과했습니다!</p>
                         </div>
                     </div>
 
                     <div class="name-section">
                         <div class="name-block">
                             <label for="applicant" class="label">신청인</label>
-                            <!-- 신청인 이름을 기본값으로 설정 -->
                             <input type="text" id="applicant" v-model="form.employeeName" class="input" :placeholder="employeeData.employeeName" />
                         </div>
                         <div class="name-block">
@@ -61,7 +56,7 @@
                     <textarea id="comment" v-model="form.comment" class="textarea" rows="4" placeholder="사유를 작성하세요."></textarea>
                 </div>
                 <div class="button-container">
-                    <button @click="submitForm" class="submit-button">제출</button>
+                    <button @click="submitForm" class="submit-button" :disabled="overtimeExceed">제출</button>
                 </div>
             </div>
         </div>
@@ -89,6 +84,12 @@ const employeeData = ref({
     employeeId: ''
 });
 
+const totalOvertimeHours = ref(''); // 총 연장 근로 시간
+const remainingOvertimeHours = ref(''); // 잔여 연장 근로 시간 (최대 10시간)
+const overtimeExceed = ref(false); // 잔여 시간을 초과했는지 여부
+
+const MAX_OVERTIME_HOURS = 10 * 60; // 최대 연장 근로 시간 (10시간 -> 600분)
+
 // 오늘 날짜를 yyyy-mm-dd 형식으로 변환하는 함수
 const getTodayDate = () => {
     const today = new Date();
@@ -98,25 +99,63 @@ const getTodayDate = () => {
     return `${year}-${month}-${day}`;
 };
 
+// 잔여 시간을 초과했는지 체크하는 함수
+const checkOvertimeExceed = () => {
+    const startTimeInMinutes = calculateTimeInMinutes(form.value.overtimeStartTime);
+    const endTimeInMinutes = calculateTimeInMinutes(form.value.overtimeEndTime);
+    const overtimeMinutes = endTimeInMinutes - startTimeInMinutes;
+
+    // 잔여 시간을 초과하는지 여부 확인
+    overtimeExceed.value = overtimeMinutes > MAX_OVERTIME_HOURS - totalOvertimeHours.value;
+};
+
 // 로그인된 사용자 정보를 가져오는 함수
 const loadEmployeeData = async () => {
     const employeeId = window.localStorage.getItem('employeeId');
-    console.log('EmployeeId:', employeeId); // employeeId 확인
     if (employeeId) {
         const data = await getLoginEmployeeInfo(employeeId);
-        console.log('Employee data:', data); // 받아온 사용자 데이터 확인
         if (data) {
             employeeData.value = data;
-            form.value.employeeName = data.employeeName; // 신청인 이름 설정
+            await loadTotalOvertimeHours(employeeId); // 연장근로 시간 조회
         }
     }
 };
 
+// 총 분을 시간과 분으로 변환하는 함수
+const formatMinutesToHoursAndMinutes = (totalMinutes) => {
+    const hours = Math.floor(totalMinutes / 60); // 총 분을 60으로 나누어 시간 계산
+    const minutes = totalMinutes % 60; // 나머지 분 계산
+    return `${hours}시간 ${minutes}분`;
+};
+
+// 총 시간을 분으로 계산하는 함수
+const calculateTimeInMinutes = (time) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+};
+
+// 백엔드에서 연장근로 시간을 가져오는 함수
+const loadTotalOvertimeHours = async (employeeId) => {
+    const yearMonth = new Date().toISOString().slice(0, 7); // 현재 연도와 월을 yyyy-MM 형식으로 추출
+    try {
+        const response = await axios.get('http://localhost:8080/api/v1/overtime/total-overtime', {
+            params: {
+                employeeId: employeeId,
+                yearMonth: yearMonth
+            }
+        });
+        const totalMinutes = response.data; // 백엔드에서 받은 총 연장 근로 시간을 분 단위로 저장
+        totalOvertimeHours.value = formatMinutesToHoursAndMinutes(totalMinutes); // 형식화된 연장 근로 시간
+        remainingOvertimeHours.value = formatMinutesToHoursAndMinutes(MAX_OVERTIME_HOURS - totalMinutes); // 잔여 연장 근로 시간
+    } catch (error) {
+        console.error('연장근로 시간 조회 중 오류가 발생했습니다:', error);
+    }
+};
+
+// 페이지 로드 시 데이터 초기화
 onMounted(() => {
     form.value.overtimeStartDate = getTodayDate();
     form.value.overtimeEndDate = getTodayDate();
-    console.log('연장 근로 시작일:', form.value.overtimeStartDate); // 시작 날짜 로그
-    console.log('연장 근로 종료일:', form.value.overtimeEndDate); // 종료 날짜 로그
     loadEmployeeData(); // 로그인된 사용자 정보 로드
 });
 
@@ -135,8 +174,6 @@ const submitForm = async () => {
             comment: form.value.comment // 사유
         };
 
-        console.log('Request body:', requestBody); // 백엔드로 전송되는 데이터 확인
-
         const response = await axios.post('http://localhost:8080/api/v1/overtime/submit', requestBody, {
             headers: {
                 'Content-Type': 'application/json'
@@ -151,7 +188,7 @@ const submitForm = async () => {
 </script>
 
 <style scoped>
-/* 스타일 그대로 유지 */
+/* 기존 스타일 유지 */
 .overtime-page {
     padding: 20px 40px;
     width: 100%;
@@ -232,7 +269,16 @@ const submitForm = async () => {
     background-color: #4f46e5;
 }
 
+.submit-button:disabled {
+    background-color: #b0b0ff;
+    cursor: not-allowed;
+}
+
 .logged-in-user {
     margin-bottom: 20px;
+}
+
+.error-message {
+    color: red;
 }
 </style>
