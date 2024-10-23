@@ -25,5 +25,7 @@ public interface EducationService {
     //- 테스트
     String incrementCurrentParticipants(Long educationId, String employeeId);
 
+    boolean cancelEducation(Long courseId);
+
 //    void incrementCurrentParticipants(Long curriculumId);
 }
