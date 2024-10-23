@@ -5,14 +5,18 @@
                 <label class="text-xl font-bold">공지사항 목록</label>
                 <Button v-if="isAdmin()" label="공지사항 추가" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
             </div>
-            <div class="flex flex-row justify-between mb-4">
-                <Dropdown class="mr-2" v-model="selectedCategory" :options="categories" optionLabel="categoryName" placeholder="카테고리 선택" @change="filterNotices" />
-                <InputGroup>
-                    <InputGroupAddon>
-                        <i class="pi pi-search"></i>
-                    </InputGroupAddon>
-                    <InputText placeholder="제목 및 작성자로 검색하세요." v-model="globalFilter" @input="filterNotices" />
-                </InputGroup>
+            <div class="flex flex-row justify-between mb-2">
+                <div>
+                    <Dropdown class="mr-2" v-model="selectedCategory" :options="categories" optionLabel="categoryName" placeholder="카테고리 선택" @change="filterNotices" />
+                </div>
+                <div>
+                    <InputGroup>
+                        <InputGroupAddon>
+                            <i class="pi pi-search"></i>
+                        </InputGroupAddon>
+                        <InputText placeholder="제목 및 작성자 검색" v-model="globalFilter" @input="filterNotices" />
+                    </InputGroup>
+                </div>
             </div>
 
             <DataTable
