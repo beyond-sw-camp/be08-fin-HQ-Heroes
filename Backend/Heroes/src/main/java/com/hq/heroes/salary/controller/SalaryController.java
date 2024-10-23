@@ -1,6 +1,5 @@
 package com.hq.heroes.salary.controller;
 
-import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.salary.dto.SalaryDTO;
 import com.hq.heroes.salary.service.SalaryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,9 +7,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +19,13 @@ import java.util.Optional;
 public class SalaryController {
 
     private final SalaryService salaryService;
+
+    @PostMapping
+    @Operation(summary = "급여 등록", description = "급여 정보를 받아서 등록한다.")
+    public ResponseEntity<SalaryDTO> createSalary(@RequestBody SalaryDTO salaryDTO) {
+        SalaryDTO createdSalary = salaryService.createSalary(salaryDTO);
+        return new ResponseEntity<>(createdSalary, HttpStatus.CREATED);
+    }
 
     @GetMapping("/base-salary/employee/{employeeId}")
     @Operation(summary = "직원 ID로 기본 급여 조회", description = "직원의 직책에 해당하는 기본 급여 정보를 반환합니다.")
