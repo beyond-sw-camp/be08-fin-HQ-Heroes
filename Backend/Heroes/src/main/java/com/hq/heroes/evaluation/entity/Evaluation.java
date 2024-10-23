@@ -53,7 +53,8 @@ public class Evaluation {
         return EvaluationResDTO.builder()
                 .evaluationId(this.evaluationId)
                 .employeeId(this.employee.getEmployeeId())  // employee 엔티티에서 사원 이름 추출
-                .evaluatorId(this.evaluator.getEmployeeId())  // evaluator 엔티티에서 평가자 이름 추출
+                .evaluatorId(this.evaluator.getEmployeeId())  // evaluator 엔티티에서 평가자 ID 추출
+                .evaluatorName(this.evaluator.getEmployeeName()) // evaluator 엔티티에서 평가자 이름 추출
                 .score(this.score)
                 .comments(this.comments)
                 .createdAt(this.createdAt)
