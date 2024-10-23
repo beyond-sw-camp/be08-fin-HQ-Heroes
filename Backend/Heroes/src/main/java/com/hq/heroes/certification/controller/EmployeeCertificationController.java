@@ -8,6 +8,7 @@ import com.hq.heroes.certification.service.EmployeeCertificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/employee-certification")
 @Tag(name = "EmployeeCertification APIs", description = "사원 자격증 관련 API 목록")
+@Slf4j
 public class EmployeeCertificationController {
 
     private final EmployeeCertificationService employeeCertificationService;

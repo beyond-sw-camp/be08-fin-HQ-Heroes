@@ -39,7 +39,7 @@ public class EducationController {
         }
     }
 
-    // 교육 목록 상세 조회하기
+    // 교육 목록 상세 조회하기 - 테스트
     @GetMapping("education/{education-id}")
     @Operation(summary = "교육 상세 조회", description = "교육 ID로 해당 교육의 정보를 조회한다.")
     public ResponseEntity<EducationResponseDTO> getEducationById(
@@ -54,7 +54,7 @@ public class EducationController {
         }
     }
 
-    // 교육 신청하기
+    // 교육 신청하기 - 테스트
     @PostMapping("/apply/{educationId}/{employeeId}")
     public ResponseEntity<?> applyForEducation(@PathVariable Long educationId, @PathVariable String employeeId) {
         try {
@@ -81,18 +81,16 @@ public class EducationController {
         }
     }
 
-    // 교육 정보 등록
+    // 교육 정보 등록 - 테스트
     @PostMapping("/education")
     @Operation(summary = "교육 등록", description = "교육 정보를 받아서 등록한다.")
     public ResponseEntity<EducationResponseDTO> create(@RequestBody EducationRequestDTO requestDTO) {
-
-        System.out.println("requestDTO = " + requestDTO);
 
         Education education = educationService.createEducation(requestDTO);
         return new ResponseEntity<>(education.toResponseDTO(), HttpStatus.CREATED);
     }
 
-    // 교육 정보 수정
+    // 교육 정보 수정 - 테스트
     @PutMapping("/education/{education-id}")
     @Operation(summary = "교육 목록 수정", description = "교육 정보를 받아 수정한다.")
     public ResponseEntity<EducationResponseDTO> update (
@@ -108,7 +106,7 @@ public class EducationController {
             }
         }
 
-    // 교육 삭제
+    // 교육 삭제 -테스트
     @DeleteMapping("/education/{education-id}")
     @Operation(summary = "교육 삭제", description = "교육 ID로 해당 교욱을 삭제한다.")
     public ResponseEntity<Void> delete (

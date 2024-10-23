@@ -80,7 +80,7 @@ public class CourseContoller {
         }
     }
 
-    // 교육 이수
+    // 교육 이수 -테스트
     @PostMapping("/complete/{courseId}")
     @Operation(summary = "교육 이수하기", description = "수강 ID로 미이수된 교육을 이수로 바꾼다.")
     public ResponseEntity<String> completeCourse(@PathVariable Long courseId) {

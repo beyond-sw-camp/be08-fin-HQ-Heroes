@@ -7,10 +7,13 @@ import io.lettuce.core.dynamic.annotation.Param;
 import java.util.List;
 
 public interface CourseService  {
+    //- 테스트
     List<Course> getCourseByEmployeeId(String employeeId);
 
+    //- 테스트
     boolean cancelEducation(Long courseId);
 
+    //- 테스트
     void completeCourse(Long courseId);
 
     List<CourseResponseDTO> getAllCourses();
