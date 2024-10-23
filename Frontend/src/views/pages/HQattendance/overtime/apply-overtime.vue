@@ -66,6 +66,7 @@
 <script setup>
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService'; // 메서드 가져오기
 import { onMounted, ref } from 'vue';
+import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
 
 const form = ref({
     overtimeStartDate: '', // 기본값: 오늘 날짜
