@@ -158,7 +158,7 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    @DisplayName("비밀번호 변경 - 성공")
+    @DisplayName("비밀번호 변경 - 성공 POST /api/v1/employee/update-password")
     void 비밀번호변경_성공() throws Exception {
         // given
         PasswordUpdateDTO passwordUpdateDTO = new PasswordUpdateDTO();
@@ -189,6 +189,37 @@ public class EmployeeControllerTest {
         verify(employeeService).updatePassword("2024106824", "oldPassword123", "newPassword123");
     }
 
+    @Test
+    @DisplayName("비밀번호 변경 - 실패 (현재 비밀번호가 틀린 경우)")
+    void 비밀번호변경_실패() throws Exception {
+        // given
+        PasswordUpdateDTO passwordUpdateDTO = new PasswordUpdateDTO();
+        passwordUpdateDTO.setCurrentPassword("wrongOldPassword");
+        passwordUpdateDTO.setNewPassword("newPassword123");
+
+        // Mock Authentication 설정
+        Authentication authentication = mock(Authentication.class);
+        CustomEmployeeDetails userDetails = mock(CustomEmployeeDetails.class);
+        when(userDetails.getUsername()).thenReturn("2024106824");
+        when(authentication.getPrincipal()).thenReturn(userDetails);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        when(employeeService.updatePassword(eq("2024106824"), eq("wrongOldPassword"), eq("newPassword123")))
+                .thenReturn(false); // Mocking 설정
+
+        // then
+        MvcResult result = mockMvc.perform(post("/api/v1/employee/update-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"wrongOldPassword\", \"newPassword\":\"newPassword123\"}"))
+                .andExpect(status().isBadRequest()) // 비밀번호 변경 실패 시 적절한 HTTP 상태 코드 설정
+                .andExpect(content().string("현재 비밀번호가 일치하지 않습니다.")) // 실패 메시지
+                .andReturn(); // 결과를 저장
+
+        // verify
+        verify(employeeService).updatePassword("2024106824", "wrongOldPassword", "newPassword123");
+    }
 
 
 
