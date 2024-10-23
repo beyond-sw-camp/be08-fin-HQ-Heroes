@@ -9,6 +9,10 @@ import com.hq.heroes.overtime.repository.OvertimeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +22,25 @@ public class OvertimeServiceImpl implements OvertimeService {
 
     private final OvertimeRepository overtimeRepository;
     private final EmployeeRepository employeeRepository;
+
+    public long getTotalOvertimeHoursForMonth(String employeeId, YearMonth month) {
+        LocalDate startDate = month.atDay(1);  // 해당 월의 첫날
+        LocalDate endDate = month.atEndOfMonth();  // 해당 월의 마지막 날
+
+        List<Overtime> overtimes = overtimeRepository.findByEmployee_EmployeeIdAndOvertimeStartDateBetween(employeeId, startDate, endDate);
+
+        // 두 시간의 차이를 계산하고 합산
+        return overtimes.stream()
+                .mapToLong(overtime -> {
+                    LocalDateTime startTime = overtime.getOvertimeStartDate().atTime(overtime.getOvertimeStartTime());
+                    LocalDateTime endTime = overtime.getOvertimeEndDate().atTime(overtime.getOvertimeEndTime());
+
+                    // 시작 시간과 종료 시간 사이의 차이를 계산
+                    Duration duration = Duration.between(startTime, endTime);
+                    return duration.toMinutes(); // 분 단위로 반환
+                })
+                .sum(); // 모든 연장 근로 시간을 합산
+    }
 
     @Override
     public void submitOvertime(OvertimeDTO overtimeDTO) {
@@ -83,7 +106,7 @@ public class OvertimeServiceImpl implements OvertimeService {
                 .collect(Collectors.toList());
     }
 
-    // 특정 사용자의 승인된 휴가 목록 조회
+    // 특정 사용자의 승인된 연장 근로 목록 조회
     public List<OvertimeDTO> getApprovedOvertimesByEmployeeId(String employeeId) {
         List<Overtime> approvedOvertimes = overtimeRepository.findApprovedOvertimesByEmployeeId(employeeId);
         return approvedOvertimes.stream()
@@ -92,7 +115,7 @@ public class OvertimeServiceImpl implements OvertimeService {
     }
 
 
-    // Vacation 엔티티를 VacationDTO로 변환하는 메서드
+    // Overtime 엔티티를 OvertiemDTO로 변환하는 메서드
     private OvertimeDTO convertToDTO(Overtime overtime) {
         return OvertimeDTO.builder()
                 .overtimeId(overtime.getOvertimeId())

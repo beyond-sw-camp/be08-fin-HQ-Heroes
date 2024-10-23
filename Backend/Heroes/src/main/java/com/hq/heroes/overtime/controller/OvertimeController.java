@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.YearMonth;
 import java.util.List;
 
 @RestController
@@ -91,5 +92,13 @@ public class OvertimeController {
         List<OvertimeDTO> approvedOvertimes = overtimeService.getApprovedOvertimesByEmployeeId(employeeId);
 
         return ResponseEntity.ok(approvedOvertimes);
+    }
+
+    @GetMapping("/total-overtime")
+    @Operation(summary = "해당 월의 연장 근로 내역 조회")
+    public ResponseEntity<Long> getTotalOvertimeForMonth(@RequestParam String employeeId, @RequestParam String yearMonth) {
+        YearMonth month = YearMonth.parse(yearMonth);  // "yyyy-MM" 형식의 파라미터를 YearMonth로 변환
+        long totalHours = overtimeService.getTotalOvertimeHoursForMonth(employeeId, month);
+        return ResponseEntity.ok(totalHours);
     }
 }
