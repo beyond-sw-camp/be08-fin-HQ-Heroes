@@ -40,14 +40,14 @@
 </template>
 
 <script>
+import router from '@/router';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Quill의 스타일
 import Swal from 'sweetalert2';
-import { onBeforeMount, onMounted, ref } from 'vue';
+import { onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchPost } from '../auth/service/AuthApiService';
 import { getLoginEmployeeInfo } from '../auth/service/authService';
-import router from '@/router';
 
 export default {
     setup() {
@@ -235,6 +235,11 @@ export default {
             console.log('category = ', category); // 찾은 카테고리 객체 출력
             return category ? category.categoryId : null; // categoryId 반환
         };
+
+        // 페이지를 떠날 때 공지사항 목록으로 이동
+        onBeforeUnmount(() => {
+            router.push({ path: '/manage-notices' });
+        });
 
         return { to, subject, selectedCategory, categories, message, editor, sendMessage };
     }
