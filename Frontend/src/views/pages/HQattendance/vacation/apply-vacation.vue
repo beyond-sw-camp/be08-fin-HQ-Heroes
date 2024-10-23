@@ -100,6 +100,7 @@ import Avatar from 'primevue/avatar'; // Avatar 컴포넌트
 import TreeSelect from 'primevue/treeselect'; // TreeSelect 컴포넌트
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
 
 const router = useRouter();
 
