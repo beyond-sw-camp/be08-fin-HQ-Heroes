@@ -2,15 +2,21 @@ package com.hq.heroes.evaluation.service;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.evaluation.dto.EvaluationReqDTO;
 import com.hq.heroes.evaluation.entity.Evaluation;
 import com.hq.heroes.evaluation.repository.EvaluationRepository;
+import com.hq.heroes.salary.dto.SalaryDTO;
+import com.hq.heroes.salary.entity.Salary;
+import com.hq.heroes.salary.repository.SalaryRepository;
+import com.hq.heroes.salary.service.SalaryService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +24,7 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     private final EvaluationRepository evaluationRepository;
     private final EmployeeRepository employeeRepository;
+    private final SalaryService salaryService;
 
     @Override
     public List<Evaluation> getEvaluations() {
@@ -38,33 +45,42 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Override
     @Transactional
     public Evaluation createEvaluation(EvaluationReqDTO requestDTO) {
-        // 피평가자 및 평가자 정보를 가져옴
-        Optional<Employee> employeeOpt = employeeRepository.findById(requestDTO.getEmployeeId());
-        Optional<Employee> evaluatorOpt = employeeRepository.findById(requestDTO.getEvaluatorId());
+        // Employee와 Position 가져오기
+        Employee employee = employeeRepository.findById(requestDTO.getEmployeeId())
+                .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
-        // 유효성 검사: 피평가자 또는 평가자가 존재하지 않으면 예외 발생
-        if (employeeOpt.isEmpty()) {
-            throw new IllegalArgumentException("Invalid employee ID: " + requestDTO.getEmployeeId());
-        }
-        if (evaluatorOpt.isEmpty()) {
-            throw new IllegalArgumentException("Invalid evaluator ID: " + requestDTO.getEvaluatorId());
-        }
+        // Evaluation 엔티티 생성
+        Evaluation evaluation = Evaluation.fromRequestDTO(requestDTO, employee, employee); // evaluator는 본인으로 설정
 
-        Employee employee = employeeOpt.get();
-        Employee evaluator = evaluatorOpt.get();
+        // Evaluation 저장
+        Evaluation savedEvaluation = evaluationRepository.save(evaluation);
 
-        // 평가 생성 및 저장
-        Evaluation evaluation = Evaluation.builder()
-                .employee(employee)
-                .evaluator(evaluator)
-                .score(requestDTO.getScore())
-                .comments(requestDTO.getComments())
+        // 성과급 비율 설정
+        double performanceBonus = calculateBonusRate(requestDTO.getScore());
+
+        // SalaryDTO 생성
+        SalaryDTO salaryDTO = SalaryDTO.builder()
+                .employeeId(employee.getEmployeeId())
+                .performanceDate(LocalDateTime.now()) // 현재 날짜로 설정
+                .performanceBonus(performanceBonus)
                 .build();
 
-        // 데이터베이스에 평가 저장
-        return evaluationRepository.save(evaluation);
+        // Salary 엔티티 생성
+        salaryService.createSalary(salaryDTO);
+
+        return savedEvaluation; // 저장된 평가 리턴
     }
 
+    // 점수에 따른 성과급 비율 계산 메서드
+    private double calculateBonusRate(double score) {
+        if (score < 80) {
+            return 0.035; // 80점 이하 -> 35%
+        } else if (score <= 89) {
+            return 0.05; // 80~89점 -> 50%
+        } else {
+            return 0.065; // 90~100점 -> 65%
+        }
+    }
 
     @Override
     @Transactional
