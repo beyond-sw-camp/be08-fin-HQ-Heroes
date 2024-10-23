@@ -70,9 +70,9 @@ public class CourseContoller {
     @DeleteMapping("/cancel/{courseId}")
     @Operation(summary = "교육 취소하기", description = "수강 ID로 교육 신청을 취소한다.")
     public ResponseEntity<Void> cancelEducation(@PathVariable Long courseId) {
-        System.out.println("courseId = " + courseId);
+        System.out.println("courseId ========== " + courseId);
 
-        boolean isCancelled = courseService.cancelEducation(courseId); // 메서드 이름을 적절하게 변경하세요.
+        boolean isCancelled = educationService.cancelEducation(courseId); // 메서드 이름을 적절하게 변경하세요.
         if (isCancelled) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {

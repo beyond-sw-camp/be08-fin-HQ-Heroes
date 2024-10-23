@@ -10,13 +10,16 @@ import com.hq.heroes.education.entity.enums.CourseStatus;
 import com.hq.heroes.education.repository.CourseRepository;
 import com.hq.heroes.education.repository.EducationCategoryRepository;
 import com.hq.heroes.education.repository.EducationRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EducationServiceImpl implements EducationService {
@@ -25,6 +28,7 @@ public class EducationServiceImpl implements EducationService {
     private final EducationCategoryRepository educationCategoryRepository;
     private final CourseRepository courseRepository;
     private final EmployeeRepository employeeRepository;
+    private final CourseServiceImpl courseServiceImpl;
 
     @Override
     public List<Education> getEducations() {
@@ -131,6 +135,34 @@ public class EducationServiceImpl implements EducationService {
         education.setEndDate(LocalDate.from(requestDTO.getEducationEnd())); // 강의 종료일
 
         return educationRepository.save(education);
+    }
+
+    @Override
+    @Transactional
+    public boolean cancelEducation(Long courseId) {
+        // 교육 과정을 찾기
+        Optional<Course> courseOpt = courseRepository.findById(courseId);
+        if (courseOpt.isPresent()) {
+            Course course = courseOpt.get();
+            Education education = course.getEducation();
+
+            // 참가자 수 감소
+            int currentParticipant = education.getCurrentParticipant(); // 현재 참가자 수 가져오기
+            if (currentParticipant > 0) {
+                education.setCurrentParticipant(currentParticipant - 1); // 참가자 수 -1
+                educationRepository.save(education); // 변경 사항 저장
+                System.out.println("현재 참가자 수 = " + (currentParticipant - 1)); // 감소한 참가자 수 출력
+            } else {
+                log.debug("참가자가 없습니다."); // 참가자가 없는 경우 출력
+            }
+
+            // 신청 정보 삭제 (해당 신청을 찾아서 삭제)
+            courseRepository.delete(course); // course를 삭제합니다.
+
+            return true; // 교육 취소 성공
+        } else {
+            return false; // 교육이 존재하지 않음
+        }
     }
 
     @Override

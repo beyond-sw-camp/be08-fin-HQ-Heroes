@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
@@ -14,7 +15,4 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findByEmployee_EmployeeId(String employeeId);
 
     boolean existsByEducation_EducationIdAndEmployee_EmployeeId(Long educationId, String employeeId);
-
-    boolean deleteByCourseId(Long courseId);
-
 }
