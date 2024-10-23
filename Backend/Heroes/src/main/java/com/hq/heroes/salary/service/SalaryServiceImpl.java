@@ -2,8 +2,6 @@ package com.hq.heroes.salary.service;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
-import com.hq.heroes.employee.entity.Position;
-import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.salary.dto.SalaryDTO;
 import com.hq.heroes.salary.entity.Salary;
 import com.hq.heroes.salary.repository.SalaryRepository;
@@ -32,6 +30,17 @@ public class SalaryServiceImpl implements SalaryService {
 
     @Override
     public List<SalaryDTO> getAllSalariesByEmployeeId(String employeeId) {
-        return salaryRepository.findByEmployeeId(employeeId);
+        List<Salary> salaries = salaryRepository.findByEmployeeId(employeeId);
+
+        return salaries.stream()
+                .map(s -> SalaryDTO.builder()
+                        .salaryId(s.getSalaryId())
+                        .positionId(s.getPosition().getPositionId())
+                        .employeeId(s.getEmployee().getEmployeeId())
+                        .performanceBonus(s.getPerformanceBonus())
+                        .performanceDate(s.getPerformanceDate())
+                        .baseSalary(s.getPosition().getBaseSalary())
+                        .build())
+                .toList();
     }
 }

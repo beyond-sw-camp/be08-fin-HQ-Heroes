@@ -13,10 +13,10 @@ import java.util.Optional;
 
 @Repository
 public interface SalaryRepository extends JpaRepository<Salary, Long> {
-    // 직책(Position)으로 Salary를 조회하는 메서드
+    // 직책(Position)으로 시급 조회
     Optional<Salary> findByPosition(Position position);
 
     @Query("SELECT s FROM Salary s WHERE s.employee.id = :employeeId")
-    List<SalaryDTO> findByEmployeeId(@Param("employeeId") String employeeId);
+    List<Salary> findByEmployeeId(@Param("employeeId") String employeeId);
 
 }
