@@ -91,6 +91,7 @@ const initializeEditor = async () => {
     }
 
     if (!quillInstance.value) {
+        console.log('Initializing Quill editor...');
         quillInstance.value = new Quill(editor.value, {
             theme: 'snow',
             modules: {
@@ -98,34 +99,48 @@ const initializeEditor = async () => {
             }
         });
 
-        // 툴바의 이미지 핸들러 설정
-        quillInstance.value.getModule('toolbar').addHandler('image', imageHandler);
+        // Quill 초기화 확인
+        console.log('Quill editor initialized', quillInstance.value);
 
-        // 처음 에디터를 초기화할 때 editableNotice.value.content를 설정
-        quillInstance.value.root.innerHTML = editableNotice.value.content || '';
+        // selection-change 이벤트 리스너 등록
+        quillInstance.value.on('selection-change', (range) => {
+            console.log('Selection change event:', range);
+            if (range) {
+                console.log('Selection range is valid:', range.index);
+            } else {
+                console.log('Selection is not available (null).');
+            }
+        });
+
+        // 이미지 핸들러 설정
+        quillInstance.value.getModule('toolbar').addHandler('image', imageHandler);
     }
 
+    // isEditMode 상태에 따른 에디터 활성화/비활성화
     quillInstance.value.enable(isEditMode.value);
+
+    // 에디터 내용을 불러오기
+    if (editableNotice.value.content) {
+        quillInstance.value.root.innerHTML = editableNotice.value.content;
+    }
 };
 
+// 이미지 핸들러 (이미지 삽입 로직 개선)
 const imageHandler = () => {
+    console.log('Image handler triggered');
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
     input.click();
 
     input.onchange = async () => {
-        console.log('Input change event triggered');
         const file = input.files[0];
         if (!file) {
             console.error('No file selected.');
             return;
         }
-        console.log('Selected file:', file);
 
         const resizedImage = await resizeImage(file, 700, 700);
-        console.log('Resized image:', resizedImage);
-
         const formData = new FormData();
         formData.append('file', resizedImage);
 
@@ -136,33 +151,46 @@ const imageHandler = () => {
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error response:', errorText);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
             const imageUrl = data.imageUrl;
-            console.log('Image URL from server:', imageUrl);
 
             if (quillInstance.value) {
-                quillInstance.value.focus(); // 에디터에 포커스 맞추기
-                console.log('Quill editor is initialized:', quillInstance.value);
-                const range = quillInstance.value.getSelection();
-                console.log('Current selection range:', range);
+                console.log('Quill instance found:', quillInstance.value);
 
-                if (range && range.index !== null) {
-                    quillInstance.value.insertEmbed(range.index, 'image', imageUrl);
-                    console.log('Image inserted at index:', range.index);
-                    quillInstance.value.setSelection(range.index + 1, 0);
-                } else {
-                    const length = quillInstance.value.getLength();
-                    quillInstance.value.insertEmbed(length - 1, 'image', imageUrl);
-                    console.log('Image inserted at end of editor');
-                    quillInstance.value.setSelection(length, 0);
+                if (!isEditMode.value) {
+                    console.error('Edit mode is disabled. Cannot insert image.');
+                    return;
                 }
+
+                quillInstance.value.focus(); // 포커스를 에디터로 설정
+                console.log('Editor focused');
+
+                console.log('Quill root element:', quillInstance.value.root);
+                console.log('Quill scroll element:', quillInstance.value.scroll);
+
+                setTimeout(() => {
+                    try {
+                        const range = quillInstance.value.getSelection(true);
+                        console.log('Current selection range:', range);
+
+                        if (range) {
+                            quillInstance.value.insertEmbed(range.index, 'image', imageUrl);
+                            quillInstance.value.setSelection(range.index + 1, 0); // 이미지 삽입 후 커서 이동
+                        } else {
+                            console.error('Selection is null. Inserting image at the end.');
+                            const length = quillInstance.value.getLength(); // 에디터의 길이를 가져옴
+                            quillInstance.value.insertEmbed(length - 1, 'image', imageUrl); // 에디터 끝에 이미지 삽입
+                            quillInstance.value.setSelection(length, 0);
+                        }
+                    } catch (error) {
+                        console.error('Error getting selection:', error);
+                    }
+                }, 200); // 동기화 시간 부여
             } else {
-                console.error('Quill instance is not initialized or getSelection is not available.');
+                console.error('Quill instance is not initialized.');
             }
         } catch (error) {
             console.error('Image upload failed:', error);
@@ -212,18 +240,15 @@ const resizeImage = (file, maxWidth, maxHeight) => {
     });
 };
 
-// 수정 모드 토글 함수
-const toggleEditMode = () => {
+// 수정 모드 토글
+const toggleEditMode = async () => {
     isEditMode.value = !isEditMode.value;
-    router.replace({ query: { edit: isEditMode.value ? 'true' : 'false' } }); // URL에 edit 파라미터 추가
-
-    nextTick(() => {
+    await nextTick(() => {
         initializeEditor();
-        const editorElement = editor.value;
         if (isEditMode.value) {
-            editorElement.classList.remove('quill-editor-disabled');
+            editor.value.classList.remove('quill-editor-disabled');
         } else {
-            editorElement.classList.add('quill-editor-disabled');
+            editor.value.classList.add('quill-editor-disabled');
         }
     });
 };
