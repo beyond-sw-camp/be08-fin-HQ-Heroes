@@ -42,7 +42,6 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public SalaryHistoryDTO createSalary(SalaryHistoryDTO dto) {
         Optional<Employee> employeeEntity = employeeRepository.findById(dto.getEmployeeId());
@@ -73,7 +72,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         // 성과급 및 세전 총액 계산
         Salary salary = salaryRepository.findByPosition(position)
                 .orElseThrow(() -> new IllegalArgumentException("No salary record found for this position"));
-        Double performanceBonus = salary.calculatePerformanceBonus();
+        Double performanceBonus = baseSalary * salary.getPerformanceBonus();
         Double preTaxTotal = baseSalary + performanceBonus;
 
         // 각 공제 항목 계산
@@ -108,8 +107,6 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         SalaryHistory savedSalaryHistory = salaryHistoryRepository.save(salaryHistory);
         return convertToDTO(savedSalaryHistory);
     }
-
-
 
     // 세금 및 공제 항목을 계산하는 메서드
     private Double calculateDeduction(Double preTaxTotal, List<Deduct> deducts, String deductionName) {

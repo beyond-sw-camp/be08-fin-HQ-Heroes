@@ -1,5 +1,7 @@
 package com.hq.heroes.salary.controller;
 
+import com.hq.heroes.evaluation.dto.EvaluationResDTO;
+import com.hq.heroes.evaluation.entity.Evaluation;
 import com.hq.heroes.evaluation.service.EvaluationService;
 import com.hq.heroes.salary.dto.SalaryDTO;
 import com.hq.heroes.salary.service.SalaryService;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,13 +30,29 @@ public class SalaryController {
     @Operation(summary = "급여 등록", description = "급여 정보를 받아서 등록한다.")
     public ResponseEntity<SalaryDTO> createSalary(@RequestBody SalaryDTO salaryDTO) {
         SalaryDTO createdSalary;
+
+        // 현재 월
+//        int currentMonth = LocalDateTime.now().getMonthValue();
+
+        int currentMonth = 7;
+
         // 1, 7월일 경우 평가 점수 조회 및 전달
-        if(LocalDateTime.now().getMonthValue() == 1 || LocalDateTime.now().getMonthValue() == 7) {
-            createdSalary = salaryService.createSalary(salaryDTO);
+        if(currentMonth == 1 || currentMonth == 7) {
+            // 최근 평가 데이터 가져오기
+            List<Evaluation> Evaluations = evaluationService.getEvaluationsByEmployeeId(salaryDTO.getEmployeeId());
+
+            // 평가 기록이 존재하는지 확인
+            if (!Evaluations.isEmpty()) {
+                createdSalary = salaryService.createSalary(salaryDTO, Evaluations);
+            }
+            else {
+                return ResponseEntity.badRequest().body(null); // 평가가 없을 경우 에러 응답
+            }
         }
         else {
             createdSalary = salaryService.createSalary(salaryDTO);
         }
+
         return new ResponseEntity<>(createdSalary, HttpStatus.CREATED);
     }
 

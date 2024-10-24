@@ -1,5 +1,6 @@
 package com.hq.heroes.salary.service;
 
+import com.hq.heroes.evaluation.entity.Evaluation;
 import com.hq.heroes.salary.dto.SalaryDTO;
 import com.hq.heroes.salary.entity.Salary;
 
@@ -7,8 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SalaryService {
-    // 시급, 성과급 비율 생성
+    // 시급 생성
     SalaryDTO createSalary(SalaryDTO salaryDTO);
+
+    // 성과급 비율 생성
+    SalaryDTO createSalary(SalaryDTO salaryDTO, List<Evaluation>evaluations);
 
     // 직책에 따른 시급 조회
     Optional<Double> getBaseSalaryByPositionId(String employeeId);
