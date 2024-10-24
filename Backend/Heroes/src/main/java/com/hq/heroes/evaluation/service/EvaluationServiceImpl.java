@@ -24,7 +24,6 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     private final EvaluationRepository evaluationRepository;
     private final EmployeeRepository employeeRepository;
-    private final SalaryService salaryService;
 
     @Override
     public List<Evaluation> getEvaluations() {
