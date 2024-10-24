@@ -4,8 +4,10 @@ import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.entity.enums.Role;
 import com.hq.heroes.auth.entity.enums.Status;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import com.hq.heroes.education.entity.Course;
 import com.hq.heroes.education.entity.Education;
 import com.hq.heroes.education.entity.EducationCategory;
+import com.hq.heroes.education.entity.enums.CourseStatus;
 import com.hq.heroes.education.repository.CourseRepository;
 import com.hq.heroes.education.repository.EducationCategoryRepository;
 import com.hq.heroes.education.repository.EducationRepository;
@@ -16,12 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +47,7 @@ class EducationServiceTest {
     Education education;
     Employee employee;
     EducationCategory category;
+    Course course;
 
 
     @BeforeEach
@@ -81,6 +80,13 @@ class EducationServiceTest {
                 .currentParticipant(10)
                 .educationCurriculum("영어 강의 진행합니다~")
                 .educationCategory(category)
+                .build();
+
+        course = Course.builder()
+                .courseId(1L)
+                .courseStatus(CourseStatus.FAIL)
+                .employee(employee)
+                .education(education)
                 .build();
 
         // repository에 교육 정보 저장
@@ -263,5 +269,21 @@ class EducationServiceTest {
         System.out.println("교육 ID: 999에 해당하는 교육이 존재하지 않습니다."); // 콘솔 출력
     }
 
+    @Test
+    @DisplayName("교육 취소 - 성공")
+    void cancelEducation_Success() {
+        // Given: 교육 과정을 찾을 수 있도록 설정
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+        when(educationRepository.save(any(Education.class))).thenReturn(education); // 교육 저장 설정
+
+        // When: 교육 취소 요청
+        boolean isCancelled = educationService.cancelEducation(1L);
+
+        // Then: 교육 취소 성공 여부 확인
+        assertTrue(isCancelled, "교육 취소가 실패했습니다."); // 실패 시 메시지 추가
+        assertEquals(9, education.getCurrentParticipant(), "참가자 수가 감소하지 않았습니다."); // 참가자 수 확인
+        verify(courseRepository).delete(course); // course 삭제 호출 확인
+        verify(educationRepository).save(education); // education 저장 호출 확인
+    }
 
 }
