@@ -32,9 +32,7 @@ public class SalaryController {
         SalaryDTO createdSalary;
 
         // 현재 월
-//        int currentMonth = LocalDateTime.now().getMonthValue();
-
-        int currentMonth = 7;
+        int currentMonth = LocalDateTime.now().getMonthValue();
 
         // 1, 7월일 경우 평가 점수 조회 및 전달
         if(currentMonth == 1 || currentMonth == 7) {
