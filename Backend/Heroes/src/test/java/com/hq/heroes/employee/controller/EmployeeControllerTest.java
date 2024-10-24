@@ -2,10 +2,12 @@ package com.hq.heroes.employee.controller;
 
 import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.auth.entity.enums.Role;
 import com.hq.heroes.auth.jwt.JWTUtil;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.dto.EmployeeDTO;
 import com.hq.heroes.employee.dto.PasswordUpdateDTO;
+import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.repository.DepartmentRepository;
 import com.hq.heroes.employee.repository.JobRepository;
 import com.hq.heroes.employee.repository.PositionRepository;
@@ -25,6 +27,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = EmployeeController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 public class EmployeeControllerTest {
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private MockMvc mockMvc;
 
@@ -221,8 +226,72 @@ public class EmployeeControllerTest {
         verify(employeeService).updatePassword("2024106824", "wrongOldPassword", "newPassword123");
     }
 
+    @Test
+    @DisplayName("유저 역할 및 직책 조회 GET /api/v1/employee/role-check")
+    void 유저역할및직책조회_성공() throws Exception {
+        // given
+        String employeeId = "2024106824";
+        String role = "ROLE_USER";
+        Employee mockEmployee = new Employee();
+        mockEmployee.setEmployeeId(employeeId);
+        mockEmployee.setEmployeeName("John Doe");
+        mockEmployee.setRole(Role.ROLE_USER);
+        Position mockPosition = new Position();
+        mockPosition.setPositionId(1L);
+        mockEmployee.setPosition(mockPosition);
 
+        // Mock Authentication 설정
+        Authentication authentication = mock(Authentication.class);
+        CustomEmployeeDetails userDetails = mock(CustomEmployeeDetails.class);
+        when(userDetails.getUsername()).thenReturn(employeeId);
+        when(userDetails.getRole()).thenReturn(role);
+        when(authentication.getPrincipal()).thenReturn(userDetails);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // when
+        when(employeeRepository.findByEmployeeId(eq(employeeId)))
+                .thenReturn(Optional.of(mockEmployee)); // Mocking 설정
+
+        // then
+        MvcResult result = mockMvc.perform(get("/api/v1/employee/role-check")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()) // HTTP 200 상태 코드 확인
+                .andExpect(content().json("{\"employeeId\":\"2024106824\",\"employeeName\":\"John Doe\",\"role\":\"ROLE_USER\",\"positionId\":1}")) // 성공 응답 확인
+                .andReturn();
+
+        // verify
+        verify(employeeRepository).findByEmployeeId(employeeId);
+    }
+
+    @Test
+    @DisplayName("유저 역할 및 직책 조회 - 실패")
+    void 유저역할및직책조회_실패() throws Exception {
+        // given
+        String employeeId = "2024106824";
+
+        // Mock Authentication 설정
+        Authentication authentication = mock(Authentication.class);
+        CustomEmployeeDetails userDetails = mock(CustomEmployeeDetails.class);
+        when(userDetails.getUsername()).thenReturn(employeeId);
+        when(authentication.getPrincipal()).thenReturn(userDetails);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // when
+        when(employeeRepository.findByEmployeeId(eq(employeeId)))
+                .thenReturn(Optional.empty()); // Mocking 설정
+
+        // then
+        MvcResult result = mockMvc.perform(get("/api/v1/employee/role-check")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound()) // HTTP 404 상태 코드 확인
+                .andExpect(content().json("{\"error\":\"사용자를 찾을 수 없습니다.\"}")) // 실패 메시지 확인
+                .andReturn();
+
+        // verify
+        verify(employeeRepository).findByEmployeeId(employeeId);
+    }
 
 
 }
