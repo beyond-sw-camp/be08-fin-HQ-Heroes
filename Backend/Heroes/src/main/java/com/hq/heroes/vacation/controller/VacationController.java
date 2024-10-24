@@ -22,11 +22,17 @@ public class VacationController {
     private final EmployeeRepository employeeRepository;
 
     @PostMapping("/submit")
-    @Operation(summary = "휴가 신청")
     public ResponseEntity<String> submitVacation(@RequestBody VacationDTO vacationDTO) {
         try {
+            if (vacationDTO.getEmployeeId() == null || vacationDTO.getApproverName() == null ||
+                    vacationDTO.getVacationStartDate() == null || vacationDTO.getVacationEndDate() == null ||
+                    vacationDTO.getVacationStartTime() == null || vacationDTO.getVacationEndTime() == null) {
+                return ResponseEntity.badRequest().body("필수 정보가 누락되었습니다.");
+            }
             vacationService.submitVacation(vacationDTO);
             return ResponseEntity.ok("휴가 신청이 성공적으로 제출되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("휴가 신청 중 오류가 발생했습니다: " + e.getMessage());
         }
@@ -35,15 +41,23 @@ public class VacationController {
     // 휴가 승인
     @PostMapping("/approve/{vacationId}")
     public ResponseEntity<String> approveVacation(@PathVariable Long vacationId) {
-        vacationService.approveVacation(vacationId);
-        return ResponseEntity.ok("휴가가 승인되었습니다.");
+        try {
+            vacationService.approveVacation(vacationId);
+            return ResponseEntity.ok("휴가가 성공적으로 승인되었습니다.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body("해당 휴가를 찾을 수 없습니다.");
+        }
     }
 
     // 휴가 반려
     @PostMapping("/reject/{vacationId}")
     public ResponseEntity<String> rejectVacation(@PathVariable Long vacationId) {
-        vacationService.rejectVacation(vacationId);
-        return ResponseEntity.ok("휴가가 반려되었습니다.");
+        try {
+            vacationService.rejectVacation(vacationId);
+            return ResponseEntity.ok("휴가가 성공적으로 거절되었습니다.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body("해당 휴가를 찾을 수 없습니다.");
+        }
     }
 
     @GetMapping("/list")
