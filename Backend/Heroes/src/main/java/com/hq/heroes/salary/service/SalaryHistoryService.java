@@ -5,7 +5,8 @@ import com.hq.heroes.salary.dto.SalaryHistoryDTO;
 import java.util.List;
 
 public interface SalaryHistoryService {
-    List<SalaryHistoryDTO> getAllSalaries(String employeeId); // 전체 급여 기록 조회 메서드
+    // 전체 급여 기록 조회
+    List<SalaryHistoryDTO> getAllSalaries(String employeeId);
 
     SalaryHistoryDTO createSalary(SalaryHistoryDTO SalaryHistoryDTO);
 
