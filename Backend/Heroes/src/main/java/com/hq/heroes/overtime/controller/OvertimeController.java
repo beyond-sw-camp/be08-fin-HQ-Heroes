@@ -5,13 +5,16 @@ import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.overtime.dto.OvertimeDTO;
 import com.hq.heroes.overtime.service.OvertimeService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RestController
@@ -24,7 +27,16 @@ public class OvertimeController {
 
     @PostMapping("/submit")
     @Operation(summary = "연장 근로 신청")
-    public ResponseEntity<String> submitOvertime(@RequestBody OvertimeDTO overtimeDTO) {
+    public ResponseEntity<String> submitOvertime(@Valid @RequestBody OvertimeDTO overtimeDTO) {
+        // 필수 정보가 누락되었는지 확인
+        if (overtimeDTO.getEmployeeId() == null || overtimeDTO.getApproverName() == null ||
+                overtimeDTO.getOvertimeStartDate() == null || overtimeDTO.getOvertimeEndDate() == null ||
+                overtimeDTO.getOvertimeStartTime() == null || overtimeDTO.getOvertimeEndTime() == null ||
+                overtimeDTO.getEmployeeId().isEmpty() || overtimeDTO.getApproverName().isEmpty()) {
+
+            return ResponseEntity.badRequest().body("필수 정보가 누락되었습니다.");
+        }
+
         try {
             overtimeService.submitOvertime(overtimeDTO);
             return ResponseEntity.ok("연장 근로 신청이 성공적으로 제출되었습니다.");
@@ -36,15 +48,23 @@ public class OvertimeController {
     // 연장 근로 승인
     @PostMapping("/approve/{overtimeId}")
     public ResponseEntity<String> approveOvertime(@PathVariable Long overtimeId) {
-        overtimeService.approveOvertime(overtimeId);
-        return ResponseEntity.ok("연장 근로가 승인되었습니다.");
+        try {
+            overtimeService.approveOvertime(overtimeId);
+            return ResponseEntity.ok("연장 근로가 승인되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 상태로 응답
+        }
     }
 
     // 연장 근로 반려
     @PostMapping("/reject/{overtimeId}")
     public ResponseEntity<String> rejectOvertime(@PathVariable Long overtimeId) {
-        overtimeService.rejectOvertime(overtimeId);
-        return ResponseEntity.ok("연장 근로가 반려되었습니다.");
+        try {
+            overtimeService.rejectOvertime(overtimeId);
+            return ResponseEntity.ok("연장 근로가 반려되었습니다.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage()); // 404 상태로 응답
+        }
     }
 
     @GetMapping("/list")
@@ -76,7 +96,7 @@ public class OvertimeController {
         return ResponseEntity.ok(username);
     }
 
-    // 로그인된 사용자의 승인된 연장 근로 목록을 반환하는 API - 테스트
+    // 로그인된 사용자의 승인된 연장 근로 목록을 반환하는 API
     @GetMapping("/my-overtimes")
     @Operation(summary = "로그인된 사용자의 승인된 연장 근로 내역 조회")
     public ResponseEntity<List<OvertimeDTO>> getMyApprovedOvertimes() {
@@ -94,12 +114,15 @@ public class OvertimeController {
         return ResponseEntity.ok(approvedOvertimes);
     }
 
-    //- 테스트
     @GetMapping("/total-overtime")
     @Operation(summary = "해당 월의 연장 근로 내역 조회")
-    public ResponseEntity<Long> getTotalOvertimeForMonth(@RequestParam String employeeId, @RequestParam String yearMonth) {
-        YearMonth month = YearMonth.parse(yearMonth);  // "yyyy-MM" 형식의 파라미터를 YearMonth로 변환
-        long totalHours = overtimeService.getTotalOvertimeHoursForMonth(employeeId, month);
-        return ResponseEntity.ok(totalHours);
+    public ResponseEntity<Object> getTotalOvertimeForMonth(@RequestParam String employeeId, @RequestParam String yearMonth) {
+        try {
+            YearMonth month = YearMonth.parse(yearMonth);  // "yyyy-MM" 형식의 파라미터를 YearMonth로 변환
+            long totalHours = overtimeService.getTotalOvertimeHoursForMonth(employeeId, month);
+            return ResponseEntity.ok(totalHours);  // Long 값을 정상적으로 반환
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body("잘못된 날짜 형식입니다.");  // 에러 메시지 반환
+        }
     }
 }
