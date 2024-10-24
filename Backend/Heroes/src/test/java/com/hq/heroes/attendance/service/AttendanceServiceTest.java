@@ -21,10 +21,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)  // Mockito 사용
-class AttendanceServiceTest {
+public class AttendanceServiceTest {
 
     @Mock
     AttendanceRepository attendanceRepository;
@@ -37,13 +38,12 @@ class AttendanceServiceTest {
 
     @BeforeEach
     void setUp() {
-        // 테스트용 Employee 객체 초기화
+        // given: 테스트용 Employee 및 Attendance 객체 초기화
         employee = Employee.builder()
                 .employeeId("2024100006")
                 .employeeName("안유진")
                 .build();
 
-        // 가짜 Attendance 객체 생성
         attendance = Attendance.builder()
                 .employee(employee)
                 .checkIn(LocalDateTime.now())
@@ -52,88 +52,120 @@ class AttendanceServiceTest {
     }
 
     @Test
-    @DisplayName("출근 처리 TEST")
+    @DisplayName("출근 처리 성공 테스트")
     void checkIn() {
-        // 스터빙 설정
+        // given
         when(attendanceRepository.save(any(Attendance.class))).thenReturn(attendance);
 
-        // when (메서드 호출)
+        // when
         Attendance result = attendanceService.checkIn(employee);
 
-        // then (검증)
+        // then
         assertThat(result).isNotNull();
         assertThat(result.getEmployee().getEmployeeId()).isEqualTo("2024100006");
         assertThat(result.getStatus()).isEqualTo(AttendanceStatus.NORMAL);
 
-        // 출근 기록 저장 여부 확인
         verify(attendanceRepository, times(1)).save(any(Attendance.class));
     }
 
     @Test
-    @DisplayName("퇴근 처리 TEST")
+    @DisplayName("퇴근 처리 성공 테스트")
     void checkOut() {
-
+        // given
         when(attendanceRepository.findTopByEmployeeAndStatusAndCheckOutIsNullOrderByCheckInDesc(employee, AttendanceStatus.NORMAL))
                 .thenReturn(Optional.of(attendance));
 
-        // 출근 기록 설정
-        attendance.setCheckIn(LocalDateTime.now().minusHours(8));  // 8시간 전 출근
+        attendance.setCheckIn(LocalDateTime.now().minusHours(8));
 
-        // when (메서드 호출)
+        // when
         attendanceService.checkOut(employee);
 
-        // then (검증)
+        // then
         assertThat(attendance.getCheckOut()).isNotNull();
         assertThat(attendance.getStatus()).isEqualTo(AttendanceStatus.LEAVE_WORK);
 
-        // 퇴근 기록 저장 여부 확인
         verify(attendanceRepository, times(1)).save(attendance);
     }
 
     @Test
-    @DisplayName("기간별 근태 기록 조회 TEST")
+    @DisplayName("기간별 근태 기록 조회 성공 테스트")
     void findByEmployee_IdAndDateBetween() {
         LocalDate startDate = LocalDate.of(2024, 1, 1);
         LocalDate endDate = LocalDate.of(2024, 1, 31);
 
-        // 가짜 근태 기록 리스트 생성
+        // given
         List<Attendance> attendances = new ArrayList<>();
         attendances.add(attendance);
 
-        // 스터빙 설정
         when(attendanceRepository.findByEmployee_EmployeeIdAndCheckInBetween("2024100006", startDate, endDate))
                 .thenReturn(attendances);
 
-        // when (메서드 호출)
+        // when
         List<AttendanceDTO> result = attendanceService.findByEmployee_IdAndDateBetween("2024100006", startDate, endDate);
 
-        // then (검증)
+        // then
         assertThat(result).isNotEmpty();
         assertThat(result.get(0).getEmployeeId()).isEqualTo("2024100006");
 
-        // 리포지토리 호출 여부 확인
         verify(attendanceRepository, times(1))
                 .findByEmployee_EmployeeIdAndCheckInBetween("2024100006", startDate, endDate);
     }
 
     @Test
-    @DisplayName("특정 월 총 근무 시간 계산 TEST")
+    @DisplayName("기간별 근태 기록 조회 실패 테스트 - 근태 기록 없음")
+    void findByEmployee_IdAndDateBetweenFailNoRecords() {
+        LocalDate startDate = LocalDate.of(2024, 1, 1);
+        LocalDate endDate = LocalDate.of(2024, 1, 31);
+
+        // given
+        when(attendanceRepository.findByEmployee_EmployeeIdAndCheckInBetween("2024100006", startDate, endDate))
+                .thenReturn(new ArrayList<>());
+
+        // when
+        List<AttendanceDTO> result = attendanceService.findByEmployee_IdAndDateBetween("2024100006", startDate, endDate);
+
+        // then
+        assertThat(result).isEmpty();
+
+        verify(attendanceRepository, times(1))
+                .findByEmployee_EmployeeIdAndCheckInBetween("2024100006", startDate, endDate);
+    }
+
+    @Test
+    @DisplayName("특정 월 총 근무 시간 계산 성공 테스트")
     void calculateTotalWorkHours() {
         String employeeId = "2024100006";
         YearMonth targetMonth = YearMonth.of(2024, 1);  // 2024년 1월
 
-        // 리포지토리의 행동 설정 (해당 월의 총 근무 시간을 160시간으로 설정)
+        // given
         when(attendanceRepository.findTotalWorkHours(employeeId, targetMonth.getYear(), targetMonth.getMonthValue()))
                 .thenReturn(160);
 
-        // when (메서드 호출)
+        // when
         int totalWorkHours = attendanceService.calculateTotalWorkHours(employeeId, targetMonth);
 
-        // then (검증)
-        assertThat(totalWorkHours).isEqualTo(160);  // 총 근무 시간이 160시간이어야 함
+        // then
+        assertThat(totalWorkHours).isEqualTo(160);
 
-        // 리포지토리 호출 여부 확인
         verify(attendanceRepository, times(1)).findTotalWorkHours(employeeId, targetMonth.getYear(), targetMonth.getMonthValue());
     }
 
+    @Test
+    @DisplayName("특정 월 총 근무 시간 계산 실패 테스트 - 근무 기록 없음")
+    void calculateTotalWorkHoursFailNoRecords() {
+        String employeeId = "2024100006";
+        YearMonth targetMonth = YearMonth.of(2024, 1);  // 2024년 1월
+
+        // given
+        when(attendanceRepository.findTotalWorkHours(employeeId, targetMonth.getYear(), targetMonth.getMonthValue()))
+                .thenReturn(0);
+
+        // when
+        int totalWorkHours = attendanceService.calculateTotalWorkHours(employeeId, targetMonth);
+
+        // then
+        assertThat(totalWorkHours).isEqualTo(0);
+
+        verify(attendanceRepository, times(1)).findTotalWorkHours(employeeId, targetMonth.getYear(), targetMonth.getMonthValue());
+    }
 }
