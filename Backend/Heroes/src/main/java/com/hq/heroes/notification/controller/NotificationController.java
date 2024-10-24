@@ -3,7 +3,6 @@ package com.hq.heroes.notification.controller;
 import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.notification.dto.NotificationReqDTO;
 import com.hq.heroes.notification.dto.NotificationResDTO;
-import com.hq.heroes.notification.entity.Notification;
 import com.hq.heroes.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,9 +28,9 @@ public class NotificationController {
     @GetMapping("/notifications")
     @Operation(summary = "알림 목록 조회", description = "전체 알림 목록을 조회한다.")
     public ResponseEntity<List<NotificationResDTO>> getAllNotifications() {
-        List<Notification> notifications = notificationService.getAllNotifications();
+        List<com.hq.heroes.notification.entity.Notification> notifications = notificationService.getAllNotifications();
         List<NotificationResDTO> notificationDTOs = notifications.stream()
-                .map(Notification::toResDTO) // Using toResDTO() to convert Notification to ResDTO
+                .map(com.hq.heroes.notification.entity.Notification::toResDTO) // Using toResDTO() to convert Notification to ResDTO
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(notificationDTOs, HttpStatus.OK);
@@ -42,7 +41,7 @@ public class NotificationController {
     @Operation(summary = "알림 상세 조회", description = "알림 ID로 해당 알림 정보를 조회한다.")
     public ResponseEntity<NotificationResDTO> getNotificationById(
             @Parameter(description = "알림 ID", example = "1") @PathVariable("notification-id") Long notificationId) {
-        Notification notification = notificationService.getNotificationById(notificationId);
+        com.hq.heroes.notification.entity.Notification notification = notificationService.getNotificationById(notificationId);
 
         if (notification != null) {
             return new ResponseEntity<>(notification.toResDTO(), HttpStatus.OK);
@@ -55,7 +54,7 @@ public class NotificationController {
     @PostMapping("/notification")
     @Operation(summary = "알림 등록", description = "알림 정보를 받아 등록한다.")
     public ResponseEntity<NotificationResDTO> createNotification(@RequestBody NotificationReqDTO requestDTO) {
-        Notification notification = notificationService.createNotification(requestDTO);
+        com.hq.heroes.notification.entity.Notification notification = notificationService.createNotification(requestDTO);
         return new ResponseEntity<>(notification.toResDTO(), HttpStatus.CREATED);
     }
 
@@ -65,7 +64,7 @@ public class NotificationController {
     public ResponseEntity<NotificationResDTO> updateNotification(
             @Parameter(description = "알림 ID", example = "1") @PathVariable("notification-id") Long notificationId,
             @RequestBody NotificationReqDTO requestDTO) {
-        Notification updatedNotification = notificationService.updateNotification(notificationId, requestDTO);
+        com.hq.heroes.notification.entity.Notification updatedNotification = notificationService.updateNotification(notificationId, requestDTO);
 
         if (updatedNotification != null) {
             return new ResponseEntity<>(updatedNotification.toResDTO(), HttpStatus.OK);
@@ -79,9 +78,9 @@ public class NotificationController {
     @Operation(summary = "수신된 알림 목록 조회", description = "수신자의 ID로 알림 목록을 조회한다.")
     public ResponseEntity<List<NotificationResDTO>> getNotificationsByReceiverId(
             @Parameter(description = "수신자의 사원 ID", example = "1") @PathVariable("employeeId") String employeeId) {
-        List<Notification> notifications = notificationService.getNotificationsByReceiverId(employeeId);
+        List<com.hq.heroes.notification.entity.Notification> notifications = notificationService.getNotificationsByReceiverId(employeeId);
         List<NotificationResDTO> notificationDTOs = notifications.stream()
-                .map(Notification::toResDTO)
+                .map(com.hq.heroes.notification.entity.Notification::toResDTO)
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(notificationDTOs, HttpStatus.OK);
@@ -92,9 +91,9 @@ public class NotificationController {
     @Operation(summary = "발신된 알림 목록 조회", description = "발신자의 ID로 알림 목록을 조회한다.")
     public ResponseEntity<List<NotificationResDTO>> getNotificationsBySenderId(
             @Parameter(description = "발신자의 사원 ID", example = "1") @PathVariable("employeeId") String employeeId) {
-        List<Notification> notifications = notificationService.getNotificationsBySenderId(employeeId);
+        List<com.hq.heroes.notification.entity.Notification> notifications = notificationService.getNotificationsBySenderId(employeeId);
         List<NotificationResDTO> notificationDTOs = notifications.stream()
-                .map(Notification::toResDTO)
+                .map(com.hq.heroes.notification.entity.Notification::toResDTO)
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(notificationDTOs, HttpStatus.OK);
