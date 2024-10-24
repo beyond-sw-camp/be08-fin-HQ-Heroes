@@ -54,7 +54,7 @@ public class OvertimeServiceImpl implements OvertimeService {
 
         // null 체크 및 로그 출력
         if (overtimeDTO.getOvertimeStartDate() == null || overtimeDTO.getOvertimeEndDate() == null) {
-            throw new IllegalArgumentException("휴가 시작일 또는 종료일이 설정되지 않았습니다.");
+            throw new IllegalArgumentException("연장근로 시작일 또는 종료일이 설정되지 않았습니다.");
         }
 
 
@@ -65,8 +65,10 @@ public class OvertimeServiceImpl implements OvertimeService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 이름의 결재자를 찾을 수 없습니다."));
 
         // 날짜 비교 전 null 체크
-        if (overtimeDTO.getOvertimeStartDate().isAfter(overtimeDTO.getOvertimeEndDate())) {
-            throw new IllegalArgumentException("휴가 시작일은 종료일보다 빠를 수 없습니다.");
+        if (overtimeDTO.getOvertimeStartDate().isAfter(overtimeDTO.getOvertimeEndDate()) ||
+                (overtimeDTO.getOvertimeStartDate().isEqual(overtimeDTO.getOvertimeEndDate()) &&
+                        overtimeDTO.getOvertimeStartTime().isAfter(overtimeDTO.getOvertimeEndTime()))) {
+            throw new IllegalArgumentException("연장근로 시작 시간이 종료 시간보다 늦을 수 없습니다.");
         }
 
         Overtime overtime = Overtime.builder()
@@ -85,14 +87,14 @@ public class OvertimeServiceImpl implements OvertimeService {
 
     public void approveOvertime(Long overtimeId) {
         Overtime overtime = overtimeRepository.findById(overtimeId)
-                .orElseThrow(() -> new RuntimeException("휴가를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("연장근로를 찾을 수 없습니다."));
         overtime.setOvertimeStatus(OvertimeStatus.APPROVED); // 상태를 승인으로 변경
         overtimeRepository.save(overtime);
     }
 
     public void rejectOvertime(Long overtimeId) {
         Overtime overtime = overtimeRepository.findById(overtimeId)
-                .orElseThrow(() -> new RuntimeException("휴가를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("연장근로를 찾을 수 없습니다."));
         overtime.setOvertimeStatus(OvertimeStatus.REJECTED); // 상태를 반려로 변경
         overtimeRepository.save(overtime);
     }
