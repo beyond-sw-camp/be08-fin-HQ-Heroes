@@ -41,7 +41,6 @@ public class EmployeeController {
     private final EmployeeRepository employeeRepository;
 
     // 특정 사원 조회를 위한 API
-    // 테스트 코드 필요
     @GetMapping("/employees/{employee-id}")
     public ResponseEntity<EmployeeDTO> getAllEmployee(
             @Parameter(description = "사원 ID", example = "2024106824") @PathVariable("employee-id") String employeeId
@@ -135,7 +134,6 @@ public class EmployeeController {
     }
 
     // 비밀번호 변경을 위한 API
-    // 테스트 코드 필요
     @PostMapping("/update-password")
     public ResponseEntity<String> updatePassword(@RequestBody PasswordUpdateDTO passwordUpdateDTO) {
 
@@ -148,10 +146,10 @@ public class EmployeeController {
                 CustomEmployeeDetails userDetails = (CustomEmployeeDetails) principal;
                 employeeId = userDetails.getUsername();
             } else {
-                System.out.println("Principal is not an instance of CustomEmployeeDetails.");
+                log.debug("Principal is not an instance of CustomEmployeeDetails.");
             }
         } else {
-            System.out.println("No authenticated user found.");
+            log.debug("No authenticated user found.");
         }
 
         try {
@@ -174,7 +172,6 @@ public class EmployeeController {
 
 
     // 현재 로그인한 사용자의 역할과 positionId를 확인하는 API
-    // 테스트 코드 필요
     @GetMapping("/role-check")
     public ResponseEntity<Map<String, Object>> checkUserRoleAndPosition() {
         String employeeId = "";
@@ -189,16 +186,16 @@ public class EmployeeController {
                 employeeId = userDetails.getUsername();
                 employeeName = userDetails.getUsername();
                 role = userDetails.getRole();
-                System.out.println("User is authenticated: " + employeeId + ", Role: " + role);
+                log.debug("User is authenticated: {}, Role: {}", employeeId, role);
             } else {
-                System.out.println("Principal is not an instance of CustomEmployeeDetails.");
+                log.debug("Principal is not an instance of CustomEmployeeDetails.");
             }
         } else {
-            System.out.println("No authenticated user found.");
+            log.debug("No authenticated user found.");
         }
 
         Optional<Employee> employeeOptional = employeeRepository.findByEmployeeId(employeeId);
-        System.out.println("Employee found: " + employeeOptional.isPresent()); // 조회 결과 확인
+        log.debug("Employee found: {}", employeeOptional.isPresent()); // 조회 결과 확인
 
         if (employeeOptional.isPresent()) {
             Employee employee = employeeOptional.get();
