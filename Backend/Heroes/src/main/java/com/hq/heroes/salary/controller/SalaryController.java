@@ -1,5 +1,6 @@
 package com.hq.heroes.salary.controller;
 
+import com.hq.heroes.evaluation.service.EvaluationService;
 import com.hq.heroes.salary.dto.SalaryDTO;
 import com.hq.heroes.salary.service.SalaryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,11 +21,19 @@ import java.util.Optional;
 public class SalaryController {
 
     private final SalaryService salaryService;
+    private final EvaluationService evaluationService;
 
     @PostMapping
     @Operation(summary = "급여 등록", description = "급여 정보를 받아서 등록한다.")
     public ResponseEntity<SalaryDTO> createSalary(@RequestBody SalaryDTO salaryDTO) {
-        SalaryDTO createdSalary = salaryService.createSalary(salaryDTO);
+        SalaryDTO createdSalary;
+        // 1, 7월일 경우 평가 점수 조회 및 전달
+        if(LocalDateTime.now().getMonthValue() == 1 || LocalDateTime.now().getMonthValue() == 7) {
+            createdSalary = salaryService.createSalary(salaryDTO);
+        }
+        else {
+            createdSalary = salaryService.createSalary(salaryDTO);
+        }
         return new ResponseEntity<>(createdSalary, HttpStatus.CREATED);
     }
 

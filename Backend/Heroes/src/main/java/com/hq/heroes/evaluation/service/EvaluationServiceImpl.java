@@ -45,7 +45,7 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Override
     @Transactional
     public Evaluation createEvaluation(EvaluationReqDTO requestDTO) {
-        // Employee와 Position 가져오기
+        // Employee
         Employee employee = employeeRepository.findById(requestDTO.getEmployeeId())
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
@@ -55,31 +55,7 @@ public class EvaluationServiceImpl implements EvaluationService {
         // Evaluation 저장
         Evaluation savedEvaluation = evaluationRepository.save(evaluation);
 
-        // 성과급 비율 설정
-        double performanceBonus = calculateBonusRate(requestDTO.getScore());
-
-        // SalaryDTO 생성
-        SalaryDTO salaryDTO = SalaryDTO.builder()
-                .employeeId(employee.getEmployeeId())
-                .performanceDate(LocalDateTime.now()) // 현재 날짜로 설정
-                .performanceBonus(performanceBonus)
-                .build();
-
-        // Salary 엔티티 생성
-        salaryService.createSalary(salaryDTO);
-
         return savedEvaluation; // 저장된 평가 리턴
-    }
-
-    // 점수에 따른 성과급 비율 계산 메서드
-    private double calculateBonusRate(double score) {
-        if (score < 80) {
-            return 0.035; // 80점 이하 -> 35%
-        } else if (score <= 89) {
-            return 0.05; // 80~89점 -> 50%
-        } else {
-            return 0.065; // 90~100점 -> 65%
-        }
     }
 
     @Override
