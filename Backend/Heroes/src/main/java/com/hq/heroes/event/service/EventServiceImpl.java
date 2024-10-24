@@ -12,8 +12,15 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
 
+
     @Override
     public void createEvent(EventDTO eventDTO) {
+
+        // 유효성 검사 추가: 시작 시간이 종료 시간보다 늦으면 예외 발생
+        if (eventDTO.getStart().isAfter(eventDTO.getEnd())) {
+            throw new IllegalArgumentException("이벤트 시작 시간이 종료 시간보다 늦을 수 없습니다.");
+        }
+
         Event event = Event.builder()
                 .eventTitle(eventDTO.getTitle())
                 .eventStart(eventDTO.getStart())
