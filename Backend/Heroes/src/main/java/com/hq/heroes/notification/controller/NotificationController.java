@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/notification-service")
 @Tag(name = "Notification APIs", description = "알림 관련 API 목록")
+@Slf4j
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -138,10 +140,10 @@ public class NotificationController {
                 CustomEmployeeDetails userDetails = (CustomEmployeeDetails) principal;
                 employeeId = userDetails.getUsername();
             } else {
-                System.out.println("Principal is not an instance of CustomEmployeeDetails.");
+                log.debug("Principal is not an instance of CustomEmployeeDetails.");
             }
         } else {
-            System.out.println("No authenticated user found.");
+            log.debug("No authenticated user found.");
         }
 
         boolean updated = notificationService.deleteNotification(notificationId, employeeId);
