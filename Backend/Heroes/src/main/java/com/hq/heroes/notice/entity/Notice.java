@@ -45,7 +45,7 @@ public class Notice {
     @Column(name = "title", nullable = false, length = 100)
     private String title;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @CreationTimestamp
