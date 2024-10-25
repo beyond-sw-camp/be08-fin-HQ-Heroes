@@ -157,6 +157,7 @@ void updateCertification() {
 }
 
     @Test
+    @DisplayName("자격증 정보 수정하기 테스트 - 실패")
     void updateCertification_NotFound() {
         // 업데이트할 요청 DTO
         CertificationRequestDTO requestDTO = new CertificationRequestDTO();
@@ -170,7 +171,7 @@ void updateCertification() {
             certificationService.updateCertification(1L, requestDTO);
         });
 
-        assertEquals("존재하지 않는 교육 ID : 1", exception.getMessage());
+        assertEquals("존재하지 않는 자격증 ID : 1", exception.getMessage());
 
         // verify
         verify(certificationRepository).findById(1L);

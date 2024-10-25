@@ -88,12 +88,6 @@ class EducationServiceTest {
                 .employee(employee)
                 .education(education)
                 .build();
-
-        // repository에 교육 정보 저장
-//        when(educationRepository.findById(1L)).thenReturn(Optional.of(education));
-//        when(employeeRepository.findByEmployeeId("2024100001")).thenReturn(Optional.of(employee));
-
-
     }
 
     @Test

@@ -107,6 +107,7 @@ class CourseServiceTest {
     }
 
     @Test
+    @DisplayName("교육 이수 - 성공")
     public void completeCourse_Success() {
         // Given
         Long courseId = 1L;
