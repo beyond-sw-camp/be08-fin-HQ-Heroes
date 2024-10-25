@@ -27,7 +27,6 @@
         "primeicons": "^6.0.1",
         "primevue": "^4.0.7",
         "quill": "^2.0.2",
-        "quill-image-resize": "^3.0.9",
         "quill-image-resize-module": "^3.0.0",
         "sweetalert2": "^11.14.1",
         "vue": "^3.4.34",

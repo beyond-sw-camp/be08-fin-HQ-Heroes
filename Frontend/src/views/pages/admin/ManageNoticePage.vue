@@ -50,56 +50,18 @@
 
                 <Column v-if="isAdmin()">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click="showNoticeDetail(slotProps.data.noticeId)" />
+                        <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click="goToNoticeUpdate(slotProps.data.noticeId)" />
                         <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="displayAddDialog" modal="true" :header="'공지사항 수정'" :style="{ width: '450px' }" :draggable="false" :closable="true">
-            <div class="flex flex-col gap-6">
-                <div>
-                    <label for="noticeTitle" class="block font-bold mb-3">제목</label>
-                    <InputText id="noticeTitle" v-model="newNotice.title" required="true" class="w-full" />
-                </div>
-                <div>
-                    <label for="employeeName" class="block font-bold mb-3">작성자</label>
-                    <InputText id="employeeName" v-model="newNotice.employeeName" readonly class="w-full" />
-                </div>
-                <div>
-                    <label for="category" class="block font-bold mb-3">카테고리</label>
-                    <Dropdown v-model="newNotice.categoryName" :options="categories" optionLabel="name" placeholder="카테고리 선택" class="w-full" />
-                </div>
-                <div>
-                    <label for="date" class="block font-bold mb-3">작성 날짜 / 시간</label>
-                    <InputText id="date" type="text" v-model="newNotice.createdAt" class="w-full" readonly />
-                </div>
-                <div>
-                    <label for="updater" class="block font-bold mb-3">수정자</label>
-                    <InputText id="updater" v-model="newNotice.updaterName" readonly class="w-full" />
-                </div>
-                <div>
-                    <label for="updatedAt" class="block font-bold mb-3">수정 날짜 / 시간</label>
-                    <InputText id="updatedAt" type="text" v-model="updaterDate" class="w-full" readonly />
-                </div>
-                <div>
-                    <label for="content" class="block font-bold mb-3">내용</label>
-                    <textarea id="content" v-model="newNotice.content" required="true" class="w-full p-2 border border-gray-300 rounded" rows="5"></textarea>
-                </div>
-            </div>
-
-            <template #footer>
-                <Button label="취소" icon="pi pi-times" text class="p-button-text" @click="closeAddDialog" />
-                <Button label="수정" icon="pi pi-check" class="p-button-primary" @click="saveNotice" />
-            </template>
-        </Dialog>
-
         <Dialog v-model:visible="displayDeleteConfirmDialog" modal="true" header="삭제 확인" :style="{ width: '400px' }" :draggable="false" :closable="true">
             <p>정말로 이 공지사항을 삭제하시겠습니까?</p>
             <template #footer>
-                <Button label="취소" icon="pi pi-times" text class="p-button-text" @click="closeDeleteConfirmDialog" />
                 <Button label="삭제" icon="pi pi-check" class="p-button-danger" @click="handleDeleteNotice" />
+                <Button label="취소" icon="pi pi-times" text class="p-button-text" @click="closeDeleteConfirmDialog" />
             </template>
         </Dialog>
     </div>
@@ -180,42 +142,6 @@ const formatDateTime = (dateString) => {
 
 const updaterInterval = ref(null); // Interval을 저장할 변수
 
-// 공지사항 수정
-const editNotice = (notice) => {
-    isEditMode.value = true; // 수정 모드로 전환
-    selectedNotice.value = notice; // 선택된 공지사항 설정
-    newNotice.value = {
-        title: notice.title, // 제목
-        employeeName: notice.employeeName, // 작성자
-        categoryName: categories.value.find((category) => category.id === notice.categoryId)?.categoryName, // name으로 수정
-        createdAt: formatDateTime(notice.createdAt), // 작성 날짜
-        updaterName: authStore.employeeData.employeeName, // 수정자
-        content: notice.content // 내용
-    };
-
-    // 수정 시간 갱신
-    updaterDate.value = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
-
-    // 1초마다 updaterDate를 업데이트하는 interval 설정
-    updaterInterval.value = setInterval(() => {
-        updaterDate.value = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
-    }, 1000);
-
-    displayAddDialog.value = true;
-};
-
-// 다이얼로그 닫기
-const closeAddDialog = () => {
-    displayAddDialog.value = false;
-    isEditMode.value = false;
-    selectedNotice.value = null;
-
-    // Interval 제거
-    if (updaterInterval.value) {
-        clearInterval(updaterInterval.value);
-        updaterInterval.value = null;
-    }
-};
 
 // 공지사항 삭제 확인
 const confirmDeleteNotice = (notice) => {
@@ -242,30 +168,6 @@ const closeDeleteConfirmDialog = () => {
     selectedNotice.value = null;
 };
 
-// 공지사항 수정
-const saveNotice = async () => {
-    try {
-        const updatedNotice = {
-            title: newNotice.value.title,
-            categoryId: newNotice.value.categoryName.id,
-            updaterId: authStore.loginUserId,
-            content: newNotice.value.content
-        };
-
-        // noticeId를 URL에 명시적으로 포함
-        const response = await axios.patch(`http://localhost:8080/api/v1/notice-service/notice/${selectedNotice.value.noticeId}`, updatedNotice);
-
-        // 기존 로직 계속
-        const index = notices.value.findIndex((n) => n.noticeId === selectedNotice.value.noticeId);
-        if (index !== -1) {
-            notices.value.splice(index, 1, { ...selectedNotice.value, ...updatedNotice }); // 기존 공지사항을 업데이트된 공지사항으로 교체
-        }
-
-        closeAddDialog(); // 다이얼로그 닫기
-    } catch (error) {
-        console.error('Error updating notice:', error);
-    }
-};
 
 // 페이지 이동
 const showWriteNoticePage = () => {
@@ -284,6 +186,10 @@ const showWriteNoticePage = () => {
 // 공지사항 상세보기
 const showNoticeDetail = (noticeId) => {
     router.push({ path: `/notice/${noticeId}` });
+};
+
+const goToNoticeUpdate = (noticeId) => {
+    router.push({ name: 'notice-update', params: { id: noticeId } });
 };
 
 // 컴포넌트가 제거되기 전에 인터벌 정리
