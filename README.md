@@ -108,6 +108,11 @@
 
 <br>
 
+## 📺 화면 설계서
+
+[화면 설계서](https://www.figma.com/board/gluKEJsk3zgrZrrMgvBh7U/HeRoes-화면-설계서?node-id=0-1&t=r8PfiIedMNaRsowv-1)
+
+<br>
 
 ## 📄 API 명세서
 
@@ -127,9 +132,9 @@
 
 <br>
 
-## 📺 화면 설계서
+## UI/UX 단위 테스트 결과서
 
-[화면 설계서](https://www.figma.com/board/gluKEJsk3zgrZrrMgvBh7U/HeRoes-화면-설계서?node-id=0-1&t=r8PfiIedMNaRsowv-1)
+[UI/UX 단위 테스트 결과서](https://docs.google.com/spreadsheets/d/1p2S1Dx_Czk0cFEXHtt2w0ZFetm8syJea9jIj2o6hSeE/edit?gid=0#gid=0)
 
 <br>
 
