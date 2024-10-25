@@ -1,6 +1,5 @@
 package com.hq.heroes.salary.controller;
 
-import com.hq.heroes.evaluation.dto.EvaluationResDTO;
 import com.hq.heroes.evaluation.entity.Evaluation;
 import com.hq.heroes.evaluation.service.EvaluationService;
 import com.hq.heroes.salary.dto.SalaryDTO;
@@ -13,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +25,7 @@ public class SalaryController {
     private final EvaluationService evaluationService;
 
     @PostMapping
-    @Operation(summary = "급여 등록", description = "급여 정보를 받아서 등록한다.")
+    @Operation(summary = "기본 급여 등록", description = "급여 정보를 받아서 기본 급여를 등록한다.")
     public ResponseEntity<SalaryDTO> createSalary(@RequestBody SalaryDTO salaryDTO) {
         SalaryDTO createdSalary;
 
@@ -54,16 +52,16 @@ public class SalaryController {
         return new ResponseEntity<>(createdSalary, HttpStatus.CREATED);
     }
 
-    @GetMapping("/base-salary/employee/{employeeId}")
-    @Operation(summary = "직원 ID로 기본 급여 조회", description = "직원의 직책에 해당하는 기본 급여 정보를 반환합니다.")
+    @GetMapping("/base-salary/{employeeId}")
+    @Operation(summary = "특정 직책의 기본 급여 조회", description = "직원의 직책에 해당하는 기본 급여 정보를 반환한다.")
     public ResponseEntity<Double> getBaseSalaryByPositionId(@PathVariable String employeeId) {
         Optional<Double> baseSalary = salaryService.getBaseSalaryByPositionId(employeeId);
         return baseSalary.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/salaries/employee/{employeeId}")
-    @Operation(summary = "직원 ID로 급여 기록 조회", description = "주어진 직원 ID에 대한 급여 기록을 반환합니다.")
+    @GetMapping("/salaries/{employeeId}")
+    @Operation(summary = "특정 사원의 기본 급여 조회", description = "특정 사원의 기본 급여 정보를 반환한다.")
     public ResponseEntity<List<SalaryDTO>> getAllSalariesByEmployeeId(@PathVariable String employeeId) {
         List<SalaryDTO> salaries = salaryService.getAllSalariesByEmployeeId(employeeId);
         if (salaries.isEmpty()) {
