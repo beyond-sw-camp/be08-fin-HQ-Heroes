@@ -13,6 +13,7 @@ import com.hq.heroes.salary.entity.SalaryHistory;
 import com.hq.heroes.salary.repository.DeductRepository;
 import com.hq.heroes.salary.repository.SalaryHistoryRepository;
 import com.hq.heroes.salary.repository.SalaryRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,11 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
     @Override
     public List<SalaryHistoryDTO> getAllSalaries(String employeeId) {
         List<SalaryHistory> histories = salaryHistoryRepository.findByEmployee_EmployeeId(employeeId);
+
+        // 급여 기록이 없으면 예외 처리
+        if (histories.isEmpty()) {
+            throw new EntityNotFoundException("급여 이력이 존재하지 않습니다.");
+        }
 
         return histories.stream()
                 .map(this::convertToDTO)
