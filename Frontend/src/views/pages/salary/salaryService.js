@@ -9,10 +9,10 @@ export const fetchSalary = async (employeeId) => {
 
 // 성과급 데이터 가져오기
 export const fetchBonus = async (employeeId) => {
-    return await fetchGet(`${API_URL}/salaries/employee/${employeeId}`);
+    return await fetchGet(`${API_URL}/salaries/${employeeId}`);
 };
 
 // 급여 데이터 가져오기
 export const fetchbaseSalary = async (employeeId) => {
-    return await fetchGet(`${API_URL}/base-salary/employee/${employeeId}`);
+    return await fetchGet(`${API_URL}/base-salary/${employeeId}`);
 };
