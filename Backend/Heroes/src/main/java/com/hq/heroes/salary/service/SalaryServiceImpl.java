@@ -40,7 +40,6 @@ public class SalaryServiceImpl implements SalaryService {
         Salary salary = Salary.builder()
                 .employee(employee)
                 .position(position)
-                .performanceDate(LocalDateTime.now())
                 .build();
 
         // Salary 저장
@@ -58,7 +57,7 @@ public class SalaryServiceImpl implements SalaryService {
     @Override
     public SalaryDTO createSalary(SalaryDTO salaryDTO, List<Evaluation> evaluations) {
         Employee employee = employeeRepository.findById(salaryDTO.getEmployeeId())
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사원입니다."));
 
         Position position = positionRepository.findById(employee.getPosition().getPositionId())
                 .orElseThrow(() -> new EntityNotFoundException("Position not found"));
@@ -70,54 +69,27 @@ public class SalaryServiceImpl implements SalaryService {
         int currentYear = LocalDateTime.now().getYear();
 
         // 필터링된 평가 리스트
-        Optional<Evaluation> filteredEvaluation = Optional.empty(); // Optional로 초기화
-
-        // 1월인 경우: 7월 ~ 12월의 평가 데이터 가져오기
-        if (currentMonth == 1) {
-            filteredEvaluation = evaluations.stream()
-                    .filter(evaluation -> {
-                        LocalDateTime updatedAt = evaluation.getUpdatedAt().toInstant()
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDateTime();
-                        return (updatedAt.getYear() == currentYear) &&
-                                (updatedAt.getMonth() == Month.JULY ||
-                                        updatedAt.getMonth() == Month.AUGUST ||
-                                        updatedAt.getMonth() == Month.SEPTEMBER ||
-                                        updatedAt.getMonth() == Month.OCTOBER ||
-                                        updatedAt.getMonth() == Month.NOVEMBER ||
-                                        updatedAt.getMonth() == Month.DECEMBER); // 7~12월
-                    })
-                    .sorted(Comparator.comparing(Evaluation::getUpdatedAt).reversed())
-                    .findFirst(); // 첫 번째 요소를 가져옴
-        }
-        // 7월인 경우: 1월 ~ 6월의 평가 데이터 가져오기
-        else if (currentMonth == 7) {
-            filteredEvaluation = evaluations.stream()
-                    .filter(evaluation -> {
-                        LocalDateTime updatedAt = evaluation.getUpdatedAt().toInstant()
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDateTime();
-                        return (updatedAt.getYear() == currentYear) &&
-                                (updatedAt.getMonth() == Month.JANUARY ||
-                                        updatedAt.getMonth() == Month.FEBRUARY ||
-                                        updatedAt.getMonth() == Month.MARCH ||
-                                        updatedAt.getMonth() == Month.APRIL ||
-                                        updatedAt.getMonth() == Month.MAY ||
-                                        updatedAt.getMonth() == Month.JUNE); // 1~6월
-                    })
-                    .sorted(Comparator.comparing(Evaluation::getUpdatedAt).reversed())
-                    .findFirst(); // 첫 번째 요소를 가져옴
-        }
+        List<Evaluation> filteredEvaluations = evaluations.stream()
+                .filter(evaluation -> {
+                    LocalDateTime updatedAt = evaluation.getUpdatedAt().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime();
+                    return updatedAt.getYear() == currentYear &&
+                            ((currentMonth == 1 && updatedAt.getMonthValue() >= 7) ||
+                                    (currentMonth == 7 && updatedAt.getMonthValue() <= 6));
+                })
+                .sorted(Comparator.comparing(Evaluation::getUpdatedAt).reversed())
+                .collect(Collectors.toList());
 
         // 평가 데이터가 존재하는 경우 처리
-        if (filteredEvaluation.isPresent()) {
-
-            double score = filteredEvaluation.get().getScore();
+        if (!filteredEvaluations.isEmpty()) {
+            Evaluation evaluation = filteredEvaluations.get(0);
+            double score = evaluation.getScore();
 
             // 성과급 비율 계산
             double rate = calculatePerformanceBonus(score);
 
-            LocalDateTime updatedAt = filteredEvaluation.get().getUpdatedAt().toInstant()
+            LocalDateTime updatedAt = evaluation.getUpdatedAt().toInstant()
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
 
@@ -144,8 +116,8 @@ public class SalaryServiceImpl implements SalaryService {
         } else {
             throw new EntityNotFoundException("평가 데이터가 존재하지 않습니다.");
         }
-
     }
+
 
     // 성과급 비율 계산
     private double calculatePerformanceBonus(double score) {

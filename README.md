@@ -108,17 +108,33 @@
 
 <br>
 
-
-## 📄 API 명세서
-<br>
-
-
-<br>
-<br>
-
 ## 📺 화면 설계서
 
 [화면 설계서](https://www.figma.com/board/gluKEJsk3zgrZrrMgvBh7U/HeRoes-화면-설계서?node-id=0-1&t=r8PfiIedMNaRsowv-1)
+
+<br>
+
+## 📄 API 명세서
+
+[API 명세서](https://playdatacademy.notion.site/API-5b7e16a67c6e407ea0e5035153c6bc88?pvs=4)
+
+<br>
+
+## 📜 테스트 시나리오
+
+[테스트 시나리오](https://docs.google.com/spreadsheets/d/10T3jsm3aS-NS-D-3E92f18xkcve6frEbmGwcAcYbNQg/edit?gid=0#gid=0)
+
+<br>
+
+## 📈 단위 테스트 결과서
+
+[단위 테스트 결과서](https://docs.google.com/spreadsheets/d/16IVL1Zvi8nouXRf0L8f5Z_AEXyXcuqNTStf0ODIuzrc/edit?gid=0#gid=0)
+
+<br>
+
+## UI/UX 단위 테스트 결과서
+
+[UI/UX 단위 테스트 결과서](https://docs.google.com/spreadsheets/d/1p2S1Dx_Czk0cFEXHtt2w0ZFetm8syJea9jIj2o6hSeE/edit?gid=0#gid=0)
 
 <br>
 

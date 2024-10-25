@@ -98,7 +98,6 @@ public class EmployeeController {
         return ResponseEntity.ok((positionRepository.findAllPositions()));
     }
 
-    // 테스트 코드 필요
     @PutMapping("/update")
     public ResponseEntity<String> updateEmployeeInfo(
             @RequestPart("employeeData") @Validated EmployeeDTO employeeDTO,

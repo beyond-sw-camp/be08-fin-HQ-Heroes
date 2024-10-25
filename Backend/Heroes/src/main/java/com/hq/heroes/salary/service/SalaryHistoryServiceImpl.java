@@ -13,6 +13,7 @@ import com.hq.heroes.salary.entity.SalaryHistory;
 import com.hq.heroes.salary.repository.DeductRepository;
 import com.hq.heroes.salary.repository.SalaryHistoryRepository;
 import com.hq.heroes.salary.repository.SalaryRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,11 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
     public List<SalaryHistoryDTO> getAllSalaries(String employeeId) {
         List<SalaryHistory> histories = salaryHistoryRepository.findByEmployee_EmployeeId(employeeId);
 
+        // 급여 기록이 없으면 예외 처리
+        if (histories.isEmpty()) {
+            throw new EntityNotFoundException("급여 이력이 존재하지 않습니다.");
+        }
+
         return histories.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -46,7 +52,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
     public SalaryHistoryDTO createSalary(SalaryHistoryDTO dto) {
         Optional<Employee> employeeEntity = employeeRepository.findById(dto.getEmployeeId());
         if (employeeEntity.isEmpty()) {
-            throw new IllegalArgumentException("Invalid employee ID");
+            throw new IllegalArgumentException("존재하지 않는 사원입니다.");
         }
 
         Employee employee = employeeEntity.get();
@@ -62,7 +68,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         long years = ChronoUnit.YEARS.between(employee.getJoinDate(), LocalDate.now());
 
         // baseSalary = 직급의 기본급 * 총 근무 시간
-        Double baseSalary = position.getBaseSalary() * totalWorkHours;
+        double baseSalary = position.getBaseSalary() * totalWorkHours;
 
         // 5% 복리 적용
         for (int i = 0; i < years; i++) {
@@ -72,20 +78,20 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         // 성과급 및 세전 총액 계산
         Salary salary = salaryRepository.findByPosition(position)
                 .orElseThrow(() -> new IllegalArgumentException("No salary record found for this position"));
-        Double performanceBonus = baseSalary * salary.getPerformanceBonus();
-        Double preTaxTotal = baseSalary + performanceBonus;
+        double performanceBonus = baseSalary * salary.getPerformanceBonus();
+        double preTaxTotal = baseSalary + performanceBonus;
 
         // 각 공제 항목 계산
         List<Deduct> deducts = deductRepository.findAll();
-        Double nationalPension = calculateDeduction(preTaxTotal, deducts, "국민연금");
-        Double healthInsurance = calculateDeduction(preTaxTotal, deducts, "건강보험");
-        Double longTermCare = healthInsurance * calculateDeductionRate(deducts, "장기요양");
-        Double employmentInsurance = calculateDeduction(preTaxTotal, deducts, "고용보험");
-        Double incomeTax = calculateDeduction(preTaxTotal, deducts, "소득세");
-        Double localIncomeTax = incomeTax * calculateDeductionRate(deducts, "지방소득세");
+        double nationalPension = calculateDeduction(preTaxTotal, deducts, "국민연금");
+        double healthInsurance = calculateDeduction(preTaxTotal, deducts, "건강보험");
+        double longTermCare = healthInsurance * calculateDeductionRate(deducts, "장기요양");
+        double employmentInsurance = calculateDeduction(preTaxTotal, deducts, "고용보험");
+        double incomeTax = calculateDeduction(preTaxTotal, deducts, "소득세");
+        double localIncomeTax = incomeTax * calculateDeductionRate(deducts, "지방소득세");
 
         // 세후 총액 계산
-        Double postTaxTotal = preTaxTotal - (nationalPension + healthInsurance + longTermCare +
+        double postTaxTotal = preTaxTotal - (nationalPension + healthInsurance + longTermCare +
                 employmentInsurance + incomeTax + localIncomeTax);
 
         // SalaryHistory 엔티티 생성 및 저장

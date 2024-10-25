@@ -179,6 +179,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/retirement/retirement-funds.vue')
                 },
                 {
+                    path: '/notice-update/:id',
+                    name: 'notice-update',
+                    component: () => import('@/views/pages/admin/NoticeUpdatePage.vue')
+                },
+                {
                     path: '/notice/:id',
                     name: 'notice-detail',
                     component: () => import('@/views/pages/admin/NoticeDetailPage.vue')
