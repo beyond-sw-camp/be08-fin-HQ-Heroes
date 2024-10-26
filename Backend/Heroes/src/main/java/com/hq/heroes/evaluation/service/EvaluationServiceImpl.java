@@ -12,6 +12,7 @@ import com.hq.heroes.salary.repository.SalaryRepository;
 import com.hq.heroes.salary.service.SalaryService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EvaluationServiceImpl implements EvaluationService {
 
     private final EvaluationRepository evaluationRepository;
@@ -36,6 +38,13 @@ public class EvaluationServiceImpl implements EvaluationService {
     }
 
     @Override
+    public List<Evaluation> getEvaluationsByEvaluatorId(String evaluatorId) {
+        log.info("Fetching evaluations by evaluator ID: {}", evaluatorId);  // Log service layer access
+        return evaluationRepository.findByEvaluator_EmployeeId(evaluatorId);
+    }
+
+
+    @Override
     public Evaluation getEvaluationById(Long evaluationId) {
         return evaluationRepository.findById(evaluationId)
                 .orElse(null);
@@ -48,8 +57,11 @@ public class EvaluationServiceImpl implements EvaluationService {
         Employee employee = employeeRepository.findById(requestDTO.getEmployeeId())
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
+        Employee evaluator = employeeRepository.findById(requestDTO.getEvaluatorId())
+                .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
+
         // Evaluation 엔티티 생성
-        Evaluation evaluation = Evaluation.fromRequestDTO(requestDTO, employee, employee); // evaluator는 본인으로 설정
+        Evaluation evaluation = Evaluation.fromRequestDTO(requestDTO, employee, evaluator); // evaluator는 본인으로 설정
 
         // Evaluation 저장
         Evaluation savedEvaluation = evaluationRepository.save(evaluation);
@@ -81,4 +93,12 @@ public class EvaluationServiceImpl implements EvaluationService {
         }
         return false;
     }
+
+    // EvaluationServiceImpl.java
+
+    public List<Evaluation> findEvaluationsByEmployeeEvaluatorAndPeriod(String employeeId, String evaluatorId, String period) {
+        log.info("조회 요청 - 사원 ID: {}, 평가자 ID: {}, 기간: {}", employeeId, evaluatorId, period);
+        return evaluationRepository.findEvaluationsByEmployeeEvaluatorAndPeriod(employeeId, evaluatorId, period);
+    }
+
 }

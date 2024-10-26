@@ -11,6 +11,8 @@ public interface EvaluationService {
 
     List<Evaluation> getEvaluationsByEmployeeId(String employeeId);
 
+    List<Evaluation> getEvaluationsByEvaluatorId(String employeeId);
+
     Evaluation getEvaluationById(Long evaluationId);
 
     Evaluation createEvaluation(EvaluationReqDTO requestDTO);
@@ -19,4 +21,5 @@ public interface EvaluationService {
 
     boolean deleteEvaluation(Long evaluationId);
 
+    List<Evaluation> findEvaluationsByEmployeeEvaluatorAndPeriod(String employeeId, String evaluatorId, String period);
 }
