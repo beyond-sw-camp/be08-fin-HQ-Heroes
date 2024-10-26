@@ -1,6 +1,8 @@
 <template>
     <div class="evaluation-detail">
-        <h3>팀원 평가</h3>
+        <div class="flex items-center justify-center">
+            <h3>팀원 평가</h3>
+        </div>
 
         <div class="employee-info">
             <!-- 프로필 이미지 -->
@@ -20,7 +22,7 @@
         <hr class="divider" />
 
         <div class="evaluation-form">
-            <h3>평가 기준</h3>
+            <h3 class="font-bold">평가 기준</h3>
             <div v-for="(criteria, index) in evaluationCriteriaList" :key="criteria.evaluationCriteriaId" class="evaluation-item">
                 <h3>{{ index + 1 }}. {{ criteria.criteriaTitle }}</h3>
 
@@ -38,16 +40,17 @@
             </div>
 
             <div class="save-button-container">
-                <Button label="평가 저장" @click="saveEvaluation" class="p-button-rounded p-button-primary custom-button" />
+                <!-- isEvaluationComplete가 true일 때만 버튼 활성화 -->
+                <Button :disabled="!isEvaluationComplete" label="평가 저장" @click="saveEvaluation" class="p-button-rounded p-button-primary custom-button" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchGet, fetchPost } from '../auth/service/AuthApiService';
+import { fetchGet, fetchPost, fetchPut } from '../auth/service/AuthApiService';
 import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
 import Select from 'primevue/select';
@@ -79,6 +82,11 @@ const scoreOptions = ref([
     { label: 'C+ (개선 필요)', value: 75 },
     { label: 'C (부족)', value: 70 }
 ]);
+
+// 모든 필수 항목이 입력되었는지 확인하는 computed 속성
+const isEvaluationComplete = computed(() => {
+    return criteriaScores.value.every((questions) => questions.every((score) => score !== null));
+});
 
 // 직원 평가 데이터를 로드하는 함수
 async function fetchEmployeeEvaluationData() {
@@ -131,23 +139,49 @@ function calculateAverageScore() {
     score.value = Math.round(score.value);
 }
 
-// 평가 데이터를 저장하는 함수
+// 한국 시간 기준으로 상반기인지 하반기인지 확인하는 함수
+function getKoreanEvaluationPeriod() {
+    const now = new Date();
+    const koreanTime = new Date(now.setHours(now.getHours() + 9)); // UTC+9 한국 시간으로 변환
+    const month = koreanTime.getMonth() + 1; // 월은 0부터 시작하므로 +1
+    return month <= 6 ? '상반기' : '하반기';
+}
+
+// 평가 저장/수정 함수
 async function saveEvaluation() {
     try {
         // 평균 점수 계산
         calculateAverageScore();
 
+        // 평가 데이터 생성
         const evaluationData = {
-            employeeId: String(employeeId), // String으로 변환 (또는 서버에서 기대하는 타입으로 변환)
+            employeeId: String(employeeId),
             evaluatorId: window.localStorage.getItem('employeeId'),
             comments: comments.value,
             score: score.value
         };
 
-        const response = await fetchPost('http://localhost:8080/api/v1/evaluation-service/evaluation', evaluationData);
-        if (response) {
-            alert('평가가 성공적으로 저장되었습니다.');
-            router.go(-1);
+        // 상반기/하반기 기준 설정
+        const evaluationPeriod = getKoreanEvaluationPeriod();
+
+        // 기존 평가 기록 조회 API 호출
+        const existingEvaluations = await fetchGet(`http://localhost:8080/api/v1/evaluation-service/evaluations/existing?employeeId=${evaluationData.employeeId}&evaluatorId=${evaluationData.evaluatorId}&period=${evaluationPeriod}`);
+
+        if (existingEvaluations.length > 0) {
+            // 기존 기록이 있을 경우 수정(평가 ID를 이용해 PUT 요청)
+            const existingEvaluationId = existingEvaluations[0].evaluationId;
+            const response = await fetchPut(`http://localhost:8080/api/v1/evaluation-service/evaluation/${existingEvaluationId}`, evaluationData, 'PUT');
+            if (response) {
+                alert('평가가 성공적으로 수정되었습니다.');
+                router.go(-1);
+            }
+        } else {
+            // 기존 기록이 없을 경우 새 평가 생성
+            const response = await fetchPost('http://localhost:8080/api/v1/evaluation-service/evaluation', evaluationData, 'POST');
+            if (response) {
+                alert('평가가 성공적으로 저장되었습니다.');
+                router.go(-1);
+            }
         }
     } catch (error) {
         console.error('평가 데이터를 저장하는 중 오류 발생:', error);
@@ -165,7 +199,7 @@ onMounted(() => {
     padding: 2rem;
     max-width: 900px;
     margin: 0 auto;
-    background-color: #f8f9fa;
+    background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     font-family: 'Arial', sans-serif;
@@ -228,7 +262,7 @@ h3 {
 }
 
 .question-text {
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: #333;
     flex: 1;
 }

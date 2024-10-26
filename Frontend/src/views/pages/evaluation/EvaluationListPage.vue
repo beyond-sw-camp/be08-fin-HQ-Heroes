@@ -1,118 +1,179 @@
 <template>
-  <div class="card">
-    <div class="font-semibold text-xl mb-4">평가 - {{ authStore.employeeData.teamName }}</div>
-    <DataTable :value="filteredEmployees" :paginator="true" :rows="10" removableSort dataKey="employeeNo"
-      :rowHover="true" selectionMode="single"
-      :globalFilterFields="['employeeName', 'deptName', 'jobName', 'teamName', 'positionName', 'employeeId', 'joinDate']"
-      showGridlines @row-click="showEmployeeDetails" :metaKeySelection="false">
-      <template #empty> No employees found. </template>
+    <div class="card">
+        <div class="flex items-center justify-center text-xl mb-4">
+            <label class="font-semibold">{{ evaluationPeriod }} - {{ authStore.employeeData.teamName }} 팀원 평가</label>
+        </div>
+        <DataTable
+            :value="filteredEmployees"
+            :paginator="true"
+            :rows="10"
+            removableSort
+            dataKey="employeeNo"
+            :rowHover="true"
+            v-model:filters="filters"
+            filterDisplay="menu"
+            :filters="filters"
+            :globalFilterFields="['employeeName', 'deptName', 'jobName', 'teamName', 'positionName', 'employeeId', 'joinDate']"
+            @row-click="showEmployeeDetails"
+            :metaKeySelection="false"
+        >
+            <template #header>
+                <div class="flex items-center justify-end mb-1">
+                    <InputGroup style="width: 15rem">
+                        <InputGroupAddon>
+                            <i class="pi pi-search"></i>
+                        </InputGroupAddon>
+                        <InputText v-model="filters['global'].value" placeholder="검색어를 입력하세요" />
+                    </InputGroup>
+                </div>
+            </template>
+            <template #empty> 검색 결과가 없습니다. </template>
 
-      <Column field="employeeName" sortable header="이 름" style="min-width: 12rem">
-        <template #body="{ data }">
-          {{ data.employeeName }}
-        </template>
-      </Column>
-      <Column field="jobName" sortable header="직무" style="min-width: 12rem">
-        <template #body="{ data }">
-          {{ data.jobName }}
-        </template>
-      </Column>
-      <Column field="positionName" sortable header="직 책" style="min-width: 12rem">
-        <template #body="{ data }">
-          {{ data.positionName }}
-        </template>
-      </Column>
-      <Column field="employeeId" sortable header="사 번" style="min-width: 12rem">
-        <template #body="{ data }">
-          {{ data.employeeId }}
-        </template>
-      </Column>
-      <Column field="joinDate" sortable header="입사일" dataType="date" style="min-width: 10rem">
-        <template #body="{ data }">
-          {{ formatDate(new Date(data.joinDate)) }}
-        </template>
-      </Column>
-    </DataTable>
-  </div>
+            <Column field="employeeName" sortable header="이 름">
+                <template #body="{ data }">
+                    {{ data.employeeName }}
+                </template>
+            </Column>
+            <Column field="jobName" sortable header="직무">
+                <template #body="{ data }">
+                    {{ data.jobName }}
+                </template>
+            </Column>
+            <Column field="positionName" sortable header="직 책">
+                <template #body="{ data }">
+                    {{ data.positionName }}
+                </template>
+            </Column>
+            <Column field="employeeId" sortable header="사 번">
+                <template #body="{ data }">
+                    {{ data.employeeId }}
+                </template>
+            </Column>
+            <Column field="joinDate" sortable header="입사일" dataType="date">
+                <template #body="{ data }">
+                    {{ formatDate(new Date(data.joinDate)) }}
+                </template>
+            </Column>
+            <Column class="w-40">
+                <template #body="{ data }">
+                    <Button v-if="canReevaluate(data.employeeId)" label="재평가" icon="pi pi-refresh" @click="showEmployeeDetails(data)" severity="warn" />
+                    <Button v-else label="평가하기" icon="pi pi-pencil" @click="showEmployeeDetails(data)" severity="primary" />
+                </template>
+            </Column>
+        </DataTable>
+    </div>
 </template>
 
 <script setup>
-import { ref, onBeforeMount, watch } from 'vue';
+import { ref, onBeforeMount, watch, computed } from 'vue';
 import router from '@/router';
 import { useAuthStore } from '@/stores/authStore';
 import { fetchGet } from '../auth/service/AuthApiService';
 
-// authStore 가져오기
+// 인증된 사용자 정보를 가져옴
 const authStore = useAuthStore();
 
-const employees = ref([]);
-const filteredEmployees = ref([]);
+// 상태 변수 선언
+const employees = ref([]); // 전체 직원 목록
+const filteredEmployees = ref([]); // 필터링된 직원 목록
+const evaluations = ref([]); // 평가 목록
+const filters = ref(null); // 필터 설정
 
-// 직원 목록 가져오기
-async function fetchEmployeeList() {
-  try {
-    const employeesData = await fetchGet('http://localhost:8080/api/v1/employee/employees', router.push, router.currentRoute.value);
-    employees.value = employeesData || [];
-    filterEmployeesByTeam();  // 팀별로 필터링
-  } catch (error) {
-    console.error('직원 데이터를 가져오는 중 오류 발생:', error);
-    employees.value = [];
-    filteredEmployees.value = [];
-  }
+// 상반기/하반기 텍스트 설정 (한국 시간 기준)
+const evaluationPeriod = computed(() => {
+    // 현재 한국 시간으로 Date 객체 생성
+    const now = new Date();
+    const koreanTime = new Date(now.setHours(now.getHours() + 9)); // 한국 시간으로 변환 (UTC+9)
+    const year = now.getFullYear();
+    const currentMonth = koreanTime.getMonth() + 1; // 월은 0부터 시작하므로 +1
+    return currentMonth <= 6 ? year + '년 상반기' : year + '년 하반기';
+});
+
+// 로그인한 사용자의 팀명을 기준으로 팀원 필터링 함수
+function filterEmployeesByTeam() {
+    const teamName = authStore.employeeData?.teamName;
+    if (!teamName) return; // teamName이 로드되지 않았을 때 함수 종료
+    console.log('현재 로그인한 사용자의 팀:', teamName);
+
+    // 직원 목록을 팀명 기준으로 필터링하여 filteredEmployees에 저장
+    filteredEmployees.value = employees.value.filter((employee) => employee.teamName === teamName && employee.positionName === '팀원');
 }
 
-// 팀 이름으로 직원 목록 필터링 함수
-function filterEmployeesByTeam() {
-  const teamName = authStore.employeeData.teamName;
-  filteredEmployees.value = employees.value.filter(employee => employee.teamName === teamName && employee.positionName === '팀원');
+// 직원 목록 데이터 가져오기
+async function fetchEmployeeList() {
+    try {
+        const employeesData = await fetchGet('http://localhost:8080/api/v1/employee/employees', router.push, router.currentRoute.value);
+        console.log('가져온 직원 데이터:', employeesData);
+
+        employees.value = employeesData || [];
+        filterEmployeesByTeam(); // 팀에 따라 필터링된 직원 목록 설정
+    } catch (error) {
+        console.error('직원 데이터를 가져오는 중 오류 발생:', error);
+        employees.value = [];
+        filteredEmployees.value = [];
+    }
+}
+
+// 평가 데이터를 가져오는 함수
+async function fetchEvaluationsByEmployeeId() {
+    try {
+        const evaluationData = await fetchGet('http://localhost:8080/api/v1/evaluation-service/evaluations/by-evaluatorId', router.push, router.currentRoute.value);
+        evaluations.value = evaluationData || [];
+    } catch (error) {
+        console.error('평가 데이터를 가져오는 중 오류 발생:', error);
+        evaluations.value = [];
+    }
+}
+
+// DataTable 기본 필터 설정 초기화
+function initFilters() {
+    filters.value = {
+        global: { value: null, matchMode: 'contains' },
+        employeeName: { operator: 'and', constraints: [{ value: null, matchMode: 'startsWith' }] },
+        deptName: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
+        jobName: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
+        teamName: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
+        positionName: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
+        employeeId: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
+        joinDate: { operator: 'and', constraints: [{ value: null, matchMode: 'dateIs' }] }
+    };
+}
+
+// 평가 상태에 따라 조건부로 버튼 렌더링
+function canReevaluate(employeeId) {
+    return evaluations.value.some((evaluation) => evaluation.employeeId === employeeId && evaluation.evaluatorId === authStore.employeeData.employeeId);
 }
 
 // 직원 상세 보기 함수
-function showEmployeeDetails(event) {
-  const employeeId = event.data.employeeId;
-  router.push({ name: 'evaluationDetail', params: { employeeId } });  // 직원 정보를 문자열로 변환하여 전달
+function showEmployeeDetails(data) {
+    router.push({ name: 'evaluationDetail', params: { employeeId: data.employeeId } });
 }
 
-// 날짜 포맷팅 함수
+// 날짜 포맷 함수
 function formatDate(date) {
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
-// 팀 이름이 변경되거나 있을 때 필터링을 다시 적용
-watch(() => authStore.employeeData.teamName, () => {
-  if (employees.value.length > 0) {
-    filterEmployeesByTeam();
-  }
-});
+// 로그인한 사용자의 팀명이 변경될 때마다 직원 목록을 필터링
+watch(
+    () => authStore.employeeData?.teamName,
+    (newTeamName, oldTeamName) => {
+        if (newTeamName && newTeamName !== oldTeamName) {
+            fetchEmployeeList(); // teamName이 변경될 때 직원 목록을 새로 가져옴
+        }
+    },
+    { immediate: true }
+);
 
-// 컴포넌트가 마운트될 때 데이터 가져오기
+// 컴포넌트 마운트 시 데이터 가져오기
 onBeforeMount(() => {
-  fetchEmployeeList();
+    fetchEvaluationsByEmployeeId();
+    initFilters();
 });
-
 </script>
-
 
 <style scoped lang="scss">
 :deep(.p-datatable-frozen-tbody) {
-  font-weight: bold;
-}
-
-.search-container {
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-
-.search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #888;
-}
-
-.search-input {
-  padding-left: 2.5rem;
+    font-weight: bold;
 }
 </style>

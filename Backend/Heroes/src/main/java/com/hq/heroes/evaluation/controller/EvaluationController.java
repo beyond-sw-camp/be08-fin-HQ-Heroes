@@ -64,6 +64,39 @@ public class EvaluationController {
         return new ResponseEntity<>(evaluationDTOs, HttpStatus.OK);
     }
 
+    @GetMapping("/evaluations/by-evaluatorId")
+    @Operation(summary = "팀장 ID로 평가 목록 조회", description = "해당 팀장의 평가 목록을 조회한다.")
+    public ResponseEntity<List<EvaluationResDTO>> getEvaluationsByEvaluatorId() {
+
+        String evaluatorId = "";
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof CustomEmployeeDetails) {
+                CustomEmployeeDetails userDetails = (CustomEmployeeDetails) principal;
+                evaluatorId = userDetails.getUsername();
+                log.info("Authenticated evaluator ID: {}", evaluatorId);  // Log evaluator ID extraction
+            } else {
+                log.warn("Principal is not an instance of CustomEmployeeDetails.");
+            }
+        } else {
+            log.warn("No authenticated user found.");
+        }
+
+        List<Evaluation> evaluations = evaluationService.getEvaluationsByEvaluatorId(evaluatorId);
+        List<EvaluationResDTO> evaluationDTOs = evaluations.stream()
+                .map(Evaluation::toResponseDTO)
+                .collect(Collectors.toList());
+
+        evaluationDTOs.forEach(evaluationDTO ->
+                log.info("Evaluation ID: {}, Evaluator Name: {}", evaluationDTO.getEvaluationId(), evaluationDTO.getEvaluatorName()));
+
+        return new ResponseEntity<>(evaluationDTOs, HttpStatus.OK);
+    }
+
+
+
 
     // 평가 조회 - 테스트
     @GetMapping("/evaluation/{evaluation-id}")
@@ -117,5 +150,25 @@ public class EvaluationController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    // EvaluationController.java
+
+    @GetMapping("/evaluations/existing")
+    @Operation(summary = "기존 평가 기록 조회", description = "특정 사원과 평가자 및 기간으로 평가 기록을 조회합니다.")
+    public ResponseEntity<List<EvaluationResDTO>> getExistingEvaluation(
+            @RequestParam String employeeId,
+            @RequestParam String evaluatorId,
+            @RequestParam String period) {
+
+        // 해당 기간의 평가 기록을 조회하는 서비스 로직 호출
+        List<Evaluation> existingEvaluations = evaluationService.findEvaluationsByEmployeeEvaluatorAndPeriod(employeeId, evaluatorId, period);
+
+        List<EvaluationResDTO> evaluationDTOs = existingEvaluations.stream()
+                .map(Evaluation::toResponseDTO)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(evaluationDTOs, HttpStatus.OK);
+    }
+
 
 }
