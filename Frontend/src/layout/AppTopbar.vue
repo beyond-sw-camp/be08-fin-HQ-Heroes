@@ -460,30 +460,30 @@ const goToSignUp = () => router.push('/signup');
     <Dialog header="알림" v-model:visible="alarmDisplayDialog" modal maximizable :style="{ width: '30vw' }" :breakpoints="{ '1199px': '50vw', '575px': '90vw' }" :closable="false" closeOnEscape :blockScroll="true">
         <template v-if="selectedNotification">
             <div class="notification-details p-4 rounded-lg bg-white shadow">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-start gap-4 mb-3">
                     <!-- 보낸 사람 -->
-                    <div class="notification-item mb-3">
-                        <p class="text-sm text-gray-500 font-medium mb-1">보낸 사람</p>
+                    <div class="notification-item">
+                        <p class="text-sm text-gray-500 font-medium">보낸 사람</p>
                         <p class="text-lg font-semibold text-primary">{{ selectedNotification.senderName }}</p>
                     </div>
 
                     <!-- 카테고리 -->
-                    <div class="notification-item mb-3">
-                        <p class="text-sm text-gray-500 font-medium mb-1">카테고리</p>
+                    <div class="notification-item">
+                        <p class="text-sm text-gray-500 font-medium">카테고리</p>
                         <p class="text-lg">{{ selectedNotification.categoryName }}</p>
                     </div>
 
                     <!-- 보낸 시간 -->
-                    <div class="notification-item mb-3">
-                        <p class="text-sm text-gray-500 font-medium mb-1">보낸 시간</p>
+                    <div class="notification-item">
+                        <p class="text-sm text-gray-500 font-medium">보낸 시간</p>
                         <p class="text-lg">{{ new Date(selectedNotification.createdAt).toLocaleString('ko-KR') }}</p>
                     </div>
                 </div>
 
                 <!-- 내용 -->
                 <div class="notification-item">
-                    <p class="text-sm text-gray-500 font-medium mb-1">내용</p>
-                    <div v-html="selectedNotification.message" class="p-3 bg-gray-50 rounded-md border border-gray-300"></div>
+                    <p class="text-sm text-gray-500 font-medium">내용</p>
+                    <div v-html="selectedNotification.message" class="p-3 bg-gray-50 rounded-md"></div>
                 </div>
             </div>
         </template>
