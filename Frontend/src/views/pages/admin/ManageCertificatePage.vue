@@ -66,7 +66,7 @@ const router = useRouter();
 async function fetchCertifications() {
     try {
         const response = await axios.get('http://localhost:8080/api/v1/certification-service/certification');
-        certifications.value = response.data;
+        certifications.value = response.data.reverse(); // 역순으로 정렬
         filteredCertifications.value = certifications.value;
     } catch (error) {
         console.error("자격증 목록을 불러오지 못했습니다.", error);

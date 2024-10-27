@@ -45,7 +45,6 @@
 
 <script setup>
 import Button from 'primevue/button';
-import Calendar from 'primevue/calendar';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import Dropdown from 'primevue/dropdown';
@@ -111,7 +110,6 @@ async function fetchCategories() {
     try {
         const response = await fetchGet('http://localhost:8080/api/v1/educationCategory-service/categories');
         categories.value = [{ categoryName: '전체' }, ...response];
-        console.log(categories.value);
     } catch (error) {
         console.error('카테고리 목록을 불러오지 못했습니다.', error);
     }
@@ -123,11 +121,10 @@ onBeforeMount(() => {
     fetchCategories();
 });
 
-// 교육 목록 함수 (GET)
 async function fetchEducations() {
     try {
         const response = await fetchGet('http://localhost:8080/api/v1/education-service/education');
-        educations.value = response;
+        educations.value = response.reverse(); // 데이터 역순 정렬
         filteredEducations.value = educations.value;
     } catch (error) {
         console.error('교육 목록을 불러오지 못했습니다.', error);

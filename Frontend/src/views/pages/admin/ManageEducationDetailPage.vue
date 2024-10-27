@@ -108,9 +108,13 @@ onMounted(() => {
 });
 
 // 수정 모드를 활성화하는 함수
-function enableEditMode() {
-    router.push('/write-notice');
-}
+// function enableEditMode() {
+//     router.push('/write-notice');
+// }
+
+const enableEditMode = (educationId) => {
+    router.push({ name: 'education-update', params: { id: educationId } });
+};
 
 // 변경 사항을 저장하는 함수
 const fetchPut = async (url, data) => {
