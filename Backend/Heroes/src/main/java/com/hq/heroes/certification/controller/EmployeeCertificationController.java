@@ -50,7 +50,9 @@ public class EmployeeCertificationController {
         }
 
         List<EmployeeCertification> employeeCertification = employeeCertificationService.getMyCertificationByEmployeeId(employeeId);
-        List<EmployeeCertificationResponseDTO> employeeCertificationResponseDTOs = employeeCertification.stream().map(EmployeeCertification::toECResponseDTO).collect(Collectors.toList());
+        List<EmployeeCertificationResponseDTO> employeeCertificationResponseDTOs = employeeCertification.stream()
+                .map(EmployeeCertification::toECResponseDTO)
+                .collect(Collectors.toList());
 
         return new ResponseEntity<>(employeeCertificationResponseDTOs, HttpStatus.OK);
     }
@@ -61,6 +63,22 @@ public class EmployeeCertificationController {
     public ResponseEntity<EmployeeCertificationResponseDTO> create(@RequestBody EmployeeCertificationRequestDTO requestDTO) {
         EmployeeCertification employeeCertification = employeeCertificationService.createEmployeeCertification(requestDTO);
         return new ResponseEntity<>(employeeCertification.toECResponseDTO(), HttpStatus.CREATED);
+    }
+
+    // 자격증 등록 완료
+    @PostMapping("/complete/{registrationId}")
+    @Operation(summary = "사원 자격증 승인하기", description = "등록 ID로 사원이 신청한 자격증이 등록되도록 한다.")
+    public ResponseEntity<String> completeCertification(@PathVariable Long registrationId) {
+        employeeCertificationService.completeCertification(registrationId);
+        return ResponseEntity.ok("사원 자격증 등록이 완료되었습니다.");
+    }
+
+    // 사원 자격증 목록
+    @GetMapping("/certification-list")
+    @Operation(summary = "등록된 사원 자격증 목록 조회")
+    public ResponseEntity<List<EmployeeCertificationResponseDTO>> getCertificationList() {
+        List<EmployeeCertificationResponseDTO> lists = employeeCertificationService.getAllCertification();
+        return ResponseEntity.ok(lists);
     }
 }
 

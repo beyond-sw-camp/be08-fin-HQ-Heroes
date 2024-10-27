@@ -2,6 +2,8 @@ package com.hq.heroes.certification.entity;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.certification.dto.EmployeeCertificationResponseDTO;
+import com.hq.heroes.certification.entity.enums.EmployeeCertificationStatus;
+import com.hq.heroes.education.entity.enums.CourseStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +22,7 @@ public class EmployeeCertification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "registration_id")
-    private long registrationId;
+    private Long registrationId;
 
     // 자격증 이름
     @Column(name = "certification_name")
@@ -34,6 +36,11 @@ public class EmployeeCertification {
     @Column(name = "acquisition_date")
     private LocalDate acquisitionDate;
 
+    // 상태
+    @Enumerated(EnumType.STRING)
+    @Column(name = "employee_certification_status", nullable = false)
+    private EmployeeCertificationStatus employeeCertificationStatus = EmployeeCertificationStatus.DENIED;
+
     // 사원과 Many-to-One 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
@@ -46,6 +53,8 @@ public class EmployeeCertification {
                 .institution(this.institution)
                 .acquisitionDate(this.acquisitionDate)
                 .employeeId(this.employee.getEmployeeId())
+                .employeeName(this.employee.getEmployeeName())
+                .certificationStatus(this.employeeCertificationStatus)
                 .build();
     }
 }
