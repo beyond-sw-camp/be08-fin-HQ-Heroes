@@ -1,60 +1,62 @@
 <template>
-    <div>
-        <div class="card">
-            <div class="font-semibold text-xl mb-4">교육 / 자격증 관리</div>
-            <DataTable
-                ref="dt"
-                :value="filteredEmployees"
-                dataKey="vacationId"
-                :paginator="true"
-                :rows="10"
-                :filters="filters"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                currentPageReportTemplate=""
-            >
-                <template #header>
-                    <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <div class="flex gap-1">
-                            <Button type="button" label="교육" outlined :class="{ active: selectedEducation === '교육' }" @click="filterByEducation('교육')" />
-                            <Button type="button" label="자격증" outlined :class="{ active: selectedEducation === '자격증' }" @click="filterByEducation('자격증')" />
-                        </div>
-                        <IconField>
-                            <InputIcon>
-                                <i class="pi pi-search" />
-                            </InputIcon>
-                            <InputText 
-                                v-model="filters['global'].value" 
-                                placeholder="검색" 
-                            />
-                        </IconField>
-                    </div>
-                </template>
-
-                <Column field="applicantName" header="이름" sortable style="min-width: 5rem"></Column>
-                <Column field="educationCategory" header="교육 카테고리" sortable style="min-width: 5rem"></Column>
-                <Column field="educationName" header="교육 이름" sortable style="min-width: 5rem"></Column>
-                <Column field="educationStart" header="교육 시작일" sortable style="min-width: 5rem"></Column>
-                <Column field="educationEnd" header="교육 종료일" sortable style="min-width: 5rem"></Column>
-
-                <Column field="status" header="상태" sortable style="min-width: 8rem">
-                    <template #body="slotProps">
-                        <Button label="이수" :disabled="isLoading" @click="approveCourse(slotProps.data.educationId)" class="p-button-success" />
-                    </template>
-                </Column>
-            </DataTable>
-        </div>
-        
-        <Dialog v-model:visible="infoDialog" :style="{ width: '450px' }" header="교육 정보" :modal="true">
-            <div class="flex flex-col gap-4">
-                <div v-for="(value, key) in selectedEmployee" :key="key">
-                    <label :for="key" class="block font-bold mb-2">{{ formatLabel(key) }}</label>
-                    <p :id="key">{{ value }}</p>
-                </div>
+    <div class="card">
+        <h4 class="m-0 title mb-4">교육/자격증 승인 관리</h4>
+        <div class="flex flex-wrap gap-2 items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <Button label="교육" class="p-button-outlined" @click="loadEducationRequests" />
+                <Button label="자격증" class="p-button-outlined" @click="loadCertificationRequests" />
             </div>
-            <template #footer>
-                <Button label="닫기" icon="pi pi-times" class="close-button" @click="infoDialog = false" />
-            </template>
-        </Dialog>
+            <div class="flex items-center search-input-container">
+                <i class="pi pi-search search-icon" />
+                <InputText v-model="filters['global'].value" placeholder="검색" class="search-input" />
+            </div>
+        </div>
+
+        <DataTable
+            ref="dt"
+            :value="filteredRequests"
+            dataKey="requestId"
+            :paginator="true"
+            :rows="10"
+            :filters="filters"
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+            currentPageReportTemplate=""
+        >
+            <!-- 교육 컬럼 -->
+            <Column v-if="showEducation" field="categoryName" header="카테고리" sortable style="min-width: 5rem"></Column>
+            <Column v-if="showEducation" field="educationName" header="교육 이름" sortable style="min-width: 5rem"></Column>
+            <Column v-if="showEducation" field="educationStart" header="시작일" sortable style="min-width: 5rem"></Column>
+            <Column v-if="showEducation" field="educationEnd" header="종료일" sortable style="min-width: 5rem"></Column>
+            <Column v-if="showEducation" field="employeeName" header="신청자" sortable style="min-width: 5rem"></Column>
+
+            <!-- 자격증 컬럼 -->
+            <Column v-if="!showEducation" field="certificationName" header="자격증 이름" sortable style="min-width: 5rem"></Column>
+            <Column v-if="!showEducation" field="institution" header="발급기관" sortable style="min-width: 5rem"></Column>
+            <Column v-if="!showEducation" field="acquisitionDate" header="취득일" sortable style="min-width: 5rem"></Column>
+            <Column v-if="!showEducation" field="employeeName" header="신청자" sortable style="min-width: 5rem"></Column>
+
+            <!-- 승인/반려 버튼 -->
+            <Column v-if="showEducation" field="courseStatus" header="이수 상태" sortable style="min-width: 5rem">
+                <template #body="slotProps">
+                    <Button 
+                        label="이수" 
+                        :disabled="isLoading || slotProps.data.courseStatus === '이수'" 
+                        @click="completeCourse(slotProps.data)" 
+                        class="p-button-info" 
+                    />
+                </template>
+            </Column>
+            <Column v-if="!showEducation" field="courseStatus" header="이수 상태" sortable style="min-width: 5rem">
+                <template #body="slotProps">
+                    <Button 
+                        label="승인" 
+                        :disabled="isLoading || slotProps.data.courseStatus === '이수'" 
+                        @click="completeCourse(slotProps.data)" 
+                        class="p-button-info" 
+                    />
+                </template>
+            </Column>
+        </DataTable>
     </div>
 </template>
 
@@ -63,75 +65,77 @@ import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref } from 'vue';
 import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
 
-const employees = ref([]);
+const requests = ref([]);
 const filters = ref({ global: { value: null } });
-const selectedEmployee = ref({});
-const infoDialog = ref(false);
-const toast = useToast();
 const isLoading = ref(false);
-const selectedEducation = ref(null);
+const toast = useToast();
+const showEducation = ref(true); // 상태를 구분하기 위한 ref
 
-// 대기중인 휴가 상태만 필터링한 직원 목록
-const filteredEmployees = computed(() => {
-    const result = employees.value.filter((emp) => emp.status === '미이수');
-    console.log('필터링된 직원 목록:', result); // 필터링된 직원 목록 로그
-    return result;
+const filteredRequests = computed(() => {
+    // '이수' 상태인 요청은 항상 제외
+    return requests.value.filter(request => request.courseStatus !== '이수');
 });
 
-onMounted(async () => {
+const loadEducationRequests = async () => {
+    showEducation.value = true; // 교육 요청 표시
     try {
-        const roleResponse = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
-        const loggedInEmployeeName = roleResponse.employeeName;
-
-        // 교육 목록 불러오기
         const response = await fetchGet('http://localhost:8080/api/v1/course-service/list');
-        console.log('로딩된 교육 목록:', response);
-
-        // approverName이 로그인한 사용자의 이름과 일치하는 항목만 필터링
-        employees.value = response
-            .filter((record) => record.approverName === loggedInEmployeeName)
-            .map((record) => ({
-                educationId: record.educationId,
-                applicantName: record.applicantName,
-                educationType: mapVacationType(record.educationType),
-                educationStart: new Date(record.educationStart).toLocaleDateString(),
-                educationEnd: new Date(record.educationEnd).toLocaleDateString(),
-                status: mapStatus(record.status),
-            }));
-
-        console.log('각 직원의 상태:', employees.value.map(emp => ({ educationId: emp.educationId, status: emp.status })));
-
-        console.log('최종 직원 목록:', employees.value);
+        requests.value = response.map((record) => ({
+            courseId: record.courseId,
+            educationName: record.educationName,
+            categoryName: record.categoryName,
+            educationStart: record.startDate.split('T')[0],
+            educationEnd: record.endDate.split('T')[0],
+            employeeName: record.employeeName,
+            courseStatus: mapStatus(record.courseStatus)
+        })).reverse(); // 역순으로 설정
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.' });
-        console.error('데이터 로딩 에러:', error);
     }
+};
+
+const loadCertificationRequests = async () => {
+    showEducation.value = false; // 자격증 요청 표시
+    try {
+        const response = await fetchGet("http://localhost:8080/api/v1/employee-certification/certification-list");
+        requests.value = response.map((record) => ({
+            registrationId: record.registrationId,
+            certificationName: record.certificationName,
+            institution: record.institution,
+            acquisitionDate: record.acquisitionDate,
+            employeeName: record.employeeName // 신청자 이름 추가
+        })).reverse(); // 역순으로 설정
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.'});
+    }
+};
+
+onMounted(() => {
+    loadEducationRequests(); // 초기 로드 시 교육 요청 불러오기
 });
 
-async function approveCourse(courseId) {
+const completeCourse = async (request) => {
     if (isLoading.value) return;
     isLoading.value = true;
-
     try {
-        await fetchPost(`http://localhost:8080/api/v1/course-service/complete/${courseId}`);
-        employees.value = employees.value.map((emp) => (emp.educationId === courseId ? { ...emp, status: '승인됨' } : emp));
-        toast.add({ severity: 'success', summary: 'Success', detail: '휴가가 승인되었습니다.' });
-        window.location.reload();
+        const url = `http://localhost:8080/api/v1/course-service/complete/${request.courseId}`;
+        await fetchPost(url);
+        request.courseStatus = '이수'; // 상태 변경
+        toast.add({ severity: 'success', summary: 'Success', detail: '교육이 이수되었습니다.' });
+        requests.value = requests.value.filter(req => req.courseId !== request.courseId); // 목록에서 제외
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Error', detail: '휴가 승인 실패.' });
-        console.error('휴가 승인 에러:', error); // 휴가 승인 에러 로그
+        toast.add({ severity: 'error', summary: 'Error', detail: '교육 이수 처리 실패' });
     } finally {
         isLoading.value = false;
     }
-}
+};
 
-// 휴가 상태를 한국어로 매핑하는 함수
 function mapStatus(status) {
     switch (status) {
-        case 'FAIL':
-            return '미이수';
         case 'PASS':
             return '이수';
+        case 'FAIL':
+            return '미이수';
         default:
             return '알 수 없음';
     }
@@ -140,20 +144,22 @@ function mapStatus(status) {
 
 <style scoped>
 .title {
-    font-size: 1.5rem;
+    font-size: 24px;
     font-weight: bold;
+    margin-bottom: 20px;
 }
 
-.card {
-    padding: 2rem;
-    margin: 2rem 0;
-    background-color: #fff;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+.search-input-container {
+    position: relative;
 }
 
-.close-button {
-    background-color: var(--primary-color);
-    border: none;
-    color: white;
+.search-icon {
+    position: absolute;
+    left: 8px;
+    color: #aaa;
+}
+
+.search-input {
+    padding-left: 24px; /* 아이콘과 겹치지 않도록 여백 추가 */
 }
 </style>

@@ -24,9 +24,6 @@
         >
             <template #header>
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <Dropdown v-model="selectedInstitution" :options="institutions" optionLabel="name" placeholder="발급기관을 선택하세요" @change="filterCertifications" class="mr-2" />
-                    </div>
                     <div class="relative search-container ml-auto">
                         <i class="pi pi-search search-icon" />
                         <InputText v-model="globalFilter" placeholder="Keyword Search" class="pl-8 search-input" />
