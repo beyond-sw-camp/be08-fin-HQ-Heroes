@@ -39,18 +39,11 @@
                 </Column>
                 <Column field="categoryName" header="카테고리" :sortable="true" sortField="category" />
                 <Column field="title" header="제목" sortable />
-                <Column field="content" header="내용" :style="{ width: '40%' }" sortable>
-                    <template #body="slotProps">
-                        <!-- 내용이 100자 초과 시 잘라내고 '...' 추가 -->
-                        <span v-if="slotProps.data.content.length > 100" v-html="slotProps.data.content.slice(0, 100)"></span>
-                        <span v-else v-html="slotProps.data.content"></span>
-                    </template>
-                </Column>
                 <Column field="employeeName" header="작성자" sortable />
 
-                <Column v-if="isAdmin()">
+                <Column v-if="isAdmin()" field="action" header="수정 / 삭제">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click="goToNoticeUpdate(slotProps.data.noticeId)" />
+                        <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click.stop="goToNoticeUpdate(slotProps.data.noticeId)" />
                         <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" />
                     </template>
                 </Column>
@@ -69,7 +62,6 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
-import axios from 'axios';
 import { format } from 'date-fns';
 import Button from 'primevue/button';
 import Column from 'primevue/column';
@@ -106,22 +98,32 @@ const isAdmin = () => {
 // 공지사항 데이터 필터링
 const filterNotices = () => {
     filteredNotices.value = notices.value.filter((notice) => {
-        const matchesCategory = !selectedCategory.value || selectedCategory.value.code === '전체' || notice.categoryId === selectedCategory.value.id; // category_id 기준
+        const matchesCategory =
+            !selectedCategory.value || 
+            selectedCategory.value.categoryName === '전체' || // 기본 '전체' 처리
+            notice.categoryId === selectedCategory.value.categoryId;
 
-        const matchesGlobalFilter = notice.title.includes(globalFilter.value) || notice.employeeName.includes(globalFilter.value);
+        const matchesGlobalFilter =
+            notice.title.includes(globalFilter.value) || 
+            notice.employeeName.includes(globalFilter.value);
 
         return matchesCategory && matchesGlobalFilter;
     });
 };
 
-// 공지사항 목록
+// 페이지 마운트 시 데이터 초기화
 onMounted(async () => {
     try {
         notices.value = await fetchNotices();
-        categories.value = await fetchCategories(); // 카테고리 데이터 가져오기
-        filterNotices();
+        const fetchedCategories = await fetchCategories(); // 카테고리 데이터 가져오기
+
+        // '전체' 카테고리 추가 및 기본 선택
+        categories.value = [{ id: null, categoryName: '전체' }, ...fetchedCategories];
+        selectedCategory.value = categories.value[0]; // 기본값을 '전체'로 설정
+
+        filterNotices(); // 필터링 수행
     } catch (error) {
-        console.error('Error fetching notices:', error);
+        console.error('Error fetching notices or categories:', error);
     }
 });
 
@@ -207,5 +209,15 @@ onBeforeUnmount(() => {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.p-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.p-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 </style>
