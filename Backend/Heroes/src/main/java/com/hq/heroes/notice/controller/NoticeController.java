@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "http://localhost:5173") // 없애기
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/notice-service")
