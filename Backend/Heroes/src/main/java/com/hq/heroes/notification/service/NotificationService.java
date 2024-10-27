@@ -2,9 +2,11 @@ package com.hq.heroes.notification.service;
 
 import com.hq.heroes.notification.dto.NotificationReqDTO;
 import com.hq.heroes.notification.entity.Notification;
+import com.hq.heroes.notification.entity.enums.AutoNotificationType;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 public interface NotificationService {
 
@@ -28,4 +30,8 @@ public interface NotificationService {
 
     @Transactional
     boolean deleteNotification(Long notificationId, String employeeId);
+
+    @Transactional
+    void sendAutomaticNotification(AutoNotificationType type, Map<String, Object> params, Object data);
+
 }
