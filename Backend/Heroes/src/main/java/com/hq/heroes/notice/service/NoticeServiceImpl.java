@@ -26,7 +26,7 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public List<Notice> getNotices() {
-        return noticeRepository.findAll();
+        return noticeRepository.findAllByOrderByCreatedAtDesc();
     }
 
     @Override
