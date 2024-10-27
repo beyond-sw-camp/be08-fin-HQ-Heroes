@@ -160,17 +160,31 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationCategory notificationCategory = notificationCategoryRepository.findByNotificationCategoryName(category)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다: " + category));
 
-        message = switch (notificationType) {
-            case VACATION_APPLICATION ->
-                    "<html><body><p>" + receiver.getEmployeeName() + "님의 휴가 승인 요청이 있습니다.</p></body></html>";
-            case VACATION_APPROVAL -> "<html><body><p>휴가가 승인되었습니다.</p></body></html>";
-            case VACATION_REJECTION -> "<html><body><p>휴가가 반려되었습니다.</p></body></html>";
-            case PAYROLL_GENERATION -> "<html><body><p>급여가 생성되었습니다.</p></body></html>";
-            case EDUCATION_ENROLL -> "<html><body><p>새로운 교육이 등록되었습니다.</p></body></html>";
-            case EDUCATION_APPROVAL -> "<html><body><p>교육이 접수되었습니다.</p></body></html>";
-            case CERTIFICATION_APPROVAL -> "<html><body><p>자격증이 등록되었습니다.</p></body></html>";
-            default -> throw new IllegalArgumentException("알 수 없는 알림 타입입니다: " + notificationType);
-        };
+        // 근태 카테고리인 경우에만 휴가 관련 데이터 처리
+        if ("근태".equals(category) && data instanceof Vacation) {
+            Vacation vacation = (Vacation) data;
+            String startDate = vacation.getVacationStartDate().toString();
+            String endDate = vacation.getVacationEndDate().toString();
+
+            message = switch (notificationType) {
+                case VACATION_APPLICATION ->
+                        "<html><body><p>" + vacation.getApplicant().getEmployeeName() + "님의 휴가 승인 요청이 있습니다. (" + startDate + " ~ " + endDate + ")</p></body></html>";
+                case VACATION_APPROVAL ->
+                        "<html><body><p>" + vacation.getApplicant().getEmployeeName() + "님의 휴가가 승인되었습니다(" + startDate + " ~ " + endDate + ")</p></body></html>";
+                case VACATION_REJECTION ->
+                        "<html><body><p>" + vacation.getApplicant().getEmployeeName() + "님의 휴가가 반려되었습니다(" + startDate + " ~ " + endDate + ")</p></body></html>";
+                default -> throw new IllegalArgumentException("알 수 없는 근태 알림 타입입니다: " + notificationType);
+            };
+        } else {
+            // 근태 외 카테고리의 기본 메시지 처리
+            message = switch (notificationType) {
+                case PAYROLL_GENERATION -> "<html><body><p>급여가 생성되었습니다.</p></body></html>";
+                case EDUCATION_ENROLL -> "<html><body><p>새로운 교육이 등록되었습니다.</p></body></html>";
+                case EDUCATION_APPROVAL -> "<html><body><p>교육이 접수되었습니다.</p></body></html>";
+                case CERTIFICATION_APPROVAL -> "<html><body><p>자격증이 등록되었습니다.</p></body></html>";
+                default -> throw new IllegalArgumentException("알 수 없는 알림 타입입니다: " + notificationType);
+            };
+        }
 
         // 알림 생성
         Notification notification = Notification.builder()

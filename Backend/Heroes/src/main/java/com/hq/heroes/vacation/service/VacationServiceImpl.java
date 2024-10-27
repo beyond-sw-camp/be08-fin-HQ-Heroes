@@ -20,7 +20,7 @@ public class VacationServiceImpl implements VacationService {
     private final EmployeeRepository employeeRepository;
 
     @Override
-    public void submitVacation(VacationDTO vacationDTO) {
+    public Vacation submitVacation(VacationDTO vacationDTO) {
 
         System.out.println("============================");
         System.out.println("Employee ID: " + vacationDTO.getEmployeeId());
@@ -64,7 +64,7 @@ public class VacationServiceImpl implements VacationService {
                 .vacationStatus(VacationStatus.PENDING)
                 .build();
 
-        vacationRepository.save(vacation);
+        return vacationRepository.save(vacation);
     }
 
     public void approveVacation(Long vacationId) {

@@ -41,13 +41,13 @@ public class VacationController {
             }
 
             // 휴가 신청 처리
-            vacationService.submitVacation(vacationDTO);
+            Vacation vacation = vacationService.submitVacation(vacationDTO);
 
+            System.out.println("vacation.toString() = " + vacation.toString());
             // 자동 알림 발송
             Map<String, Object> params = new HashMap<>();
-            params.put("receiverId", vacationDTO.getApproverId()); // 승인자 ID
-            Optional<Vacation> vacation = vacationRepository.findById(vacationDTO.getVacationId());
-            notificationService.sendAutomaticNotification(AutoNotificationType.VACATION_APPLICATION, params, vacation.get());
+            params.put("receiverId", vacation.getApprover().getEmployeeId()); // 승인자 ID
+            notificationService.sendAutomaticNotification(AutoNotificationType.VACATION_APPLICATION, params, vacation);
 
             return ResponseEntity.ok("휴가 신청이 성공적으로 제출되었습니다.");
         } catch (IllegalArgumentException e) {
