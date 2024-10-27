@@ -5,14 +5,18 @@ import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.notification.dto.NotificationReqDTO;
 import com.hq.heroes.notification.entity.Notification;
 import com.hq.heroes.notification.entity.NotificationCategory;
+import com.hq.heroes.notification.entity.enums.AutoNotificationType;
 import com.hq.heroes.notification.entity.enums.NotificationStatus;
 import com.hq.heroes.notification.repository.NotificationCategoryRepository;
 import com.hq.heroes.notification.repository.NotificationRepository;
+import com.hq.heroes.vacation.entity.Vacation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -136,5 +140,50 @@ public class NotificationServiceImpl implements NotificationService {
 
         return true;
     }
+
+    @Override
+    @Transactional
+    public void sendAutomaticNotification(AutoNotificationType notificationType, Map<String, Object> params, Object data) {
+        // 알림 타입에서 카테고리와 메시지를 가져오기
+        String category = notificationType.getCategory();
+        String message;
+
+        // 수신자 및 발신자 ID를 파라미터로 받아 사용
+        String receiverId = (String) params.get("receiverId");
+
+        // 0000 = 시스템 아이디
+        Employee sender = employeeRepository.findById("0000")
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 발신자 ID입니다."));
+        Employee receiver = employeeRepository.findById(receiverId)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 수신자 ID입니다."));
+
+        NotificationCategory notificationCategory = notificationCategoryRepository.findByNotificationCategoryName(category)
+                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다: " + category));
+
+        message = switch (notificationType) {
+            case VACATION_APPLICATION ->
+                    "<html><body><p>" + receiver.getEmployeeName() + "님의 휴가 승인 요청이 있습니다.</p></body></html>";
+            case VACATION_APPROVAL -> "<html><body><p>휴가가 승인되었습니다.</p></body></html>";
+            case VACATION_REJECTION -> "<html><body><p>휴가가 반려되었습니다.</p></body></html>";
+            case PAYROLL_GENERATION -> "<html><body><p>급여가 생성되었습니다.</p></body></html>";
+            case EDUCATION_ENROLL -> "<html><body><p>새로운 교육이 등록되었습니다.</p></body></html>";
+            case EDUCATION_APPROVAL -> "<html><body><p>교육이 접수되었습니다.</p></body></html>";
+            case CERTIFICATION_APPROVAL -> "<html><body><p>자격증이 등록되었습니다.</p></body></html>";
+            default -> throw new IllegalArgumentException("알 수 없는 알림 타입입니다: " + notificationType);
+        };
+
+        // 알림 생성
+        Notification notification = Notification.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .category(notificationCategory)
+                .message(message)
+                .status(NotificationStatus.UNREAD)
+                .sendDelete(true)  // 자동 알림이므로 sendDelete 설정
+                .build();
+
+        notificationRepository.save(notification);
+    }
+
 
 }

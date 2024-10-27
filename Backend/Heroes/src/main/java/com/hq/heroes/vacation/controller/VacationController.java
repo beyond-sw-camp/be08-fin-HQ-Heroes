@@ -2,7 +2,11 @@ package com.hq.heroes.vacation.controller;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import com.hq.heroes.notification.entity.enums.AutoNotificationType;
+import com.hq.heroes.notification.service.NotificationService;
 import com.hq.heroes.vacation.dto.VacationDTO;
+import com.hq.heroes.vacation.entity.Vacation;
+import com.hq.heroes.vacation.repository.VacationRepository;
 import com.hq.heroes.vacation.service.VacationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +15,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/vacation")
@@ -20,7 +27,10 @@ public class VacationController {
 
     private final VacationService vacationService;
     private final EmployeeRepository employeeRepository;
+    private final NotificationService notificationService;  // NotificationService 주입
+    private final VacationRepository vacationRepository;
 
+    // 휴가 신청
     @PostMapping("/submit")
     public ResponseEntity<String> submitVacation(@RequestBody VacationDTO vacationDTO) {
         try {
@@ -29,7 +39,16 @@ public class VacationController {
                     vacationDTO.getVacationStartTime() == null || vacationDTO.getVacationEndTime() == null) {
                 return ResponseEntity.badRequest().body("필수 정보가 누락되었습니다.");
             }
+
+            // 휴가 신청 처리
             vacationService.submitVacation(vacationDTO);
+
+            // 자동 알림 발송
+            Map<String, Object> params = new HashMap<>();
+            params.put("receiverId", vacationDTO.getApproverId()); // 승인자 ID
+            Optional<Vacation> vacation = vacationRepository.findById(vacationDTO.getVacationId());
+            notificationService.sendAutomaticNotification(AutoNotificationType.VACATION_APPLICATION, params, vacation.get());
+
             return ResponseEntity.ok("휴가 신청이 성공적으로 제출되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(409).body(e.getMessage());
@@ -43,6 +62,13 @@ public class VacationController {
     public ResponseEntity<String> approveVacation(@PathVariable Long vacationId) {
         try {
             vacationService.approveVacation(vacationId);
+
+            // 자동 알림 발송
+            Optional<Vacation> vacation = vacationRepository.findById(vacationId);
+            Map<String, Object> params = new HashMap<>();
+            params.put("receiverId", vacation.get().getApplicant().getEmployeeId()); // 신청자 ID
+            notificationService.sendAutomaticNotification(AutoNotificationType.VACATION_APPROVAL, params, vacation.get());
+
             return ResponseEntity.ok("휴가가 성공적으로 승인되었습니다.");
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body("해당 휴가를 찾을 수 없습니다.");
@@ -54,6 +80,13 @@ public class VacationController {
     public ResponseEntity<String> rejectVacation(@PathVariable Long vacationId) {
         try {
             vacationService.rejectVacation(vacationId);
+
+            // 자동 알림 발송
+            Optional<Vacation> vacation = vacationRepository.findById(vacationId);
+            Map<String, Object> params = new HashMap<>();
+            params.put("receiverId", vacation.get().getApplicant().getEmployeeId()); // 신청자 ID
+            notificationService.sendAutomaticNotification(AutoNotificationType.VACATION_REJECTION, params, vacation.get());
+
             return ResponseEntity.ok("휴가가 성공적으로 거절되었습니다.");
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body("해당 휴가를 찾을 수 없습니다.");
@@ -71,17 +104,14 @@ public class VacationController {
     @GetMapping("/username")
     @Operation(summary = "로그인된 사용자 이름 조회")
     public ResponseEntity<String> getLoggedInUser() {
-        // SecurityContextHolder를 사용하여 현재 로그인한 사용자 정보 가져오기
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = "";
 
         if (principal instanceof UserDetails) {
-            // UserDetails에서 사용자 ID (employeeId) 가져오기
-            String employeeId = ((UserDetails) principal).getUsername(); // ID를 사용자 ID로 설정
-            // employeeId를 통해 Employee 엔티티에서 사용자 이름 가져오기
+            String employeeId = ((UserDetails) principal).getUsername();
             Employee employee = employeeRepository.findByEmployeeId(employeeId)
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-            username = employee.getEmployeeName(); // 이름을 가져옴
+            username = employee.getEmployeeName();
         } else {
             username = principal.toString();
         }
@@ -93,17 +123,14 @@ public class VacationController {
     @GetMapping("/my-vacations")
     @Operation(summary = "로그인된 사용자의 승인된 휴가 내역 조회")
     public ResponseEntity<List<VacationDTO>> getMyApprovedVacations() {
-        // SecurityContextHolder에서 로그인된 사용자의 정보 가져오기
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String employeeId = "";
 
         if (principal instanceof UserDetails) {
-            employeeId = ((UserDetails) principal).getUsername(); // employeeId 추출
+            employeeId = ((UserDetails) principal).getUsername();
         }
 
-        // 해당 사용자(employeeId)의 승인된 휴가 목록 조회
         List<VacationDTO> approvedVacations = vacationService.getApprovedVacationsByEmployeeId(employeeId);
-
         return ResponseEntity.ok(approvedVacations);
     }
 }
