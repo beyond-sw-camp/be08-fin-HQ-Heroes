@@ -175,9 +175,6 @@ const closeDeleteConfirmDialog = () => {
 const showWriteNoticePage = () => {
     // this.categories가 정의되어 있는지 확인
     if (categories.value) {
-        // 카테고리를 로컬 스토리지에 저장
-        localStorage.setItem('noticeCategories', JSON.stringify(categories.value));
-
         // 쿼리 문자열 없이 '/write-notice'로 이동
         router.replace({ path: '/write-notice', query: { fromPage: 'notice' } });
     } else {

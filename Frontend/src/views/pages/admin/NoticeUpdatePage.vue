@@ -35,190 +35,184 @@
     </div>
 </template>
 
-<script>
-import router from '@/router';
+<script setup>
+import { ref, onMounted, nextTick } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import Swal from 'sweetalert2';
-import { nextTick, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import { fetchPost } from '../auth/service/AuthApiService';
-import { fetchNoticeById, updateNotice  } from './service/adminNoticeService';
+import { fetchNoticeById, updateNotice } from './service/adminNoticeService';
+import { fetchCategories } from './service/adminNoticeCategoryService';
+const route = useRoute();
+const router = useRouter();
 
-export default {
-    setup() {
-        const route = useRoute();
-        const editableNotice = ref({
-            title: '',
-            employeeId: '',
-            categoryId: '',
-            content: ''
-        });
-        const categories = ref([]);
-        const editor = ref(null);
-        let quillEditor = null;
+const editableNotice = ref({
+    title: '',
+    employeeId: '',
+    categoryId: '',
+    content: ''
+});
+const categories = ref([]);
 
-        const loadNotice = async () => {
-            const noticeId = route.params.id;
-            try {
-                const result = await fetchNoticeById(noticeId);
-                editableNotice.value = { ...result };
-            } catch (error) {
-                console.error('공지사항 조회 오류:', error);
-            }
-        };
+const editor = ref(null);
+let quillEditor = null;
 
-        const initializeEditor = async () => {
-            await nextTick();
-
-            if (editor.value) {
-                quillEditor = new Quill(editor.value, {
-                    theme: 'snow',
-                    modules: {
-                    toolbar: {
-                        container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
-                        handlers: {
-                            image: imageHandler // 이미지 핸들러 추가
-                        }
-                    }
-                }
-                });
-
-                quillEditor.enable(true);
-
-                if (editableNotice.value.content) {
-                    quillEditor.root.innerHTML = editableNotice.value.content;
-                }
-
-                quillEditor.on('text-change', () => {
-                    editableNotice.value.content = quillEditor.root.innerHTML;
-                });
-            }
-        };
-
-        onMounted(async () => {
-            await loadNotice();
-            await initializeEditor();
-            loadCategoriesFromStorage();
-        });
-
-        const imageHandler = () => {
-            const input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', 'image/*');
-            input.click();
-
-            input.onchange = async () => {
-                const file = input.files[0];
-                const resizedImage = await resizeImage(file, 700, 700);
-
-                const formData = new FormData();
-                formData.append('file', resizedImage);
-
-                try {
-                    const response = await fetch('http://localhost:8080/api/v1/upload-image', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await response.json();
-                    const imageUrl = data.imageUrl;
-
-                    if (quillEditor) {
-                        const range = quillEditor.getSelection();
-                        quillEditor.insertEmbed(range.index, 'image', imageUrl);
-                    }
-                } catch (error) {
-                    console.error('Image upload failed:', error);
-                }
-            };
-        };
-
-        const resizeImage = (file, maxWidth, maxHeight) => {
-            return new Promise((resolve) => {
-                const img = new Image();
-                const reader = new FileReader();
-
-                reader.onload = (event) => {
-                    img.src = event.target.result;
-                };
-
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height *= maxWidth / width;
-                            width = maxWidth;
-                        }
-                    } else {
-                        if (height > maxHeight) {
-                            width *= maxHeight / height;
-                            height = maxHeight;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    canvas.toBlob((blob) => {
-                        resolve(new File([blob], file.name, { type: file.type }));
-                    }, file.type);
-                };
-
-                reader.readAsDataURL(file);
-            });
-        };
-
-        const loadCategoriesFromStorage = () => {
-            const storedCategories = JSON.parse(localStorage.getItem('noticeCategories')) || [];
-            categories.value = storedCategories;
-        };
-
-        const updateNoticeContent = async () => {
-            try {
-                const requestBody = {
-                    title: editableNotice.value.title,
-                    content: quillEditor.root.innerHTML,
-                    employeeId: editableNotice.value.employeeId,
-                    categoryId: editableNotice.value.categoryId
-                };
-
-                const result = await updateNotice(route.params.id, requestBody);
-
-                if (result) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '공지사항 수정 완료',
-                        text: '공지사항이 성공적으로 수정되었습니다.',
-                        confirmButtonText: '확인'
-                    }).then(() => {
-                        router.push({ path: '/manage-notices' });
-                    });
-                }
-            } catch (error) {
-                console.error('공지사항 수정 중 오류 발생:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: '오류 발생',
-                    text: '공지사항 수정 중 오류가 발생했습니다. 다시 시도해주세요.',
-                    confirmButtonText: '확인'
-                });
-            }
-        };
-
-        const cancelEdit = () => {
-            router.push({ path: '/manage-notices' });
-        };
-
-        return { editableNotice, categories, editor, updateNoticeContent, cancelEdit, updateNotice: updateNoticeContent };
+const loadNotice = async () => {
+    const noticeId = route.params.id;
+    console.log(noticeId);
+    try {
+        const result = await fetchNoticeById(noticeId);
+        editableNotice.value = { ...result };
+    } catch (error) {
+        console.error('공지사항 조회 오류:', error);
     }
 };
-</script>
 
+const initializeEditor = async () => {
+    await nextTick();
+
+    if (editor.value) {
+        quillEditor = new Quill(editor.value, {
+            theme: 'snow',
+            modules: {
+                toolbar: {
+                    container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
+                    handlers: {
+                        image: imageHandler
+                    }
+                }
+            }
+        });
+
+        quillEditor.enable(true);
+
+        if (editableNotice.value.content) {
+            quillEditor.root.innerHTML = editableNotice.value.content;
+        }
+
+        quillEditor.on('text-change', () => {
+            editableNotice.value.content = quillEditor.root.innerHTML;
+        });
+    }
+};
+
+const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+        const file = input.files[0];
+        const resizedImage = await resizeImage(file, 700, 700);
+
+        const formData = new FormData();
+        formData.append('file', resizedImage);
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            const imageUrl = data.imageUrl;
+
+            if (quillEditor) {
+                const range = quillEditor.getSelection();
+                quillEditor.insertEmbed(range.index, 'image', imageUrl);
+            }
+        } catch (error) {
+            console.error('이미지 업로드 실패:', error);
+        }
+    };
+};
+
+const resizeImage = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve) => {
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            img.src = event.target.result;
+        };
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+                resolve(new File([blob], file.name, { type: file.type }));
+            }, file.type);
+        };
+
+        reader.readAsDataURL(file);
+    });
+};
+
+const updateNoticeContent = async () => {
+    try {
+        const requestBody = {
+            title: editableNotice.value.title,
+            content: quillEditor.root.innerHTML,
+            employeeId: editableNotice.value.employeeId,
+            categoryId: editableNotice.value.categoryId
+        };
+
+        const result = await updateNotice(route.params.id, requestBody);
+
+        if (result) {
+            Swal.fire({
+                icon: 'success',
+                title: '공지사항 수정 완료',
+                text: '공지사항이 성공적으로 수정되었습니다.',
+                confirmButtonText: '확인'
+            }).then(() => {
+                router.push({ path: '/manage-notices' });
+            });
+        }
+    } catch (error) {
+        console.error('공지사항 수정 중 오류 발생:', error);
+        Swal.fire({
+            icon: 'error',
+            title: '오류 발생',
+            text: '공지사항 수정 중 오류가 발생했습니다. 다시 시도해주세요.',
+            confirmButtonText: '확인'
+        });
+    }
+};
+
+const cancelEdit = () => {
+    router.push({ path: '/manage-notices' });
+};
+
+onMounted(async () => {
+
+    const fetchedCategories = await fetchCategories(); // 카테고리 데이터 가져오기
+    categories.value = [{ id: null, categoryName: '전체' }, ...fetchedCategories];
+
+    await loadNotice();
+    await initializeEditor();
+    loadCategoriesFromStorage();
+});
+</script>
 
 <style scoped>
 .notice-detail-page {
@@ -260,15 +254,7 @@ export default {
 }
 
 .message-editor.edit-mode {
-    height: 600px; /* 수정 모드일 때 높이를 600px로 설정 */
-}
-
-.message-content {
-    min-height: 300px;
-    padding: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    word-wrap: break-word;
+    height: 600px;
 }
 
 .button-group {
@@ -279,7 +265,7 @@ export default {
 }
 
 .quill-editor-disabled {
-    pointer-events: none; /* 퀼 에디터를 비활성화하여 클릭을 무시함 */
-    opacity: 0.5; /* 비활성화된 상태에서 약간의 불투명도를 추가 */
+    pointer-events: none;
+    opacity: 0.5;
 }
 </style>
