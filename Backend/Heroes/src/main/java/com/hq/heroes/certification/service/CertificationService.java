@@ -21,5 +21,4 @@ public interface CertificationService {
 
     //- 테스트
     boolean deleteCertification(Long certificationId);
-
 }

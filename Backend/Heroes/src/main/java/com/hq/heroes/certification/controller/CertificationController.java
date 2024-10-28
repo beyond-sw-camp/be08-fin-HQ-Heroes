@@ -37,7 +37,7 @@ public class CertificationController {
     }
 
     // 자격증 상세 조회 - 테스트
-    @GetMapping("certification/{certification-id}")
+    @GetMapping("/certification/{certification-id}")
     @Operation(summary = "자격증 상세 조회", description = "자격증 ID로 해당 자격증의 정보를 조회한다.")
     public ResponseEntity<CertificationResponseDTO> getCertificationById(
             @Parameter(description = "자격증 ID", example = "1")

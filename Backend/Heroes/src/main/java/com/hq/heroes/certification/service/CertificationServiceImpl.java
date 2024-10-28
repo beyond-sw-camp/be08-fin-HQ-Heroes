@@ -45,9 +45,6 @@ public class CertificationServiceImpl implements CertificationService {
                 .certificationName(requestDTO.getCertificationName())
                 .institution(requestDTO.getInstitution())
                 .benefit(requestDTO.getBenefit())
-                .applicationStartDate(requestDTO.getApplicationStartDate())
-                .applicationEndDate(requestDTO.getApplicationEndDate())
-                .examDate(requestDTO.getExamDate())
                 .department(department)
                 .build();
 
@@ -63,9 +60,6 @@ public class CertificationServiceImpl implements CertificationService {
         certification.setCertificationName(requestDTO.getCertificationName());
         certification.setInstitution(requestDTO.getInstitution());
         certification.setBenefit(requestDTO.getBenefit());
-        certification.setApplicationStartDate(requestDTO.getApplicationStartDate());
-        certification.setApplicationEndDate(requestDTO.getApplicationEndDate());
-        certification.setExamDate(requestDTO.getExamDate());
 
         return certificationRepository.save(certification);
     }
@@ -79,6 +73,5 @@ public class CertificationServiceImpl implements CertificationService {
         }
         return false;
     }
-
 }
 
