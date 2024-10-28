@@ -17,5 +17,6 @@ public class EventDTO {
     private LocalDateTime end;
     private String category;
     private String description;
-    private Employee employee; // 이벤트를 생성한 사원 정보
+    private String employeeId; // 필요한 정보만 포함
+    private String employeeName;
 }

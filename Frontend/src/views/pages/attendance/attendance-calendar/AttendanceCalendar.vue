@@ -2,7 +2,6 @@
     <div class="demo-app">
         <div class="demo-app-main">
             <FullCalendar ref="calendar" class="demo-app-calendar" :options="calendarOptions">
-                <!-- 이벤트 제목을 한글로 변환하여 표시하고 글자는 검정색 유지 -->
                 <template v-slot:eventContent="arg">
                     <b>{{ arg.timeText }}</b>
                     <i class="event-title">{{ translateVacationType(arg.event.title) }}</i>
@@ -62,7 +61,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import FullCalendar from '@fullcalendar/vue3';
 import { ref } from 'vue';
-import { fetchGet } from '../../auth/service/AuthApiService'; // API 요청을 위한 유틸리티 함수
+import { fetchGet, fetchPost, fetchPut } from '../../auth/service/AuthApiService'; // API 요청을 위한 유틸리티 함수
 
 export default {
     components: { FullCalendar },
@@ -76,15 +75,18 @@ export default {
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
                 initialView: 'dayGridMonth',
-                events: [], // 승인된 휴가 일정이 여기에 표시됩니다.
+                events: [],
                 editable: true,
                 selectable: true,
-                dateClick: this.handleDateClick, // 날짜 클릭 시 이벤트 추가
-                eventClick: this.handleEventClick
+                dateClick: this.handleDateClick,
+                eventClick: this.handleEventClick,
+                eventDrop: this.handleEventDrop, // 일정 이동 이벤트 핸들러
+                eventResize: this.handleEventResize // 일정 크기 조정 이벤트 핸들러
             },
             isModalOpen: false,
             isDetailModalOpen: false,
             selectedEvent: null,
+            submitted: false,
             eventData: ref({
                 title: '',
                 start: '',
@@ -103,40 +105,143 @@ export default {
         async fetchApprovedVacationEvents() {
             try {
                 const response = await fetchGet('http://localhost:8080/api/v1/vacation/my-vacations');
-                console.log(response); // 응답 데이터 확인
-
                 if (response) {
-                    this.calendarOptions = {
-                        ...this.calendarOptions,
-                        events: response.map((vacation) => {
-                            const startDateTime = `${vacation.vacationStartDate}T${vacation.vacationStartTime}`;
-                            const endDateTime = vacation.vacationEndDate && vacation.vacationEndTime ? `${vacation.vacationEndDate}T${vacation.vacationEndTime}` : null;
-
-                            return {
-                                id: vacation.vacationId,
-                                title: `${this.translateVacationType(vacation.vacationType)} - ${vacation.employeeName}`,
-                                start: startDateTime,
-                                end: endDateTime,
-                                backgroundColor: this.getEventColor(vacation.vacationType),
-                                extendedProps: {
-                                    category: vacation.vacationType,
-                                    comment: vacation.comment,
-                                    vacationStatus: vacation.vacationStatus
-                                }
-                            };
-                        })
-                    };
-                    this.$refs.calendar.getApi().rerenderEvents(); // 캘린더 리렌더링
+                    const vacationEvents = response.map((vacation) => ({
+                        id: vacation.vacationId,
+                        title: `${this.translateVacationType(vacation.vacationType)} - ${vacation.employeeName}`,
+                        start: `${vacation.vacationStartDate}T${vacation.vacationStartTime}`,
+                        end: vacation.vacationEndDate ? `${vacation.vacationEndDate}T${vacation.vacationEndTime}` : null,
+                        backgroundColor: this.getEventColor(vacation.vacationType),
+                        extendedProps: {
+                            category: vacation.vacationType,
+                            comment: vacation.comment,
+                            vacationStatus: vacation.vacationStatus
+                        }
+                    }));
+                    this.calendarOptions.events = [...vacationEvents];
+                    this.$refs.calendar.getApi().rerenderEvents();
                 }
             } catch (error) {
                 console.error('휴가 데이터 로드 실패:', error);
             }
         },
-        handleDateClick(info) {
-            // 날짜 클릭 시 모달 열고, 클릭한 날짜를 기본 값으로 설정
-            this.eventData.start = info.dateStr;
-            this.isModalOpen = true;
+
+        async fetchPersonalEvents() {
+            try {
+                const employeeId = window.localStorage.getItem('employeeId');
+                const response = await fetchGet(`http://localhost:8080/api/v1/event/my-events?employeeId=${employeeId}`);
+                console.log('개인 일정 데이터:', response);
+
+                if (Array.isArray(response)) {
+                    const personalEvents = response.map((event) => ({
+                        id: event.eventId || Math.random().toString(),
+                        title: event.title || '제목 없음',
+                        start: event.start,
+                        end: event.end || null,
+                        backgroundColor: this.getEventColor(event.category) || '#cccccc',
+                        extendedProps: {
+                            category: event.category || '기타',
+                            comment: event.description || '설명 없음',
+                            employeeName: event.employeeName || '직원 없음',
+                            employeeId: event.employeeId || 'ID 없음'
+                        }
+                    }));
+
+                    this.calendarOptions.events = [...(this.calendarOptions.events || []), ...personalEvents];
+                    this.calendarOptions = { ...this.calendarOptions };
+                } else {
+                    console.error('응답이 배열 형식이 아닙니다:', response);
+                }
+            } catch (error) {
+                console.error('개인 일정 데이터 로드 실패:', error);
+            }
         },
+
+        handleDateClick(info) {
+            this.eventData.start = info.dateStr + 'T00:00';
+            this.eventData.end = info.dateStr + 'T23:59';
+            this.isModalOpen = true;
+            this.submitted = false;
+        },
+
+        handleEventClick(eventInfo) {
+            this.selectedEvent = eventInfo.event;
+            this.isDetailModalOpen = true;
+        },
+
+        async handleEventDrop(eventInfo) {
+            const { id, start, end } = eventInfo.event;
+
+            try {
+                await fetchPut(`http://localhost:8080/api/v1/event/update/${id}`, {
+                    start: start.toISOString(),
+                    end: end ? end.toISOString() : null
+                });
+                console.log('일정이 성공적으로 업데이트되었습니다.');
+            } catch (error) {
+                console.error('일정 이동 중 오류가 발생했습니다:', error);
+                eventInfo.revert(); // 에러 발생 시 이동을 되돌림
+            }
+        },
+
+        async handleEventResize(eventInfo) {
+            const { id, start, end } = eventInfo.event;
+
+            try {
+                await fetchPut(`http://localhost:8080/api/v1/event/update/${id}`, {
+                    start: start.toISOString(),
+                    end: end.toISOString()
+                });
+                console.log('일정 크기 조정이 성공적으로 업데이트되었습니다.');
+            } catch (error) {
+                console.error('일정 크기 조정 중 오류가 발생했습니다:', error);
+                eventInfo.revert(); // 에러 발생 시 크기 조정을 되돌림
+            }
+        },
+
+        saveEvent() {
+            this.submitted = true;
+            if (this.eventData.title.trim()) {
+                const employeeId = window.localStorage.getItem('employeeId');
+                fetchPost('http://localhost:8080/api/v1/event/create', {
+                    title: this.eventData.title,
+                    start: this.eventData.start,
+                    end: this.eventData.end,
+                    description: this.eventData.description,
+                    employeeId
+                })
+                    .then((data) => {
+                        if (data) {
+                            this.isModalOpen = false;
+                            this.resetEventData();
+                            this.fetchApprovedVacationEvents();
+                            this.fetchPersonalEvents();
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('이벤트 생성 중 오류가 발생했습니다:', error);
+                    });
+            } else {
+                alert('일정 이름을 입력하세요.');
+            }
+        },
+
+        deleteEvent(event) {
+            if (event) {
+                event.remove();
+            }
+            this.isDetailModalOpen = false;
+        },
+
+        closeModal() {
+            this.isModalOpen = false;
+            this.resetEventData();
+        },
+
+        closeDetailModal() {
+            this.isDetailModalOpen = false;
+        },
+
         translateVacationType(vacationType) {
             switch (vacationType) {
                 case 'DAY_OFF':
@@ -151,6 +256,7 @@ export default {
                     return vacationType;
             }
         },
+
         getEventColor(vacationType) {
             switch (vacationType) {
                 case 'DAY_OFF':
@@ -165,45 +271,7 @@ export default {
                     return '#cccccc';
             }
         },
-        handleEventClick(eventInfo) {
-            this.selectedEvent = eventInfo.event;
-            this.isDetailModalOpen = true;
-        },
-        saveEvent() {
-            if (this.eventData.title.trim()) {
-                fetchPost('http://localhost:8080/api/v1/event/create', {
-                    title: this.eventData.title,
-                    start: this.eventData.start,
-                    end: this.eventData.end,
-                    description: this.eventData.description, // 카테고리 대신 설명 필드로 대체
-                    employee: { employeeId: '현재 로그인된 사용자의 ID' } // 로그인된 사용자 정보
-                })
-                    .then((data) => {
-                        if (data) {
-                            console.log('이벤트가 성공적으로 생성되었습니다.');
-                            this.isModalOpen = false;
-                            this.resetEventData();
-                            this.fetchApprovedVacationEvents(); // 새로 생성된 이벤트를 로드
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('이벤트 생성 중 오류가 발생했습니다:', error);
-                    });
-            }
-        },
-        deleteEvent(event) {
-            if (event) {
-                event.remove();
-            }
-            this.isDetailModalOpen = false;
-        },
-        closeModal() {
-            this.isModalOpen = false;
-            this.resetEventData();
-        },
-        closeDetailModal() {
-            this.isDetailModalOpen = false;
-        },
+
         formatDate(date) {
             return new Date(date).toLocaleString('ko-KR', {
                 year: 'numeric',
@@ -213,6 +281,7 @@ export default {
                 minute: '2-digit'
             });
         },
+
         resetEventData() {
             this.eventData.title = '';
             this.eventData.start = '';
@@ -220,8 +289,10 @@ export default {
             this.eventData.category = '';
         }
     },
+
     mounted() {
-        this.fetchApprovedVacationEvents(); // 컴포넌트 마운트 시 승인된 휴가 데이터 로드
+        this.fetchApprovedVacationEvents();
+        this.fetchPersonalEvents();
     }
 };
 </script>
@@ -235,13 +306,13 @@ export default {
 }
 
 .event-title {
-    color: black !important; /* 글자색을 검정으로 고정 */
+    color: black !important;
 }
 
 .fc-event {
     border-radius: 5px;
     padding: 4px;
-    background-color: var(--background-color); /* 배경색 적용 */
+    background-color: var(--background-color);
 }
 
 .fc-time {
@@ -250,6 +321,6 @@ export default {
 
 .fc-title {
     font-size: 14px;
-    color: black !important; /* 글자 색을 검정으로 고정 */
+    color: black !important;
 }
 </style>

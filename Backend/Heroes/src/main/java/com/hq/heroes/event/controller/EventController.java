@@ -5,10 +5,9 @@ import com.hq.heroes.event.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,4 +28,20 @@ public class EventController {
                     .body("이벤트 생성 중 오류가 발생했습니다.");
         }
     }
+
+    @GetMapping("/my-events")
+    public List<EventDTO> getMyEvents(@RequestParam String employeeId) {
+        return eventService.getEventsByEmployeeId(employeeId);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> updateEvent(@PathVariable Long id, @RequestBody EventDTO eventDTO) {
+        boolean updated = eventService.updateEvent(id, eventDTO.getStart(), eventDTO.getEnd());
+        if (updated) {
+            return ResponseEntity.ok("Event updated successfully");
+        } else {
+            return ResponseEntity.badRequest().body("Event not found or update failed");
+        }
+    }
+
 }
