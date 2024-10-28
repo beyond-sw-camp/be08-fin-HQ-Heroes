@@ -18,5 +18,5 @@ public class EmployeeCertificationResponseDTO {
     private String employeeId;
     private String employeeName;
 
-    private EmployeeCertificationStatus certificationStatus;
+    private EmployeeCertificationStatus employeeCertificationStatus;
 }
