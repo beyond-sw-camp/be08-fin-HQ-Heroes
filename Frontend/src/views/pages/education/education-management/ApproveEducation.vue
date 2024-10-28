@@ -50,7 +50,7 @@
                 <template #body="slotProps">
                     <Button 
                         label="승인" 
-                        :disabled="isLoading || slotProps.data.courseStatus === '이수'" 
+                        :disabled="isLoading || slotProps.data.courseStatus === 'APPROVE'" 
                         @click="completeCourse(slotProps.data)" 
                         class="p-button-info" 
                     />
@@ -64,6 +64,9 @@
 import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref } from 'vue';
 import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
+import { useAuthStore } from '@/stores/authStore';
+
+const authStore = useAuthStore();
 
 const requests = ref([]);
 const filters = ref({ global: { value: null } });
@@ -72,7 +75,7 @@ const toast = useToast();
 const showEducation = ref(true); // 상태를 구분하기 위한 ref
 
 const filteredRequests = computed(() => {
-    // '이수' 상태인 요청은 항상 제외
+    // '이수' 및 'PASS' 상태인 요청을 항상 제외
     return requests.value.filter(request => request.courseStatus !== '이수');
 });
 
@@ -80,16 +83,21 @@ const loadEducationRequests = async () => {
     showEducation.value = true; // 교육 요청 표시
     try {
         const response = await fetchGet('http://localhost:8080/api/v1/course-service/list');
-        requests.value = response.map((record) => ({
-            courseId: record.courseId,
-            educationName: record.educationName,
-            categoryName: record.categoryName,
-            educationStart: record.startDate.split('T')[0],
-            educationEnd: record.endDate.split('T')[0],
-            employeeName: record.employeeName,
-            courseStatus: mapStatus(record.courseStatus)
-        })).reverse(); // 역순으로 설정
+        console.log("교육 요청 응답 데이터:", response); // 응답 데이터 로그 추가
+        requests.value = response
+            .map((record) => ({
+                courseId: record.courseId,
+                educationName: record.educationName,
+                categoryName: record.categoryName,
+                educationStart: record.startDate.split('T')[0],
+                educationEnd: record.endDate.split('T')[0],
+                employeeName: record.employeeName,
+                courseStatus: mapStatus(record.courseStatus)
+            }))
+            .filter((request) => request.courseStatus !== '이수') // 'PASS' 상태 필터링
+            .reverse(); // 역순으로 설정
     } catch (error) {
+        console.error("API 요청 오류:", error); // 오류 로그 추가
         toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.' });
     }
 };
@@ -98,33 +106,58 @@ const loadCertificationRequests = async () => {
     showEducation.value = false; // 자격증 요청 표시
     try {
         const response = await fetchGet("http://localhost:8080/api/v1/employee-certification/certification-list");
-        requests.value = response.map((record) => ({
-            registrationId: record.registrationId,
-            certificationName: record.certificationName,
-            institution: record.institution,
-            acquisitionDate: record.acquisitionDate,
-            employeeName: record.employeeName // 신청자 이름 추가
-        })).reverse(); // 역순으로 설정
+        requests.value = response
+            .map((record) => ({
+                registrationId: record.registrationId,
+                certificationName: record.certificationName,
+                institution: record.institution,
+                acquisitionDate: record.acquisitionDate,
+                employeeName: record.employeeName,
+                employeeCertificationStatus: mapCertificationStatus(record.employeeCertificationStatus) // 요청 상태 추가
+            }))
+            .filter((request) => request.employeeCertificationStatus !== '승인') // 'PASS' 상태 필터링
+            .reverse(); // 역순으로 설정
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.'});
     }
 };
 
-onMounted(() => {
+onMounted(async () => {
     loadEducationRequests(); // 초기 로드 시 교육 요청 불러오기
 });
 
 const completeCourse = async (request) => {
     if (isLoading.value) return;
     isLoading.value = true;
+    
     try {
-        const url = `http://localhost:8080/api/v1/course-service/complete/${request.courseId}`;
+        // `showEducation` 값에 따라 다른 URL 사용
+        let url;
+        if (showEducation.value) {
+            // 교육 요청에 대한 이수 API
+            url = `http://localhost:8080/api/v1/course-service/complete/${request.courseId}`;
+        } else {
+            // 자격증 요청에 대한 승인 API
+            url = `http://localhost:8080/api/v1/employee-certification/complete/${request.registrationId}`;
+        }
+        
         await fetchPost(url);
-        request.courseStatus = '이수'; // 상태 변경
-        toast.add({ severity: 'success', summary: 'Success', detail: '교육이 이수되었습니다.' });
-        requests.value = requests.value.filter(req => req.courseId !== request.courseId); // 목록에서 제외
+        
+        // 요청의 상태를 업데이트
+        if (showEducation.value) {
+            request.courseStatus = '이수';
+            toast.add({ severity: 'success', summary: 'Success', detail: '교육이 이수되었습니다.' });
+        } else {
+            request.courseStatus = 'APPROVE';
+            toast.add({ severity: 'success', summary: 'Success', detail: '자격증이 승인되었습니다.' });
+        }
+
+        // 목록에서 해당 요청 제거
+        requests.value = requests.value.filter(req => 
+            showEducation.value ? req.courseId !== request.courseId : req.registrationId !== request.registrationId
+        );
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Error', detail: '교육 이수 처리 실패' });
+        toast.add({ severity: 'error', summary: 'Error', detail: showEducation.value ? '교육 이수 처리 실패' : '자격증 승인 처리 실패' });
     } finally {
         isLoading.value = false;
     }
@@ -136,6 +169,17 @@ function mapStatus(status) {
             return '이수';
         case 'FAIL':
             return '미이수';
+        default:
+            return '알 수 없음';
+    }
+}
+
+function mapCertificationStatus(certificationStatus) {
+    switch (certificationStatus) {
+        case 'APPROVE':
+            return '승인';
+        case 'DENIED':
+            return '반려';
         default:
             return '알 수 없음';
     }

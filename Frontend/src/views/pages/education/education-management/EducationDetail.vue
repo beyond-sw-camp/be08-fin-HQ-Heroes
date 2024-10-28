@@ -68,14 +68,6 @@ const currentParticipant = ref(0);
 
 const isApplied = ref(false); // 신청 여부 상태
 
-// 로컬 스토리지에서 현재 참가자 수 가져오기
-const loadCurrentParticipant = () => {
-    const storedCount = localStorage.getItem(`currentParticipant${route.params.courseId}`);
-    if (storedCount) {
-        currentParticipant.value = parseInt(storedCount, 10);
-    }
-};
-
 const fetchEducationDetails = async (courseId) => {
     try {
         const education = await fetchGet(`http://localhost:8080/api/v1/education-service/education/${courseId}`);
@@ -108,11 +100,11 @@ const handleApplyClick = async () => {
 
     try {
         // 교육 신청 요청
-        const responseText = await fetchPost(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
+        await fetchPost(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
         
         alert("교육이 추가되었습니다"); // 성공 메시지 표시
         currentParticipant.value = newParticipantCount; // 새로 신청한 인원 수 업데이트
-        localStorage.setItem(`currentParticipant${route.params.courseId}`, currentParticipant.value); // 로컬스토리지에 저장
+    // #localstorage#
         isApplied.value = true; // 신청 상태 업데이트
         router.push('/education-history'); // 신청 완료 후 "/education-history" 페이지로 이동
     } catch (error) {
@@ -145,7 +137,6 @@ const handleCancelClick = async () => {
             if (response.ok) {
                 alert("신청이 취소되었습니다."); // 취소 메시지
                 currentParticipant.value--; // 참가자 수 감소
-                localStorage.setItem(`currentParticipant${courseId}`, currentParticipant.value); // 로컬스토리지 업데이트
                 isApplied.value = false; // 신청 상태 업데이트
             } else {
                 alert("취소에 실패했습니다. 다시 시도해 주세요.");
@@ -165,7 +156,6 @@ onMounted(() => {
     const courseId = route.params.courseId;
     if (courseId) {
         fetchEducationDetails(courseId);
-        loadCurrentParticipant(); // 로컬 스토리지에서 현재 참가자 수 로드
     } else {
         console.error('courseId가 정의되지 않았습니다.');
         alert("교육 ID가 정의되지 않았습니다. 올바른 링크를 사용해 주세요.");
