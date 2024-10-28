@@ -4,6 +4,7 @@ import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.employee.dto.EmployeeDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,4 +27,8 @@ public interface EmployeeRepository extends JpaRepository<Employee,String> {
     Optional<Employee> findByEmployeeName(String name);
 
     Optional<Employee> findByEmail(String email);
+
+    // employeeId를 통해 해당 직원의 teamId를 조회
+    @Query("SELECT e.team.teamId FROM Employee e WHERE e.employeeId = :employeeId")
+    Long findTeamIdByEmployeeId(@Param("employeeId") String employeeId);
 }

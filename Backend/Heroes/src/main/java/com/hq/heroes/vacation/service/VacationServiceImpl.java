@@ -9,6 +9,7 @@ import com.hq.heroes.vacation.repository.VacationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -118,4 +119,35 @@ public class VacationServiceImpl implements VacationService {
                 .vacationStatus(vacation.getVacationStatus())
                 .build();
     }
+
+    @Override
+    public List<VacationDTO> getTeamVacations(String employeeId) {
+        Long teamId = employeeRepository.findTeamIdByEmployeeId(employeeId);
+        if (teamId == null) {
+            return Collections.emptyList();
+        }
+
+        List<Vacation> vacations = vacationRepository.findVacationsByTeamId(teamId);
+
+        // Vacation 엔티티를 VacationDTO로 변환
+        return vacations.stream()
+                .map(vacation -> new VacationDTO(
+                        vacation.getVacationId(),
+                        vacation.getEmployee().getEmployeeId(),
+                        vacation.getEmployee().getEmployeeName(),
+                        vacation.getApprover() != null ? vacation.getApprover().getEmployeeId() : null,
+                        vacation.getApprover() != null ? vacation.getApprover().getEmployeeName() : null,
+                        vacation.getEmployee().getTeam() != null ? vacation.getEmployee().getTeam().getTeamName() : null,
+                        vacation.getEmployee().getDepartment() != null ? vacation.getEmployee().getDepartment().getDeptName() : null,
+                        vacation.getVacationType(),
+                        vacation.getVacationStartDate(),
+                        vacation.getVacationStartTime(),
+                        vacation.getVacationEndDate(),
+                        vacation.getVacationEndTime(),
+                        vacation.getComment(),
+                        vacation.getVacationStatus()
+                ))
+                .collect(Collectors.toList());
+    }
+
 }

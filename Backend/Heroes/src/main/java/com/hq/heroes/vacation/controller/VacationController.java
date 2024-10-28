@@ -133,4 +133,11 @@ public class VacationController {
         List<VacationDTO> approvedVacations = vacationService.getApprovedVacationsByEmployeeId(employeeId);
         return ResponseEntity.ok(approvedVacations);
     }
+
+    // 팀원의 휴가 정보를 조회하는 엔드포인트
+    @GetMapping("/team-vacations")
+    public ResponseEntity<List<VacationDTO>> getTeamVacations(@RequestParam String employeeId) {
+        List<VacationDTO> teamVacations = vacationService.getTeamVacations(employeeId);
+        return ResponseEntity.ok(teamVacations);
+    }
 }
