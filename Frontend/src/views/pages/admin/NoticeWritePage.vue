@@ -39,211 +39,210 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import router from '@/router';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Quill의 스타일
 import Swal from 'sweetalert2';
 import { onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchPost } from '../auth/service/AuthApiService';
+import { fetchGet, fetchPost } from '../auth/service/AuthApiService';
 import { getLoginEmployeeInfo } from '../auth/service/authService';
+import { fetchCategories } from './service/adminNoticeCategoryService';
 
-export default {
-    setup() {
-        const to = ref('');
-        const subject = ref('');
-        const selectedCategory = ref(''); // 선택된 카테고리
-        const categories = ref([]); // 카테고리 목록
-        const message = ref('');
-        const editor = ref(null); // Quill 에디터를 참조할 변수
-        const route = useRoute();
-        const employeeId = ref('');
-        let quillEditor = null; // quillEditor 변수 선언
+const to = ref('');
+const subject = ref('');
+const selectedCategory = ref(''); // 선택된 카테고리
+const categories = ref([]); // 카테고리 목록
+const message = ref('');
+const editor = ref(null); // Quill 에디터를 참조할 변수
+const route = useRoute();
+const employeeId = ref('');
+let quillEditor = null; // quillEditor 변수 선언
 
-        // Quill 에디터 초기화
-        onMounted(async () => {
-            quillEditor = new Quill(editor.value, {
-                theme: 'snow',
-                modules: {
-                    toolbar: {
-                        container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
-                        handlers: {
-                            image: imageHandler // 이미지 핸들러 추가
-                        }
-                    }
-                }
-            });
+// Quill 에디터 초기화
+onMounted(async () => {
 
-            quillEditor.on('text-change', () => {
-                message.value = quillEditor.root.innerHTML; // Quill 에디터 내용이 변경될 때 message 값 업데이트
-            });
+    const fetchedCategories = await fetchCategories(); // 카테고리 데이터 가져오기
+    categories.value = [{ id: null, categoryName: '전체' }, ...fetchedCategories];
 
-            // 로컬 스토리지에서 employeeId 가져오기
-            employeeId.value = window.localStorage.getItem('employeeId');
-
-            // 직원 정보 불러오기
-            if (employeeId.value) {
-                const employeeData = await getLoginEmployeeInfo(employeeId.value); // 로그인한 직원 정보 불러오기
-                if (employeeData && employeeData.employeeName) {
-                    to.value = employeeData.employeeName; // 작성자 이름 설정
+    quillEditor = new Quill(editor.value, {
+        theme: 'snow',
+        modules: {
+            toolbar: {
+                container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
+                handlers: {
+                    image: imageHandler // 이미지 핸들러 추가
                 }
             }
-        });
+        }
+    });
 
-        // 이미지 핸들러 함수
-        const imageHandler = () => {
-            const input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', 'image/*');
-            input.click();
+    quillEditor.on('text-change', () => {
+        message.value = quillEditor.root.innerHTML; // Quill 에디터 내용이 변경될 때 message 값 업데이트
+    });
 
-            input.onchange = async () => {
-                const file = input.files[0];
+    // 로컬 스토리지에서 employeeId 가져오기
+    employeeId.value = window.localStorage.getItem('employeeId');
 
-                // 이미지 크기 조정
-                const resizedImage = await resizeImage(file, 700, 700); // 원하는 크기로 조정 
+    // 직원 정보 불러오기
+    if (employeeId.value) {
+        const employeeData = await getLoginEmployeeInfo(employeeId.value); // 로그인한 직원 정보 불러오기
+        if (employeeData && employeeData.employeeName) {
+            to.value = employeeData.employeeName; // 작성자 이름 설정
+        }
+    }
+});
 
-                const formData = new FormData();
-                formData.append('file', resizedImage);
+// 이미지 핸들러 함수
+const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
 
-                try {
-                    // 이미지 업로드 API 호출
-                    const response = await fetch('http://localhost:8080/api/v1/upload-image', {
-                        method: 'POST',
-                        body: formData
-                    });
+    input.onchange = async () => {
+        const file = input.files[0];
 
-                    const data = await response.json();
-                    const imageUrl = data.imageUrl; // 서버에서 반환된 이미지 URL
+        // 이미지 크기 조정
+        const resizedImage = await resizeImage(file, 700, 700); // 원하는 크기로 조정
 
-                    // quillEditor가 정의되었는지 확인
-                    if (quillEditor) {
-                        const range = quillEditor.getSelection();
-                        quillEditor.insertEmbed(range.index, 'image', imageUrl); // 에디터에 이미지 URL 삽입
-                    }
-                } catch (error) {
-                    console.error('Image upload failed:', error);
-                }
-            };
-        };
+        const formData = new FormData();
+        formData.append('file', resizedImage);
 
-        // 이미지 크기 조정 함수
-        const resizeImage = (file, maxWidth, maxHeight) => {
-            return new Promise((resolve) => {
-                const img = new Image();
-                const reader = new FileReader();
-
-                reader.onload = (event) => {
-                    img.src = event.target.result;
-                };
-
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-
-                    let width = img.width;
-                    let height = img.height;
-
-                    // 크기 비율 유지하며 조정
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height *= maxWidth / width;
-                            width = maxWidth;
-                        }
-                    } else {
-                        if (height > maxHeight) {
-                            width *= maxHeight / height;
-                            height = maxHeight;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    canvas.toBlob((blob) => {
-                        resolve(new File([blob], file.name, { type: file.type })); // 새로운 파일 반환
-                    }, file.type);
-                };
-
-                reader.readAsDataURL(file);
+        try {
+            // 이미지 업로드 API 호출
+            const response = await fetch('http://localhost:8080/api/v1/upload-image', {
+                method: 'POST',
+                body: formData
             });
-        };
 
-        // 카테고리 로드
-        const loadCategoriesFromStorage = () => {
-            const fromPage = route.query.fromPage;
-            let storedCategories = [];
+            const data = await response.json();
+            const imageUrl = data.imageUrl; // 서버에서 반환된 이미지 URL
 
-            storedCategories = JSON.parse(localStorage.getItem('noticeCategories')) || [];
-            console.log('storedCategories = ', storedCategories); // 추가: 로컬 스토리지에서 가져온 카테고리 출력
-
-            categories.value = storedCategories; // 로컬 스토리지에서 카테고리 로드
-        };
-
-        // fromPage 확인 및 카테고리 설정
-        onBeforeMount(() => {
-            loadCategoriesFromStorage(); // 로컬 스토리지에서 카테고리 로드
-        });
-
-        const sendMessage = async () => {
-            try {
-                console.log('selectedCategory = ', selectedCategory.value); // 추가: 선택된 카테고리 출력
-
-                const requestBody = {
-                    employeeId: employeeId.value, // 로컬 스토리지에서 가져온 employeeId
-                    employeeName: to.value, // 작성자 이름
-                    title: subject.value, // 제목
-                    content: message.value, // Quill 에디터에서 작성한 HTML 내용
-                    categoryId: getCategoryById(selectedCategory.value), // 선택된 카테고리 ID
-                    updaterId: 'your-updater-id', // 수정한 사람 ID, 필요시
-                    updaterName: 'your-updater-name' // 수정한 사람 이름, 필요시
-                };
-
-                console.log('requestData = ', requestBody); // 추가: 요청 데이터 출력
-
-                // fetchPost 함수를 사용하여 데이터 전송
-                const result = await fetchPost('http://localhost:8080/api/v1/notice-service/notice', requestBody);
-
-                if (result) {
-                    // SweetAlert2를 사용하여 성공 알림 표시
-                    Swal.fire({
-                        icon: 'success',
-                        title: '공지사항 작성 완료',
-                        text: '공지사항이 성공적으로 작성되었습니다.',
-                        confirmButtonText: '확인'
-                    }).then(() => {
-                        // 확인 버튼 클릭 후 다른 페이지로 이동
-                        router.push({ path: '/manage-notices' }); // 원하는 페이지의 경로로 수정
-                    });
-                }
-            } catch (error) {
-                console.error('공지사항 작성 중 오류 발생:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: '오류 발생',
-                    text: '공지사항 작성 중 오류가 발생했습니다. 다시 시도해주세요.',
-                    confirmButtonText: '확인'
-                });
+            // quillEditor가 정의되었는지 확인
+            if (quillEditor) {
+                const range = quillEditor.getSelection();
+                quillEditor.insertEmbed(range.index, 'image', imageUrl); // 에디터에 이미지 URL 삽입
             }
+        } catch (error) {
+            console.error('Image upload failed:', error);
+        }
+    };
+};
+
+// 이미지 크기 조정 함수
+const resizeImage = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve) => {
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            img.src = event.target.result;
         };
 
-        const getCategoryById = (categoryName) => {
-            console.log('selectedCategory.value = ', categoryName); // 선택된 카테고리 이름 출력
-            console.log('categories.value = ', categories.value); // 카테고리 목록 출력
-            const category = categories.value.find((cat) => cat.categoryName === categoryName);
-            console.log('category = ', category); // 찾은 카테고리 객체 출력
-            return category ? category.categoryId : null; // categoryId 반환
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = img.width;
+            let height = img.height;
+
+            // 크기 비율 유지하며 조정
+            if (width > height) {
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+                resolve(new File([blob], file.name, { type: file.type })); // 새로운 파일 반환
+            }, file.type);
         };
 
-        // 페이지를 떠날 때 공지사항 목록으로 이동
-        onBeforeUnmount(() => {
-            router.push({ path: '/manage-notices' });
+        reader.readAsDataURL(file);
+    });
+};
+
+// 카테고리 로드
+const loadCategoriesFromStorage = () => {
+    const fromPage = route.query.fromPage;
+    let storedCategories = [];
+
+    storedCategories = fetchCategories();
+    console.log('storedCategories = ', storedCategories); // 추가: 로컬 스토리지에서 가져온 카테고리 출력
+
+    categories.value = storedCategories; // 로컬 스토리지에서 카테고리 로드
+};
+
+// fromPage 확인 및 카테고리 설정
+onBeforeMount(() => {
+    loadCategoriesFromStorage(); // 로컬 스토리지에서 카테고리 로드
+});
+
+const sendMessage = async () => {
+    try {
+        console.log('selectedCategory = ', selectedCategory.value); // 추가: 선택된 카테고리 출력
+
+        const requestBody = {
+            employeeId: employeeId.value, // 로컬 스토리지에서 가져온 employeeId
+            employeeName: to.value, // 작성자 이름
+            title: subject.value, // 제목
+            content: message.value, // Quill 에디터에서 작성한 HTML 내용
+            categoryId: getCategoryById(selectedCategory.value), // 선택된 카테고리 ID
+            updaterId: 'your-updater-id', // 수정한 사람 ID, 필요시
+            updaterName: 'your-updater-name' // 수정한 사람 이름, 필요시
+        };
+
+        console.log('requestData = ', requestBody); // 추가: 요청 데이터 출력
+
+        // fetchPost 함수를 사용하여 데이터 전송
+        const result = await fetchPost('http://localhost:8080/api/v1/notice-service/notice', requestBody);
+
+        if (result) {
+            // SweetAlert2를 사용하여 성공 알림 표시
+            Swal.fire({
+                icon: 'success',
+                title: '공지사항 작성 완료',
+                text: '공지사항이 성공적으로 작성되었습니다.',
+                confirmButtonText: '확인'
+            }).then(() => {
+                // 확인 버튼 클릭 후 다른 페이지로 이동
+                router.push({ path: '/manage-notices' }); // 원하는 페이지의 경로로 수정
+            });
+        }
+    } catch (error) {
+        console.error('공지사항 작성 중 오류 발생:', error);
+        Swal.fire({
+            icon: 'error',
+            title: '오류 발생',
+            text: '공지사항 작성 중 오류가 발생했습니다. 다시 시도해주세요.',
+            confirmButtonText: '확인'
         });
-
-        return { to, subject, selectedCategory, categories, message, editor, sendMessage };
     }
 };
+
+const getCategoryById = (categoryName) => {
+    console.log('selectedCategory.value = ', categoryName); // 선택된 카테고리 이름 출력
+    console.log('categories.value = ', categories.value); // 카테고리 목록 출력
+    const category = categories.value.find((cat) => cat.categoryName === categoryName);
+    console.log('category = ', category); // 찾은 카테고리 객체 출력
+    return category ? category.categoryId : null; // categoryId 반환
+};
+
+// 페이지를 떠날 때 공지사항 목록으로 이동
+onBeforeUnmount(() => {
+    router.push({ path: '/manage-notices' });
+});
 </script>
 
 <style scoped>
