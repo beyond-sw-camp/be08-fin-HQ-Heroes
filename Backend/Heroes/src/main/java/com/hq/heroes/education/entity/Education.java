@@ -50,8 +50,7 @@ public class Education {
     private int currentParticipant = 0;
 
     // 교육 커리쿨럼
-    @Lob
-    @Column(name = "educationCurriculum", nullable = false)
+    @Column(name = "education_curriculum", nullable = false, columnDefinition = "TEXT")
     private String educationCurriculum;
 
     // EducationCategory과 Many-to-One 관계 (카테고리 번호)
@@ -65,14 +64,16 @@ public class Education {
                 .instructorName(this.instructorName)
                 .educationName(this.educationName)
                 .institution(this.institution)
-                .educationStart(LocalDate.from(this.startDate))
-                .educationEnd(LocalDate.from(this.endDate))
+                .educationStart(this.startDate != null ? LocalDate.from(this.startDate) : null) // 널 체크 추가
+                .educationEnd(this.endDate != null ? LocalDate.from(this.endDate) : null) // 널 체크 추가
                 .participants(this.participants)
-                .categoryName(this.educationCategory.getCategoryName())  // 카테고리 이름 추가
+                .categoryName(this.educationCategory != null ? this.educationCategory.getCategoryName() : null) // 널 체크 추가
+                .categoryId(this.educationCategory != null ? this.educationCategory.getCategoryId() : null)
                 .educationCurriculum(this.educationCurriculum)
                 .currentParticipant(this.currentParticipant)
                 .build();
     }
+
 
     // 현재 신청 인원 증가 메소드
     public void incrementCurrentParticipant() {

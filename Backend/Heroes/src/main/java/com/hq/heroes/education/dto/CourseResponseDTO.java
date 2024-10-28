@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -16,5 +17,5 @@ public class CourseResponseDTO {
     private LocalDate startDate; // 강의 시작일
     private LocalDate endDate; // 강의 종료일
     private String categoryName; // 카테고리 이름
-    private CourseStatus status; // 이수 여부
+    private CourseStatus courseStatus; // 이수 여부
 }

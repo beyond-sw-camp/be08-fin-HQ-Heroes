@@ -1,14 +1,12 @@
 package com.hq.heroes.education.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -21,6 +19,5 @@ public class EducationRequestDTO {
     private Long categoryId;            // 교육 카테고리 ID
     private String educationCurriculum; // 교육 커리큘럼
     private int participants;           // 수강 정원
-
 }
 

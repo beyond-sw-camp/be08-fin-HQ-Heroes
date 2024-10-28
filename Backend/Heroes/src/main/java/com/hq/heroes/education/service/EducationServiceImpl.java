@@ -32,7 +32,7 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public List<Education> getEducations() {
-            return educationRepository.findAll();
+        return educationRepository.findAll();
     }
 
     @Override
@@ -127,12 +127,18 @@ public class EducationServiceImpl implements EducationService {
     public Education updateEducation(Long educationId, EducationRequestDTO requestDTO) {
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 교육 ID : " + educationId));
+        Optional<EducationCategory> categoryOpt = Optional.ofNullable(educationCategoryRepository.findById(requestDTO.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리 ID : " + requestDTO.getCategoryId())));
+        EducationCategory category = categoryOpt.get();
 
         education.setEducationName(requestDTO.getEducationName()); // 교육 이름
         education.setInstitution(requestDTO.getInstitution()); // 교육 기관
         education.setInstructorName(requestDTO.getInstructorName()); // 강사 이름
         education.setStartDate(LocalDate.from(requestDTO.getEducationStart())); // 강의 시작일
         education.setEndDate(LocalDate.from(requestDTO.getEducationEnd())); // 강의 종료일
+        education.setEducationCategory(category);
+        education.setParticipants(requestDTO.getParticipants());
+        education.setEducationCurriculum(requestDTO.getEducationCurriculum());
 
         return educationRepository.save(education);
     }

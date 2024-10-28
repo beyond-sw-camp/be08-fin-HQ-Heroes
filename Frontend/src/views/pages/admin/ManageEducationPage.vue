@@ -85,14 +85,9 @@ function showEducationDetails(event) {
 }
 
 // 교육 등록 페이지로 이동
+
 const goToWriteNotice = () => {
-    if (categories.value.length > 0) {
-        const filteredCategories = categories.value.filter((category) => category.categoryName !== '전체'); // '전체' 제외
-        localStorage.setItem('educationCategories', JSON.stringify(filteredCategories));
-        router.replace({ path: '/write-education', query: { fromPage: 'educationListPage' } });
-    } else {
-        console.error('categories는 정의되지 않았습니다.');
-    }
+    router.replace({ path: '/write-education', query: { fromPage: 'educationListPage' } });
 };
 
 // 날짜 포맷팅 함수

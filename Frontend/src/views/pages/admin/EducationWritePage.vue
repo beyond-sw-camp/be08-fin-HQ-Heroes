@@ -68,207 +68,191 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
-import { onBeforeMount, onMounted, ref } from 'vue';
-import { fetchPost } from '../auth/service/AuthApiService'; // fetchPost 사용
+import { onMounted, ref } from 'vue';
+import { fetchGet, fetchPost } from '../auth/service/AuthApiService'; // fetchPost 사용
 import Swal from 'sweetalert2';
 import router from '@/router';
 
-export default {
-    setup() {
-        const institution = ref(''); // 교육기관
-        const subject = ref(''); // 교육명
-        const instructor = ref(''); // 강사명
-        const capacity = ref(0); // 수강정원
-        const selectedCategory = ref(''); // 선택된 카테고리
-        const categories = ref([]); // 카테고리 목록
-        const message = ref(''); // Quill 에디터 내용
-        const editor = ref(null); // Quill 에디터 참조 변수
-        const startDate = ref(''); // 시작 날짜
-        const endDate = ref(''); // 종료 날짜
+const institution = ref(''); // 교육기관
+const subject = ref(''); // 교육명
+const instructor = ref(''); // 강사명
+const capacity = ref(0); // 수강정원
+const selectedCategory = ref(''); // 선택된 카테고리
+const categories = ref([]); // 카테고리 목록
+const message = ref(''); // Quill 에디터 내용
+const editor = ref(null); // Quill 에디터 참조 변수
+const startDate = ref(''); // 시작 날짜
+const endDate = ref(''); // 종료 날짜
 
-        let quillEditor = null; // quillEditor 변수
+let quillEditor = null; // quillEditor 변수
 
-        // Quill 에디터 초기화
-        onMounted(() => {
-            quillEditor = new Quill(editor.value, {
-                theme: 'snow',
-                modules: {
-                    toolbar: {
-                        container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
-                        handlers: {
-                            image: imageHandler // 이미지 핸들러 추가
-                        }
-                    }
+// Quill 에디터 초기화
+onMounted(async () => {
+    await fetchCategories();
+
+    quillEditor = new Quill(editor.value, {
+        theme: 'snow',
+        modules: {
+            toolbar: {
+                container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
+                handlers: {
+                    image: imageHandler // 이미지 핸들러 추가
                 }
+            }
+        }
+    });
+
+    quillEditor.on('text-change', () => {
+        message.value = quillEditor.root.innerHTML; // Quill 에디터 내용 업데이트
+    });
+});
+
+// 이미지 핸들러 함수
+const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+        const file = input.files[0];
+
+        // 이미지 크기 조정
+        const resizedImage = await resizeImage(file, 700, 700); // 원하는 크기로 조정 (800x800 예시)
+
+        const formData = new FormData();
+        formData.append('file', resizedImage);
+
+        try {
+            // 이미지 업로드 API 호출
+            const response = await fetch('http://localhost:8080/api/v1/upload-image', {
+                method: 'POST',
+                body: formData
             });
 
-            quillEditor.on('text-change', () => {
-                message.value = quillEditor.root.innerHTML; // Quill 에디터 내용 업데이트
-            });
-        });
+            const data = await response.json();
+            const imageUrl = data.imageUrl; // 서버에서 반환된 이미지 URL
 
-        // 이미지 핸들러 함수
-        const imageHandler = () => {
-            const input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', 'image/*');
-            input.click();
+            // quillEditor가 정의되었는지 확인
+            if (quillEditor) {
+                const range = quillEditor.getSelection();
+                quillEditor.insertEmbed(range.index, 'image', imageUrl); // 에디터에 이미지 URL 삽입
+            }
+        } catch (error) {
+            console.error('Image upload failed:', error);
+        }
+    };
+};
 
-            input.onchange = async () => {
-                const file = input.files[0];
+// 이미지 크기 조정 함수
+const resizeImage = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve) => {
+        const img = new Image();
+        const reader = new FileReader();
 
-                // 이미지 크기 조정
-                const resizedImage = await resizeImage(file, 700, 700); // 원하는 크기로 조정 (800x800 예시)
+        reader.onload = (event) => {
+            img.src = event.target.result;
+        };
 
-                const formData = new FormData();
-                formData.append('file', resizedImage);
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
 
-                try {
-                    // 이미지 업로드 API 호출
-                    const response = await fetch('http://localhost:8080/api/v1/upload-image', {
-                        method: 'POST',
-                        body: formData
-                    });
+            let width = img.width;
+            let height = img.height;
 
-                    const data = await response.json();
-                    const imageUrl = data.imageUrl; // 서버에서 반환된 이미지 URL
-
-                    // quillEditor가 정의되었는지 확인
-                    if (quillEditor) {
-                        const range = quillEditor.getSelection();
-                        quillEditor.insertEmbed(range.index, 'image', imageUrl); // 에디터에 이미지 URL 삽입
-                    }
-                } catch (error) {
-                    console.error('Image upload failed:', error);
+            // 크기 비율 유지하며 조정
+            if (width > height) {
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
                 }
-            };
-        };
-
-        // 이미지 크기 조정 함수
-        const resizeImage = (file, maxWidth, maxHeight) => {
-            return new Promise((resolve) => {
-                const img = new Image();
-                const reader = new FileReader();
-
-                reader.onload = (event) => {
-                    img.src = event.target.result;
-                };
-
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-
-                    let width = img.width;
-                    let height = img.height;
-
-                    // 크기 비율 유지하며 조정
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height *= maxWidth / width;
-                            width = maxWidth;
-                        }
-                    } else {
-                        if (height > maxHeight) {
-                            width *= maxHeight / height;
-                            height = maxHeight;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    canvas.toBlob((blob) => {
-                        resolve(new File([blob], file.name, { type: file.type })); // 새로운 파일 반환
-                    }, file.type);
-                };
-
-                reader.readAsDataURL(file);
-            });
-        };
-
-        // 카테고리 로드
-        const loadCategoriesFromStorage = () => {
-            let storedCategories = JSON.parse(localStorage.getItem('educationCategories')) || [];
-            categories.value = storedCategories; // 로컬 스토리지에서 카테고리 로드
-        };
-
-        onBeforeMount(() => {
-            loadCategoriesFromStorage(); // 카테고리 로드
-        });
-
-        // 카테고리 이름을 ID로 변환
-        const getCategoryById = (categoryName) => {
-            // 카테고리 목록에서 categoryName이 일치하는 항목 찾기
-            const category = categories.value.find((cat) => cat.categoryName === categoryName);
-
-            if (!category) {
-                console.error('카테고리 ID를 찾을 수 없습니다.');
+            } else {
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
             }
 
-            // categoryId를 반환
-            return category ? category.categoryId : null;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+                resolve(new File([blob], file.name, { type: file.type })); // 새로운 파일 반환
+            }, file.type);
         };
 
-        // 메시지 전송 로직
-        const sendMessage = async () => {
-            try {
-                const requestBody = {
-                    educationName: subject.value, // 교육명
-                    instructorName: instructor.value, // 강사명
-                    institution: institution.value, // 교육기관
-                    educationStart: startDate.value, // 시작 날짜
-                    educationEnd: endDate.value, // 종료 날짜
-                    categoryId: getCategoryById(selectedCategory.value), // 카테고리 ID
-                    educationCurriculum: message.value, // 교육 커리큘럼 (Quill 에디터 내용)
-                    participants: capacity.value // 수강정원
-                };
+        reader.readAsDataURL(file);
+    });
+};
 
-                console.log('전송 데이터:', requestBody);
+// 카테고리 이름을 ID로 변환
+const getCategoryById = (categoryName) => {
+    // 카테고리 목록에서 categoryName이 일치하는 항목 찾기
+    const category = categories.value.find((cat) => cat.categoryName === categoryName);
 
-                const result = await fetchPost('http://localhost:8080/api/v1/education-service/education', requestBody);
+    if (!category) {
+        console.error('카테고리 ID를 찾을 수 없습니다.');
+    }
 
-                // 요청 결과 로그
-                console.log('API 응답:', result);
+    // categoryId를 반환
+    return category ? category.categoryId : null;
+};
 
-                if (result) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '교육 작성 완료',
-                        text: '교육 정보가 성공적으로 작성되었습니다.',
-                        confirmButtonText: '확인'
-                    }).then(() => {
-                        // 확인 버튼 클릭 후 다른 페이지로 이동
-                        console.log('이동할 경로:', '/education-apply'); // 이동할 경로 로그
-                        router.push({ path: '/education-apply' }); // 원하는 페이지의 경로로 수정
-                    });
-                }
-            } catch (error) {
-                console.error('API 요청 실패:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: '오류 발생',
-                    text: '교육 정보 작성 중 문제가 발생했습니다.',
-                    confirmButtonText: '확인'
-                });
-            }
+// 카테고리 목록 가져오기 함수
+const fetchCategories = async () => {
+    try {
+        const response = await fetchGet('http://localhost:8080/api/v1/educationCategory-service/categories');
+        categories.value = response;
+    } catch (error) {
+        console.error('카테고리 목록을 불러오지 못했습니다.', error);
+    }
+};
+
+// 메시지 전송 로직
+const sendMessage = async () => {
+    try {
+        const requestBody = {
+            educationName: subject.value, // 교육명
+            instructorName: instructor.value, // 강사명
+            institution: institution.value, // 교육기관
+            educationStart: startDate.value, // 시작 날짜
+            educationEnd: endDate.value, // 종료 날짜
+            categoryId: getCategoryById(selectedCategory.value), // 카테고리 ID
+            educationCurriculum: message.value, // 교육 커리큘럼 (Quill 에디터 내용)
+            participants: capacity.value // 수강정원
         };
 
-        return {
-            institution,
-            subject,
-            instructor,
-            capacity,
-            selectedCategory,
-            categories,
-            startDate,
-            endDate,
-            message,
-            editor,
-            sendMessage
-        };
+        console.log('전송 데이터:', requestBody);
+
+        const result = await fetchPost('http://localhost:8080/api/v1/education-service/education', requestBody);
+
+        // 요청 결과 로그
+        console.log('API 응답:', result);
+
+        if (result) {
+            Swal.fire({
+                icon: 'success',
+                title: '교육 작성 완료',
+                text: '교육 정보가 성공적으로 작성되었습니다.',
+                confirmButtonText: '확인'
+            }).then(() => {
+                // 확인 버튼 클릭 후 다른 페이지로 이동
+                console.log('이동할 경로:', '/education-apply'); // 이동할 경로 로그
+                router.push({ path: '/education-apply' }); // 원하는 페이지의 경로로 수정
+            });
+        }
+    } catch (error) {
+        console.error('API 요청 실패:', error);
+        Swal.fire({
+            icon: 'error',
+            title: '오류 발생',
+            text: '교육 정보 작성 중 문제가 발생했습니다.',
+            confirmButtonText: '확인'
+        });
     }
 };
 </script>

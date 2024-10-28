@@ -42,7 +42,8 @@ public class Course {
                 .startDate(this.education.getStartDate())
                 .endDate(this.education.getEndDate())
                 .categoryName(this.education.getEducationCategory().getCategoryName())
-                .status(this.courseStatus)
+                .courseStatus(this.courseStatus)
                 .build();
     }
+
 }
