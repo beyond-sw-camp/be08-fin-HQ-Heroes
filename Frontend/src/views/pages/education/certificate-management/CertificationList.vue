@@ -56,12 +56,12 @@
                 <InputText id="certificationName" v-model="newCertification.certificationName" required="true" class="w-full" />
             </div>
             <div>
-                <label for="acquisitionDate" class="block font-bold mb-3">취득일</label>
-                <Calendar id="acquisitionDate" v-model="newCertification.acquisitionDate" required="true" placeholder="YYYY-MM-DD" class="w-full small-calendar" />
-            </div>
-            <div>
                 <label for="institution" class="block font-bold mb-3">기관명</label>
                 <InputText id="institution" v-model="newCertification.institution" required="true" class="w-full" />
+            </div>
+            <div>
+                <label for="acquisitionDate" class="block font-bold mb-3">취득일</label>
+                <Calendar id="acquisitionDate" v-model="newCertification.acquisitionDate" required="true" placeholder="YYYY-MM-DD" class="w-full small-calendar" />
             </div>
         </div>
 
@@ -85,7 +85,7 @@
                             <i :class="cert.iconClass"></i>
                         </div>
                     </div>
-                    <span class="text-muted-color">{{ formatDate(cert.examDate) }}</span>
+                    <span class="text-muted-color">{{ cert.institution }}</span>
                 </div>
             </div>
         </div>
@@ -170,8 +170,10 @@ async function fetchEmployeeCertifications() {
         const data = await fetchGet('http://localhost:8080/api/v1/employee-certification/my-certification/by-employeeId');
 
         if (data && Array.isArray(data)) {
-            // registrationId 순서대로 정렬 (최신순)
-            certifications.value = data.sort((a, b) => b.registrationId - a.registrationId);  
+            // APPROVED 상태의 자격증만 필터링하고, registrationId 순서대로 정렬 (최신순)
+            certifications.value = data
+                .filter(cert => cert.certificationStatus === 'APPROVE') // APPROVED 상태만 선택
+                .sort((a, b) => b.registrationId - a.registrationId); // 최신순 정렬
             filteredCertifications.value = [...certifications.value];
         } else {
             console.error('응답 데이터가 배열이 아닙니다.', data);
