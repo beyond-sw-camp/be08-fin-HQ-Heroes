@@ -1,54 +1,54 @@
 <template>
-    <div class="notice-detail-page">
+    <div class="education-detail-page">
         <div class="card">
             <label class="text-xl font-bold" style="margin-bottom: 4rem">교육 내용 - 수정</label>
 
-                <!-- 교육기관 입력 -->
-                <div class="input-group">
-                    <h3 class="input-title"><b>교육기관 *</b></h3>
-                    <input type="text" v-model="institution" class="message-input" placeholder="교육기관을 입력하세요" />
-                </div>
+            <!-- 교육기관 입력 -->
+            <div class="input-group">
+                <h3 class="input-title"><b>교육기관 *</b></h3>
+                <input type="text" v-model="education.institution" class="message-input" placeholder="교육기관을 입력하세요" />
+            </div>
 
-                <!-- 교육명 입력 -->
-                <div class="input-group">
-                    <h3 class="input-title"><b>교육명 *</b></h3>
-                    <input type="text" v-model="subject" class="message-input" placeholder="교육명을 입력하세요" />
-                </div>
+            <!-- 교육명 입력 -->
+            <div class="input-group">
+                <h3 class="input-title"><b>교육명 *</b></h3>
+                <input type="text" v-model="education.educationName" class="message-input" placeholder="교육명을 입력하세요" />
+            </div>
 
-                <!-- 강사명 입력 -->
-                <div class="input-group">
-                    <h3 class="input-title"><b>강사명 *</b></h3>
-                    <input type="text" v-model="instructor" class="message-input" placeholder="강사명을 입력하세요" />
-                </div>
+            <!-- 강사명 입력 -->
+            <div class="input-group">
+                <h3 class="input-title"><b>강사명 *</b></h3>
+                <input type="text" v-model="education.instructorName" class="message-input" placeholder="강사명을 입력하세요" />
+            </div>
 
-                <!-- 수강정원 입력 -->
-                <div class="input-group">
-                    <h3 class="input-title"><b>수강정원 *</b></h3>
-                    <input type="number" v-model="capacity" class="message-input" placeholder="수강정원을 입력하세요" min="1" />
-                </div>
+            <!-- 수강정원 입력 -->
+            <div class="input-group">
+                <h3 class="input-title"><b>수강정원 *</b></h3>
+                <input type="number" v-model="education.participants" class="message-input" placeholder="수강정원을 입력하세요" min="1" />
+            </div>
 
-                <!-- 카테고리 선택 -->
-                <div class="input-group">
-                    <h3 class="input-title"><b>카테고리</b></h3>
-                    <select v-model="selectedCategory" class="message-input">
-                        <option value="" disabled selected>카테고리를 선택하세요</option>
-                        <option v-for="category in categories" :key="category.id" :value="category.categoryName">
-                            {{ category.categoryName }}
-                        </option>
-                    </select>
-                </div>
+            <!-- 카테고리 선택 -->
+            <div class="input-group">
+                <h3 class="input-title"><b>카테고리</b></h3>
+                <select v-model="education.categoryId" class="message-input">
+                    <option value="" disabled selected>카테고리를 선택하세요</option>
+                    <option v-for="category in categories" :key="category.id" :value="category.categoryId">
+                        {{ category.categoryName }}
+                    </option>
+                </select>
+            </div>
 
-                <!-- 시작 날짜 및 종료 날짜 한 줄에 배치 -->
-                <div class="date-section">
-                    <div class="date-block">
-                        <label for="startDate" class="input-title"><b>시작 날짜 *</b></label>
-                        <input type="date" v-model="startDate" class="message-input" />
-                    </div>
-                    <div class="date-block">
-                        <label for="endDate" class="input-title"><b>종료 날짜 *</b></label>
-                        <input type="date" v-model="endDate" class="message-input" />
-                    </div>
+            <!-- 시작 날짜 및 종료 날짜 한 줄에 배치 -->
+            <div class="date-section">
+                <div class="date-block">
+                    <label for="startDate" class="input-title"><b>시작 날짜 *</b></label>
+                    <input type="date" v-model="education.educationStart" class="message-input" />
                 </div>
+                <div class="date-block">
+                    <label for="endDate" class="input-title"><b>종료 날짜 *</b></label>
+                    <input type="date" v-model="education.educationEnd" class="message-input" />
+                </div>
+            </div>
 
             <div class="input-group">
                 <h3 class="input-title">내 용</h3>
@@ -56,197 +56,205 @@
             </div>
 
             <div class="button-group">
-                <Button label="수정" icon="pi pi-check" class="gray-button" @click="updateNoticeContent" />
+                <Button label="수정" icon="pi pi-check" class="gray-button" @click="updateEducationContent" />
                 <Button label="취소" icon="pi pi-times" class="p-button-danger" @click="cancelEdit" />
             </div>
         </div>
     </div>
 </template>
 
-<script>
+<script setup>
 import router from '@/router';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import Swal from 'sweetalert2';
 import { nextTick, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchPost } from '../auth/service/AuthApiService';
-import { fetchNoticeById, updateNotice  } from './service/adminNoticeService';
+import { fetchGet, fetchPut } from '../auth/service/AuthApiService';
 
-export default {
-    setup() {
-        const route = useRoute();
-        const editableNotice = ref({
-            title: '',
-            employeeId: '',
-            categoryId: '',
-            content: ''
-        });
-        const categories = ref([]);
-        const editor = ref(null);
-        let quillEditor = null;
+const route = useRoute();
+const education = ref({
+    institution: '',
+    educationName: '',
+    instructorName: '',
+    participants: '',
+    categoryName: '',
+    categoryId: 0,
+    educationStart: '',
+    educationEnd: '',
+    educationCurriculum: ''
+});
 
-        const loadNotice = async () => {
-            const noticeId = route.params.id;
-            try {
-                const result = await fetchNoticeById(noticeId);
-                editableNotice.value = { ...result };
-            } catch (error) {
-                console.error('교육 조회 오류:', error);
-            }
-        };
+const categories = ref([]);
+const editor = ref(null);
+let quillEditor = null;
 
-        const initializeEditor = async () => {
-            await nextTick();
-
-            if (editor.value) {
-                quillEditor = new Quill(editor.value, {
-                    theme: 'snow',
-                    modules: {
-                    toolbar: {
-                        container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
-                        handlers: {
-                            image: imageHandler // 이미지 핸들러 추가
-                        }
-                    }
-                }
-                });
-
-                quillEditor.enable(true);
-
-                if (editableNotice.value.content) {
-                    quillEditor.root.innerHTML = editableNotice.value.content;
-                }
-
-                quillEditor.on('text-change', () => {
-                    editableNotice.value.content = quillEditor.root.innerHTML;
-                });
-            }
-        };
-
-        onMounted(async () => {
-            await loadNotice();
-            await initializeEditor();
-            loadCategoriesFromStorage();
-        });
-
-        const imageHandler = () => {
-            const input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', 'image/*');
-            input.click();
-
-            input.onchange = async () => {
-                const file = input.files[0];
-                const resizedImage = await resizeImage(file, 700, 700);
-
-                const formData = new FormData();
-                formData.append('file', resizedImage);
-
-                try {
-                    const response = await fetch('http://localhost:8080/api/v1/upload-image', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await response.json();
-                    const imageUrl = data.imageUrl;
-
-                    if (quillEditor) {
-                        const range = quillEditor.getSelection();
-                        quillEditor.insertEmbed(range.index, 'image', imageUrl);
-                    }
-                } catch (error) {
-                    console.error('Image upload failed:', error);
-                }
-            };
-        };
-
-        const resizeImage = (file, maxWidth, maxHeight) => {
-            return new Promise((resolve) => {
-                const img = new Image();
-                const reader = new FileReader();
-
-                reader.onload = (event) => {
-                    img.src = event.target.result;
-                };
-
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height *= maxWidth / width;
-                            width = maxWidth;
-                        }
-                    } else {
-                        if (height > maxHeight) {
-                            width *= maxHeight / height;
-                            height = maxHeight;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    canvas.toBlob((blob) => {
-                        resolve(new File([blob], file.name, { type: file.type }));
-                    }, file.type);
-                };
-
-                reader.readAsDataURL(file);
-            });
-        };
-
-        const loadCategoriesFromStorage = () => {
-            const storedCategories = JSON.parse(localStorage.getItem('noticeCategories')) || [];
-            categories.value = storedCategories;
-        };
-
-        const updateNoticeContent = async () => {
-            try {
-                const requestBody = {
-                    title: editableNotice.value.title,
-                    content: quillEditor.root.innerHTML,
-                    employeeId: editableNotice.value.employeeId,
-                    categoryId: editableNotice.value.categoryId
-                };
-
-                const result = await updateNotice(route.params.id, requestBody);
-
-                if (result) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '교육 수정 완료',
-                        text: '교육이 성공적으로 수정되었습니다.',
-                        confirmButtonText: '확인'
-                    }).then(() => {
-                        router.push({ path: '/manage-notices' });
-                    });
-                }
-            } catch (error) {
-                console.error('교육 수정 중 오류 발생:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: '오류 발생',
-                    text: '교육 수정 중 오류가 발생했습니다. 다시 시도해주세요.',
-                    confirmButtonText: '확인'
-                });
-            }
-        };
-
-        const cancelEdit = () => {
-            router.push({ path: '/manage-notices' });
-        };
-
-        return { editableNotice, categories, editor, updateNoticeContent, cancelEdit, updateNotice: updateNoticeContent };
+const loadEducationData = async () => {
+    const educationId = route.params.id;
+    console.log('educationId', educationId);
+    try {
+        const result = await fetchGet(`http://localhost:8080/api/v1/education-service/education/${educationId}`);
+        education.value = { ...result };
+    } catch (error) {
+        console.error('교육 데이터 조회 오류:', error);
     }
 };
-</script>
 
+const initializeEditor = async () => {
+    await nextTick();
+
+    if (editor.value) {
+        quillEditor = new Quill(editor.value, {
+            theme: 'snow',
+            modules: {
+                toolbar: {
+                    container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
+                    handlers: {
+                        image: imageHandler
+                    }
+                }
+            }
+        });
+
+        quillEditor.enable(true);
+
+        if (education.value.educationCurriculum) {
+            quillEditor.root.innerHTML = education.value.educationCurriculum;
+        }
+
+        quillEditor.on('text-change', () => {
+            education.value.educationCurriculum = quillEditor.root.innerHTML;
+        });
+    }
+};
+
+const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+        const file = input.files[0];
+        const resizedImage = await resizeImage(file, 700, 700);
+
+        const formData = new FormData();
+        formData.append('file', resizedImage);
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/upload-image', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            const imageUrl = data.imageUrl;
+
+            if (quillEditor) {
+                const range = quillEditor.getSelection();
+                quillEditor.insertEmbed(range.index, 'image', imageUrl);
+            }
+        } catch (error) {
+            console.error('이미지 업로드 실패:', error);
+        }
+    };
+};
+
+const resizeImage = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve) => {
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            img.src = event.target.result;
+        };
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+                resolve(new File([blob], file.name, { type: file.type }));
+            }, file.type);
+        };
+
+        reader.readAsDataURL(file);
+    });
+};
+
+onMounted(async () => {
+    await fetchCategories();
+    await loadEducationData();
+    await initializeEditor();
+});
+
+// 카테고리 목록 가져오기 함수
+const fetchCategories = async () => {
+    try {
+        const response = await fetchGet('http://localhost:8080/api/v1/educationCategory-service/categories');
+        categories.value = response;
+    } catch (error) {
+        console.error('카테고리 목록을 불러오지 못했습니다.', error);
+    }
+};
+
+const updateEducationContent = async () => {
+    try {
+        const requestBody = { ...education.value};
+        const result = await updateEducation(route.params.id, requestBody);
+
+        if (result) {
+            Swal.fire({
+                icon: 'success',
+                title: '교육 수정 완료',
+                text: '교육이 성공적으로 수정되었습니다.',
+                confirmButtonText: '확인'
+            }).then(() => {
+                router.push({ path: '/manage-education' });
+            });
+        }
+    } catch (error) {
+        console.error('교육 수정 중 오류 발생:', error);
+        Swal.fire({
+            icon: 'error',
+            title: '오류 발생',
+            text: '교육 수정 중 오류가 발생했습니다. 다시 시도해주세요.',
+            confirmButtonText: '확인'
+        });
+    }
+};
+
+// 공지사항 수정
+const updateEducation = async (educationId, updatedData) => {
+    try {
+        const response = await fetchPut(`http://localhost:8080/api/v1/education-service/education/${educationId}`, updatedData);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const cancelEdit = () => {
+    router.push({ path: '/manage-education' });
+};
+</script>
 
 <style scoped>
 .notice-detail-page {

@@ -44,17 +44,18 @@
 
             <div class="button-group">
                 <Button v-if="editMode" label="저장" icon="pi pi-save" @click="saveChanges" />
-                <Button v-else label="수정" icon="pi pi-pencil" @click="enableEditMode" />
-                <Button label="목록" icon="pi pi-fw pi-book" @click="goBackToList" class="gray-button" />
+                <Button label="목록" icon="pi pi-fw pi-book" severity='info' @click="goBackToList"/>
+                <Button v-if="!editMode" label="수정" icon="pi pi-pencil" @click="gotoEducationUpdate()" />
+                <Button v-if="!editMode" label="삭제" severity='danger' icon="pi pi-trash" @click="deleteEducation" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
+import axios from 'axios';
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-
 // 라우터에서 educationId를 가져옴
 const route = useRoute();
 const router = useRouter();
@@ -70,6 +71,7 @@ const participants = ref(0); // 기본값을 0으로 설정
 const institution = ref(''); // institution 상태 추가
 const educationCurriculum = ref('');
 const editMode = ref(false);
+const educationId = ref(0);
 
 // API 호출하여 교육 정보를 가져오는 함수
 const fetchGet = async (url) => {
@@ -99,70 +101,40 @@ const fetchEducationDetails = async (educationId) => {
 
 // 컴포넌트가 마운트될 때 educationId로 교육 정보를 가져옴
 onMounted(() => {
-    const educationId = route.params.educationId;
+    const id = route.params.educationId;
+    educationId.value = id;
     if (educationId) {
-        fetchEducationDetails(educationId);
+        fetchEducationDetails(id);
     } else {
         console.error('educationId가 정의되지 않았습니다.');
     }
 });
+
+// '목록' 버튼 클릭 시 목록 페이지로 이동
+const goBackToList = () => {
+    router.push('/manage-education');
+};
 
 // 수정 모드를 활성화하는 함수
 // function enableEditMode() {
 //     router.push('/write-notice');
 // }
 
-const enableEditMode = (educationId) => {
-    router.push({ name: 'education-update', params: { id: educationId } });
+const gotoEducationUpdate = () => {
+    router.push({ name: 'education-update', params: { id: educationId.value } });
 };
 
-// 변경 사항을 저장하는 함수
-const fetchPut = async (url, data) => {
-    const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    });
-    if (!response.ok) {
-        throw new Error('네트워크 응답이 좋지 않습니다.');
-    }
-    return response.json();
-};
-
-const saveChanges = async () => {
+// 교육 삭제
+const deleteEducation = async () => {
     try {
-        const educationId = route.params.educationId;
-        const updatedEducation = {
-            educationName: educationName.value,
-            applicationStartDate: applicationStartDate.value,
-            applicationEndDate: applicationEndDate.value,
-            educationStart: educationStart.value,
-            educationEnd: educationEnd.value,
-            participants: participants.value, // participants를 제대로 포함
-            institution: institution.value, // institution 추가
-            educationCurriculum: educationCurriculum.value
-        };
-
-        // 백엔드에 PUT 요청으로 수정된 내용을 저장
-        const response = await fetchPut(`http://localhost:8080/api/v1/education-service/education/${educationId}`, updatedEducation);
-        
-        if (response) {
-            // 저장 후 수정 모드 해제
-            editMode.value = false; 
-            // 변경된 값을 다시 가져와서 반영
-            fetchEducationDetails(educationId);
-        }
+        const response = await axios.delete(`http://localhost:8080/api/v1/education-service/education/${educationId.value}`);
+        router.push('/manage-education')
+        return response.status === 200 || response.status === 204;
     } catch (error) {
-        console.error('변경 사항을 저장하는 데 오류가 발생했습니다:', error);
+        throw error;
     }
 };
 
-// '목록' 버튼 클릭 시 목록 페이지로 이동
-const goBackToList = () => {
-    router.push('/manage-education');
-};
 
 // 날짜 포맷팅 함수
 function formatDate(date) {
@@ -204,12 +176,6 @@ h3 {
 
 .education-info strong {
     font-weight: bold;
-}
-
-.gray-button {
-    background-color: #ffffff;
-    border: 1px solid #7d7d7d;
-    color: #000000;
 }
 
 .button-group {
