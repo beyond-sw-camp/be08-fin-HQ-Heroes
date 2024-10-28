@@ -4,10 +4,10 @@
             <div class="font-bold text-lg">{{ certificationDetail.certificationName }}</div>
         </template>
         <div class="p-4">
+            <p><strong>부서:</strong> {{ certificationDetail.deptName }}</p>
             <p><strong>자격증 명:</strong> {{ certificationDetail.certificationName }}</p>
-            <p><strong>접수 기간:</strong> {{ formatDate(certificationDetail.applicationStartDate) }} ~ {{ formatDate(certificationDetail.applicationEndDate) }}</p>
-            <p><strong>시험 날짜:</strong> {{ formatDate(certificationDetail.examDate) }}</p>
             <p><strong>발급 기관:</strong> {{ certificationDetail.institution }}</p>
+            <p><strong>혜택:</strong> {{ certificationDetail.benefit }}</p>
         </div>
         <template #footer>
             <Button label="닫기" icon="pi pi-times" @click="closeModal" />

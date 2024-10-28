@@ -54,7 +54,7 @@ public class EmployeeCertification {
                 .acquisitionDate(this.acquisitionDate)
                 .employeeId(this.employee.getEmployeeId())
                 .employeeName(this.employee.getEmployeeName())
-                .certificationStatus(this.employeeCertificationStatus)
+                .employeeCertificationStatus(this.employeeCertificationStatus)
                 .build();
     }
 }
