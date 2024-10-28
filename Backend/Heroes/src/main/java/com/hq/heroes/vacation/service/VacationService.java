@@ -16,4 +16,6 @@ public interface VacationService {
     void rejectVacation(Long vacationId);
 
     List<VacationDTO> getApprovedVacationsByEmployeeId(String employeeId);
+
+    List<VacationDTO> getTeamVacations(String employeeId);
 }

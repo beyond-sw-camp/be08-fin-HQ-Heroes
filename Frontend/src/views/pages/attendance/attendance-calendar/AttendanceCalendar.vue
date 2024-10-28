@@ -2,6 +2,7 @@
     <div class="demo-app">
         <div class="demo-app-main">
             <FullCalendar ref="calendar" class="demo-app-calendar" :options="calendarOptions">
+                <!-- 이벤트 콘텐츠 슬롯을 이용하여 시간과 제목 표시 -->
                 <template v-slot:eventContent="arg">
                     <b>{{ arg.timeText }}</b>
                     <i class="event-title">{{ translateVacationType(arg.event.title) }}</i>
@@ -30,7 +31,6 @@
                     <InputText id="description" v-model="eventData.description" placeholder="일정 설명을 입력하세요" fluid />
                 </div>
             </div>
-
             <template #footer>
                 <Button label="닫기" icon="pi pi-times" text @click="closeModal" />
                 <Button label="저장" icon="pi pi-check" @click="saveEvent" />
@@ -61,7 +61,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import FullCalendar from '@fullcalendar/vue3';
 import { ref } from 'vue';
-import { fetchGet, fetchPost, fetchPut } from '../../auth/service/AuthApiService'; // API 요청을 위한 유틸리티 함수
+import { fetchGet, fetchPost, fetchPut } from '../../auth/service/AuthApiService';
 
 export default {
     components: { FullCalendar },
@@ -80,8 +80,11 @@ export default {
                 selectable: true,
                 dateClick: this.handleDateClick,
                 eventClick: this.handleEventClick,
-                eventDrop: this.handleEventDrop, // 일정 이동 이벤트 핸들러
-                eventResize: this.handleEventResize // 일정 크기 조정 이벤트 핸들러
+                eventDrop: this.handleEventDrop,
+                eventResize: this.handleEventResize,
+                dayMaxEventRows: true,
+                dayMaxEvents: 3,
+                aspectRatio: 1.5
             },
             isModalOpen: false,
             isDetailModalOpen: false,
@@ -92,68 +95,54 @@ export default {
                 start: '',
                 end: '',
                 category: ''
-            }),
-            categories: ref([
-                { label: '휴가', value: 'DAY_OFF' },
-                { label: '출근', value: 'HALF_DAY_OFF' },
-                { label: '병가', value: 'SICK_LEAVE' },
-                { label: '조퇴', value: 'EVENT_LEAVE' }
-            ])
+            })
         };
     },
     methods: {
-        async fetchApprovedVacationEvents() {
+        // 로그인한 사용자의 개인 일정 및 팀원들의 휴가 정보를 함께 가져와서 캘린더에 표시
+        async fetchAllEvents() {
             try {
-                const response = await fetchGet('http://localhost:8080/api/v1/vacation/my-vacations');
-                if (response) {
-                    const vacationEvents = response.map((vacation) => ({
-                        id: vacation.vacationId,
-                        title: `${this.translateVacationType(vacation.vacationType)} - ${vacation.employeeName}`,
-                        start: `${vacation.vacationStartDate}T${vacation.vacationStartTime}`,
-                        end: vacation.vacationEndDate ? `${vacation.vacationEndDate}T${vacation.vacationEndTime}` : null,
-                        backgroundColor: this.getEventColor(vacation.vacationType),
-                        extendedProps: {
-                            category: vacation.vacationType,
-                            comment: vacation.comment,
-                            vacationStatus: vacation.vacationStatus
-                        }
-                    }));
-                    this.calendarOptions.events = [...vacationEvents];
-                    this.$refs.calendar.getApi().rerenderEvents();
-                }
-            } catch (error) {
-                console.error('휴가 데이터 로드 실패:', error);
-            }
-        },
-
-        async fetchPersonalEvents() {
-            try {
+                // 개인 휴가 및 일정 가져오기
                 const employeeId = window.localStorage.getItem('employeeId');
-                const response = await fetchGet(`http://localhost:8080/api/v1/event/my-events?employeeId=${employeeId}`);
-                console.log('개인 일정 데이터:', response);
+                const personalResponse = await fetchGet(`http://localhost:8080/api/v1/event/my-events?employeeId=${employeeId}`);
+                const personalEvents = Array.isArray(personalResponse)
+                    ? personalResponse.map((event) => ({
+                          id: event.eventId || Math.random().toString(),
+                          title: `${event.title || '제목 없음'} - ${event.employeeName}`,
+                          start: event.start,
+                          end: event.end || null,
+                          backgroundColor: this.getEventColor(event.category) || '#cccccc',
+                          extendedProps: {
+                              category: event.category || '기타',
+                              comment: event.description || '설명 없음',
+                              employeeName: event.employeeName || '직원 없음'
+                          }
+                      }))
+                    : [];
+                a;
 
-                if (Array.isArray(response)) {
-                    const personalEvents = response.map((event) => ({
-                        id: event.eventId || Math.random().toString(),
-                        title: event.title || '제목 없음',
-                        start: event.start,
-                        end: event.end || null,
-                        backgroundColor: this.getEventColor(event.category) || '#cccccc',
-                        extendedProps: {
-                            category: event.category || '기타',
-                            comment: event.description || '설명 없음',
-                            employeeName: event.employeeName || '직원 없음',
-                            employeeId: event.employeeId || 'ID 없음'
-                        }
-                    }));
+                // 팀원 휴가 가져오기
+                const teamResponse = await fetchGet(`http://localhost:8080/api/v1/vacation/team-vacations?employeeId=${employeeId}`);
+                const teamVacationEvents = Array.isArray(teamResponse)
+                    ? teamResponse.map((vacation) => ({
+                          id: vacation.vacationId,
+                          title: `${this.translateVacationType(vacation.vacationType)} - ${vacation.employeeName}`,
+                          start: `${vacation.vacationStartDate}T${vacation.vacationStartTime}`,
+                          end: vacation.vacationEndDate ? `${vacation.vacationEndDate}T${vacation.vacationEndTime}` : null,
+                          backgroundColor: this.getEventColor(vacation.vacationType),
+                          extendedProps: {
+                              category: vacation.vacationType,
+                              comment: vacation.comment,
+                              vacationStatus: vacation.vacationStatus
+                          }
+                      }))
+                    : [];
 
-                    this.calendarOptions.events = [...(this.calendarOptions.events || []), ...personalEvents];
-                    this.calendarOptions = { ...this.calendarOptions };
-                } else {
-                    console.error('응답이 배열 형식이 아닙니다:', response);
-                }
+                // 모든 이벤트를 캘린더에 설정
+                this.calendarOptions.events = [...personalEvents, ...teamVacationEvents];
+                this.$refs.calendar.getApi().rerenderEvents();
             } catch (error) {
-                console.error('개인 일정 데이터 로드 실패:', error);
+                console.error('이벤트 데이터 로드 실패:', error);
             }
         },
 
@@ -171,7 +160,6 @@ export default {
 
         async handleEventDrop(eventInfo) {
             const { id, start, end } = eventInfo.event;
-
             try {
                 await fetchPut(`http://localhost:8080/api/v1/event/update/${id}`, {
                     start: start.toISOString(),
@@ -180,13 +168,12 @@ export default {
                 console.log('일정이 성공적으로 업데이트되었습니다.');
             } catch (error) {
                 console.error('일정 이동 중 오류가 발생했습니다:', error);
-                eventInfo.revert(); // 에러 발생 시 이동을 되돌림
+                eventInfo.revert();
             }
         },
 
         async handleEventResize(eventInfo) {
             const { id, start, end } = eventInfo.event;
-
             try {
                 await fetchPut(`http://localhost:8080/api/v1/event/update/${id}`, {
                     start: start.toISOString(),
@@ -195,7 +182,7 @@ export default {
                 console.log('일정 크기 조정이 성공적으로 업데이트되었습니다.');
             } catch (error) {
                 console.error('일정 크기 조정 중 오류가 발생했습니다:', error);
-                eventInfo.revert(); // 에러 발생 시 크기 조정을 되돌림
+                eventInfo.revert();
             }
         },
 
@@ -214,8 +201,7 @@ export default {
                         if (data) {
                             this.isModalOpen = false;
                             this.resetEventData();
-                            this.fetchApprovedVacationEvents();
-                            this.fetchPersonalEvents();
+                            this.fetchAllEvents();
                         }
                     })
                     .catch((error) => {
@@ -291,8 +277,7 @@ export default {
     },
 
     mounted() {
-        this.fetchApprovedVacationEvents();
-        this.fetchPersonalEvents();
+        this.fetchAllEvents();
     }
 };
 </script>
@@ -303,6 +288,35 @@ export default {
     border-radius: 12px;
     background-color: #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+.demo-app-main {
+    flex: 1;
+    overflow: hidden;
+}
+
+.demo-app-calendar {
+    width: 100%;
+    height: 100%;
+}
+
+.fc .fc-daygrid-day-frame {
+    width: 100%;
+    height: 100%;
+}
+
+.fc .fc-daygrid-day {
+    flex: 1 1 auto;
+}
+
+.fc-daygrid {
+    table-layout: fixed;
+    width: 100%;
 }
 
 .event-title {
