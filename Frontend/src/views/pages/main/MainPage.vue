@@ -76,9 +76,9 @@
                         </template>
                     </Column>
                     <Column field="employeeName" header="작성자" style="width: 15%; text-align: left" headerStyle="text-align: center" />
-                    <Column style="width: 20%; text-align: left" header="시간" headerStyle="text-align: center">
+                    <Column style="width: 20%; text-align: left" header="날짜" headerStyle="text-align: center">
                         <template #body="slotProps">
-                            <span>{{ new Date(slotProps.data.createdAt).toLocaleDateString('ko-KR') }}</span>
+                            <span>{{ DisplayDate(slotProps.data.createdAt) }}</span>
                         </template>
                     </Column>
                 </DataTable>
@@ -271,6 +271,20 @@ const formatDate = (createdAt) => {
         return `${daysAgo}일 전`;
     }
 };
+
+const DisplayDate = (dateString) => {
+    const options = {
+        year: 'numeric',
+        month: '2-digit', // 두 자리 숫자 형식으로 표시
+        day: '2-digit' // 두 자리 숫자 형식으로 표시
+    };
+    // 날짜 포맷팅
+    const formattedDate = new Date(dateString).toLocaleDateString('ko-KR', options);
+    
+    // 마지막 마침표 제거
+    return formattedDate.endsWith('.') ? formattedDate.slice(0, -1) : formattedDate;
+};
+
 
 const getFirstText = (htmlString) => {
     // HTML 문자열을 DOM으로 파싱
