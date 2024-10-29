@@ -13,11 +13,11 @@ import java.time.LocalDateTime;
 public class SalaryHistoryDTO {
     private Long salaryId;
     private String employeeId;
-    private LocalDateTime salaryMonth; // 정산 월
+    private LocalDateTime salaryMonth; // 지급 일자
     private Double preTaxTotal; // 세전 총액
     private Double postTaxTotal; // 세후 총액
-    private Status status; // 지급 상태
-    private LocalDateTime paymentDate; // 지급 일자
+    private Double bonus; // 성과급
+    private long workTime; // 근무 시간
 
     // 공제 항목
     private Double nationalPension; // 국민연금
