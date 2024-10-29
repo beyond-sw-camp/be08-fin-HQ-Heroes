@@ -6,12 +6,13 @@
         <!-- 사이드바 (필터 메뉴) -->
         <Transition name="slide">
             <div v-if="isSidebarOpen" class="sidebar">
-                <Button label="전체 보기" @click="setCategoryFilter(null)" class="filter-btn" />
-                <Button label="월차" @click="setCategoryFilter('DAY_OFF')" class="filter-btn" />
-                <Button label="반차" @click="setCategoryFilter('HALF_DAY_OFF')" class="filter-btn" />
-                <Button label="병가" @click="setCategoryFilter('SICK_LEAVE')" class="filter-btn" />
-                <Button label="경조" @click="setCategoryFilter('EVENT_LEAVE')" class="filter-btn" />
-                <Button label="개인 일정만 보기" @click="togglePersonalView" class="filter-btn" />
+                <h3 class="sidebar-header">필터 옵션</h3>
+                <Button label="전체 보기" @click="setCategoryFilter(null)" class="filter-btn all-btn" />
+                <Button label="월차" @click="setCategoryFilter('DAY_OFF')" class="filter-btn day-off-btn" />
+                <Button label="반차" @click="setCategoryFilter('HALF_DAY_OFF')" class="filter-btn half-day-btn" />
+                <Button label="병가" @click="setCategoryFilter('SICK_LEAVE')" class="filter-btn sick-leave-btn" />
+                <Button label="경조" @click="setCategoryFilter('EVENT_LEAVE')" class="filter-btn event-leave-btn" />
+                <Button label="개인 일정만 보기" @click="togglePersonalView" class="filter-btn personal-btn" />
 
                 <!-- 사이드바 닫기 버튼 -->
                 <Button icon="pi pi-times" label="닫기" @click="toggleSidebar" class="close-sidebar-btn" />
@@ -20,7 +21,6 @@
 
         <div class="demo-app-main">
             <FullCalendar ref="calendar" class="demo-app-calendar" :options="calendarOptions">
-                <!-- 이벤트 콘텐츠 슬롯을 이용하여 시간과 제목 표시 -->
                 <template v-slot:eventContent="arg">
                     <i class="event-title">{{ translateVacationType(arg.event.title) }}</i>
                 </template>
@@ -404,21 +404,60 @@ export default {
     left: 0;
     width: 200px;
     height: 100%;
-    background-color: #f4f4f4;
+    background-color: #f9f9f9;
     padding: 16px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
     z-index: 10;
+}
+
+.sidebar-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+    color: #333;
 }
 
 .filter-btn {
     display: block;
     width: 100%;
     margin-bottom: 8px;
+    font-weight: bold;
+    color: black;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* 카테고리별 버튼 색상 */
+.all-btn {
+    background-color: #888888;
+}
+
+.day-off-btn {
+    background-color: #ffcccc;
+}
+
+.half-day-btn {
+    background-color: #ffeb99;
+}
+
+.sick-leave-btn {
+    background-color: #ccffcc;
+}
+
+.event-leave-btn {
+    background-color: #ccccff;
+}
+
+.personal-btn {
+    background-color: #6c757d;
 }
 
 .close-sidebar-btn {
     margin-top: 20px;
     width: 100%;
+    background-color: #555;
+    color: #fff;
 }
 
 .slide-enter-active,
