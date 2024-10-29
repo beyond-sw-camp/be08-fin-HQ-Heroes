@@ -4,11 +4,11 @@
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">출근시간</span>
+                    <div class="ml-3 mt-7">
+                        <span class="block text-muted-color font-medium mb-2">출근시간</span>
                         <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ checkInTime }}</div>
                     </div>
-                    <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
+                    <div class="flex items-center justify-center bg-blue-100 rounded-border mt-8 mr-4" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-check-circle text-blue-500 !text-xl"></i>
                     </div>
                 </div>
@@ -20,12 +20,12 @@
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">퇴근시간</span>
+                    <div class="ml-3 mt-7">
+                        <span class="block text-muted-color font-medium mb-2">퇴근시간</span>
                         <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ checkOutTime }}</div>
                     </div>
-                    <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi pi-map text-orange-500 !text-xl"></i>
+                    <div class="flex items-center justify-center bg-orange-100 rounded-border mt-8 mr-4" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-power-off text-orange-500 !text-xl"></i>
                     </div>
                 </div>
                 <!-- <span class="text-muted-color">{{ checkOutTime }}</span> -->
@@ -36,12 +36,12 @@
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">휴가 잔여 일수</span>
+                    <div class="ml-3 mt-7">
+                        <span class="block text-muted-color font-medium mb-2">휴가 잔여 일수</span>
                         <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ annualLeave }}일</div>
                     </div>
-                    <div class="flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi pi-folder-open text-cyan-500 !text-xl"></i>
+                    <div class="flex items-center justify-center bg-cyan-100 rounded-border mt-8 mr-4" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-shopping-bag text-cyan-500 !text-xl"></i>
                     </div>
                 </div>
                 <!-- <span class="text-muted-color">{{ currentDate }}</span> -->
@@ -52,12 +52,12 @@
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
-                    <div>
-                        <span class="block text-muted-color font-medium mb-4">급여</span>
+                    <div class="ml-3 mt-7">
+                        <span class="block text-muted-color font-medium mb-2">급여</span>
                         <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ salaryDday }}일 남음</div>
                     </div>
-                    <div class="flex items-center justify-center bg-purple-100 dark:bg-purple-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
-                        <i class="pi pi-envelope text-purple-500 !text-xl"></i>
+                    <div class="flex items-center justify-center bg-purple-100 rounded-border mt-8 mr-4" style="width: 2.5rem; height: 2.5rem">
+                        <i class="pi pi-dollar text-purple-500 !text-xl"></i>
                     </div>
                 </div>
                 <!-- <span class="text-muted-color">{{ currentDate }}</span> -->
@@ -66,13 +66,13 @@
 
         <!-- 공지사항 -->
         <div class="col-span-12 xl:col-span-6">
-            <div class="card">
-                <div class="font-semibold text-xl ml-4 mb-2">공지사항</div>
-                <DataTable :value="announcements" :rows="5" :paginator="true" dataKey="noticeId" responsiveLayout="scroll" :rowHover="true" selectionMode="single" @row-click="(e) => showNoticeDetail(e.data.noticeId)" :metaKeySelection="false">
+            <div class="bottom-card">
+                <div class="font-semibold text-xl ml-3 mt-3">공지사항</div>
+                <DataTable :value="announcements" :rows="6" :paginator="true" dataKey="noticeId" responsiveLayout="scroll" :rowHover="true" selectionMode="single" @row-click="(e) => showNoticeDetail(e.data.noticeId)" :metaKeySelection="false">
                     <Column field="categoryName" header="카테고리" style="width: 20%; text-align: left" headerStyle="text-align: center" />
                     <Column field="title" header="제목" style="width: 45%; text-align: left" headerStyle="text-align: center">
                         <template #body="slotProps">
-                            <span>{{ slotProps.data.title }}</span>
+                            <span class="truncate-text">{{ slotProps.data.title }}</span>
                         </template>
                     </Column>
                     <Column field="employeeName" header="작성자" style="width: 15%; text-align: left" headerStyle="text-align: center" />
@@ -87,95 +87,92 @@
 
         <!-- 알림 -->
         <div class="col-span-12 xl:col-span-6">
-            <div class="card">
-                <div class="font-semibold text-xl ml-4 mb-2">받은 알림</div>
-                <DataTable :value="notifications" :rows="5" sortField="createdAt" :sortOrder="-1" :paginator="true" responsiveLayout="scroll" selectionMode="single" @row-click="openNotificationModal">
+            <div class="bottom-card">
+                <div class="font-semibold text-xl ml-3 mt-3">알림</div>
+                <DataTable :value="notifications" :rows="6" :sortOrder="-1" :paginator="true" responsiveLayout="scroll" selectionMode="single" @row-click="openNotificationModal">
                     <!-- 시간 컬럼 -->
-                    <Column field="createdAt" style="width: 18%" header="시간" sortable>
+                    <Column field="createdAt" style="width: 18%" header="시간">
                         <template #body="slotProps">
                             <span>{{ formatDate(slotProps.data.createdAt) }}</span>
                         </template>
                     </Column>
 
                     <!-- 보낸 사람 컬럼 -->
-                    <Column field="senderName" header="보낸 사람" style="width: 20%" sortable>
+                    <Column field="senderName" header="보낸 사람" style="width: 20%">
                         <template #body="slotProps">
                             <span>{{ slotProps.data.senderName }}</span>
                         </template>
                     </Column>
 
                     <!-- 카테고리 -->
-                    <Column field="categoryName" header="카테고리" style="width: 20%" sortable>
+                    <Column field="categoryName" header="카테고리" style="width: 20%">
                         <template #body="slotProps">
                             <span>{{ slotProps.data.categoryName }}</span>
                         </template>
                     </Column>
 
-                    <Column field="message" header="내용" style="width: 20%" sortable>
+                    <Column field="message" header="내용" style="width: 20%">
                         <template #body="slotProps">
-                            <span>{{ getFirstText(slotProps.data.message) }}</span>
+                            <span class="truncate-text">{{ getFirstText(slotProps.data.message) }}</span>
                         </template>
                     </Column>
 
                     <!-- 상태 -->
-                    <Column field="status" header="상태" style="width: 20%" sortable>
+                    <Column field="status" header="상태" style="width: 20%">
                         <template #body="slotProps">
                             <span>{{ slotProps.data.status === 'READ' ? '읽음' : '안 읽음' }}</span>
                         </template>
                     </Column>
                 </DataTable>
-
-                <!-- 알림 상세 내용 -->
-                <Dialog header="알림" v-model:visible="alarmDisplayDialog" modal maximizable :style="{ width: '30vw' }" :breakpoints="{ '1199px': '50vw', '575px': '90vw' }" :closable="false" closeOnEscape :blockScroll="true">
-                    <template v-if="selectedNotification">
-                        <div class="notification-details p-4 rounded-lg bg-white shadow">
-                            <div class="flex items-center justify-between">
-                                <!-- 보낸 사람 -->
-                                <div class="notification-item mb-3">
-                                    <p class="text-sm text-gray-500 font-medium mb-1">보낸 사람</p>
-                                    <p class="text-lg font-semibold text-primary">{{ selectedNotification.senderName }}</p>
-                                </div>
-
-                                <!-- 카테고리 -->
-                                <div class="notification-item mb-3">
-                                    <p class="text-sm text-gray-500 font-medium mb-1">카테고리</p>
-                                    <p class="text-lg">{{ selectedNotification.categoryName }}</p>
-                                </div>
-
-                                <!-- 보낸 시간 -->
-                                <div class="notification-item mb-3">
-                                    <p class="text-sm text-gray-500 font-medium mb-1">보낸 시간</p>
-                                    <p class="text-lg">{{ new Date(selectedNotification.createdAt).toLocaleString('ko-KR') }}</p>
-                                </div>
-                            </div>
-
-                            <!-- 내용 -->
-                            <div class="notification-item">
-                                <p class="text-sm text-gray-500 font-medium mb-1">내용</p>
-                                <div v-html="selectedNotification.message" class="p-3 bg-gray-50 rounded-md border border-gray-300"></div>
-                            </div>
-                        </div>
-                    </template>
-                    <template #footer>
-                        <Button label="닫기" class="p-button-danger" @click="closeNotificationModal" icon="pi pi-times" />
-                    </template>
-                </Dialog>
             </div>
         </div>
     </div>
+    <!-- 알림 상세 내용 -->
+    <Dialog header="알림" v-model:visible="alarmDisplayDialog" modal maximizable :style="{ width: '30vw' }" :breakpoints="{ '1199px': '50vw', '575px': '90vw' }" :closable="false" closeOnEscape :blockScroll="true">
+        <template v-if="selectedNotification">
+            <div class="notification-details p-4 rounded-lg bg-white shadow">
+                <div class="flex items-center justify-between">
+                    <!-- 보낸 사람 -->
+                    <div class="notification-item mb-3">
+                        <p class="text-sm text-gray-500 font-medium mb-1">보낸 사람</p>
+                        <p class="text-lg font-semibold text-primary">{{ selectedNotification.senderName }}</p>
+                    </div>
+
+                    <!-- 카테고리 -->
+                    <div class="notification-item mb-3">
+                        <p class="text-sm text-gray-500 font-medium mb-1">카테고리</p>
+                        <p class="text-lg">{{ selectedNotification.categoryName }}</p>
+                    </div>
+
+                    <!-- 보낸 시간 -->
+                    <div class="notification-item mb-3">
+                        <p class="text-sm text-gray-500 font-medium mb-1">보낸 시간</p>
+                        <p class="text-lg">{{ new Date(selectedNotification.createdAt).toLocaleString('ko-KR') }}</p>
+                    </div>
+                </div>
+
+                <!-- 내용 -->
+                <div class="notification-item">
+                    <p class="text-sm text-gray-500 font-medium mb-1">내용</p>
+                    <div v-html="selectedNotification.message" class="p-3 bg-gray-50 rounded-md border border-gray-300"></div>
+                </div>
+            </div>
+        </template>
+        <template #footer>
+            <Button label="닫기" class="p-button-danger" @click="closeNotificationModal" icon="pi pi-times" />
+        </template>
+    </Dialog>
 </template>
 
 <script setup>
 import router from '@/router';
 import { useAuthStore } from '@/stores/authStore';
-import Button from 'primevue/button';
-import Dialog from 'primevue/dialog';
 import { onMounted, ref } from 'vue';
 import { fetchPut } from '../auth/service/AuthApiService';
+import { getLoginEmployeeInfo } from '../auth/service/authService';
 import { getAttendanceTimes } from './service/attendanceService';
 import { getNotices } from './service/noticeService';
 import { getReceiveNotificationsByEmployeeId } from './service/notificationService';
-import { getLoginEmployeeInfo } from '../auth/service/authService';
 
 const displayDialog = ref(false);
 const alarmDisplayDialog = ref(false);
@@ -193,7 +190,11 @@ const annualLeave = ref(0); // 휴가 잔여 일수 저장 변수
 onMounted(async () => {
     announcements.value = await getNotices();
     const employeeId = window.localStorage.getItem('employeeId');
-    notifications.value = await getReceiveNotificationsByEmployeeId(employeeId);
+    const fetchedNotifications = await getReceiveNotificationsByEmployeeId(employeeId);
+
+    // 최신 순으로 정렬
+    notifications.value = fetchedNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     await setAttendanceTimes(employeeId);
     calculateSalaryDday();
     currentDate.value = new Date().toLocaleString();
@@ -203,7 +204,6 @@ onMounted(async () => {
     if (employeeData && employeeData.annualLeave !== null) {
         annualLeave.value = employeeData.annualLeave;
     }
-
 });
 
 const setAttendanceTimes = async (employeeId) => {
@@ -289,11 +289,10 @@ const DisplayDate = (dateString) => {
     };
     // 날짜 포맷팅
     const formattedDate = new Date(dateString).toLocaleDateString('ko-KR', options);
-    
+
     // 마지막 마침표 제거
     return formattedDate.endsWith('.') ? formattedDate.slice(0, -1) : formattedDate;
 };
-
 
 const getFirstText = (htmlString) => {
     // HTML 문자열을 DOM으로 파싱
@@ -316,8 +315,16 @@ const renderHtml = (htmlContent) => {
     padding: 1rem;
     border-radius: 0.5rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1rem;
     min-height: 9rem;
+}
+
+.bottom-card {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    min-height: 32.8rem;
 }
 
 .font-semibold {
@@ -338,5 +345,13 @@ const renderHtml = (htmlContent) => {
 
 .text-surface-900 {
     color: #1f2937;
+}
+
+.truncate-text {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 </style>

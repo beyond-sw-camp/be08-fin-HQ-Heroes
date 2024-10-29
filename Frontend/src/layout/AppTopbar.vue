@@ -1,16 +1,16 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import 'primeicons/primeicons.css';
-import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
-import authService from '../views/pages/auth/service/authService';
-import router from '@/router';
+import { fetchPut } from '@/views/pages/auth/service/AuthApiService';
 import fetchReissue from '@/views/pages/auth/service/fetchReissue'; // 토큰 갱신 함수
+import { getReceiveNotificationsByEmployeeId, getSendNotificationsByEmployeeId } from '@/views/pages/main/service/notificationService';
+import 'primeicons/primeicons.css';
 import Button from 'primevue/button'; // PrimeVue 버튼 import
 import Dialog from 'primevue/dialog';
 import Divider from 'primevue/divider';
-import { getReceiveNotificationsByEmployeeId, getSendNotificationsByEmployeeId } from '@/views/pages/main/service/notificationService';
-import { fetchPut } from '@/views/pages/auth/service/AuthApiService';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import authService from '../views/pages/auth/service/authService';
 
 const { onMenuToggle } = useLayout();
 const authStore = useAuthStore();
@@ -23,6 +23,7 @@ const selectedNotification = ref(null);
 const selectNotificationsList = ref(false); // false = 받은 알림, true 보낸 알림
 const progressVisible = ref(false); // ProgressBar 모달 표시
 const progressValue = ref(); // ProgressBar 초기화
+const router = useRouter();
 
 let timer = null;
 
@@ -174,6 +175,10 @@ const toggleButtonStyle = computed(() => {
               cursor: 'pointer'
           };
 });
+
+const goTosendNotificationPage = () => {
+    router.push('/send-notifications');
+};
 
 const getFirstText = (htmlString) => {
     // HTML 문자열을 DOM으로 파싱
@@ -347,7 +352,7 @@ const goToSignUp = () => router.push('/signup');
     </Dialog>
 
     <Drawer v-model:visible="notificationDrawerVisible" position="right" style="width: 43%" :show-close-icon="false">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between mb-5">
             <div class="col">
                 <span class="font-bold text-xl">내 알림 관리</span>
             </div>
@@ -358,13 +363,17 @@ const goToSignUp = () => router.push('/signup');
             </div>
         </div>
 
-        <Divider type="solid" />
-
-        <div class="flex items-center justify-end gap-3 mb-2">
-            <Button label="삭제" icon="pi pi-trash" @click="deleteNotifications" severity="danger"></Button>
-
-            <ToggleButton unstyled v-model="selectNotificationsList" onLabel="보낸 알림" offLabel="받은 알림" :style="toggleButtonStyle" />
+        <div class="flex items-center justify-between gap-3 mb-2">
+            <div class="flex">
+                <Button label="알림 발송" icon="pi pi-send" @click="goTosendNotificationPage" severity="info"></Button>
+            </div>
+            <div class="flex gap-2">
+                <ToggleButton unstyled v-model="selectNotificationsList" onLabel="보낸 알림" offLabel="받은 알림" :style="toggleButtonStyle" />
+                <Button label="삭제" icon="pi pi-trash" @click="deleteNotifications" severity="danger"></Button>
+            </div>
         </div>
+
+        <Divider type="solid" />
 
         <!-- 받은 알림 -->
         <DataTable v-if="!selectNotificationsList" sortField="createdAt" :sortOrder="-1" v-model:selection="selectedNotification" :value="notifications" dataKey="notificationId" :rows="9" :paginator="true" responsiveLayout="scroll">
@@ -379,20 +388,20 @@ const goToSignUp = () => router.push('/signup');
             </Column>
 
             <!-- 보낸 사람 컬럼 -->
-            <Column field="senderName" header="보낸 사람" style="width: 15%" sortable>
+            <Column field="senderName" header="보낸 사람" style="width: 20%">
                 <template #body="slotProps">
                     <span>{{ slotProps.data.senderName }}</span>
                 </template>
             </Column>
 
             <!-- 카테고리 -->
-            <Column field="categoryName" header="카테고리" style="width: 20%" sortable>
+            <Column field="categoryName" header="카테고리" style="width: 20%">
                 <template #body="slotProps">
                     <span>{{ slotProps.data.categoryName }}</span>
                 </template>
             </Column>
 
-            <Column field="message" header="내용" style="width: 20%" sortable>
+            <Column field="message" header="내용" style="width: 20%">
                 <template #body="slotProps">
                     <span>{{ getFirstText(slotProps.data.message) }}</span>
                 </template>

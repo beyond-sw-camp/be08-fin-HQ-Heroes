@@ -1,5 +1,5 @@
 <template>
-    <div class="card mb-0 mt-2 border dark:border-surface-700 bg-indigo-100 dark:bg-surface-700 rounded-lg">
+    <div class="card mb-0 mt-2 border bg-indigo-100 rounded-lg">
         <div class="flex justify-between mb-0 items-center">
             <!-- 왼쪽: 이름 및 팀 정보 -->
             <div class="flex flex-col">
