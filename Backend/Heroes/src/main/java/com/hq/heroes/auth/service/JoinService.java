@@ -7,11 +7,11 @@ import com.hq.heroes.auth.entity.enums.Status;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.common.service.FirebaseStorageService;
 import com.hq.heroes.employee.entity.Department;
-import com.hq.heroes.employee.entity.Job;
+import com.hq.heroes.employee.entity.JobRole;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.entity.Team;
 import com.hq.heroes.employee.repository.DepartmentRepository;
-import com.hq.heroes.employee.repository.JobRepository;
+import com.hq.heroes.employee.repository.JobRoleRepository;
 import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class JoinService {
     private final DepartmentRepository departmentRepository;
     private final TeamRepository teamRepository;
     private final PositionRepository positionRepository;
-    private final JobRepository jobRepository;
+    private final JobRoleRepository jobRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final FirebaseStorageService firebaseStorageService;  // FirebaseStorageService 주입
 
@@ -68,7 +68,7 @@ public class JoinService {
         Optional<Department> department = departmentRepository.findById(joinDTO.getDeptId());
         Optional<Team> team = teamRepository.findById(joinDTO.getTeamId());
         Optional<Position> position = positionRepository.findById(joinDTO.getPositionId());
-        Optional<Job> job = jobRepository.findById(joinDTO.getJobId());
+        Optional<JobRole> job = jobRepository.findById(joinDTO.getJobRoleId());
 
         employee.setDepartment(department.orElseThrow(() -> new Exception("부서를 찾을 수 없습니다.")));
         employee.setTeam(team.orElseThrow(() -> new Exception("팀을 찾을 수 없습니다.")));

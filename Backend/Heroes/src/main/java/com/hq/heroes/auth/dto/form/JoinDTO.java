@@ -59,8 +59,8 @@ public class JoinDTO {
     // Position ID (필수)
     private Long positionId;
 
-    // Job ID (필수)
-    private Long jobId;
+    //  ID (필수)
+    private Long jobRoleId;
 
     private MultipartFile profileImage;  // 프로필 이미지 필드 추가
 }

@@ -9,11 +9,11 @@ import com.hq.heroes.common.service.FirebaseStorageService;
 import com.hq.heroes.employee.entity.Department;
 import com.hq.heroes.employee.entity.Team;
 import com.hq.heroes.employee.entity.Position;
-import com.hq.heroes.employee.entity.Job;
+import com.hq.heroes.employee.entity.JobRole;
 import com.hq.heroes.employee.repository.DepartmentRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
 import com.hq.heroes.employee.repository.PositionRepository;
-import com.hq.heroes.employee.repository.JobRepository;
+import com.hq.heroes.employee.repository.JobRoleRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +46,7 @@ class JoinServiceTest {
     private PositionRepository positionRepository;
 
     @Mock
-    private JobRepository jobRepository;
+    private JobRoleRepository jobRepository;
 
     @Mock
     private FirebaseStorageService firebaseStorageService;
@@ -77,7 +77,7 @@ class JoinServiceTest {
                 .deptId(1L)
                 .teamId(1L)
                 .positionId(1L)
-                .jobId(1L)
+                .jobRoleId(1L)
                 .profileImage(mock(MultipartFile.class)) // 프로필 이미지 모킹
                 .build();
 
@@ -101,7 +101,7 @@ class JoinServiceTest {
         when(departmentRepository.findById(1L)).thenReturn(Optional.of(new Department()));
         when(teamRepository.findById(1L)).thenReturn(Optional.of(new Team()));
         when(positionRepository.findById(1L)).thenReturn(Optional.of(new Position()));
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(new Job()));
+        when(jobRepository.findById(1L)).thenReturn(Optional.of(new JobRole()));
         when(userRepository.save(any(Employee.class))).thenReturn(employee);
         when(firebaseStorageService.uploadFile(any(MultipartFile.class), anyString())).thenReturn("http://example.com/profile.jpg");
 

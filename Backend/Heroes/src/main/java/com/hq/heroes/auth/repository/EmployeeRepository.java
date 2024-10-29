@@ -15,7 +15,7 @@ public interface EmployeeRepository extends JpaRepository<Employee,String> {
 
     @Query("SELECT new com.hq.heroes.employee.dto.EmployeeDTO(e.employeeId, e.employeeName, " +
             "e.team.teamId, e.team.teamName, e.team.department.deptId, e.team.department.deptName, " +
-            "e.email, e.job.jobId, e.job.jobName, e.position.positionId, e.position.positionName, " +
+            "e.email, e.job.jobRoleId, e.job.jobRoleName, e.position.positionId, e.position.positionName, " +
             "e.joinDate, e.birthDate, e.phoneNumber, e.roadAddress, e.lotAddress, e.detailedAddress, e.profileImageUrl) " +
             "FROM Employee e")
     List<EmployeeDTO> findAllEmployeesDTO();

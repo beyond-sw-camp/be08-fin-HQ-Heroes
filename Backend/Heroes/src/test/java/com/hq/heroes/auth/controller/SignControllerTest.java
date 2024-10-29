@@ -73,7 +73,7 @@ class SignControllerTest {
                 .deptId(1L)
                 .teamId(1L)
                 .positionId(1L)
-                .jobId(1L)
+                .jobRoleId(1L)
                 .profileImage(new MockMultipartFile("profileImage", "test.jpg", "image/jpeg", new byte[0]))  // 프로필 이미지 모킹
                 .build();
 
@@ -105,7 +105,7 @@ class SignControllerTest {
                         .param("deptId", joinDTO.getDeptId().toString())
                         .param("teamId", joinDTO.getTeamId().toString())
                         .param("positionId", joinDTO.getPositionId().toString())
-                        .param("jobId", joinDTO.getJobId().toString())
+                        .param("jobRoleId", joinDTO.getjobRoleId().toString())
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())  // 성공 상태 코드 200
                 .andExpect(jsonPath("$.success").value(true))  // 응답 JSON 필드 검증
