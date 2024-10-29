@@ -82,6 +82,7 @@ public class CertificationController {
             @Parameter(description = "자격증 ID", example = "1")
             @PathVariable("certification-id") Long certificationId,
             @RequestBody CertificationRequestDTO requestDTO) {
+
         Certification certification = certificationService.updateCertification(certificationId, requestDTO);
 
         if (certification != null) {

@@ -12,7 +12,7 @@
             filterDisplay="menu"
             :filters="filters"
             selectionMode="single"
-            :globalFilterFields="['employeeName', 'deptName', 'jobName', 'teamName', 'positionName', 'employeeId', 'joinDate']"
+            :globalFilterFields="['employeeName', 'deptName', 'jobRoleName', 'teamName', 'positionName', 'employeeId', 'joinDate']"
             showGridlines
             @row-click="showEmployeeDetails"
             :metaKeySelection="false"
@@ -47,9 +47,9 @@
                     {{ data.employeeName }}
                 </template>
             </Column>
-            <Column field="jobName" sortable header="직무" style="min-width: 12rem">
+            <Column field="jobRoleName" sortable header="직무" style="min-width: 12rem">
                 <template #body="{ data }">
-                    {{ data.jobName }}
+                    {{ data.jobRoleName }}
                 </template>
             </Column>
             <Column field="positionName" sortable header="직 책" style="min-width: 12rem">
@@ -173,7 +173,7 @@ function initFilters() {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         employeeName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
         deptName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        jobName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        jobRoleName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
         teamName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
         positionName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
         employeeId: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },

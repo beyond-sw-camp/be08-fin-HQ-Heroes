@@ -6,7 +6,7 @@
                 <p><strong>이름 :</strong> {{ employee.employeeName }}</p>
                 <p><strong>부서 :</strong> {{ employee.deptName }}</p>
                 <p><strong>팀 :</strong> {{ employee.teamName }}</p>
-                <p><strong>직무 :</strong> {{ employee.jobName }}</p>
+                <p><strong>직무 :</strong> {{ employee.jobRoleName }}</p>
                 <p><strong>직책 :</strong> {{ employee.positionName }}</p>
                 <p><strong>사번 :</strong> {{ employee.employeeId }}</p>
                 <p><strong>입사일 :</strong> {{ formatDate(new Date(employee.joinDate)) }}</p>

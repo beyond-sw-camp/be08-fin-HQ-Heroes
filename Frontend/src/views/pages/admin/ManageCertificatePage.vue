@@ -22,7 +22,6 @@
                     </div>
                 </template>
 
-                <Column field="certificationId" sortable header="No." />
                 <Column field="deptName" sortable header="부서 명" />
                 <Column field="certificationName" sortable header="자격증 명" />
                 <Column field="institution" sortable header="발급 기관" />

@@ -44,9 +44,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="jobName">직무</label>
-                            <select id="jobName" v-model="selectedJobId" class="form-control">
-                                <option v-for="job in jobs" :key="job.jobId" :value="job.jobId">{{ job.jobName }}</option>
+                            <label for="jobRoleName">직무</label>
+                            <select id="jobRoleName" v-model="selectedJobId" class="form-control">
+                                <option v-for="job in jobs" :key="job.jobId" :value="job.jobId">{{ job.jobRoleName }}</option>
                             </select>
                         </div>
 
@@ -162,7 +162,7 @@ const employeeData = ref({
     employeeName: '',
     teamName: '',
     deptName: '',
-    jobName: '',
+    jobRoleName: '',
     positionName: '',
     email: '',
     joinDate: '',
@@ -227,7 +227,7 @@ const enableEditing = () => {
         ...employeeData.value,
         teamName: teams.value.find((team) => team.teamId === selectedTeamId.value)?.teamName || '',
         deptName: departments.value.find((dept) => dept.deptId === selectedDeptId.value)?.deptName || '',
-        jobName: jobs.value.find((job) => job.jobId === selectedJobId.value)?.jobName || '',
+        jobRoleName: jobs.value.find((job) => job.jobId === selectedJobId.value)?.jobRoleName || '',
         positionName: positions.value.find((position) => position.positionId === selectedPositionId.value)?.positionName || ''
     }; // employeeData를 복사하여 별도 객체로 생성
 

@@ -172,8 +172,9 @@ async function fetchEmployeeCertifications() {
         if (data && Array.isArray(data)) {
             // APPROVED 상태의 자격증만 필터링하고, registrationId 순서대로 정렬 (최신순)
             certifications.value = data
-                .filter(cert => cert.certificationStatus === 'APPROVE') // APPROVED 상태만 선택
+                .filter(cert => cert.employeeCertificationStatus === 'APPROVE') // APPROVED 상태만 선택
                 .sort((a, b) => b.registrationId - a.registrationId); // 최신순 정렬
+
             filteredCertifications.value = [...certifications.value];
         } else {
             console.error('응답 데이터가 배열이 아닙니다.', data);
