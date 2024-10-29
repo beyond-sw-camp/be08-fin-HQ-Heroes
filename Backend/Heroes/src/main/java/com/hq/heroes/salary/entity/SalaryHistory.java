@@ -38,7 +38,10 @@ public class SalaryHistory {
     private Double bonus; // 성과급
 
     @Column(name = "work_time")
-    private long workTime; // 근무 시간
+    private long workTime; // 근로 시간
+
+    @Column(name = "over_time")
+    private long overTime; // 연장 근로 시간
 
     // 공제 항목 추가
     @Column(name = "national_pension", nullable = false)
