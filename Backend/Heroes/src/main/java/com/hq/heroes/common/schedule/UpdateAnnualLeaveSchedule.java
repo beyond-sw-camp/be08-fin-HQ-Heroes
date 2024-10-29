@@ -27,8 +27,8 @@ public class UpdateAnnualLeaveSchedule {
         return postProcessor;
     }
 
-//    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul") // 자정마다 업데이트
-    @Scheduled(cron = "0/10 * * * * *", zone = "Asia/Seoul") // 테스트용 10초마다 업데이트
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul") // 자정마다 업데이트
+//    @Scheduled(cron = "0/10 * * * * *", zone = "Asia/Seoul") // 테스트용 10초마다 업데이트
     public void runUpdateAnnualLeaveJob() throws Exception {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");

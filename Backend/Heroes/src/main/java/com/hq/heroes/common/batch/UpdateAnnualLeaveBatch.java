@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 @Configuration
@@ -66,30 +68,30 @@ public class UpdateAnnualLeaveBatch {
             /*
                 테스트용 @ @
              */
-            @Override
-            public Employee process(Employee item) throws Exception {
-                item.setAnnualLeave(item.getAnnualLeave() + 1);
-                return item; // 수정된 객체 반환
-            }
+//            @Override
+//            public Employee process(Employee item) throws Exception {
+//                item.setAnnualLeave(item.getAnnualLeave() + 1);
+//                return item; // 수정된 객체 반환
+//            }
 
             /*
                 입사일 한달 기준 업데이트
              */
-//            @Override
-//            public Employee process(Employee item) throws Exception {
-//                LocalDate JoinDate = item.getJoinDate(); // 입사일 가져오기
-//                LocalDate now = LocalDate.now();
-//
-//                // 입사일로부터 한 달이 지났는지 확인
-//                if (JoinDate != null && ChronoUnit.MONTHS.between(JoinDate, now) >= 1) {
-//                    item.setAnnualLeave(item.getAnnualLeave() + 1);
-//                    System.out.println("Annual leave updated for item: " + item.getEmployeeId());
-//                    return item; // 업데이트된 객체 반환
-//                } else {
-//                    System.out.println("No update for item: " + item.getEmployeeId());
-//                    return null; // 한 달이 지나지 않은 경우 null 반환
-//                }
-//            }
+            @Override
+            public Employee process(Employee item) throws Exception {
+                LocalDate JoinDate = item.getJoinDate(); // 입사일 가져오기
+                LocalDate now = LocalDate.now();
+
+                // 입사일로부터 한 달이 지났는지 확인
+                if (JoinDate != null && ChronoUnit.MONTHS.between(JoinDate, now) >= 1) {
+                    item.setAnnualLeave(item.getAnnualLeave() + 1);
+                    System.out.println("Annual leave updated for item: " + item.getEmployeeId());
+                    return item; // 업데이트된 객체 반환
+                } else {
+                    System.out.println("No update for item: " + item.getEmployeeId());
+                    return null; // 한 달이 지나지 않은 경우 null 반환
+                }
+            }
 
         };
     }
