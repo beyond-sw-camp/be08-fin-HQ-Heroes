@@ -70,8 +70,18 @@ public class VacationServiceImpl implements VacationService {
 
     public void approveVacation(Long vacationId) {
         Vacation vacation = vacationRepository.findById(vacationId)
-                .orElseThrow(() -> new RuntimeException("휴가를 찾을 수 없습니다."));
-        vacation.setVacationStatus(VacationStatus.APPROVED); // 상태를 승인으로 변경
+                .orElseThrow(() -> new RuntimeException("Invalid vacation ID"));
+
+        vacation.setVacationStatus(VacationStatus.APPROVED);
+
+        Employee employee = vacation.getEmployee();
+        if (employee.getAnnualLeave() > 0) {
+            employee.setAnnualLeave(employee.getAnnualLeave() - 1);
+        } else {
+            throw new RuntimeException("연차가 부족합니다.");
+        }
+
+        employeeRepository.save(employee);
         vacationRepository.save(vacation);
     }
 

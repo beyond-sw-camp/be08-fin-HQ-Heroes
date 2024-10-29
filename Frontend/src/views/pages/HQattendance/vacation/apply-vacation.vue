@@ -98,6 +98,7 @@ import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
 import axios from 'axios';
 import Avatar from 'primevue/avatar'; // Avatar 컴포넌트
 import TreeSelect from 'primevue/treeselect'; // TreeSelect 컴포넌트
+import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
@@ -119,7 +120,8 @@ const form = ref({
 const employeeData = ref({
     employeeName: '',
     teamName: '',
-    employeeId: ''
+    employeeId: '',
+    annualLeave: 0
 });
 
 const employeeTreeData = ref([]); // 트리 형식의 사원 목록 데이터
@@ -229,6 +231,17 @@ const handleApproverChange = (selectedApprover) => {
 };
 
 const submitForm = async () => {
+    // 연차 일수가 0일 경우 경고 메시지 출력 후 함수 종료
+    if (employeeData.value.annualLeave <= 0) {
+        Swal.fire({
+            icon: 'error',
+            title: '휴가 일수가 부족합니다.',
+            text: '남은 연차가 없습니다. 관리자에게 문의하세요.',
+            confirmButtonText: '확인'
+        });
+        return; // 연차가 부족하므로 함수 종료
+    }
+
     try {
         const requestBody = {
             employeeId: employeeData.value.employeeId,
@@ -249,11 +262,21 @@ const submitForm = async () => {
 
         await fetchPost('http://localhost:8080/api/v1/vacation/submit', requestBody);
 
-        alert('휴가 신청이 완료되었습니다.');
+        Swal.fire({
+            icon: 'success',
+            title: '휴가 신청이 완료되었습니다.',
+            showConfirmButton: false,
+            timer: 1500
+        });
         await router.push('/status-vacation');
     } catch (error) {
         console.error('휴가 신청 중 오류가 발생했습니다:', error);
-        alert('휴가 신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+        Swal.fire({
+            icon: 'error',
+            title: '오류',
+            text: '휴가 신청 중 오류가 발생했습니다. 다시 시도해주세요.',
+            confirmButtonText: '확인'
+        });
     }
 };
 </script>
