@@ -25,6 +25,7 @@ public class SalaryHistoryController {
         return salaryHistoryService.getAllSalaries(employeeId);
     }
 
+    // 배치 생성
     @PostMapping
     @Operation(summary = "급여 생성", description = "급여를 생성한다.")
     public SalaryHistoryDTO createSalary(@RequestBody SalaryHistoryDTO SalaryHistoryDTO) {

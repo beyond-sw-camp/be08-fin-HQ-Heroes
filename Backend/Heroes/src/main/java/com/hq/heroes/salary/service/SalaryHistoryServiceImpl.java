@@ -7,6 +7,7 @@ import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.evaluation.entity.Evaluation;
 import com.hq.heroes.evaluation.repository.EvaluationRepository;
+import com.hq.heroes.overtime.service.OvertimeService;
 import com.hq.heroes.salary.dto.RetireDTO;
 import com.hq.heroes.salary.dto.SalaryHistoryDTO;
 import com.hq.heroes.salary.entity.Deduct;
@@ -35,6 +36,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
     private final DeductRepository deductRepository;
     private final AttendanceService attendanceService;
     private final EvaluationRepository evaluationRepository;
+    private final OvertimeService overtimeService;
 
     @Override
     public List<SalaryHistoryDTO> getAllSalaries(String employeeId) {
@@ -45,9 +47,32 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
             throw new EntityNotFoundException("급여 이력이 존재하지 않습니다.");
         }
 
+        Optional<Employee> employee = employeeRepository.findById(employeeId);
+        if (employee.isEmpty()) {
+            throw new IllegalArgumentException("존재하지 않는 사원입니다.");
+        }
+
         return histories.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .map(salaryHistory -> {
+                    return SalaryHistoryDTO.builder() // 수정된 부분
+                            .salaryId(salaryHistory.getSalaryHistoryId()) // 급여 ID
+                            .employeeId(employee.get().getEmployeeId()) // 사원 ID
+                            .salaryMonth(salaryHistory.getSalaryMonth()) // 지급 일자
+                            .preTaxTotal(salaryHistory.getPreTaxTotal()) // 세전 총액
+                            .postTaxTotal(salaryHistory.getPostTaxTotal()) // 세후 총액
+                            .bonus(salaryHistory.getBonus()) // 성과급
+                            .workTime(salaryHistory.getWorkTime()) // 근무 시간
+                            .overTime(salaryHistory.getOverTime()) // 연장 근로 시간
+                            .baseSalary(employee.get().getPosition().getBaseSalary()) // 시급
+                            .nationalPension(salaryHistory.getNationalPension()) // 국민연금
+                            .healthInsurance(salaryHistory.getHealthInsurance()) // 건강보험
+                            .longTermCare(salaryHistory.getLongTermCare()) // 장기요양
+                            .employmentInsurance(salaryHistory.getEmploymentInsurance()) // 고용보험
+                            .incomeTax(salaryHistory.getIncomeTax()) // 소득세
+                            .localIncomeTax(salaryHistory.getLocalIncomeTax()) // 지방소득세
+                            .build(); // Builder를 사용하여 DTO 생성
+                })
+                .collect(Collectors.toList()); // List로 변환
     }
 
     @Override
@@ -64,8 +89,8 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         YearMonth currentMonth = YearMonth.now();
         YearMonth previousMonth = getPreviousMonth(currentMonth);  // 이전 달 계산
 
-        // 총 근무 시간
-        int totalWorkHours = attendanceService.calculateTotalWorkHours(employee.getEmployeeId(), previousMonth);
+        // 근무 시간
+        long totalWorkHours = attendanceService.calculateTotalWorkHours(employee.getEmployeeId(), previousMonth) / 60;
 
         // 근무 연수 계산
         long years = ChronoUnit.YEARS.between(employee.getJoinDate(), LocalDate.now());
@@ -79,18 +104,19 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         }
 
         // 연장 근로 시간
+        long totalOverHours = overtimeService.getTotalOvertimeHoursForMonth(employee.getEmployeeId(), previousMonth) / 60;
 
-        // 연장 근로 수당 계산
+        double overSalary = (baseSalary * 0.01) * totalOverHours;
 
         // 성과급 계산 (1월 또는 7월에만 적용)
         double bonus = 0;
         int monthValue = currentMonth.getMonthValue();
         if (monthValue == 1 || monthValue == 7) {
-            bonus = calculateBonus(employee, currentMonth.getYear(), monthValue);
+            bonus = calculateBonus(employee, baseSalary, currentMonth.getYear(), monthValue);
         }
 
         // 세전 총액 계산
-        double preTaxTotal = baseSalary + bonus;
+        double preTaxTotal = baseSalary + bonus + overSalary;
 
         // 공제 항목 계산
         List<Deduct> deducts = deductRepository.findAll();
@@ -108,7 +134,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         // SalaryHistory 엔티티 생성 및 저장
         SalaryHistory salaryHistory = SalaryHistory.builder()
                 .employee(employee)
-                .salaryMonth(dto.getSalaryMonth())
+                .salaryMonth(currentMonth.atDay(10).atStartOfDay())
                 .preTaxTotal(preTaxTotal)
                 .nationalPension(nationalPension)
                 .healthInsurance(healthInsurance)
@@ -118,7 +144,8 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
                 .localIncomeTax(localIncomeTax)
                 .postTaxTotal(postTaxTotal)
                 .bonus(bonus)
-                .workTime(totalWorkHours/60)
+                .workTime(totalWorkHours)
+                .overTime(totalOverHours)
                 .build();
 
         SalaryHistory savedSalaryHistory = salaryHistoryRepository.save(salaryHistory);
@@ -137,7 +164,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
     }
 
     // 성과급 계산 메서드
-    private double calculateBonus(Employee employee, int currentYear, int currentMonth) {
+    private double calculateBonus(Employee employee, double baseSalary, int currentYear, int currentMonth) {
         List<Evaluation> evaluations = evaluationRepository.findByEmployee_EmployeeId(employee.getEmployeeId());
 
         List<Evaluation> filteredEvaluations = evaluations.stream()
@@ -150,13 +177,13 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
                                     (currentMonth == 7 && updatedAt.getMonthValue() <= 6));
                 })
                 .sorted(Comparator.comparing(Evaluation::getUpdatedAt).reversed())
-                .collect(Collectors.toList());
+                .toList();
 
         if (!filteredEvaluations.isEmpty()) {
             Evaluation latestEvaluation = filteredEvaluations.get(0);
             double score = latestEvaluation.getScore();
             double bonusRate = calculateBonusRate(score);
-            return employee.getPosition().getBaseSalary() * bonusRate;
+            return baseSalary * bonusRate;
         }
         return 0;
     }

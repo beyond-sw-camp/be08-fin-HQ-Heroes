@@ -65,7 +65,7 @@
               <h3 class="text-xl font-semibold text-gray-800 mb-4">급여 상세 정보</h3>
               <div class="info-item">
                 <span>근무시간 :</span>
-                <span>{{ selectedMonth?.totalWorkHours }} 시간</span>
+                <span>{{ selectedMonth?.workTime }} 시간</span>
               </div>
               <div class="info-item">
                 <span>시급 :</span>
@@ -77,7 +77,7 @@
               </div>
               <div class="info-item">
                 <span>연장 근로 시간 :</span>
-                <span>{{ selectedMonth?.totalOverTime || 0 }} 시간</span>
+                <span>{{ selectedMonth?.overTime || 0 }} 시간</span>
               </div>
               <div class="info-item">
                 <span>연장 근로 수당 :</span>
@@ -85,11 +85,11 @@
               </div>
               <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '1월' || getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '7월')" class="info-item">
                 <span>성과급 :</span>
-                <span>{{ formatCurrency(selectedMonth?.performanceBonus) }}</span>
+                <span>{{ formatCurrency(selectedMonth?.bonus) }}</span>
               </div>
               <div class="total-deductions font-semibold mt-4">
                 <span>급여 합계 :</span>
-                <span>{{ formatCurrency(selectedMonth?.totalWorkHours * selectedMonth?.baseSalary + (selectedMonth?.performanceBonus || 0)) }}</span>
+                <span>{{ formatCurrency(selectedMonth?.preTaxTotal) }}</span>
               </div>
             </div>
 
@@ -125,11 +125,10 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
-import { fetchTotalOverTime, fetchTotalWorkHours } from '@/views/pages/salary/workService';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
 import { onMounted, ref } from 'vue';
-import { fetchbaseSalary, fetchBonus, fetchSalary } from './salaryService';
+import { fetchSalary } from './salaryService';
 const authStore = useAuthStore();
 
 const selectedDate = ref(new Date());
@@ -200,39 +199,32 @@ const loadMonthlyData = async () => {
 const showSalaryModal = async (month) => {
   selectedMonth.value = month;
   
-  const monthNumber = new Date(month.salaryMonth).getMonth() + 1;
+  // 전체 급여 기록 가져오기 (API 호출)
+  const salaryData = await fetchSalary(authStore.loginUserId);
+  const monthData = salaryData.find((item) => 
+    new Date(item.salaryMonth).getMonth() + 1 === new Date(month.salaryMonth).getMonth() + 1
+  );
 
-  salaryDialogHeader.value = `${authStore.employeeData.employeeName}님의 ${monthNumber}월 급여 내역`;
-  
-  // 근무 시간
-  const totalWorkHours = await fetchTotalWorkHours(selectedYear.value, monthNumber);
-  selectedMonth.value.totalWorkHours = totalWorkHours;
-
-  // 기본 급여
-  const baseSalary = await fetchbaseSalary(authStore.loginUserId);
-  selectedMonth.value.baseSalary = baseSalary;
-  
-  const totalSalary = baseSalary * totalWorkHours;
-  selectedMonth.value.totalSalary = totalSalary;
-
-  // 연장 근로 시간
-  const totalOverTime = await fetchTotalOverTime(authStore.loginUserId, selectedYear.value, monthNumber);
-  selectedMonth.value.totalOverTime = totalOverTime / 60;
-
-  // 연장 근로 수당
-  const overSalary = (totalSalary * 0.01) * (totalOverTime / 60);
-  selectedMonth.value.overSalary = overSalary;
-  
-  // 1월과 7월에만 성과급 계산
-  if (monthNumber === 1 || monthNumber === 7) {
-    const performance = await fetchBonus(authStore.loginUserId);
-    selectedMonth.value.performanceBonus = baseSalary * totalWorkHours * performance[0].performanceBonus;
-    console.log(performance[0].performanceBonus);
-  } else {
-    selectedMonth.value.performanceBonus = 0; // 그 외의 달에는 성과급을 0으로 설정
+  if (!monthData) {
+    console.error('해당 월의 급여 데이터를 찾을 수 없습니다.');
+    return;
   }
 
+  // 모달 헤더 설정
+  const monthNumber = new Date(month.salaryMonth).getMonth() + 1;
+  salaryDialogHeader.value = `${authStore.employeeData.employeeName}님의 ${monthNumber}월 급여 내역`;
+
+  // 데이터 매핑
+  selectedMonth.value.workTime = monthData.workTime;
+  selectedMonth.value.baseSalary = monthData.baseSalary;
+  selectedMonth.value.overTime = monthData.overTime;
+  selectedMonth.value.overSalary = (monthData.baseSalary * 0.01) * monthData.overTime;
+  selectedMonth.value.totalSalary = monthData.baseSalary * monthData.workTime;
+  selectedMonth.value.bonus = monthData.bonus;
+
+  // 공제 데이터 설정
   await fetchDeductionsData(month.salaryMonth);
+
   displayModal.value = true;
 };
 
