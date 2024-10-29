@@ -4,7 +4,7 @@
             <!-- 검색 필드 -->
             <div class="search-container">
                 <i class="pi pi-search search-icon"></i>
-                <input type="text" placeholder="Search employees..." v-model="searchQuery" class="search-input" @keyup.enter="onSearchEnter" />
+                <input type="text" placeholder="검색어를 입력해주세요." v-model="searchQuery" class="search-input" @keyup.enter="onSearchEnter" />
             </div>
 
             <!-- 사원 목록 트리 구조 -->
@@ -77,6 +77,17 @@ const selectedCategory = ref('');
 
 const progressValue = ref(0); // ProgressBar의 현재 값
 const progressVisible = ref(false); // ProgressBar 모달 표시 여부
+
+import { watch } from 'vue';
+
+// 검색어가 변경될 때마다 트리를 확장
+watch(searchQuery, (newQuery) => {
+    if (newQuery.trim()) {
+        expandMatchingNodes(filteredTreeData.value, newQuery.toLowerCase());
+    } else {
+        expandedKeys.value = {}; // 검색어가 없을 경우 트리 확장 초기화
+    }
+});
 
 onMounted(() => {
     fetchEmployeeList();
@@ -221,7 +232,7 @@ const expandMatchingNodes = (items, query) => {
     });
 };
 
-// 검색어 입력 후 엔터 시 호출
+// 검색어 입력 후 Enter 시 호출
 const onSearchEnter = () => {
     const filteredData = filteredTreeData.value;
 
@@ -238,6 +249,9 @@ const onSearchEnter = () => {
     };
 
     selectMatchingNodes(filteredData);
+
+    // 검색 결과에 따라 트리 노드를 확장
+    expandMatchingNodes(filteredData, searchQuery.value.toLowerCase());
 };
 
 // 단일 알림 발송
@@ -333,7 +347,7 @@ const sendMessage = async () => {
 .search-icon {
     position: absolute;
     left: 10px;
-    top: 50%;
+    top: 44%;
     transform: translateY(-50%);
     color: #aaa;
 }
