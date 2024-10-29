@@ -7,15 +7,21 @@ import java.util.List;
 
 public interface VacationService {
 
+    // 휴가 제출
     Vacation submitVacation(VacationDTO vacationDTO);
 
+    // 모든 휴가 조회
     List<VacationDTO> getAllVacations();
 
+    // 휴가 승인
     void approveVacation(Long vacationId);
 
+    // 휴가 반려
     void rejectVacation(Long vacationId);
 
+    // 사원 번호로 승인된 휴가 조회
     List<VacationDTO> getApprovedVacationsByEmployeeId(String employeeId);
 
+    // 같은 팀 휴가 목록 조회
     List<VacationDTO> getTeamVacations(String employeeId);
 }
