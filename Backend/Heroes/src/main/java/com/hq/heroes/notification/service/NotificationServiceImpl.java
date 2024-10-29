@@ -173,15 +173,22 @@ public class NotificationServiceImpl implements NotificationService {
                         "<html><body><p>" + vacation.getApplicant().getEmployeeName() + "님의 휴가가 승인되었습니다(" + startDate + " ~ " + endDate + ")</p></body></html>";
                 case VACATION_REJECTION ->
                         "<html><body><p>" + vacation.getApplicant().getEmployeeName() + "님의 휴가가 반려되었습니다(" + startDate + " ~ " + endDate + ")</p></body></html>";
+                case MONTHLY_VACATION_GRANTED ->
+                        "<html><body><p>월차가 지급되었습니다.</p></body></html>";
                 default -> throw new IllegalArgumentException("알 수 없는 근태 알림 타입입니다: " + notificationType);
             };
         } else {
             // 근태 외 카테고리의 기본 메시지 처리
             message = switch (notificationType) {
-                case PAYROLL_GENERATION -> "<html><body><p>급여가 생성되었습니다.</p></body></html>";
+                case MONTHLY_SALARY_PAYMENT -> "<html><body><p>월 급여가 지급되었습니다.</p></body></html>";
                 case EDUCATION_ENROLL -> "<html><body><p>새로운 교육이 등록되었습니다.</p></body></html>";
-                case EDUCATION_APPROVAL -> "<html><body><p>교육이 접수되었습니다.</p></body></html>";
-                case CERTIFICATION_APPROVAL -> "<html><body><p>자격증이 등록되었습니다.</p></body></html>";
+                case EDUCATION_APPLICATION -> "<html><body><p>교육이 신청되었습니다.</p></body></html>";
+                case EDUCATION_CANCEL -> "<html><body><p>교육 신청이 취소되었습니다.</p></body></html>";
+                case EDUCATION_COMPLETION -> "<html><body><p>교육을 이수하였습니다.</p></body></html>";
+                case COMPANY_CERTIFICATION_REGISTRATION -> "<html><body><p>회사 추천 자격증이 등록되었습니다.</p></body></html>";
+                case EMPLOYEE_CERTIFICATION_REGISTRATION -> "<html><body><p>사원의 자격증이 등록 요청이 있습니다.</p></body></html>";
+                case EMPLOYEE_CERTIFICATION_APPROVAL -> "<html><body><p>사원의 자격증이 승인되었습니다.</p></body></html>";
+                case EVALUATION_RESULT -> "<html><body><p>평가 결과가 생성되었습니다.</p></body></html>";
                 default -> throw new IllegalArgumentException("알 수 없는 알림 타입입니다: " + notificationType);
             };
         }
@@ -198,6 +205,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.save(notification);
     }
+
 
 
 }
