@@ -12,7 +12,7 @@
       </div>
       <div class="input-field">
         <label>직무 :</label>
-        <p>{{ authStore.employeeData.jobName }}</p>
+        <p>{{ authStore.employeeData.jobRoleName }}</p>
       </div>
       <div class="input-field">
         <label>직책 :</label>
