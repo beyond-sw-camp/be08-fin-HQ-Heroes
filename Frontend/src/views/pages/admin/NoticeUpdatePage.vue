@@ -1,7 +1,7 @@
 <template>
     <div class="notice-detail-page">
         <div class="card">
-            <label class="text-xl font-bold" style="margin-bottom: 4rem">공지사항 내용 - 수정</label>
+            <label class="text-xl font-bold" style="margin-bottom: 4rem">공지사항 수정</label>
 
             <div class="input-group">
                 <h3 class="input-title">제 목</h3>
@@ -36,13 +36,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import Swal from 'sweetalert2';
-import { fetchNoticeById, updateNotice } from './service/adminNoticeService';
+import { nextTick, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { fetchCategories } from './service/adminNoticeCategoryService';
+import { fetchNoticeById, updateNotice } from './service/adminNoticeService';
 const route = useRoute();
 const router = useRouter();
 
@@ -210,7 +210,6 @@ onMounted(async () => {
 
     await loadNotice();
     await initializeEditor();
-    loadCategoriesFromStorage();
 });
 </script>
 
