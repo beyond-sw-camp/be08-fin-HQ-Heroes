@@ -11,7 +11,7 @@ export const useAuthStore = defineStore('auth', {
       employeeName: '',
       teamName: '',
       deptName: '',
-      jobName: '',
+      jobRoleName: '',
       positionName: '',
       email: '',
       joinDate: '',

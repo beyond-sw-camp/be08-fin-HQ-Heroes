@@ -54,16 +54,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/authStore';
+import Avatar from 'primevue/avatar';
+import Dialog from 'primevue/dialog';
+import ProgressBar from 'primevue/progressbar';
+import Select from 'primevue/select';
+import Tree from 'primevue/tree';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
-import Tree from 'primevue/tree';
-import Avatar from 'primevue/avatar';
-import { fetchPost, fetchGet } from '../auth/service/AuthApiService'; // Replace with your API service
-import Select from 'primevue/select';
-import ProgressBar from 'primevue/progressbar';
-import Dialog from 'primevue/dialog';
-import { useAuthStore } from '@/stores/authStore';
+import { computed, onMounted, ref } from 'vue';
+import { fetchGet, fetchPost } from '../auth/service/AuthApiService'; // Replace with your API service
 
 const authStore = useAuthStore();
 const searchQuery = ref(''); // 검색어 상태
@@ -151,7 +151,7 @@ const convertToTreeModel = (data) => {
             label: employee.employeeName,
             profileImageUrl: employee.profileImageUrl,
             employeeId: employee.employeeId,
-            jobName: employee.jobName,
+            jobRoleName: employee.jobRoleName,
             positionName: employee.positionName,
             joinDate: employee.joinDate
         });

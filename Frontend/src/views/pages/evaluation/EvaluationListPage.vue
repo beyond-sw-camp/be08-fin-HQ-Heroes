@@ -13,8 +13,7 @@
             v-model:filters="filters"
             filterDisplay="menu"
             :filters="filters"
-            :globalFilterFields="['employeeName', 'deptName', 'jobName', 'teamName', 'positionName', 'employeeId', 'joinDate']"
-            @row-click="showEmployeeDetails"
+            :globalFilterFields="['employeeName', 'deptName', 'jobRoleName', 'teamName', 'positionName', 'employeeId', 'joinDate']"
             :metaKeySelection="false"
         >
             <template #header>
@@ -34,9 +33,9 @@
                     {{ data.employeeName }}
                 </template>
             </Column>
-            <Column field="jobName" sortable header="직무">
+            <Column field="jobRoleName" sortable header="직무">
                 <template #body="{ data }">
-                    {{ data.jobName }}
+                    {{ data.jobRoleName }}
                 </template>
             </Column>
             <Column field="positionName" sortable header="직 책">
@@ -131,7 +130,7 @@ function initFilters() {
         global: { value: null, matchMode: 'contains' },
         employeeName: { operator: 'and', constraints: [{ value: null, matchMode: 'startsWith' }] },
         deptName: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
-        jobName: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
+        jobRoleName: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
         teamName: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
         positionName: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
         employeeId: { operator: 'and', constraints: [{ value: null, matchMode: 'equals' }] },
