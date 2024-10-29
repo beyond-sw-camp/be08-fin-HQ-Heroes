@@ -1,10 +1,27 @@
 <template>
     <div class="demo-app">
+        <!-- 사이드바 열고 닫기 버튼 -->
+        <Button icon="pi pi-bars" label="필터 열기" @click="toggleSidebar" class="sidebar-toggle-btn" />
+
+        <!-- 사이드바 (필터 메뉴) -->
+        <Transition name="slide">
+            <div v-if="isSidebarOpen" class="sidebar">
+                <Button label="전체 보기" @click="setCategoryFilter(null)" class="filter-btn" />
+                <Button label="월차" @click="setCategoryFilter('DAY_OFF')" class="filter-btn" />
+                <Button label="반차" @click="setCategoryFilter('HALF_DAY_OFF')" class="filter-btn" />
+                <Button label="병가" @click="setCategoryFilter('SICK_LEAVE')" class="filter-btn" />
+                <Button label="경조" @click="setCategoryFilter('EVENT_LEAVE')" class="filter-btn" />
+                <Button label="개인 일정만 보기" @click="togglePersonalView" class="filter-btn" />
+
+                <!-- 사이드바 닫기 버튼 -->
+                <Button icon="pi pi-times" label="닫기" @click="toggleSidebar" class="close-sidebar-btn" />
+            </div>
+        </Transition>
+
         <div class="demo-app-main">
             <FullCalendar ref="calendar" class="demo-app-calendar" :options="calendarOptions">
                 <!-- 이벤트 콘텐츠 슬롯을 이용하여 시간과 제목 표시 -->
                 <template v-slot:eventContent="arg">
-                    <b>{{ arg.timeText }}</b>
                     <i class="event-title">{{ translateVacationType(arg.event.title) }}</i>
                 </template>
             </FullCalendar>
@@ -32,8 +49,8 @@
                 </div>
             </div>
             <template #footer>
-                <Button label="닫기" icon="pi pi-times" text @click="closeModal" />
                 <Button label="저장" icon="pi pi-check" @click="saveEvent" />
+                <Button label="닫기" icon="pi pi-times" text @click="closeModal" />
             </template>
         </Dialog>
 
@@ -67,6 +84,7 @@ export default {
     components: { FullCalendar },
     data() {
         return {
+            isSidebarOpen: false, // 사이드바 열고 닫기 상태
             calendarOptions: {
                 plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
                 headerToolbar: {
@@ -84,12 +102,17 @@ export default {
                 eventResize: this.handleEventResize,
                 dayMaxEventRows: true,
                 dayMaxEvents: 3,
-                aspectRatio: 1.5
+                aspectRatio: 1.5,
+                eventDidMount: (info) => {
+                    info.el.style.backgroundColor = this.getEventColor(info.event.extendedProps.category);
+                }
             },
             isModalOpen: false,
             isDetailModalOpen: false,
             selectedEvent: null,
             submitted: false,
+            isPersonalView: false,
+            categoryFilter: null,
             eventData: ref({
                 title: '',
                 start: '',
@@ -99,54 +122,114 @@ export default {
         };
     },
     methods: {
+        // 사이드바 열고 닫기 메서드
+        toggleSidebar() {
+            this.isSidebarOpen = !this.isSidebarOpen;
+        },
+
+        // 카테고리 필터를 설정하는 메서드
+        setCategoryFilter(category) {
+            this.categoryFilter = category;
+            this.fetchAllEvents();
+        },
+
+        // 개인 일정 필터링 버튼을 클릭할 때 호출되는 메서드
+        togglePersonalView() {
+            this.isPersonalView = !this.isPersonalView;
+            this.fetchAllEvents();
+        },
+
         // 로그인한 사용자의 개인 일정 및 팀원들의 휴가 정보를 함께 가져와서 캘린더에 표시
         async fetchAllEvents() {
             try {
-                // 개인 휴가 및 일정 가져오기 (APPROVED 상태만 필터링)
                 const employeeId = window.localStorage.getItem('employeeId');
-                const personalResponse = await fetchGet(`http://localhost:8080/api/v1/event/my-events?employeeId=${employeeId}`);
-                const personalEvents = Array.isArray(personalResponse)
-                    ? personalResponse
-                          .filter((event) => event.vacationStatus === 'APPROVED') // 개인 휴가도 APPROVED 상태 필터링
-                          .map((event) => ({
-                              id: event.eventId || Math.random().toString(),
-                              title: `${event.title || '제목 없음'} - ${event.employeeName}`,
-                              start: event.start,
-                              end: event.end || null,
-                              backgroundColor: this.getEventColor(event.category) || '#cccccc',
-                              extendedProps: {
-                                  category: event.category || '기타',
-                                  comment: event.description || '설명 없음',
-                                  employeeName: event.employeeName || '직원 없음'
-                              }
-                          }))
-                    : [];
 
-                // 팀원 휴가 가져오기 (APPROVED 상태만 필터링)
-                const teamResponse = await fetchGet(`http://localhost:8080/api/v1/vacation/team-vacations?employeeId=${employeeId}`);
-                const teamVacationEvents = Array.isArray(teamResponse)
-                    ? teamResponse
-                          .filter((vacation) => vacation.vacationStatus === 'APPROVED') // 팀원 휴가도 APPROVED 상태 필터링
-                          .map((vacation) => ({
-                              id: vacation.vacationId,
-                              title: `${this.translateVacationType(vacation.vacationType)} - ${vacation.employeeName}`,
-                              start: `${vacation.vacationStartDate}T${vacation.vacationStartTime}`,
-                              end: vacation.vacationEndDate ? `${vacation.vacationEndDate}T${vacation.vacationEndTime}` : null,
-                              backgroundColor: this.getEventColor(vacation.vacationType),
-                              extendedProps: {
-                                  category: vacation.vacationType,
-                                  comment: vacation.comment,
-                                  vacationStatus: vacation.vacationStatus
-                              }
-                          }))
-                    : [];
+                // 개인 일정 및 휴가 가져오기
+                const personalEvents = await this.fetchPersonalEvents(employeeId);
 
-                // 모든 이벤트를 캘린더에 설정
-                this.calendarOptions.events = [...personalEvents, ...teamVacationEvents];
+                // 모든 팀 휴가 가져오기 (API 한 번 호출)
+                const { myVacations, teamVacations } = await this.fetchTeamAndPersonalVacations(employeeId);
+
+                // 개인 일정과 본인 휴가를 합침
+                let allEvents = [...personalEvents, ...myVacations];
+
+                // 개인 일정만 보기 모드인지 여부에 따라 표시할 이벤트 결정
+                if (!this.isPersonalView) {
+                    allEvents = [...allEvents, ...teamVacations];
+                }
+
+                // 카테고리 필터가 설정되어 있다면 해당 카테고리에 맞는 이벤트만 필터링
+                if (this.categoryFilter) {
+                    allEvents = allEvents.filter((event) => event.extendedProps.category === this.categoryFilter);
+                }
+
+                // 캘린더 이벤트를 갱신
+                this.calendarOptions.events = allEvents;
                 this.$refs.calendar.getApi().rerenderEvents();
             } catch (error) {
                 console.error('이벤트 데이터 로드 실패:', error);
             }
+        },
+
+        // 개인 일정 및 휴가 데이터를 가져오는 메서드
+        async fetchPersonalEvents(employeeId) {
+            const personalResponse = await fetchGet(`http://localhost:8080/api/v1/event/my-events?employeeId=${employeeId}`);
+            return Array.isArray(personalResponse)
+                ? personalResponse
+                      .filter((event) => {
+                          if (['월차', '반차', '병가', '경조'].includes(event.category)) {
+                              return event.vacationStatus === 'APPROVED';
+                          }
+                          return true;
+                      })
+                      .map((event) => ({
+                          id: event.eventId || Math.random().toString(),
+                          title: `${event.title || '제목 없음'} - ${event.employeeName}`,
+                          start: event.start,
+                          end: event.end || null,
+                          backgroundColor: this.getEventColor(event.category) || '#cccccc',
+                          extendedProps: {
+                              category: event.category || '기타',
+                              comment: event.description || '설명 없음',
+                              employeeName: event.employeeName || '직원 없음'
+                          }
+                      }))
+                : [];
+        },
+
+        // 나의 휴가와 팀원의 휴가를 분리하여 가져오는 메서드
+        async fetchTeamAndPersonalVacations(employeeId) {
+            const teamResponse = await fetchGet(`http://localhost:8080/api/v1/vacation/team-vacations?employeeId=${employeeId}`);
+            if (!Array.isArray(teamResponse)) return { myVacations: [], teamVacations: [] };
+
+            const myVacations = [];
+            const teamVacations = [];
+
+            teamResponse.forEach((vacation) => {
+                if (vacation.vacationStatus === 'APPROVED') {
+                    const vacationEvent = {
+                        id: vacation.vacationId,
+                        title: `${this.translateVacationType(vacation.vacationType)} - ${vacation.employeeName}`,
+                        start: `${vacation.vacationStartDate}T${vacation.vacationStartTime}`,
+                        end: vacation.vacationEndDate ? `${vacation.vacationEndDate}T${vacation.vacationEndTime}` : null,
+                        backgroundColor: this.getEventColor(vacation.vacationType),
+                        extendedProps: {
+                            category: vacation.vacationType,
+                            comment: vacation.comment,
+                            vacationStatus: vacation.vacationStatus
+                        }
+                    };
+
+                    // 본인의 휴가와 팀원의 휴가를 분리
+                    if (vacation.employeeId === employeeId) {
+                        myVacations.push(vacationEvent);
+                    } else {
+                        teamVacations.push(vacationEvent);
+                    }
+                }
+            });
+
+            return { myVacations, teamVacations };
         },
 
         handleDateClick(info) {
@@ -246,8 +329,8 @@ export default {
             }
         },
 
-        getEventColor(vacationType) {
-            switch (vacationType) {
+        getEventColor(category) {
+            switch (category) {
                 case 'DAY_OFF':
                     return '#ffcccc';
                 case 'HALF_DAY_OFF':
@@ -287,6 +370,7 @@ export default {
 
 <style scoped>
 .demo-app {
+    position: relative;
     padding: 16px;
     border-radius: 12px;
     background-color: #ffffff;
@@ -308,18 +392,44 @@ export default {
     height: 100%;
 }
 
-.fc .fc-daygrid-day-frame {
-    width: 100%;
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 19px;
+    left: 210px;
+}
+
+.sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;
     height: 100%;
+    background-color: #f4f4f4;
+    padding: 16px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 10;
 }
 
-.fc .fc-daygrid-day {
-    flex: 1 1 auto;
-}
-
-.fc-daygrid {
-    table-layout: fixed;
+.filter-btn {
+    display: block;
     width: 100%;
+    margin-bottom: 8px;
+}
+
+.close-sidebar-btn {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: transform 0.3s ease;
+}
+.slide-enter {
+    transform: translateX(-100%);
+}
+.slide-leave-to {
+    transform: translateX(-100%);
 }
 
 .event-title {
