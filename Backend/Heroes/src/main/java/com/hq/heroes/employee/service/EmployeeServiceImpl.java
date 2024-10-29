@@ -38,6 +38,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public List<EmployeeDTO> getAllEmployeesByDepartment(Long deptId) {
+        return employeeRepository.findEmployeesByDepartmentId(deptId);
+    }
+
+    @Override
     public Employee getEmployeeById(String id) {
         return employeeRepository.findById(id).orElse(null);
     }

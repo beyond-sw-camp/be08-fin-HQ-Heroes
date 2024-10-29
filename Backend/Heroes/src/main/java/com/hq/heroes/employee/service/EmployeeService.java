@@ -14,6 +14,11 @@ public interface EmployeeService {
     List<EmployeeDTO> getAllEmployees();
 
     /*
+    부서 별 사원 조회
+    */
+    List<EmployeeDTO> getAllEmployeesByDepartment(Long deptId);
+
+    /*
         특정 사원 조회
      */
     Employee getEmployeeById(String id);
