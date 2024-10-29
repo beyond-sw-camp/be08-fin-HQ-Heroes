@@ -19,8 +19,8 @@ public class EmployeeDTO {
     private Long deptId;
     private String deptName;
     private String email;
-    private Long jobId;
-    private String jobName;
+    private Long jobRoleId;
+    private String jobRoleName;
     private Long positionId;
     private String positionName;
     private LocalDate joinDate;
@@ -38,7 +38,7 @@ public class EmployeeDTO {
     private String profileImageUrl;
 
     public EmployeeDTO(String employeeId, String employeeName, Long teamId, String teamName,
-                       Long deptId, String deptName, String email, Long jobId, String jobName,
+                       Long deptId, String deptName, String email, Long jobRoleId, String jobRoleName,
                        Long positionId, String positionName, LocalDate joinDate, LocalDate birthDate,
                        String phoneNumber, String roadAddress, String lotAddress, String detailedAddress,
                        String profileImageUrl) {
@@ -49,8 +49,8 @@ public class EmployeeDTO {
         this.deptId = deptId;
         this.deptName = deptName;
         this.email = email;
-        this.jobId = jobId;
-        this.jobName = jobName;
+        this.jobRoleId = jobRoleId;
+        this.jobRoleName = jobRoleName;
         this.positionId = positionId;
         this.positionName = positionName;
         this.joinDate = joinDate;

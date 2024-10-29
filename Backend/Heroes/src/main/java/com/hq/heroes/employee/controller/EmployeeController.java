@@ -7,7 +7,7 @@ import com.hq.heroes.employee.dto.EmployeeDTO;
 import com.hq.heroes.employee.dto.PasswordUpdateDTO;
 import com.hq.heroes.employee.dto.TeamDTO;
 import com.hq.heroes.employee.repository.DepartmentRepository;
-import com.hq.heroes.employee.repository.JobRepository;
+import com.hq.heroes.employee.repository.JobRoleRepository;
 import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
 import com.hq.heroes.employee.service.EmployeeService;
@@ -36,7 +36,7 @@ public class EmployeeController {
     private final EmployeeService employeeService;
     private final DepartmentRepository departmentRepository;
     private final TeamRepository teamRepository;
-    private final JobRepository jobRepository;
+    private final JobRoleRepository jobRepository;
     private final PositionRepository positionRepository;
     private final EmployeeRepository employeeRepository;
 
@@ -89,8 +89,8 @@ public class EmployeeController {
     }
 
     @GetMapping("/jobs")
-    public ResponseEntity<?> getJobs() {
-        return ResponseEntity.ok((jobRepository.findAllJobs()));
+    public ResponseEntity<?> getJobRoles() {
+        return ResponseEntity.ok((jobRepository.findAllJobRoles()));
     }
 
     @GetMapping("/positions")

@@ -9,7 +9,7 @@ import com.hq.heroes.employee.dto.EmployeeDTO;
 import com.hq.heroes.employee.dto.PasswordUpdateDTO;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.repository.DepartmentRepository;
-import com.hq.heroes.employee.repository.JobRepository;
+import com.hq.heroes.employee.repository.JobRoleRepository;
 import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
 import com.hq.heroes.employee.service.EmployeeServiceImpl;
@@ -50,7 +50,7 @@ public class EmployeeControllerTest {
     private TeamRepository teamRepository;
 
     @MockBean
-    private JobRepository jobRepository;
+    private JobRoleRepository jobRepository;
 
     @MockBean
     private PositionRepository positionRepository;

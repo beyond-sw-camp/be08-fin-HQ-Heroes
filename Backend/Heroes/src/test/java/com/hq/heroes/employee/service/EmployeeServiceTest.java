@@ -4,11 +4,11 @@ import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.dto.EmployeeDTO;
 import com.hq.heroes.employee.entity.Department;
-import com.hq.heroes.employee.entity.Job;
+import com.hq.heroes.employee.entity.JobRole;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.entity.Team;
 import com.hq.heroes.employee.repository.DepartmentRepository;
-import com.hq.heroes.employee.repository.JobRepository;
+import com.hq.heroes.employee.repository.JobRoleRepository;
 import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +44,7 @@ class EmployeeServiceTest {
     PositionRepository positionRepository;
 
     @Mock
-    JobRepository jobRepository;
+    JobRoleRepository jobRepository;
 
     @Mock
     BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -57,9 +57,9 @@ class EmployeeServiceTest {
     @BeforeEach
     void setUp() {
         // 테스트용 Employee 객체 초기화
-        Job job1 = Job.builder()
-                .jobId(1L)
-                .jobName("영업담당자")
+        JobRole job1 = JobRole.builder()
+                .jobRoleId(1L)
+                .jobRoleName("영업담당자")
                 .build();
 
         Position position1 = Position.builder()
@@ -172,7 +172,7 @@ class EmployeeServiceTest {
         //given
         when(employeeRepository.findById("20140021")).thenReturn(Optional.of(employee));
 
-        Job job2 = Job.builder().jobId(2L).jobName("개발자").build();
+        JobRole job2 = JobRole.builder().jobRoleId(2L).jobRoleName("개발자").build();
         jobRepository.save(job2);
 
         Position position2 = Position.builder().positionId(2L).positionName("팀원").build();

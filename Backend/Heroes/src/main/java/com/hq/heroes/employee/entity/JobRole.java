@@ -12,16 +12,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "tb_job")
-public class Job {
+@Table(name = "tb_jobrole")
+public class JobRole {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "job_id")
-    private Long jobId;
+    @Column(name = "jobrole_id")
+    private Long jobRoleId;
 
-    @Column(name = "job_name", nullable = false)
-    private String jobName;
+    @Column(name = "jobrole_name", nullable = false)
+    private String jobRoleName;
 
     // Employee와의 One-to-Many 연관관계 매핑
     @OneToMany(mappedBy = "job")

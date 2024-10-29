@@ -4,7 +4,7 @@ import com.hq.heroes.auth.entity.enums.Role;
 import com.hq.heroes.auth.entity.enums.Status;
 import com.hq.heroes.employee.dto.EmployeeDTO;
 import com.hq.heroes.employee.entity.Department;
-import com.hq.heroes.employee.entity.Job;
+import com.hq.heroes.employee.entity.JobRole;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.entity.Team;
 import jakarta.persistence.*;
@@ -110,10 +110,10 @@ public class Employee {
     @JoinColumn(name = "position_id", nullable = false)
     private Position position;
 
-    // Job과의 Many-to-One 관계
+    // 과의 Many-to-One 관계
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "job_id", nullable = false)
-    private Job job;
+    @JoinColumn(name = "jobrole_id", nullable = false)
+    private JobRole job;
 
     @PrePersist
     public void prePersist() {
@@ -146,7 +146,7 @@ public class Employee {
                 .employeeName(this.employeeName)
                 .teamName(this.team != null ? this.team.getTeamName() : null)
                 .deptName(this.department != null ? this.department.getDeptName() : null)
-                .jobName(this.job != null ? this.job.getJobName() : null)
+                .jobRoleName(this.job != null ? this.job.getJobRoleName() : null)
                 .positionName(this.position != null ? this.position.getPositionName() : null)
                 .email(this.email)
                 .joinDate(this.joinDate)

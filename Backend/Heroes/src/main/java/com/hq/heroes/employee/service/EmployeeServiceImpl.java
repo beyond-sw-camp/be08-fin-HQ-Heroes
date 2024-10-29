@@ -5,11 +5,11 @@ import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.common.service.FirebaseStorageService;
 import com.hq.heroes.employee.dto.EmployeeDTO;
 import com.hq.heroes.employee.entity.Department;
-import com.hq.heroes.employee.entity.Job;
+import com.hq.heroes.employee.entity.JobRole;
 import com.hq.heroes.employee.entity.Position;
 import com.hq.heroes.employee.entity.Team;
 import com.hq.heroes.employee.repository.DepartmentRepository;
-import com.hq.heroes.employee.repository.JobRepository;
+import com.hq.heroes.employee.repository.JobRoleRepository;
 import com.hq.heroes.employee.repository.PositionRepository;
 import com.hq.heroes.employee.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final FirebaseStorageService firebaseStorageService;
     private final DepartmentRepository departmentRepository;
-    private final JobRepository jobRepository;
+    private final JobRoleRepository jobRepository;
     private final PositionRepository positionRepository;
     private final TeamRepository teamRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -86,7 +86,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setDetailedAddress(employeeDTO.getDetailedAddress());
 
         Department department = departmentRepository.findById(employeeDTO.getDeptId()).orElseThrow();
-        Job job = jobRepository.findById(employeeDTO.getJobId()).orElseThrow();
+        JobRole job = jobRepository.findById(employeeDTO.getJobRoleId()).orElseThrow();
         Position position = positionRepository.findById(employeeDTO.getPositionId()).orElseThrow();
         Team team = teamRepository.findById(employeeDTO.getTeamId()).orElseThrow();
 
