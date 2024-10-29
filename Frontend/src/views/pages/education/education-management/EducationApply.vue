@@ -78,6 +78,8 @@ import InputText from 'primevue/inputtext';
 import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { fetchGet } from '../../auth/service/AuthApiService';
+import Swal from 'sweetalert2';
 
 const router = useRouter();
 
@@ -157,7 +159,11 @@ function initFilters() {
 function openEducationDetail(event) {
     const course = event.data;
     if (course.status === '신청 마감') {
-        alert('신청 기간이 마감된 교육입니다.');
+        Swal.fire({
+            icon: 'warning',
+            title: '알림',
+            text: '신청 기간이 마감된 교육입니다.',
+        });
         return;
     }
     router.push({ path: `/education-apply/education-detail/${course.educationId}` });

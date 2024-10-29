@@ -3,22 +3,57 @@
         <div class="education-detail">
             <h2>[ {{ categoryName }} ] {{ educationName }} </h2>
             <hr />
-            <div class="education-info">
-                <p>
-                    <strong>교육 기간 :</strong>
-                    {{ formatDate(educationStart) }} ~ {{ formatDate(educationEnd) }}
-                </p>
-                <p><strong>수료 기준 :</strong> 수강일 기준 80% 이상</p>
-                <p><strong>수강 정원 :</strong>
-                    {{ currentParticipant }} / {{ participants }}
-                </p>
-                <p><strong>강의 형식 :</strong> 오프라인</p>
-                <p><strong>교육 기관 :</strong> {{ institution }}</p>
-                <p>
-                    <strong>교육 커리큘럼 :</strong>
-                    <div v-html="educationCurriculum" class="curriculum-content"></div>
-                </p>
-            </div>
+            <!-- education-info 테이블로 수정 -->
+            <table class="education-info">
+                <tr>
+                    <th style="text-align: left;">교육 기간</th>
+                    <td>
+                        <template v-if="editMode">
+                            <input type="date" v-model="educationStart" /> ~ 
+                            <input type="date" v-model="educationEnd" />
+                        </template>
+                        <template v-else>
+                            {{ formatDate(educationStart) }} ~ {{ formatDate(educationEnd) }}
+                        </template>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="text-align: left;">수료 기준</th>
+                    <td>수강일 기준 80% 이상</td>
+                </tr>
+                <tr>
+                    <th style="text-align: left;">수강 정원</th>
+                    <td>
+                        <template v-if="editMode">
+                            <input v-model.number="participants" type="number" />
+                        </template>
+                        <template v-else>
+                            {{ participants }}
+                        </template>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="text-align: left;">교육 기관</th>
+                    <td>
+                        <template v-if="editMode">
+                            <input v-model="institution" type="text" />
+                        </template>
+                        <template v-else>
+                            {{ institution }}
+                        </template>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; vertical-align: top;">교육 커리큘럼</th>
+                    <td>
+                        <div v-html="educationCurriculum" class="curriculum-content"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>첨부 파일</th>
+                    <td>첨부 파일이 없습니다.</td>
+                </tr>
+            </table>
             <div class="button-group">
                 <Button label="신청하기" icon="pi pi-pencil" @click="handleApplyClick" />
                 <Button label="목록" icon="pi pi-fw pi-book" @click="goBackToList" class="gray-button" />
@@ -32,6 +67,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { fetchGet } from '../../auth/service/AuthApiService';
+import Swal from 'sweetalert2';
 
 async function fetchPost(url, data) {
     try {
@@ -92,7 +128,10 @@ const handleApplyClick = async () => {
 
     // 신청 인원이 초과하는지 확인
     if (newParticipantCount > participants.value) {
-        alert("신청 인원이 초과하였습니다.");
+        await Swal.fire({
+            title: "신청 인원이 초과하였습니다.",
+            icon: "warning",
+        });
         return;
     }
 
@@ -102,17 +141,28 @@ const handleApplyClick = async () => {
         // 교육 신청 요청
         await fetchPost(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
         
-        alert("교육이 추가되었습니다"); // 성공 메시지 표시
+        // 성공 메시지 표시
+        await Swal.fire({
+            title: "교육이 추가되었습니다",
+            icon: "success",
+        });
+        
         currentParticipant.value = newParticipantCount; // 새로 신청한 인원 수 업데이트
-    // #localstorage#
         isApplied.value = true; // 신청 상태 업데이트
         router.push('/education-history'); // 신청 완료 후 "/education-history" 페이지로 이동
     } catch (error) {
         // 오류 메시지 검사
         if (error.message.includes("서버 오류: 409")) {
-            alert("이미 신청한 교육입니다."); // 409 오류일 경우 메시지 변경
+            await Swal.fire({
+                title: "이미 신청한 교육입니다.",
+                icon: "warning",
+            });
         } else {
-            alert("신청 중 오류가 발생했습니다: " + error.message); // 그 외 오류 처리
+            await Swal.fire({
+                title: "신청 중 오류가 발생했습니다.",
+                text: error.message,
+                icon: "error",
+            });
         }
     }
 };
@@ -174,8 +224,9 @@ function formatDate(date) {
 
 <style scoped>
 .education-detail {
-    max-width: 800px;
-    margin: 0 auto;
+    width: 100%; /* "card" 크기에 맞추기 위해 전체 너비로 설정 */
+    margin: 0; /* 불필요한 외부 여백 제거 */
+    padding: 0 5rem; /* 내부 여백만 설정하여 card 경계에 맞추기 */
 }
 
 h2 {
@@ -188,18 +239,23 @@ hr {
     margin: 20px 0;
 }
 
-.education-info p {
-    font-size: 16px;
-    margin: 5px 0;
+.education-info {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.education-info strong {
-    font-weight: bold;
+.education-info th,
+.education-info td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
 }
 
 .curriculum-content {
-    margin-top: 5px;
-    /* 필요에 따라 스타일 추가 */
+    text-align: left;
+    display: inline-block;
+    max-width: 100%;
+    padding: 20px 0;
 }
 
 .gray-button {
@@ -212,6 +268,7 @@ hr {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+    padding: 10px 0;
 }
 
 input {

@@ -65,6 +65,7 @@ import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref } from 'vue';
 import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
 import { useAuthStore } from '@/stores/authStore';
+import Swal from 'sweetalert2';
 
 const authStore = useAuthStore();
 
@@ -146,10 +147,18 @@ const completeCourse = async (request) => {
         // 요청의 상태를 업데이트
         if (showEducation.value) {
             request.courseStatus = '이수';
-            toast.add({ severity: 'success', summary: 'Success', detail: '교육이 이수되었습니다.' });
+            // 성공 메시지 표시
+            await Swal.fire({
+                title: '교육이 이수되었습니다.',
+                icon: 'success',
+            });
         } else {
             request.courseStatus = 'APPROVE';
-            toast.add({ severity: 'success', summary: 'Success', detail: '자격증이 승인되었습니다.' });
+            // 성공 메시지 표시
+            await Swal.fire({
+                title: '자격증이 승인되었습니다.',
+                icon: 'success',
+            });
         }
 
         // 목록에서 해당 요청 제거
@@ -157,7 +166,12 @@ const completeCourse = async (request) => {
             showEducation.value ? req.courseId !== request.courseId : req.registrationId !== request.registrationId
         );
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Error', detail: showEducation.value ? '교육 이수 처리 실패' : '자격증 승인 처리 실패' });
+        // 오류 메시지 표시
+        await Swal.fire({
+            title: '처리 실패',
+            text: showEducation.value ? '교육 이수 처리 실패' : '자격증 승인 처리 실패',
+            icon: 'error',
+        });
     } finally {
         isLoading.value = false;
     }
