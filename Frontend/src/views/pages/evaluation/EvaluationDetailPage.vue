@@ -15,7 +15,7 @@
                 <p><strong>부서:</strong>{{ employeeDept }}</p>
                 <p><strong>팀명:</strong> {{ employeeTeam }}</p>
                 <p><strong>직책:</strong> {{ employeePosition }}</p>
-                <p><strong>직무:</strong> {{ employeeJob }}</p>
+                <p><strong>직무:</strong> {{ employeejobRole }}</p>
             </div>
         </div>
 
@@ -61,7 +61,7 @@ const employeeId = route.params.employeeId;
 
 const employeeName = ref('');
 const employeePosition = ref('');
-const employeeJob = ref('');
+const employeejobRole = ref('');
 const employeeTeam = ref('');
 const employeeDept = ref('');
 const employeeProfileImageUrl = ref('');
@@ -96,7 +96,7 @@ async function fetchEmployeeEvaluationData() {
         employeePosition.value = employeeData.positionName || '팀원';
         employeeDept.value = employeeData.deptName;
         employeeTeam.value = employeeData.teamName;
-        employeeJob.value = employeeData.jobName;
+        employeejobRole.value = employeeData.jobRoleName;
         employeeProfileImageUrl.value = employeeData.profileImageUrl;
         fetchEvaluationCriteria(employeeData.deptName);
     } catch (error) {
