@@ -54,7 +54,9 @@ public class AttendanceController {
             CustomEmployeeDetails userDetails = (CustomEmployeeDetails) authentication.getPrincipal();
             String employeeId = userDetails.getUsername();
 
-            YearMonth targetMonth = YearMonth.of(year, month);
+            // 입력된 연월에서 한 달 전의 YearMonth 생성
+            YearMonth targetMonth = YearMonth.of(year, month).minusMonths(1);
+
             int totalWorkHours = attendanceService.calculateTotalWorkHours(employeeId, targetMonth);
 
             return ResponseEntity.ok(totalWorkHours);
