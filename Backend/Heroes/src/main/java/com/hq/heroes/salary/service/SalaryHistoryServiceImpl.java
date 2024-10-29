@@ -5,14 +5,14 @@ import com.hq.heroes.attendance.service.AttendanceService;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.entity.Position;
+import com.hq.heroes.evaluation.entity.Evaluation;
+import com.hq.heroes.evaluation.repository.EvaluationRepository;
 import com.hq.heroes.salary.dto.RetireDTO;
 import com.hq.heroes.salary.dto.SalaryHistoryDTO;
 import com.hq.heroes.salary.entity.Deduct;
-import com.hq.heroes.salary.entity.Salary;
 import com.hq.heroes.salary.entity.SalaryHistory;
 import com.hq.heroes.salary.repository.DeductRepository;
 import com.hq.heroes.salary.repository.SalaryHistoryRepository;
-import com.hq.heroes.salary.repository.SalaryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,10 +31,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SalaryHistoryServiceImpl implements SalaryHistoryService {
     private final SalaryHistoryRepository salaryHistoryRepository;
-    private final SalaryRepository salaryRepository;
     private final EmployeeRepository employeeRepository;
     private final DeductRepository deductRepository;
     private final AttendanceService attendanceService;
+    private final EvaluationRepository evaluationRepository;
 
     @Override
     public List<SalaryHistoryDTO> getAllSalaries(String employeeId) {
@@ -58,30 +60,39 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         Employee employee = employeeEntity.get();
         Position position = employee.getPosition();
 
-        // 현재 날짜
+        // 현재 날짜 정보
         YearMonth currentMonth = YearMonth.now();
+        YearMonth previousMonth = getPreviousMonth(currentMonth);  // 이전 달 계산
 
-        // 해당 사원의 총 근무 시간
-        int totalWorkHours = attendanceService.calculateTotalWorkHours(employee.getEmployeeId(), currentMonth);
+        // 총 근무 시간
+        int totalWorkHours = attendanceService.calculateTotalWorkHours(employee.getEmployeeId(), previousMonth);
 
-        // 근무 년수 계산
+        // 근무 연수 계산
         long years = ChronoUnit.YEARS.between(employee.getJoinDate(), LocalDate.now());
 
-        // baseSalary = 직급의 기본급 * 총 근무 시간
+        // 기본급 계산
         double baseSalary = position.getBaseSalary() * totalWorkHours;
 
-        // 5% 복리 적용
+        // 근무 연수에 따른 5% 복리 적용
         for (int i = 0; i < years; i++) {
-            baseSalary *= 1.05; // 매년 5% 증가
+            baseSalary *= 1.05;
         }
 
-        // 성과급 및 세전 총액 계산
-        Salary salary = salaryRepository.findByPosition(position)
-                .orElseThrow(() -> new IllegalArgumentException("No salary record found for this position"));
-        double performanceBonus = baseSalary * salary.getPerformanceBonus();
-        double preTaxTotal = baseSalary + performanceBonus;
+        // 연장 근로 시간
 
-        // 각 공제 항목 계산
+        // 연장 근로 수당 계산
+
+        // 성과급 계산 (1월 또는 7월에만 적용)
+        double bonus = 0;
+        int monthValue = currentMonth.getMonthValue();
+        if (monthValue == 1 || monthValue == 7) {
+            bonus = calculateBonus(employee, currentMonth.getYear(), monthValue);
+        }
+
+        // 세전 총액 계산
+        double preTaxTotal = baseSalary + bonus;
+
+        // 공제 항목 계산
         List<Deduct> deducts = deductRepository.findAll();
         double nationalPension = calculateDeduction(preTaxTotal, deducts, "국민연금");
         double healthInsurance = calculateDeduction(preTaxTotal, deducts, "건강보험");
@@ -106,12 +117,59 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
                 .incomeTax(incomeTax)
                 .localIncomeTax(localIncomeTax)
                 .postTaxTotal(postTaxTotal)
-                .status(dto.getStatus())
-                .paymentDate(LocalDate.now().atStartOfDay())
+                .bonus(bonus)
+                .workTime(totalWorkHours/60)
                 .build();
 
         SalaryHistory savedSalaryHistory = salaryHistoryRepository.save(salaryHistory);
         return convertToDTO(savedSalaryHistory);
+    }
+
+    // 이전 달 계산 메서드
+    private YearMonth getPreviousMonth(YearMonth currentMonth) {
+        if (currentMonth.getMonthValue() == 1) {
+            // 1월이면 작년 12월 반환
+            return YearMonth.of(currentMonth.getYear() - 1, 12);
+        } else {
+            // 그 외의 경우 이전 달 반환
+            return currentMonth.minusMonths(1);
+        }
+    }
+
+    // 성과급 계산 메서드
+    private double calculateBonus(Employee employee, int currentYear, int currentMonth) {
+        List<Evaluation> evaluations = evaluationRepository.findByEmployee_EmployeeId(employee.getEmployeeId());
+
+        List<Evaluation> filteredEvaluations = evaluations.stream()
+                .filter(evaluation -> {
+                    LocalDateTime updatedAt = evaluation.getUpdatedAt().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime();
+                    return updatedAt.getYear() == currentYear &&
+                            ((currentMonth == 1 && updatedAt.getMonthValue() >= 7) ||
+                                    (currentMonth == 7 && updatedAt.getMonthValue() <= 6));
+                })
+                .sorted(Comparator.comparing(Evaluation::getUpdatedAt).reversed())
+                .collect(Collectors.toList());
+
+        if (!filteredEvaluations.isEmpty()) {
+            Evaluation latestEvaluation = filteredEvaluations.get(0);
+            double score = latestEvaluation.getScore();
+            double bonusRate = calculateBonusRate(score);
+            return employee.getPosition().getBaseSalary() * bonusRate;
+        }
+        return 0;
+    }
+
+    // 성과급 비율 계산 메서드
+    private double calculateBonusRate(double score) {
+        if (score < 80) {
+            return 0.035; // 80점 이하 -> 3.5%
+        } else if (score <= 89) {
+            return 0.05; // 80~89점 -> 5%
+        } else {
+            return 0.065; // 90~100점 -> 6.5%
+        }
     }
 
     // 세금 및 공제 항목을 계산하는 메서드
@@ -140,8 +198,6 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
                 .salaryMonth(salaryHistory.getSalaryMonth())
                 .preTaxTotal(salaryHistory.getPreTaxTotal())
                 .postTaxTotal(salaryHistory.getPostTaxTotal())
-                .status(salaryHistory.getStatus())
-                .paymentDate(salaryHistory.getPaymentDate())
                 .nationalPension(salaryHistory.getNationalPension())
                 .healthInsurance(salaryHistory.getHealthInsurance())
                 .longTermCare(salaryHistory.getLongTermCare())
