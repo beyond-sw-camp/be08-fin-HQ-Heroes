@@ -39,7 +39,7 @@ public class EmployeeDTO {
 
     public EmployeeDTO(String employeeId, String employeeName, Long teamId, String teamName,
                        Long deptId, String deptName, String email, Long jobRoleId, String jobRoleName,
-                       Long positionId, String positionName, LocalDate joinDate, LocalDate birthDate,
+                       Long positionId, String positionName, LocalDate joinDate, Long annualLeave, LocalDate birthDate,
                        String phoneNumber, String roadAddress, String lotAddress, String detailedAddress,
                        String profileImageUrl) {
         this.employeeId = employeeId;
@@ -54,6 +54,7 @@ public class EmployeeDTO {
         this.positionId = positionId;
         this.positionName = positionName;
         this.joinDate = joinDate;
+        this.annualLeave = annualLeave;
         this.birthDate = birthDate;
         this.phoneNumber = phoneNumber;
         this.roadAddress = roadAddress;

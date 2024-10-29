@@ -21,7 +21,7 @@
                         <h2>사진업로드(증명사진)</h2>
                     </div>
                     <div class="divider"></div>
-                    <div class="form-group">
+                    <div class="form-group-photo" >
                         <img :src="photoUrl" alt="증명사진 미리보기" width="150" height="150" />
                         <div style="margin-left: 10px">
                             <p class="upload-instruction">증명사진을 첨부해 주세요.</p>
@@ -533,4 +533,11 @@ label {
 .photo-upload-container .form-control {
     width: auto;
 }
+
+.form-group-photo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
 </style>

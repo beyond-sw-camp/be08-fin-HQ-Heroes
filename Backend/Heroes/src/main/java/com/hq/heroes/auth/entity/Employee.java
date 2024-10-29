@@ -150,6 +150,7 @@ public class Employee {
                 .positionName(this.position != null ? this.position.getPositionName() : null)
                 .email(this.email)
                 .joinDate(this.joinDate)
+                .annualLeave(this.annualLeave)
                 .birthDate(this.birthDate)
                 .phoneNumber(this.phoneNumber)
                 .roadAddress(this.roadAddress)
