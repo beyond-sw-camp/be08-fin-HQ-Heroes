@@ -2,7 +2,7 @@
   <div class="card">
     <div class="salary-management">
       <div class="header">
-        <label class="text-2xl font-bold text-gray-800">급여 관리</label>
+        <label class="text-2xl font-bold text-gray-800">급여 명세서</label>
       </div>
 
       <div class="year-selection">
@@ -62,14 +62,26 @@
         <div class="salary-modal">
           <div class="salary-details">
             <div class="left-panel">
-              <h3 class="text-xl font-semibold text-gray-800">급여 상세 정보</h3>
+              <h3 class="text-xl font-semibold text-gray-800 mb-4">급여 상세 정보</h3>
               <div class="info-item">
-                <span>총 근무시간 :</span>
+                <span>근무시간 :</span>
                 <span>{{ selectedMonth?.totalWorkHours }} 시간</span>
               </div>
               <div class="info-item">
                 <span>시급 :</span>
                 <span>{{ formatCurrency(selectedMonth?.baseSalary) }}</span>
+              </div>
+              <div class="info-item">
+                <span>기본 급여 :</span>
+                <span>{{ formatCurrency(selectedMonth?.totalSalary) }}</span>
+              </div>
+              <div class="info-item">
+                <span>연장 근로 시간 :</span>
+                <span>{{ selectedMonth?.totalOverTime || 0 }} 시간</span>
+              </div>
+              <div class="info-item">
+                <span>연장 근로 수당 :</span>
+                <span>{{ formatCurrency(selectedMonth?.overSalary) }} </span>
               </div>
               <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '1월' || getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '7월')" class="info-item">
                 <span>성과급 :</span>
@@ -82,7 +94,7 @@
             </div>
 
             <div class="right-panel">
-              <h3 class="text-xl font-semibold text-gray-800">공제액</h3>
+              <h3 class="text-xl font-semibold text-gray-800 mb-4">공제액</h3>
               <div v-if="deductions.length">
                 <div v-for="deduction in deductions" :key="deduction.type" class="deduction-item">
                   <span>{{ deduction.type }} :</span>
@@ -93,14 +105,17 @@
                 <p>급여 데이터가 없습니다.</p>
               </div>
               <div class="total-deductions font-semibold mt-4">
-                <span>공제액 합계:</span>
+                <span>공제액 합계 : </span>
                 <span>{{ formatCurrency(totalDeductions) }}</span>
               </div>
             </div>
           </div>
+          <div class="total-net-pay font-semibold mt-4 text-lg text-center">
+            <span>실지급액 : </span>
+            <span>{{ formatCurrency(selectedMonth?.postTaxTotal) }}</span>
+          </div>
           <div class="modal-footer">
             <Button label="닫기" class="p-button-text" @click="closeSalaryModal" />
-            <Button label="내보내기" class="p-button-text" @click="exportModalDataToCSV" />
           </div>
         </div>
       </Dialog>
@@ -110,7 +125,7 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
-import { fetchTotalWorkHours } from '@/views/pages/salary/workService';
+import { fetchTotalOverTime, fetchTotalWorkHours } from '@/views/pages/salary/workService';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
 import { onMounted, ref } from 'vue';
@@ -178,23 +193,36 @@ const loadMonthlyData = async () => {
     }
   } catch (error) {
     console.error("Error loading salary data:", error);
-  }
+  } 
 };
 
 // 급여 상세 모달 열기
 const showSalaryModal = async (month) => {
   selectedMonth.value = month;
-  salaryDialogHeader.value = `${authStore.employeeData.employeeName}님의 급여 내역`;
-
+  
   const monthNumber = new Date(month.salaryMonth).getMonth() + 1;
+
+  salaryDialogHeader.value = `${authStore.employeeData.employeeName}님의 ${monthNumber}월 급여 내역`;
+  
+  // 근무 시간
   const totalWorkHours = await fetchTotalWorkHours(selectedYear.value, monthNumber);
   selectedMonth.value.totalWorkHours = totalWorkHours;
 
-  // 기본 급여 가져오기
+  // 기본 급여
   const baseSalary = await fetchbaseSalary(authStore.loginUserId);
   selectedMonth.value.baseSalary = baseSalary;
-  console.log(baseSalary);
+  
+  const totalSalary = baseSalary * totalWorkHours;
+  selectedMonth.value.totalSalary = totalSalary;
 
+  // 연장 근로 시간
+  const totalOverTime = await fetchTotalOverTime(authStore.loginUserId, selectedYear.value, monthNumber);
+  selectedMonth.value.totalOverTime = totalOverTime / 60;
+
+  // 연장 근로 수당
+  const overSalary = (totalSalary * 0.01) * (totalOverTime / 60);
+  selectedMonth.value.overSalary = overSalary;
+  
   // 1월과 7월에만 성과급 계산
   if (monthNumber === 1 || monthNumber === 7) {
     const performance = await fetchBonus(authStore.loginUserId);
@@ -207,8 +235,6 @@ const showSalaryModal = async (month) => {
   await fetchDeductionsData(month.salaryMonth);
   displayModal.value = true;
 };
-
-
 
 // 공제 데이터 가져오기 함수
 const fetchDeductionsData = async (salaryMonth) => {
@@ -334,7 +360,7 @@ onMounted(async () => {
 .info-item {
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
 }
 
 .deduction-item {
@@ -351,6 +377,11 @@ onMounted(async () => {
   font-size: 1.1rem;
   border-top: 2px solid #e5e7eb;
   margin-top: 1rem;
+  min-height: 3rem;
+}
+
+.total-net-pay {
+  font-size: 1.25rem;
 }
 
 .modal-footer {
