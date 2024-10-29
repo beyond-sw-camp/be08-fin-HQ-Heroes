@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
+    Optional<Course> findById(@Param("id") Long id);
+
     @Query("SELECT c FROM Course c JOIN FETCH c.employee JOIN FETCH c.education WHERE c.employee.employeeId = :employeeId")
     List<Course> findByEmployee_EmployeeId(String employeeId);
 

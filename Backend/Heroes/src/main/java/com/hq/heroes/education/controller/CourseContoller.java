@@ -6,6 +6,8 @@ import com.hq.heroes.education.dto.EducationResponseDTO;
 import com.hq.heroes.education.entity.Course;
 import com.hq.heroes.education.service.CourseService;
 import com.hq.heroes.education.service.EducationService;
+import com.hq.heroes.notification.entity.enums.AutoNotificationType;
+import com.hq.heroes.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
 public class CourseContoller {
     private final CourseService courseService;
     private final EducationService educationService;
+    private final NotificationService notificationService;
 
     // 사원 ID로 신청한 교육 목록 조회하기 - 테스트
     @GetMapping("/my-courses")
@@ -71,6 +76,12 @@ public class CourseContoller {
     @Operation(summary = "교육 취소하기", description = "수강 ID로 교육 신청을 취소한다.")
     public ResponseEntity<Void> cancelEducation(@PathVariable Long courseId) {
         System.out.println("courseId ========== " + courseId);
+        Course course = courseService.getCourseById(courseId);
+
+        Map<String, Object> params = new HashMap<>();
+        String receiverId = course.getEmployee().getEmployeeId();
+        params.put("receiverId", receiverId);
+        notificationService.sendAutomaticNotification(AutoNotificationType.EDUCATION_CANCEL, params, course);
 
         boolean isCancelled = educationService.cancelEducation(courseId); // 메서드 이름을 적절하게 변경하세요.
         if (isCancelled) {
@@ -84,7 +95,13 @@ public class CourseContoller {
     @PostMapping("/complete/{courseId}")
     @Operation(summary = "교육 이수하기", description = "수강 ID로 미이수된 교육을 이수로 바꾼다.")
     public ResponseEntity<String> completeCourse(@PathVariable Long courseId) {
-        courseService.completeCourse(courseId);
+        Course course = courseService.completeCourse(courseId);
+
+        Map<String, Object> params = new HashMap<>();
+        String receiverId = course.getEmployee().getEmployeeId();
+        params.put("receiverId", receiverId);
+        notificationService.sendAutomaticNotification(AutoNotificationType.EDUCATION_COMPLETION, params, course);
+
         return ResponseEntity.ok("교육이 이수 되었습니다.");
     }
 

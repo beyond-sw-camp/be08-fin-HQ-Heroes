@@ -70,7 +70,7 @@ public class EducationServiceImpl implements EducationService {
 //    }
 
     @Override
-    public String incrementCurrentParticipants(Long educationId, String employeeId) {
+    public Course incrementCurrentParticipants(Long educationId, String employeeId) {
         // 교육이 존재하는지 확인
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(() -> new IllegalArgumentException("교육을 찾을 수 없습니다."));
@@ -97,7 +97,7 @@ public class EducationServiceImpl implements EducationService {
 
         courseRepository.save(course); // Course 엔티티 저장
 
-        return "교육이 신청되었습니다."; // 성공 메시지 반환
+        return course; // 성공 메시지 반환
     }
 
     // 교육 취소하기
@@ -108,6 +108,8 @@ public class EducationServiceImpl implements EducationService {
         EducationCategory category = educationCategoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
+        System.out.println("requestDTO = " + requestDTO.toString());
+
         Education education = Education.builder()
                 .educationName(requestDTO.getEducationName()) // 교육 이름
                 .instructorName(requestDTO.getInstructorName()) // 강사 이름
@@ -116,7 +118,7 @@ public class EducationServiceImpl implements EducationService {
                 .endDate(LocalDate.from(requestDTO.getEducationEnd())) // 교육 종료일
                 .participants(requestDTO.getParticipants()) // 수강 정원
                 .educationCategory(category) // 카테고리
-                .educationCurriculum(requestDTO.getEducationCurriculum()) // 커리큘럼
+                .educationCurriculum(requestDTO.getEducationCurriculum() != null ? requestDTO.getEducationCurriculum() : "") // 커리큘럼
                 .build();
 
         return educationRepository.save(education);

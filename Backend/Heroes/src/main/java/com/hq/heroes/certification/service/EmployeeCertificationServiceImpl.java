@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,12 +44,13 @@ public class EmployeeCertificationServiceImpl implements EmployeeCertificationSe
         return employeeCertificationRepository.save(employeeCertification);
     }
 
-    public void completeCertification(Long registrationId) {
+    public EmployeeCertification completeCertification(Long registrationId) {
         EmployeeCertification employeeCertification = employeeCertificationRepository.findById(registrationId)
                 .orElseThrow(() -> new IllegalArgumentException("등록한 자격증을 찾을 수 없습니다."));
 
         employeeCertification.setEmployeeCertificationStatus(EmployeeCertificationStatus.APPROVE); // 상태를 승인으로 변경
         employeeCertificationRepository.save(employeeCertification);
+        return employeeCertification;
     }
 
     @Override

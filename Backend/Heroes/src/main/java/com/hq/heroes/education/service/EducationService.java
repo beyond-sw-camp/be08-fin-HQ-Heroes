@@ -1,6 +1,7 @@
 package com.hq.heroes.education.service;
 
 import com.hq.heroes.education.dto.EducationRequestDTO;
+import com.hq.heroes.education.entity.Course;
 import com.hq.heroes.education.entity.Education;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public interface EducationService {
 //    boolean incrementCurrentParticipants(Long educationId, String employeeId);
 
     //- 테스트
-    String incrementCurrentParticipants(Long educationId, String employeeId);
+    Course incrementCurrentParticipants(Long educationId, String employeeId);
 
     boolean cancelEducation(Long courseId);
 

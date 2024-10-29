@@ -18,6 +18,14 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
 
     @Override
+    public Course getCourseById(Long id) {
+
+        Optional<Course> course = courseRepository.findById(id);
+
+        return course.get();
+    }
+
+    @Override
     public List<Course> getCourseByEmployeeId (String employeeId) {
         return courseRepository.findByEmployee_EmployeeId(employeeId);
     }
@@ -33,12 +41,13 @@ public class CourseServiceImpl implements CourseService {
         return false;
     }
 
-    public void completeCourse(Long courseId) {
+    public Course completeCourse(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("수강 내역을 찾을 수 없습니다."));
 
         course.setCourseStatus(CourseStatus.PASS); // 상태를 이수로 변경
         courseRepository.save(course);
+        return course;
     }
 
     @Override

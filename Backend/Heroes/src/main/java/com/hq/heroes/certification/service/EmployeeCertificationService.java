@@ -13,7 +13,7 @@ public interface EmployeeCertificationService {
     //- 테스트
     EmployeeCertification createEmployeeCertification(EmployeeCertificationRequestDTO requestDTO);
 
-    void completeCertification(Long registrationId);
+    EmployeeCertification completeCertification(Long registrationId);
 
     List<EmployeeCertificationResponseDTO> getAllCertification();
 }

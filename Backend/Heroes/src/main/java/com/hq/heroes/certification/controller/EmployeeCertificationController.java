@@ -5,6 +5,8 @@ import com.hq.heroes.certification.dto.EmployeeCertificationRequestDTO;
 import com.hq.heroes.certification.dto.EmployeeCertificationResponseDTO;
 import com.hq.heroes.certification.entity.EmployeeCertification;
 import com.hq.heroes.certification.service.EmployeeCertificationService;
+import com.hq.heroes.notification.entity.enums.AutoNotificationType;
+import com.hq.heroes.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 public class EmployeeCertificationController {
 
     private final EmployeeCertificationService employeeCertificationService;
+    private final NotificationService notificationService;
 
     // 사원 ID로 자격증 조회하기 - 테스트
     @GetMapping("/my-certification/by-employeeId")
@@ -62,6 +67,12 @@ public class EmployeeCertificationController {
     @Operation(summary = "사원 자격증 등록", description = "사원 자격증 정보를 받아서 등록한다.")
     public ResponseEntity<EmployeeCertificationResponseDTO> create(@RequestBody EmployeeCertificationRequestDTO requestDTO) {
         EmployeeCertification employeeCertification = employeeCertificationService.createEmployeeCertification(requestDTO);
+
+        Map<String, Object> params = new HashMap<>();
+        String receiverId = employeeCertification.getEmployee().getEmployeeId();
+        params.put("receiverId", receiverId);
+        notificationService.sendAutomaticNotification(AutoNotificationType.EMPLOYEE_CERTIFICATION_REGISTRATION, params, employeeCertification);
+
         return new ResponseEntity<>(employeeCertification.toECResponseDTO(), HttpStatus.CREATED);
     }
 
@@ -69,7 +80,13 @@ public class EmployeeCertificationController {
     @PostMapping("/complete/{registrationId}")
     @Operation(summary = "사원 자격증 승인하기", description = "등록 ID로 사원이 신청한 자격증이 등록되도록 한다.")
     public ResponseEntity<String> completeCertification(@PathVariable Long registrationId) {
-        employeeCertificationService.completeCertification(registrationId);
+        EmployeeCertification employeeCertification = employeeCertificationService.completeCertification(registrationId);
+
+        Map<String, Object> params = new HashMap<>();
+        String receiverId = employeeCertification.getEmployee().getEmployeeId();
+        params.put("receiverId", receiverId);
+        notificationService.sendAutomaticNotification(AutoNotificationType.EMPLOYEE_CERTIFICATION_APPROVAL, params, employeeCertification);
+
         return ResponseEntity.ok("사원 자격증 등록이 완료되었습니다.");
     }
 
