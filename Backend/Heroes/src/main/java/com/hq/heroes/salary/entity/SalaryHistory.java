@@ -1,8 +1,10 @@
 package com.hq.heroes.salary.entity;
 
 import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.salary.entity.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -30,13 +32,15 @@ public class SalaryHistory {
     private Double postTaxTotal; // 세후 (세전 - 공제액)
 
     @Column(name = "salary_month", nullable = false)
-    private LocalDateTime salaryMonth; // 지급 일자
+    private LocalDateTime salaryMonth; // 정산 월
 
-    @Column(name = "bonus")
-    private Double bonus; // 성과급
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Status status; // 지급 상태
 
-    @Column(name = "work_time")
-    private long workTime; // 근무 시간
+    @CreationTimestamp
+    @Column(name = "payment_date", nullable = true)
+    private LocalDateTime paymentDate; // 지급 일자
 
     // 공제 항목 추가
     @Column(name = "national_pension", nullable = false)
