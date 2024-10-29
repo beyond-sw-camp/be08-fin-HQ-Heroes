@@ -49,7 +49,7 @@ public class Education {
     @Column(name = "current_participant", nullable = false)
     private int currentParticipant = 0;
 
-    // 교육 커리쿨럼
+    // 교육 커리큘럼
     @Column(name = "education_curriculum", nullable = false, columnDefinition = "TEXT")
     private String educationCurriculum;
 

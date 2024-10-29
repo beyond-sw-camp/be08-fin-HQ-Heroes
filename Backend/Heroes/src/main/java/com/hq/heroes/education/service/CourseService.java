@@ -6,6 +6,9 @@ import com.hq.heroes.education.entity.Course;
 import java.util.List;
 
 public interface CourseService  {
+
+    Course getCourseById(Long id);
+
     //- 테스트
     List<Course> getCourseByEmployeeId(String employeeId);
 
@@ -13,7 +16,7 @@ public interface CourseService  {
     boolean cancelEducation(Long courseId);
 
     //- 테스트
-    void completeCourse(Long courseId);
+    Course completeCourse(Long courseId);
 
     List<CourseResponseDTO> getAllCourses();
 }

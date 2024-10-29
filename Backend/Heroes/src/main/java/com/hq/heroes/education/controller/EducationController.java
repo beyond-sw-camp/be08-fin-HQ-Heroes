@@ -1,10 +1,16 @@
 package com.hq.heroes.education.controller;
 
+import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.education.dto.EducationRequestDTO;
 import com.hq.heroes.education.dto.EducationResponseDTO;
+import com.hq.heroes.education.entity.Course;
 import com.hq.heroes.education.entity.Education;
 import com.hq.heroes.education.service.CourseService;
 import com.hq.heroes.education.service.EducationService;
+import com.hq.heroes.employee.dto.EmployeeDTO;
+import com.hq.heroes.employee.service.EmployeeService;
+import com.hq.heroes.notification.entity.enums.AutoNotificationType;
+import com.hq.heroes.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,7 +33,8 @@ import java.util.stream.Collectors;
 @Tag(name = "Education APIs", description = "교육 관련 API 목록")
 public class EducationController {
     private final EducationService educationService;
-    private final CourseService courseService;
+    private final NotificationService notificationService;
+    private final EmployeeService employeeService;
 
     // 교육 목록 조회하기
     @GetMapping("/education")
@@ -61,7 +70,12 @@ public class EducationController {
     public ResponseEntity<?> applyForEducation(@PathVariable Long educationId, @PathVariable String employeeId) {
         try {
             // 신청 인원 수 증가 로직 (중복 신청 시 IllegalStateException 발생)
-            educationService.incrementCurrentParticipants(educationId, employeeId);
+            Course course = educationService.incrementCurrentParticipants(educationId, employeeId);
+
+            Map<String, Object> params = new HashMap<>();
+            String receiverId = course.getEmployee().getEmployeeId();
+            params.put("receiverId", receiverId);
+            notificationService.sendAutomaticNotification(AutoNotificationType.EDUCATION_APPLICATION, params, course);
 
             // 성공 시 JSON 응답
             return ResponseEntity.ok(Collections.singletonMap("message", "교육이 신청되었습니다."));
@@ -87,31 +101,31 @@ public class EducationController {
     @PostMapping("/education")
     @Operation(summary = "교육 등록", description = "교육 정보를 받아서 등록한다.")
     public ResponseEntity<EducationResponseDTO> create(@RequestBody EducationRequestDTO requestDTO) {
-
         Education education = educationService.createEducation(requestDTO);
+
         return new ResponseEntity<>(education.toResponseDTO(), HttpStatus.CREATED);
     }
 
     // 교육 정보 수정 - 테스트
     @PutMapping("/education/{education-id}")
     @Operation(summary = "교육 목록 수정", description = "교육 정보를 받아 수정한다.")
-    public ResponseEntity<EducationResponseDTO> update (
-                @Parameter(description = "교육 ID", example = "1")
-                @PathVariable("education-id") Long educationId,
-                @RequestBody EducationRequestDTO requestDTO) {
-            Education education = educationService.updateEducation(educationId, requestDTO);
+    public ResponseEntity<EducationResponseDTO> update(
+            @Parameter(description = "교육 ID", example = "1")
+            @PathVariable("education-id") Long educationId,
+            @RequestBody EducationRequestDTO requestDTO) {
+        Education education = educationService.updateEducation(educationId, requestDTO);
 
-            if (education != null) {
-                return new ResponseEntity<>(education.toResponseDTO(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-            }
+        if (education != null) {
+            return new ResponseEntity<>(education.toResponseDTO(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+    }
 
     // 교육 삭제 -테스트
     @DeleteMapping("/education/{education-id}")
     @Operation(summary = "교육 삭제", description = "교육 ID로 해당 교욱을 삭제한다.")
-    public ResponseEntity<Void> delete (
+    public ResponseEntity<Void> delete(
             @Parameter(description = "교육 ID", example = "1") @PathVariable("education-id") Long educationId) {
 
         boolean isDeleted = educationService.deleteEducation(educationId);
