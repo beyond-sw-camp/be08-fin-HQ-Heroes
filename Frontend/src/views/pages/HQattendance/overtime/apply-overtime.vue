@@ -65,6 +65,7 @@
 
 <script setup>
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService'; // 메서드 가져오기
+import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
 import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
 
@@ -170,12 +171,22 @@ const submitForm = async () => {
             comment: form.value.comment // 사유
         };
 
-        const response = await fetchPost('http://localhost:8080/api/v1/overtime/submit', requestBody);
+        await fetchPost('http://localhost:8080/api/v1/overtime/submit', requestBody);
 
-        alert('연장 근로 신청이 완료되었습니다.');
+        Swal.fire({
+            icon: 'success',
+            title: '연장 근로 신청이 완료되었습니다.',
+            showConfirmButton: false,
+            timer: 1500
+        });
     } catch (error) {
         console.error('연장 근로 신청 중 오류가 발생했습니다:', error);
-        alert('연장 근로 신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+        Swal.fire({
+            icon: 'error',
+            title: '오류',
+            text: '연장 근로 신청 중 오류가 발생했습니다. 다시 시도해주세요.',
+            confirmButtonText: '확인'
+        });
     }
 };
 </script>
