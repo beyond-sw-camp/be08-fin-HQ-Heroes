@@ -37,7 +37,7 @@
                         {{ formatDateTime(slotProps.data.createdAt) }}
                     </template>
                 </Column>
-                <Column field="categoryName" header="카테고리" :sortable="true" sortField="category" />
+                <Column field="categoryName" header="카테고리" :sortable="true" sortField="categoryName" />
                 <Column field="title" header="제목" sortable />
                 <Column field="employeeName" header="작성자" sortable />
 
@@ -105,7 +105,8 @@ const filterNotices = () => {
 
         const matchesGlobalFilter =
             notice.title.includes(globalFilter.value) || 
-            notice.employeeName.includes(globalFilter.value);
+            notice.employeeName.includes(globalFilter.value) ||
+            notice.categoryName.includes(globalFilter.value);
 
         return matchesCategory && matchesGlobalFilter;
     });
