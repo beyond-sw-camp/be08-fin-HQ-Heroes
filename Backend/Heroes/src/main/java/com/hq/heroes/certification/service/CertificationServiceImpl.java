@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,9 +58,17 @@ public class CertificationServiceImpl implements CertificationService {
         Certification certification = certificationRepository.findById(certificationId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 교육 ID : " + certificationId));
 
+        Optional<Department> optionalDepartment = departmentRepository.findById(requestDTO.getDeptId());
+
+        if(optionalDepartment.isPresent()){
+            Department department = optionalDepartment.get();
+            certification.setDepartment(department);
+        }
+
         certification.setCertificationName(requestDTO.getCertificationName());
         certification.setInstitution(requestDTO.getInstitution());
         certification.setBenefit(requestDTO.getBenefit());
+
 
         return certificationRepository.save(certification);
     }

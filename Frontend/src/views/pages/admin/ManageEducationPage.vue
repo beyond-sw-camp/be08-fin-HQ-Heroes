@@ -31,7 +31,6 @@
                     </div>
                 </template>
 
-                <Column field="educationId" sortable header="No." />
                 <Column field="categoryName" sortable header="카테고리" />
                 <Column field="educationName" sortable header="교육 명" />
                 <Column field="institution" sortable header="교육 기관" />

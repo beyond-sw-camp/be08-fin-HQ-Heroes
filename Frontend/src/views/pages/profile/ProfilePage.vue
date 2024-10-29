@@ -48,8 +48,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="jobName">직무</label>
-                        <input type="text" id="jobName" v-model="jobName" class="form-control readonly-input" readonly />
+                        <label for="jobRoleName">직무</label>
+                        <input type="text" id="jobRoleName" v-model="jobRoleName" class="form-control readonly-input" readonly />
                     </div>
 
                     <div class="form-group">
@@ -155,7 +155,7 @@ const employeeData = ref({
     employeeName: '',
     teamName: '',
     deptName: '',
-    jobName: '',
+    jobRoleName: '',
     positionName: '',
     email: '',
     joinDate: '',
@@ -171,7 +171,7 @@ const employeeData = ref({
 // 부서 정보 선언
 const departmentName = ref('');
 const teamName = ref('');
-const jobName = ref('');
+const jobRoleName = ref('');
 const position = ref('');
 const hireDate = ref('');
 
@@ -301,7 +301,7 @@ onMounted(async () => {
         employeeData.value = data;
         departmentName.value = data.deptName;
         teamName.value = data.teamName;
-        jobName.value = data.jobName;
+        jobRoleName.value = data.jobRoleName;
         position.value = data.positionName;
         hireDate.value = data.joinDate;
         photoUrl.value = data.profileImageUrl; // 프로필 이미지 설정

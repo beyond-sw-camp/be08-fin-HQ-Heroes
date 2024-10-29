@@ -56,7 +56,7 @@
             </Column>
             <Column field="status" sortable header="이수 여부" style="min-width: 6rem">
                 <template #body="{ data }">
-                    {{ mapStatus(data.status) }}
+                    {{ mapStatus(data.courseStatus) }}
                 </template>
             </Column>
         </DataTable>
@@ -132,7 +132,7 @@ function filterCourses() {
 
     if (selectedStatus.value) {
         if (selectedStatus.value.value !== null) { // "전체"가 아닐 때
-            tempCourses = tempCourses.filter(course => course.status === selectedStatus.value.value);
+            tempCourses = tempCourses.filter(course => course.courseStatus === selectedStatus.value.value);
         }
     }
 
