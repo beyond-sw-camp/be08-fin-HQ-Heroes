@@ -102,40 +102,43 @@ export default {
         // 로그인한 사용자의 개인 일정 및 팀원들의 휴가 정보를 함께 가져와서 캘린더에 표시
         async fetchAllEvents() {
             try {
-                // 개인 휴가 및 일정 가져오기
+                // 개인 휴가 및 일정 가져오기 (APPROVED 상태만 필터링)
                 const employeeId = window.localStorage.getItem('employeeId');
                 const personalResponse = await fetchGet(`http://localhost:8080/api/v1/event/my-events?employeeId=${employeeId}`);
                 const personalEvents = Array.isArray(personalResponse)
-                    ? personalResponse.map((event) => ({
-                          id: event.eventId || Math.random().toString(),
-                          title: `${event.title || '제목 없음'} - ${event.employeeName}`,
-                          start: event.start,
-                          end: event.end || null,
-                          backgroundColor: this.getEventColor(event.category) || '#cccccc',
-                          extendedProps: {
-                              category: event.category || '기타',
-                              comment: event.description || '설명 없음',
-                              employeeName: event.employeeName || '직원 없음'
-                          }
-                      }))
+                    ? personalResponse
+                          .filter((event) => event.vacationStatus === 'APPROVED') // 개인 휴가도 APPROVED 상태 필터링
+                          .map((event) => ({
+                              id: event.eventId || Math.random().toString(),
+                              title: `${event.title || '제목 없음'} - ${event.employeeName}`,
+                              start: event.start,
+                              end: event.end || null,
+                              backgroundColor: this.getEventColor(event.category) || '#cccccc',
+                              extendedProps: {
+                                  category: event.category || '기타',
+                                  comment: event.description || '설명 없음',
+                                  employeeName: event.employeeName || '직원 없음'
+                              }
+                          }))
                     : [];
-                a;
 
-                // 팀원 휴가 가져오기
+                // 팀원 휴가 가져오기 (APPROVED 상태만 필터링)
                 const teamResponse = await fetchGet(`http://localhost:8080/api/v1/vacation/team-vacations?employeeId=${employeeId}`);
                 const teamVacationEvents = Array.isArray(teamResponse)
-                    ? teamResponse.map((vacation) => ({
-                          id: vacation.vacationId,
-                          title: `${this.translateVacationType(vacation.vacationType)} - ${vacation.employeeName}`,
-                          start: `${vacation.vacationStartDate}T${vacation.vacationStartTime}`,
-                          end: vacation.vacationEndDate ? `${vacation.vacationEndDate}T${vacation.vacationEndTime}` : null,
-                          backgroundColor: this.getEventColor(vacation.vacationType),
-                          extendedProps: {
-                              category: vacation.vacationType,
-                              comment: vacation.comment,
-                              vacationStatus: vacation.vacationStatus
-                          }
-                      }))
+                    ? teamResponse
+                          .filter((vacation) => vacation.vacationStatus === 'APPROVED') // 팀원 휴가도 APPROVED 상태 필터링
+                          .map((vacation) => ({
+                              id: vacation.vacationId,
+                              title: `${this.translateVacationType(vacation.vacationType)} - ${vacation.employeeName}`,
+                              start: `${vacation.vacationStartDate}T${vacation.vacationStartTime}`,
+                              end: vacation.vacationEndDate ? `${vacation.vacationEndDate}T${vacation.vacationEndTime}` : null,
+                              backgroundColor: this.getEventColor(vacation.vacationType),
+                              extendedProps: {
+                                  category: vacation.vacationType,
+                                  comment: vacation.comment,
+                                  vacationStatus: vacation.vacationStatus
+                              }
+                          }))
                     : [];
 
                 // 모든 이벤트를 캘린더에 설정
