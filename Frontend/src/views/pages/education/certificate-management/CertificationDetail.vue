@@ -1,13 +1,27 @@
 <template>
-    <Dialog :visible="visible" header="자격증 상세 정보" modal @hide="closeModal" :closable="false">
+    <Dialog :visible="visible" header="자격증 상세 정보" modal @hide="closeModal" :closable="false" :style="{ width: '50vw', borderRadius: '12px' }" >
         <template #header>
             <div class="font-bold text-lg">{{ certificationDetail.certificationName }}</div>
         </template>
         <div class="p-4">
-            <p><strong>부서:</strong> {{ certificationDetail.deptName }}</p>
-            <p><strong>자격증 명:</strong> {{ certificationDetail.certificationName }}</p>
-            <p><strong>발급 기관:</strong> {{ certificationDetail.institution }}</p>
-            <p><strong>혜택:</strong> {{ certificationDetail.benefit }}</p>
+            <table class="table-auto w-full border-collapse">
+                <tr>
+                    <td class="px-4 py-2"><strong>부서:</strong></td>
+                    <td class="px-4 py-2">{{ certificationDetail.deptName || 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2"><strong>자격증 명:</strong></td>
+                    <td class="px-4 py-2">{{ certificationDetail.certificationName }}</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2"><strong>발급 기관:</strong></td>
+                    <td class="px-4 py-2">{{ certificationDetail.institution }}</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2"><strong>혜택:</strong></td>
+                    <td class="px-4 py-2">{{ certificationDetail.benefit || 'N/A' }}</td>
+                </tr>
+            </table>
         </div>
         <template #footer>
             <Button label="닫기" icon="pi pi-times" @click="closeModal" />
