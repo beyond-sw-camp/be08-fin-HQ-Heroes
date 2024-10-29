@@ -6,6 +6,24 @@
                 <Button label="교육 추가" icon="pi pi-plus" class="custom-button" @click="goToWriteNotice" />
             </div>
 
+            <!-- 필터 및 검색 섹션 -->
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <Dropdown
+                        v-model="selectedcategoryName"
+                        :options="categories"
+                        optionLabel="categoryName"
+                        placeholder="카테고리를 선택하세요"
+                        @change="filterEducations"
+                        class="mr-2"
+                    />
+                </div>
+                <div class="relative search-container">
+                    <InputText v-model="globalFilter" placeholder="검색" class="pl-8 search-input" />
+                    <i class="pi pi-search search-icon" />
+                </div>
+            </div>
+
             <!-- 교육 목록 테이블 -->
             <DataTable
                 :value="filteredEducations"
@@ -16,26 +34,15 @@
                 :metaKeySelection="false"
                 selectionMode="single"
                 removableSort
-                @row-click="showEducationDetails"
+                @row-select="showEducationDetails"
             >
-                <!-- 필터 및 검색 섹션 -->
-                <template #header>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-2">
-                            <Dropdown v-model="selectedcategoryName" :options="categories" optionLabel="categoryName" placeholder="카테고리를 선택하세요" @change="filterEducations" class="mr-2" />
-                        </div>
-                        <div class="relative search-container">
-                            <InputText v-model="globalFilter" placeholder="검색" class="pl-8 search-input" />
-                            <i class="pi pi-search search-icon" />
-                        </div>
-                    </div>
-                </template>
-
                 <Column field="categoryName" sortable header="카테고리" />
                 <Column field="educationName" sortable header="교육 명" />
                 <Column field="institution" sortable header="교육 기관" />
                 <Column field="educationStart" sortable header="교육 시작일">
-                    <template #body="{ data }"> {{ formatDate(data.educationStart) }} ~ {{ formatDate(data.educationEnd) }} </template>
+                    <template #body="{ data }">
+                        {{ formatDate(data.educationStart) }} ~ {{ formatDate(data.educationEnd) }}
+                    </template>
                 </Column>
             </DataTable>
         </div>

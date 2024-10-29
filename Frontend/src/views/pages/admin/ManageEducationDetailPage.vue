@@ -36,10 +36,6 @@
                     </td>
                 </tr>
                 <tr>
-                    <th style="text-align: left;">강의 형식</th>
-                    <td>오프라인</td>
-                </tr>
-                <tr>
                     <th style="text-align: left;">교육 기관</th>
                     <td>
                         <template v-if="editMode">
@@ -75,6 +71,8 @@
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import Swal from 'sweetalert2';
+
 
 const route = useRoute();
 const router = useRouter();
@@ -136,10 +134,50 @@ const gotoEducationUpdate = () => {
 
 const deleteEducation = async () => {
     try {
-        const response = await axios.delete(`http://localhost:8080/api/v1/education-service/education/${educationId.value}`);
-        router.push('/manage-education')
-        return response.status === 200 || response.status === 204;
+        // 삭제 확인 알림
+        const result = await Swal.fire({
+            title: '교육을 삭제하시겠습니까?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '예',
+            cancelButtonText: '아니오'
+        });
+
+        // 예를 선택한 경우 삭제 진행
+        if (result.isConfirmed) {
+            const response = await axios.delete(`http://localhost:8080/api/v1/education-service/education/${educationId.value}`);
+
+            // 삭제 성공 시 알림 표시
+            if (response.status === 200 || response.status === 204) {
+                await Swal.fire({
+                    title: '교육이 삭제되었습니다.',
+                    icon: 'success'
+                });
+                router.push('/manage-education');
+                return true;
+            } else {
+                await Swal.fire({
+                    title: '교육 삭제 실패',
+                    text: '삭제 중 오류가 발생했습니다.',
+                    icon: 'error'
+                });
+                return false;
+            }
+        } else {
+            // 아니오를 선택한 경우
+            await Swal.fire({
+                title: '교육 삭제를 취소하였습니다.',
+                icon: 'info'
+            });
+            return false;
+        }
     } catch (error) {
+        // 삭제 중 오류 발생 시
+        await Swal.fire({
+            title: '교육 삭제 실패',
+            text: '삭제 중 오류가 발생했습니다.',
+            icon: 'error'
+        });
         throw error;
     }
 };
