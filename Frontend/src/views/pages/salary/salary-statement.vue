@@ -34,8 +34,8 @@
                   {{ month.status === 'PAID' ? '지급' : '미지급' }}
                 </div>
                 <div class="text-surface-900 font-medium text-lg mt-2">
-                  <div>총 급여 : {{ formatCurrency(month.preTaxTotal) }}</div>
-                  <div>공제액 : {{ formatCurrency(calculateTotalDeductions(month)) }}</div>
+                  <div>급여 합계 : {{ formatCurrency(month.preTaxTotal) }}</div>
+                  <div>공제액 합계 : {{ formatCurrency(calculateTotalDeductions(month)) }}</div>
                   <div>실지급액 : {{ formatCurrency(month.postTaxTotal) }}</div>
                 </div>
                 <Button
