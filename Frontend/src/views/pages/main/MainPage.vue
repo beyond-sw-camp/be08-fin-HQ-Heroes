@@ -12,7 +12,7 @@
                         <i class="pi pi-check-circle text-blue-500 !text-xl"></i>
                     </div>
                 </div>
-                <span class="text-muted-color">{{ checkInTime }}</span>
+                <!-- <span class="text-muted-color">{{ checkInTime }}</span> -->
             </div>
         </div>
 
@@ -28,7 +28,7 @@
                         <i class="pi pi-map text-orange-500 !text-xl"></i>
                     </div>
                 </div>
-                <span class="text-muted-color">{{ checkOutTime }}</span>
+                <!-- <span class="text-muted-color">{{ checkOutTime }}</span> -->
             </div>
         </div>
 
@@ -44,7 +44,7 @@
                         <i class="pi pi-folder-open text-cyan-500 !text-xl"></i>
                     </div>
                 </div>
-                <span class="text-muted-color">{{ currentDate }}</span>
+                <!-- <span class="text-muted-color">{{ currentDate }}</span> -->
             </div>
         </div>
 
@@ -60,7 +60,7 @@
                         <i class="pi pi-envelope text-purple-500 !text-xl"></i>
                     </div>
                 </div>
-                <span class="text-muted-color">{{ currentDate }}</span>
+                <!-- <span class="text-muted-color">{{ currentDate }}</span> -->
             </div>
         </div>
 
@@ -317,6 +317,7 @@ const renderHtml = (htmlContent) => {
     border-radius: 0.5rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 1rem;
+    min-height: 9rem;
 }
 
 .font-semibold {

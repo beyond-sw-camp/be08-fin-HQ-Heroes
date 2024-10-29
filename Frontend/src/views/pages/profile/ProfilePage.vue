@@ -8,9 +8,10 @@
             <button class="change-password-button" @click="visible = true">비밀번호 변경</button>
 
             <!-- 연필 아이콘 (편집 버튼) -->
-            <span class="edit-icon" @click="enableEditing">
+            <!-- <span class="edit-icon" @click="enableEditing">
                 <i class="pi pi-pencil"></i>
-            </span>
+            </span> -->
+            <button class="change-button" @click="enableEditing">수정</button>
         </div>
 
         <div class="content-wrapper">
@@ -527,6 +528,24 @@ label {
 }
 
 .change-password-button:hover {
+    background-color: #4f46e5;
+}
+
+.change-button {
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 10px; /* 연필 아이콘과 간격 */
+    cursor: pointer;
+    font-size: 1rem;
+    transition:
+        background-color 0.3s ease,
+        transform 0.3s ease;
+}
+
+.change-button:hover {
     background-color: #4f46e5;
 }
 
