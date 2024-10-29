@@ -17,7 +17,7 @@
         >
             <template #header>
                 <div class="flex justify-between items-center">
-                    <!-- 월 선택을 검색창 대신 왼쪽에 배치 -->
+                    <!-- 선택된 월에 따라 필터링 -->
                     <Dropdown v-model="selectedMonth" :options="months" optionLabel="name" optionValue="value" placeholder="월 선택" class="ml-4" @change="filterByMonth" />
 
                     <!-- 검색 기능을 오른쪽으로 이동 -->
@@ -56,6 +56,7 @@ const authStore = useAuthStore(); // 인증된 사용자 정보 사용
 
 const selectedMonth = ref(null); // 선택된 월을 저장하는 변수
 const months = ref([
+    { name: '전체', value: null },
     { name: '1월', value: 1 },
     { name: '2월', value: 2 },
     { name: '3월', value: 3 },
