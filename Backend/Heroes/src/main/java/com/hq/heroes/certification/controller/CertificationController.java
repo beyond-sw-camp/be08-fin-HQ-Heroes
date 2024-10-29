@@ -1,9 +1,15 @@
 package com.hq.heroes.certification.controller;
 
+import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.certification.dto.CertificationRequestDTO;
 import com.hq.heroes.certification.dto.CertificationResponseDTO;
 import com.hq.heroes.certification.entity.Certification;
 import com.hq.heroes.certification.service.CertificationService;
+import com.hq.heroes.employee.dto.EmployeeDTO;
+import com.hq.heroes.employee.entity.Department;
+import com.hq.heroes.employee.service.EmployeeService;
+import com.hq.heroes.notification.entity.enums.AutoNotificationType;
+import com.hq.heroes.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,7 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -21,6 +29,8 @@ import java.util.stream.Collectors;
 @Tag(name = "Certification APIs", description = "자격증 관련 API 목록")
 public class CertificationController {
     private final CertificationService certificationService;
+    private final NotificationService notificationService;
+    private final EmployeeService employeeService;
 
     // 자격증 목록 조회하기
     @GetMapping("/certification")
@@ -72,6 +82,16 @@ public class CertificationController {
     @Operation(summary = "자격증 등록", description = "자격증 정보를 받아서 등록한다.")
     public ResponseEntity<CertificationResponseDTO> create(@RequestBody CertificationRequestDTO requestDTO) {
         Certification certification = certificationService.createCertification(requestDTO);
+
+        List<EmployeeDTO> employeeList = employeeService.getAllEmployeesByDepartment(certification.getDepartment().getDeptId());
+
+        for (EmployeeDTO employeeDTO : employeeList) {
+            Map<String, Object> params = new HashMap<>();
+            String receiverId = employeeDTO.getEmployeeId();
+            params.put("receiverId", receiverId);
+            notificationService.sendAutomaticNotification(AutoNotificationType.COMPANY_CERTIFICATION_REGISTRATION, params, certification);
+        }
+
         return new ResponseEntity<>(certification.toResponseDTO(), HttpStatus.CREATED);
     }
 
