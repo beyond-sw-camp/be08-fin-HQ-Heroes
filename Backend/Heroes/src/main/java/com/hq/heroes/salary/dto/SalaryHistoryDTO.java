@@ -18,6 +18,8 @@ public class SalaryHistoryDTO {
     private Double postTaxTotal; // 세후 총액
     private Double bonus; // 성과급
     private long workTime; // 근무 시간
+    private long overTime; // 연장 근로 시간
+    private Double baseSalary; // 시급
 
     // 공제 항목
     private Double nationalPension; // 국민연금
