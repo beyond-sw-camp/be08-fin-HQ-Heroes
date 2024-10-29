@@ -38,7 +38,7 @@
                 <div class="flex justify-between mb-4">
                     <div>
                         <span class="block text-muted-color font-medium mb-4">휴가 잔여 일수</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ 3 }}일</div>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ annualLeave }}일</div>
                     </div>
                     <div class="flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-folder-open text-cyan-500 !text-xl"></i>
@@ -175,6 +175,7 @@ import { fetchPut } from '../auth/service/AuthApiService';
 import { getAttendanceTimes } from './service/attendanceService';
 import { getNotices } from './service/noticeService';
 import { getReceiveNotificationsByEmployeeId } from './service/notificationService';
+import { getLoginEmployeeInfo } from '../auth/service/authService';
 
 const displayDialog = ref(false);
 const alarmDisplayDialog = ref(false);
@@ -187,6 +188,7 @@ const checkOutTime = ref('퇴근전');
 const salaryDday = ref('');
 const currentDate = ref(new Date().toLocaleDateString());
 const authStore = useAuthStore();
+const annualLeave = ref(0); // 휴가 잔여 일수 저장 변수
 
 onMounted(async () => {
     announcements.value = await getNotices();
@@ -195,6 +197,13 @@ onMounted(async () => {
     await setAttendanceTimes(employeeId);
     calculateSalaryDday();
     currentDate.value = new Date().toLocaleString();
+
+    const employeeData = await getLoginEmployeeInfo(employeeId);
+
+    if (employeeData && employeeData.annualLeave !== null) {
+        annualLeave.value = employeeData.annualLeave;
+    }
+
 });
 
 const setAttendanceTimes = async (employeeId) => {
