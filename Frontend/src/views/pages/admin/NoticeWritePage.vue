@@ -41,13 +41,13 @@
 
 <script setup>
 import router from '@/router';
+import { useAuthStore } from '@/stores/authStore';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Quill의 스타일
 import Swal from 'sweetalert2';
 import { onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchGet, fetchPost } from '../auth/service/AuthApiService';
-import { getLoginEmployeeInfo } from '../auth/service/authService';
+import { fetchPost } from '../auth/service/AuthApiService';
 import { fetchCategories } from './service/adminNoticeCategoryService';
 
 const to = ref('');
@@ -59,40 +59,46 @@ const editor = ref(null); // Quill 에디터를 참조할 변수
 const route = useRoute();
 const employeeId = ref('');
 let quillEditor = null; // quillEditor 변수 선언
+const authStore = useAuthStore();
 
 // Quill 에디터 초기화
 onMounted(async () => {
-
-    const fetchedCategories = await fetchCategories(); // 카테고리 데이터 가져오기
+    
+    // 카테고리 데이터 로드
+    const fetchedCategories = await fetchCategories();
     categories.value = [{ id: null, categoryName: '전체' }, ...fetchedCategories];
 
+    // Quill 에디터 초기화
     quillEditor = new Quill(editor.value, {
         theme: 'snow',
         modules: {
             toolbar: {
-                container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
+                container: [
+                    [{ font: [] }, { size: [] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ color: [] }, { background: [] }],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    [{ align: [] }],
+                    ['link', 'image', 'blockquote'],
+                    ['clean']
+                ],
                 handlers: {
-                    image: imageHandler // 이미지 핸들러 추가
+                    image: imageHandler
                 }
             }
         }
     });
 
+    // 에디터 내용이 변경될 때 message 값 업데이트
     quillEditor.on('text-change', () => {
-        message.value = quillEditor.root.innerHTML; // Quill 에디터 내용이 변경될 때 message 값 업데이트
+        message.value = quillEditor.root.innerHTML;
     });
 
-    // 로컬 스토리지에서 employeeId 가져오기
-    employeeId.value = window.localStorage.getItem('employeeId');
-
-    // 직원 정보 불러오기
-    if (employeeId.value) {
-        const employeeData = await getLoginEmployeeInfo(employeeId.value); // 로그인한 직원 정보 불러오기
-        if (employeeData && employeeData.employeeName) {
-            to.value = employeeData.employeeName; // 작성자 이름 설정
-        }
-    }
+    // 작성자 정보 설정
+    to.value = authStore.employeeData.employeeName;
+    employeeId.value = authStore.loginUserId;
 });
+
 
 // 이미지 핸들러 함수
 const imageHandler = () => {
@@ -174,19 +180,18 @@ const resizeImage = (file, maxWidth, maxHeight) => {
 };
 
 // 카테고리 로드
-const loadCategoriesFromStorage = () => {
-    const fromPage = route.query.fromPage;
-    let storedCategories = [];
-
-    storedCategories = fetchCategories();
-    console.log('storedCategories = ', storedCategories); // 추가: 로컬 스토리지에서 가져온 카테고리 출력
-
-    categories.value = storedCategories; // 로컬 스토리지에서 카테고리 로드
+const loadCategories = async () => {
+    try {
+        const fetchedCategories = await fetchCategories();
+        categories.value = [{ id: null, categoryName: '전체' }, ...fetchedCategories];
+    } catch (error) {
+        console.error('카테고리 조회 중 오류:', error);
+    }
 };
 
-// fromPage 확인 및 카테고리 설정
+// 카테고리 설정
 onBeforeMount(() => {
-    loadCategoriesFromStorage(); // 로컬 스토리지에서 카테고리 로드
+    loadCategories();
 });
 
 const sendMessage = async () => {
@@ -199,8 +204,8 @@ const sendMessage = async () => {
             title: subject.value, // 제목
             content: message.value, // Quill 에디터에서 작성한 HTML 내용
             categoryId: getCategoryById(selectedCategory.value), // 선택된 카테고리 ID
-            updaterId: 'your-updater-id', // 수정한 사람 ID, 필요시
-            updaterName: 'your-updater-name' // 수정한 사람 이름, 필요시
+            updaterId: authStore.loginUserId, // 수정한 사람 ID
+            updaterName: authStore.employeeData.employeeName // 수정한 사람 이름
         };
 
         console.log('requestData = ', requestBody); // 추가: 요청 데이터 출력
@@ -241,7 +246,11 @@ const getCategoryById = (categoryName) => {
 
 // 페이지를 떠날 때 공지사항 목록으로 이동
 onBeforeUnmount(() => {
-    router.push({ path: '/manage-notices' });
+    // router.push({ path: '/manage-notices' });
+    if (quillEditor) {
+        quillEditor.off('text-change');
+        quillEditor = null; // 에디터 정리
+    }
 });
 </script>
 
