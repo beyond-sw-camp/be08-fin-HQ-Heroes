@@ -58,9 +58,8 @@ public class EvaluationServiceImpl implements EvaluationService {
         Evaluation evaluation = Evaluation.fromRequestDTO(requestDTO, employee, evaluator); // evaluator는 본인으로 설정
 
         // Evaluation 저장
-        Evaluation savedEvaluation = evaluationRepository.save(evaluation);
 
-        return savedEvaluation; // 저장된 평가 리턴
+        return evaluationRepository.save(evaluation); // 저장된 평가 리턴
     }
 
     @Override

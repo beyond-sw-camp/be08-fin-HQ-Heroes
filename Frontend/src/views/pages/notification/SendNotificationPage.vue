@@ -63,7 +63,7 @@ import Tree from 'primevue/tree';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import { computed, onMounted, ref } from 'vue';
-import { fetchGet, fetchPost } from '../auth/service/AuthApiService'; // Replace with your API service
+import { fetchGet, fetchPost } from '../auth/service/AuthApiService';
 
 const authStore = useAuthStore();
 const searchQuery = ref(''); // 검색어 상태
@@ -78,6 +78,7 @@ const selectedCategory = ref('');
 const progressValue = ref(0); // ProgressBar의 현재 값
 const progressVisible = ref(false); // ProgressBar 모달 표시 여부
 
+import Swal from 'sweetalert2';
 import { watch } from 'vue';
 
 // 검색어가 변경될 때마다 트리를 확장
@@ -270,44 +271,47 @@ const sendNotification = async (notificationPayload) => {
 
 // 알림 발송 시 진행률 표시
 const sendMessage = async () => {
-    const selectedEmployeeIds = Object.keys(selectedKeys.value)
-        .filter((key) => key.startsWith('emp-'))
-        .map((key) => key.replace('emp-', ''));
+    try {
+        const receiverIds = Object.keys(selectedKeys.value)
+            .filter((key) => key.startsWith('emp-'))
+            .map((key) => key.replace('emp-', ''));
 
-    if (!selectedCategory.value) {
-        alert('카테고리를 선택하세요.');
-        return;
-    }
+        if (!selectedCategory.value) {
+            alert('카테고리를 선택하세요.');
+            return;
+        }
 
-    if (selectedEmployeeIds.length === 0) {
-        alert('직원을 선택하세요.');
-        return;
-    }
+        if (receiverIds.length === 0) {
+            alert('직원을 선택하세요.');
+            return;
+        }
 
-    const senderId = window.localStorage.getItem('employeeId');
-    progressVisible.value = true; // ProgressBar 모달을 표시
-    progressValue.value = 0; // ProgressBar 초기화
+        const senderId = window.localStorage.getItem('employeeId');
+        progressVisible.value = true; // ProgressBar 모달을 표시
+        progressValue.value = 0; // ProgressBar 초기화
 
-    for (let i = 0; i < selectedEmployeeIds.length; i++) {
-        const receiverId = selectedEmployeeIds[i];
         const payload = {
             senderId,
-            receiverId,
+            receiverIds,
             categoryId: selectedCategory.value.notificationCategoryId,
             message: message.value,
             status: 'UNREAD' // 기본 상태 설정
         };
 
         await sendNotification(payload);
-        // ProgressBar 값 업데이트
-        progressValue.value = Math.round(((i + 1) / selectedEmployeeIds.length) * 100);
+
+        progressVisible.value = false; // ProgressBar 모달 닫기
+
+        await Swal.fire({
+            title: '알림이 발송되었습니다.',
+            icon: 'success'
+        });
+    } catch (error) {
+        await Swal.fire({
+            title: '알림이 발송이 실패하였습니다.',
+            icon: 'error'
+        });
     }
-
-    progressVisible.value = false; // ProgressBar 모달 닫기;
-
-    setTimeout(() => {
-        alert('알림 발송 완료');
-    }, 100);
 };
 </script>
 

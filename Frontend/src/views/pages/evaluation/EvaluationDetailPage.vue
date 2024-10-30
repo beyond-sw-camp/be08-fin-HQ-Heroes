@@ -48,13 +48,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import router from '@/router';
+import Button from 'primevue/button';
+import Select from 'primevue/select';
+import Textarea from 'primevue/textarea';
+import Swal from 'sweetalert2';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchGet, fetchPost, fetchPut } from '../auth/service/AuthApiService';
-import Button from 'primevue/button';
-import Textarea from 'primevue/textarea';
-import Select from 'primevue/select';
-import router from '@/router';
 
 const route = useRoute();
 const employeeId = route.params.employeeId;
@@ -172,20 +173,28 @@ async function saveEvaluation() {
             const existingEvaluationId = existingEvaluations[0].evaluationId;
             const response = await fetchPut(`http://localhost:8080/api/v1/evaluation-service/evaluation/${existingEvaluationId}`, evaluationData, 'PUT');
             if (response) {
-                alert('평가가 성공적으로 수정되었습니다.');
+                await Swal.fire({
+                    title: '평가를 수정하였습니다.',
+                    icon: 'success'
+                });
                 router.go(-1);
             }
         } else {
             // 기존 기록이 없을 경우 새 평가 생성
             const response = await fetchPost('http://localhost:8080/api/v1/evaluation-service/evaluation', evaluationData, 'POST');
             if (response) {
-                alert('평가가 성공적으로 저장되었습니다.');
+                await Swal.fire({
+                    title: '평가를 완료하였습니다.',
+                    icon: 'success'
+                });
                 router.go(-1);
             }
         }
     } catch (error) {
-        console.error('평가 데이터를 저장하는 중 오류 발생:', error);
-        alert('평가 저장에 실패했습니다.');
+        await Swal.fire({
+            title: '평가 저장중 오류가 발생하였습니다.',
+            icon: 'error'
+        });
     }
 }
 
