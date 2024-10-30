@@ -1,5 +1,7 @@
 package com.hq.heroes.employee.dto;
 
+import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.auth.entity.enums.Status;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +27,7 @@ public class EmployeeDTO {
     private String positionName;
     private LocalDate joinDate;
     private Long annualLeave;
+    private Status status;
 
     private LocalDate birthDate;
     private String phoneNumber;
@@ -39,8 +42,8 @@ public class EmployeeDTO {
 
     public EmployeeDTO(String employeeId, String employeeName, Long teamId, String teamName,
                        Long deptId, String deptName, String email, Long jobRoleId, String jobRoleName,
-                       Long positionId, String positionName, LocalDate joinDate, Long annualLeave, LocalDate birthDate,
-                       String phoneNumber, String roadAddress, String lotAddress, String detailedAddress,
+                       Long positionId, String positionName, LocalDate joinDate, Long annualLeave, Status status,
+                       LocalDate birthDate, String phoneNumber, String roadAddress, String lotAddress, String detailedAddress,
                        String profileImageUrl) {
         this.employeeId = employeeId;
         this.employeeName = employeeName;
@@ -55,6 +58,7 @@ public class EmployeeDTO {
         this.positionName = positionName;
         this.joinDate = joinDate;
         this.annualLeave = annualLeave;
+        this.status = status;
         this.birthDate = birthDate;
         this.phoneNumber = phoneNumber;
         this.roadAddress = roadAddress;
@@ -62,6 +66,8 @@ public class EmployeeDTO {
         this.detailedAddress = detailedAddress;
         this.profileImageUrl = profileImageUrl;
     }
+
+
 
 }
 

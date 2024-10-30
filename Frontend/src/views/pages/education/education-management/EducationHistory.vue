@@ -1,6 +1,6 @@
 <template>
     <div class="card">
-        <div class="font-semibold text-xl mb-4">신청한 교육 목록</div>
+        <div class="font-semibold text-xl mb-4">교육 이력</div>
         <DataTable
             :value="filteredCourses"
             :paginator="true"

@@ -14,7 +14,6 @@
                     </div>
                 </template>
 
-                <Column field="applicantName" header="이름" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationType" header="휴가 종류" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationStart" header="시작일" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationEnd" header="종료일" sortable style="min-width: 5rem"></Column>

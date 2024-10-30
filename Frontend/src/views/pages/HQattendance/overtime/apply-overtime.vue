@@ -16,11 +16,14 @@
                     <div class="time-section">
                         <div class="time-block">
                             <label for="startDate" class="label">시작 날짜</label>
-                            <input type="date" id="startDate" v-model="form.overtimeStartDate" class="input" />
+                            <input type="date" id="startDate" v-model="form.overtimeStartDate" class="input" @input="checkDateInvalid" />
                         </div>
                         <div class="time-block">
-                            <label for="endDate" class="label">종료 날짜</label>
-                            <input type="date" id="endDate" v-model="form.overtimeEndDate" class="input" />
+                            <label for="endDate" class="label">
+                                종료 날짜
+                                <small v-if="isDateInvalid" class="text-red-500 ml-2">시작 날짜는 종료 날짜보다 이전이어야 합니다.</small>
+                            </label>
+                            <input type="date" id="endDate" v-model="form.overtimeEndDate" class="input" @input="checkDateInvalid" />
                         </div>
                     </div>
 
@@ -86,6 +89,15 @@ const employeeData = ref({
 const totalOvertimeHours = ref(0); // 숫자형 초기값
 const remainingOvertimeHours = ref(0); // 숫자형 초기값
 const overtimeExceed = ref(false); // 잔여 시간을 초과했는지 여부
+
+const isDateInvalid = ref(false); // 날짜 유효성 상태 변수
+
+// 날짜 유효성 검사 함수
+const checkDateInvalid = () => {
+    const startDate = new Date(form.value.overtimeStartDate);
+    const endDate = new Date(form.value.overtimeEndDate);
+    isDateInvalid.value = startDate > endDate; // 시작 날짜가 종료 날짜보다 이후일 때 경고 표시
+};
 
 // 오늘 날짜를 yyyy-mm-dd 형식으로 변환하는 함수
 const getTodayDate = () => {
@@ -196,6 +208,16 @@ onMounted(() => {
 
 const submitForm = async () => {
     try {
+        // 날짜 오류가 있는 경우 경고창 표시
+        if (isDateInvalid.value) {
+            Swal.fire({
+                icon: 'error',
+                title: '날짜 오류',
+                text: '날짜를 다시 확인해 주세요. 시작 날짜는 종료 날짜보다 이전이어야 합니다.',
+                confirmButtonText: '확인'
+            });
+            return; // 날짜 오류가 있으면 함수 종료
+        }
         // overtimeStart와 overtimeEnd를 각각 Date와 Time으로 분리해서 보냄
         const requestBody = {
             employeeId: employeeData.value.employeeId, // 로그인된 사용자 ID 포함

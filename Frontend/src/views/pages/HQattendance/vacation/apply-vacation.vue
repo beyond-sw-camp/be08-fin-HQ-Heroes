@@ -25,7 +25,10 @@
                             <input type="date" id="startDate" v-model="form.vacationStartDate" class="input" />
                         </div>
                         <div class="time-block">
-                            <label for="endDate" class="label">종료 날짜</label>
+                            <label for="endDate" class="label">
+                                종료 날짜
+                                <small v-if="isDateInvalid" class="text-red-500 ml-2">시작 날짜는 종료 날짜보다 이전이어야 합니다.</small>
+                            </label>
                             <input type="date" id="endDate" v-model="form.vacationEndDate" class="input" />
                         </div>
                     </div>
@@ -56,7 +59,7 @@
                         <div class="name-block">
                             <label for="applicant" class="label">신청인</label>
                             <!-- TreeSelect로 신청인 선택 -->
-                            <TreeSelect v-model="form.applicantName" :options="employeeTreeData" @node-select="handleEmployeeChange" optionLabel="label" selectionMode="single" class="input" placeholder="신청인을 선택하세요">
+                            <TreeSelect v-model="form.applicantName" :options="employeeTreeData" @node-select="handleEmployeeChange" optionLabel="label" selectionMode="single" class="input" :placeholder="form.applicantName || '신청인을 선택하세요'">
                                 <template #default="slotProps">
                                     <div class="flex items-center">
                                         <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X" size="normal" shape="circle" class="mr-2" style="background-color: #dee9fc; color: #1a2551" />
@@ -99,7 +102,7 @@ import axios from 'axios';
 import Avatar from 'primevue/avatar'; // Avatar 컴포넌트
 import TreeSelect from 'primevue/treeselect'; // TreeSelect 컴포넌트
 import Swal from 'sweetalert2';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
 
@@ -131,6 +134,15 @@ const selectedApproverName = ref('');
 const selectedApplicantName = ref('');
 const selectedApplicantId = ref('');
 const selectedApproverId = ref('');
+
+const isDateInvalid = ref(false); // 날짜 유효성 상태 변수
+
+// 날짜 변경 시 유효성 검사
+watch([() => form.value.vacationStartDate, () => form.value.vacationEndDate], ([newStartDate, newEndDate]) => {
+    if (newStartDate && newEndDate) {
+        isDateInvalid.value = newStartDate > newEndDate; // 시작 날짜가 종료 날짜보다 나중일 때 경고 표시
+    }
+});
 
 const loadEmployeeData = async () => {
     const employeeId = window.localStorage.getItem('employeeId');
@@ -215,6 +227,8 @@ onMounted(() => {
     form.value.vacationEndDate = new Date().toISOString().split('T')[0];
 
     loadEmployeeData().then(() => {
+        form.value.applicantName = employeeData.value.employeeName; // 로그인된 사용자의 이름을 기본값으로 설정
+
         loadEmployeeTreeData(); // 신청자 목록 로드
         loadApproverTreeData(); // 결재자 목록 로드 (팀장만)
     });
@@ -231,6 +245,16 @@ const handleApproverChange = (selectedApprover) => {
 };
 
 const submitForm = async () => {
+    // 날짜 오류가 있는 경우 경고창 표시
+    if (isDateInvalid.value) {
+        Swal.fire({
+            icon: 'error',
+            title: '날짜 오류',
+            text: '날짜를 다시 확인해 주세요. 시작 날짜는 종료 날짜보다 이전이어야 합니다.',
+            confirmButtonText: '확인'
+        });
+        return; // 날짜 오류가 있으면 함수 종료
+    }
     // 연차 일수가 0일 경우 경고 메시지 출력 후 함수 종료
     if (employeeData.value.annualLeave <= 0) {
         Swal.fire({
@@ -364,5 +388,12 @@ const submitForm = async () => {
 
 .logged-in-user {
     margin-bottom: 20px;
+}
+
+.text-red-500 {
+    color: red;
+}
+.ml-2 {
+    margin-left: 0.5rem;
 }
 </style>

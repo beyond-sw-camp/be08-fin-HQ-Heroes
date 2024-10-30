@@ -66,24 +66,6 @@ public class Notice {
         this.updater = employee;
     }
 
-
-//    public NoticeResponseDTO toResponseDTO() {
-//        return NoticeResponseDTO.builder()
-//                .noticeId(this.noticeId) // 공지사항 ID
-//                .employeeId(this.employee.getEmployeeId()) // 작성자 ID
-//                .employeeName(this.employee.getEmployeeName()) // 작성자 이름 (Employee 엔티티에서 가져옴)
-//                .createdAt(this.createdAt) // 작성 날짜
-//                .updateAt(this.updateAt) // 수정 날짜
-//                .updaterId(this.updater != null ? this.updater.getEmployeeId() : null) // 수정자 ID (null 처리)
-//                .updaterName(this.updater != null ? this.updater.getEmployeeName() : null) // 수정자 이름 (null 처리)
-//                .title(this.title) // 제목
-//                .content(this.content) // 내용
-//                .categoryId(this.category.getNoticeCategoryId()) // 카테고리 ID
-//                .categoryName(this.category.getCategoryName()) // 카테고리 이름
-//                .build();
-//    }
-
-
     public static Notice fromRequestDTO(NoticeRequestDTO requestDTO, Employee employee, NoticeCategory category) {
         return Notice.builder()
                 .employee(employee) // 작성자 정보

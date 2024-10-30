@@ -16,17 +16,16 @@ public interface EmployeeRepository extends JpaRepository<Employee,String> {
     @Query("SELECT new com.hq.heroes.employee.dto.EmployeeDTO(e.employeeId, e.employeeName, " +
             "e.team.teamId, e.team.teamName, e.team.department.deptId, e.team.department.deptName, " +
             "e.email, e.job.jobRoleId, e.job.jobRoleName, e.position.positionId, e.position.positionName, " +
-            "e.joinDate, e.annualLeave, e.birthDate, e.phoneNumber, e.roadAddress, e.lotAddress, e.detailedAddress, e.profileImageUrl) " +
+            "e.joinDate, e.annualLeave, e.status, e.birthDate, e.phoneNumber, e.roadAddress, e.lotAddress, e.detailedAddress, e.profileImageUrl) " +
             "FROM Employee e")
     List<EmployeeDTO> findAllEmployeesDTO();
 
-    @Query("SELECT e FROM Employee e " +
-            "JOIN FETCH e.team t " +
-            "JOIN FETCH t.department d " +
-            "JOIN FETCH e.job j " +
-            "JOIN FETCH e.position p " +
-            "WHERE d.deptId = :departmentId")
-    List<Employee> findEmployeesByDepartmentId(@Param("departmentId") Long departmentId);
+    @Query("SELECT new com.hq.heroes.employee.dto.EmployeeDTO(e.employeeId, e.employeeName, " +
+            "e.team.teamId, e.team.teamName, e.team.department.deptId, e.team.department.deptName, " +
+            "e.email, e.job.jobRoleId, e.job.jobRoleName, e.position.positionId, e.position.positionName, " +
+            "e.joinDate, e.annualLeave, e.status, e.birthDate, e.phoneNumber, e.roadAddress, e.lotAddress, e.detailedAddress, e.profileImageUrl) " +
+            "FROM Employee e WHERE e.team.department.deptId = :departmentId")
+    List<EmployeeDTO> findEmployeesByDepartmentId(@Param("departmentId") Long departmentId);
 
     Boolean existsByEmail(String email);
 

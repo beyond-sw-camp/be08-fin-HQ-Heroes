@@ -6,16 +6,41 @@
       </div>
 
       <div class="year-selection">
-        <Calendar
-          v-model="selectedDate"
-          :showIcon="true"
-          :yearRange="yearRange"
-          view="year"
-          dateFormat="yy"
-          @update:model-value="updateSelectedYear"
-          placeholder="년도 선택"
-          class="calendar"
-        />
+        <div class="calendar-group">
+          <Calendar
+            v-model="selectedDate"
+            :showIcon="true"
+            :yearRange="yearRange"
+            view="year"
+            dateFormat="yy"
+            @update:model-value="updateSelectedYear"
+            placeholder="년도 선택"
+            class="calendar"
+          />
+        </div>
+        <div class="export">
+          <Calendar
+            v-model="startDate"
+            :showIcon="true"
+            view="month"
+            dateFormat="yy/mm"
+            placeholder="시작일"
+            class="calendar"
+          />
+          <Calendar
+            v-model="endDate"
+            :showIcon="true"
+            view="month"
+            dateFormat="yy/mm"
+            placeholder="종료일"
+            class="calendar"
+          />
+          <Button
+            label="CSV 내보내기"
+            class="p-button-primary"
+            @click="exportSalaryDataToCSV"
+          />
+        </div>
       </div>
 
       <div class="salary-cards">
@@ -110,10 +135,21 @@
               </div>
             </div>
           </div>
-          <div class="total-net-pay font-semibold mt-4 text-lg text-center">
+          <!-- <div class="total-net-pay font-semibold mt-4 text-lg text-center">
             <span>실지급액 : </span>
             <span>{{ formatCurrency(selectedMonth?.postTaxTotal) }}</span>
+          </div> -->
+          <div class="total-panel">
+            <div class="total-item">
+              <span>급여 합계 : </span><span>{{ formatCurrency(selectedMonth?.preTaxTotal) }}</span>
+              <span> - 공제액 합계 : </span><span>{{ formatCurrency(totalDeductions) }}</span>
+            </div>
+            <div class="total-item total-net">
+              <span>실지급액 : </span><span>{{ selectedMonth?.postTaxTotal }}</span>
+            </div>
           </div>
+          
+
           <div class="modal-footer">
             <Button label="닫기" class="p-button-text" @click="closeSalaryModal" />
           </div>
@@ -141,6 +177,8 @@ const currentYear = new Date().getFullYear();
 const yearRange = `${1900}:${currentYear}`;
 const monthsList = ref([]);
 const salaryDialogHeader = ref("급여 내역");
+const startDate = ref(null); // 선택한 시작일
+const endDate = ref(null); // 선택한 종료일
 
 const getMonthLabel = (monthIndex) => {
   const monthNames = [
@@ -247,30 +285,74 @@ const closeSalaryModal = () => {
   displayModal.value = false;
 };
 
-const exportModalDataToCSV = () => {
-  const data = [
-    {
-      총근무시간: selectedMonth.value.totalWorkHours,
-      시급: selectedMonth.value.baseSalary,
-      성과급: selectedMonth.value.performanceBonus,
-      급여합계: selectedMonth.value.totalWorkHours * selectedMonth.value.baseSalary + (selectedMonth.value.performanceBonus || 0),
-      공제액합계: totalDeductions.value,
+// CSV 내보내기 기능
+const exportSalaryDataToCSV = async () => {
+  if (startDate.value && endDate.value) {
+    // 급여 데이터 필터링
+    const filteredSalaries = monthsList.value.filter(month => {
+      const salaryDate = new Date(month.salaryMonth);
+      return salaryDate >= new Date(startDate.value) && salaryDate <= new Date(endDate.value);
+    });
+
+    if (filteredSalaries.length > 0) {
+      const csvContent = generateCSVContent(filteredSalaries);
+      downloadCSV(csvContent);
+    } else {
+      console.warn("선택한 날짜 범위에 해당하는 급여 데이터가 없습니다.");
     }
+  } else {
+    console.warn("시작일과 종료일을 모두 선택해야 합니다.");
+  }
+};
+
+// CSV 콘텐츠 생성 함수
+const generateCSVContent = (salaries) => {
+  const header = [
+    "급여 월", "근무시간", "시급", "성과급", "연장근로시간", 
+    "연장근로수당", "급여합계", "국민연금", "건강보험", 
+    "장기요양보험", "고용보험", "소득세", "지방소득세", 
+    "공제액합계", "실지급액"
   ];
 
-  const csvContent = `data:text/csv;charset=utf-8,${[
-    Object.keys(data[0]).join(','),
-    ...data.map(row => Object.values(row).join(','))
-  ].join('\n')}`;
+  const rows = salaries.map(month => [
+    `${getMonthLabel(new Date(month.salaryMonth).getMonth())}`,
+    month.workTime || 0,
+    month.baseSalary || 0,
+    month.bonus || 0,
+    month.overTime || 0,
+    month.overSalary || 0,
+    month.totalSalary || 0,
+    month.nationalPension || 0,
+    month.healthInsurance || 0,
+    month.longTermCare || 0,
+    month.employmentInsurance || 0,
+    month.incomeTax || 0,
+    month.localIncomeTax || 0,
+    calculateTotalDeductions(month) || 0,
+    month.postTaxTotal || 0
+  ]);
 
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement('a');
-  link.setAttribute('href', encodedUri);
-  link.setAttribute('download', `급여_내역_${selectedYear.value}_${getMonthLabel(new Date(selectedMonth.value.salaryMonth).getMonth())}.csv`);
+  const csvRows = [
+    header.join(","), // 헤더 추가
+    ...rows.map(row => row.join(",")) // 데이터 행 추가
+  ];
+
+  return csvRows.join("\n");
+};
+
+// CSV 파일 다운로드 함수
+const downloadCSV = (csvContent) => {
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${authStore.employeeData.employeeName}님의_급여내역.csv`);
+  link.style.visibility = "hidden";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 };
+
 
 // 컴포넌트 마운트 시 초기 데이터 로드
 onMounted(async () => {
@@ -294,7 +376,16 @@ onMounted(async () => {
 }
 
 .year-selection {
-  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.export {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .salary-cards {
@@ -348,6 +439,30 @@ onMounted(async () => {
   border-radius: 0.5rem;
   background: #f9fafb;
   margin: 0.5rem;
+}
+
+.total-panel {
+  /* margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd; */
+
+  width: 95%;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #f9fafb;
+  margin: 1.5rem;
+}
+
+.total-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.total-net {
+  font-weight: bold;
+  color: #6366f1;
 }
 
 .info-item {
