@@ -29,8 +29,6 @@ public class MetaDBConfig {
     @Primary
     public DataSource metaDBSource() {
 
-        System.out.println("batchUrl = " + batchUrl);
-
         return DataSourceBuilder.create()
                 .url(batchUrl)
                 .username(batchUsername)

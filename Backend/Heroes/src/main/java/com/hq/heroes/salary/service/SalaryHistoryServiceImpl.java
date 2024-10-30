@@ -169,9 +169,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
 
         List<Evaluation> filteredEvaluations = evaluations.stream()
                 .filter(evaluation -> {
-                    LocalDateTime updatedAt = evaluation.getUpdatedAt().toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDateTime();
+                    LocalDateTime updatedAt = evaluation.getUpdatedAt();
                     return updatedAt.getYear() == currentYear &&
                             ((currentMonth == 1 && updatedAt.getMonthValue() >= 7) ||
                                     (currentMonth == 7 && updatedAt.getMonthValue() <= 6));
