@@ -58,15 +58,15 @@ public class SendEvaluationBatch {
 
     @Bean
     public RepositoryItemReader<Evaluation> evaluationReader() {
-
         return new RepositoryItemReaderBuilder<Evaluation>()
                 .name("evaluationReader")
                 .pageSize(10)
-                .methodName("findAll")
+                .methodName("findAllWithEmployeeAndEvaluator")
                 .repository(evaluationRepository)
                 .sorts(Map.of("evaluationId", Sort.Direction.ASC))
                 .build();
     }
+
 
     @Bean
     public ItemProcessor<Evaluation, Notification> evaluationToNotificationProcessor() {
@@ -78,6 +78,7 @@ public class SendEvaluationBatch {
                 /*
                     테스트용 @ @
                  */
+
                 if (!item.isNotificationSent()) {
                     AutoNotificationType notificationType = AutoNotificationType.EVALUATION_RESULT;
 

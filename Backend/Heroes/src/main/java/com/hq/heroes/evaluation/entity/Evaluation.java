@@ -18,6 +18,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @Table(name = "tb_evaluation")
+@ToString
 public class Evaluation {
 
     @Id

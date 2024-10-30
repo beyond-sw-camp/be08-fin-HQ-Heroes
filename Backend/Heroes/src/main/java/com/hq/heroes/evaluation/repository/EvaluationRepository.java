@@ -1,6 +1,8 @@
 package com.hq.heroes.evaluation.repository;
 
 import com.hq.heroes.evaluation.entity.Evaluation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +12,11 @@ import java.util.List;
 
 @Repository
 public interface EvaluationRepository extends JpaRepository<Evaluation, Long> {
+
+    @Query("SELECT e FROM Evaluation e " +
+            "JOIN FETCH e.employee " +
+            "JOIN FETCH e.evaluator")
+    Page<Evaluation> findAllWithEmployeeAndEvaluator(Pageable pageable);
 
     List<Evaluation> findByEmployee_EmployeeId(String employeeId);
 
