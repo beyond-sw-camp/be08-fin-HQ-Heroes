@@ -125,4 +125,18 @@ public class OvertimeController {
             return ResponseEntity.badRequest().body("잘못된 날짜 형식입니다.");  // 에러 메시지 반환
         }
     }
+
+    @GetMapping("/remaining-overtime")
+    @Operation(summary = "잔여 연장근로 시간 조회")
+    public ResponseEntity<?> getRemainingOvertimeForMonth(
+            @RequestParam String employeeId,
+            @RequestParam String yearMonth) {
+        try {
+            YearMonth month = YearMonth.parse(yearMonth);  // "yyyy-MM" 형식의 파라미터를 YearMonth로 변환
+            long remainingOvertimeHours = overtimeService.getRemainingOvertimeHours(employeeId, month);
+            return ResponseEntity.ok(remainingOvertimeHours);  // 잔여 시간을 반환
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body("잘못된 날짜 형식입니다.");  // 에러 메시지 반환
+        }
+    }
 }

@@ -22,6 +22,9 @@ public interface OvertimeService {
     // 사원 번호로 승인된 연장 근로 조회
     List<OvertimeDTO> getApprovedOvertimesByEmployeeId(String employeeId);
 
-    // 월별 연장 근로 시간
+    // 월별 연장 근로 시간 합계
     long getTotalOvertimeHoursForMonth(String employeeId, YearMonth month);
+
+    // 잔여 연장 근로 시간 조회
+    long getRemainingOvertimeHours(String employeeId, YearMonth month);
 }

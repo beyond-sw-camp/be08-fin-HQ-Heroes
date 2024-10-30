@@ -23,6 +23,27 @@ public class OvertimeServiceImpl implements OvertimeService {
     private final OvertimeRepository overtimeRepository;
     private final EmployeeRepository employeeRepository;
 
+    private static final long MAX_OVERTIME_HOURS = 40 * 60; // 최대 연장 근로 시간 (분 단위로 설정)
+
+    public long getRemainingOvertimeHours(String employeeId, YearMonth month) {
+        // 해당 월의 첫날과 마지막 날을 설정
+        LocalDate startDate = month.atDay(1);
+        LocalDate endDate = month.atEndOfMonth();
+
+        // 해당 직원의 해당 월 승인된 연장근로 시간 조회 및 합산
+        List<Overtime> approvedOvertimes = overtimeRepository.findByEmployee_EmployeeIdAndOvertimeStartDateBetween(employeeId, startDate, endDate);
+        long totalOvertimeMinutes = approvedOvertimes.stream()
+                .mapToLong(overtime -> {
+                    LocalDateTime startTime = overtime.getOvertimeStartDate().atTime(overtime.getOvertimeStartTime());
+                    LocalDateTime endTime = overtime.getOvertimeEndDate().atTime(overtime.getOvertimeEndTime());
+                    return Duration.between(startTime, endTime).toMinutes(); // 분 단위로 반환
+                })
+                .sum();
+
+        // 잔여 시간을 계산하여 반환
+        return Math.max(MAX_OVERTIME_HOURS - totalOvertimeMinutes, 0);
+    }
+
     public long getTotalOvertimeHoursForMonth(String employeeId, YearMonth month) {
         LocalDate startDate = month.atDay(1);  // 해당 월의 첫날
         LocalDate endDate = month.atEndOfMonth();  // 해당 월의 마지막 날
@@ -44,13 +65,6 @@ public class OvertimeServiceImpl implements OvertimeService {
 
     @Override
     public void submitOvertime(OvertimeDTO overtimeDTO) {
-
-        System.out.println("============================");
-        System.out.println("Employee ID: " + overtimeDTO.getEmployeeId());
-        System.out.println("Approver Name: " + overtimeDTO.getApproverName());
-        System.out.println("Start Date: " + overtimeDTO.getOvertimeStartDate());
-        System.out.println("End Date: " + overtimeDTO.getOvertimeEndDate());
-        System.out.println("============================");
 
         // null 체크 및 로그 출력
         if (overtimeDTO.getOvertimeStartDate() == null || overtimeDTO.getOvertimeEndDate() == null) {

@@ -87,8 +87,6 @@ const totalOvertimeHours = ref(0); // 숫자형 초기값
 const remainingOvertimeHours = ref(0); // 숫자형 초기값
 const overtimeExceed = ref(false); // 잔여 시간을 초과했는지 여부
 
-const MAX_OVERTIME_HOURS = 10 * 60; // 최대 연장 근로 시간 (10시간 -> 600분)
-
 // 오늘 날짜를 yyyy-mm-dd 형식으로 변환하는 함수
 const getTodayDate = () => {
     const today = new Date();
@@ -104,8 +102,8 @@ const checkOvertimeExceed = () => {
     const endTimeInMinutes = calculateTimeInMinutes(form.value.overtimeEndTime);
     const overtimeMinutes = endTimeInMinutes - startTimeInMinutes;
 
-    // 남은 시간 비교를 숫자로 처리
-    overtimeExceed.value = overtimeMinutes > MAX_OVERTIME_HOURS - totalOvertimeHours.value;
+    // 남은 시간(`remainingOvertimeHours`)만으로 초과 여부 확인
+    overtimeExceed.value = overtimeMinutes > remainingOvertimeHours.value;
 };
 
 // 로그인된 사용자 정보를 가져오는 함수
@@ -116,6 +114,7 @@ const loadEmployeeData = async () => {
         if (data) {
             employeeData.value = data;
             await loadTotalOvertimeHours(employeeId); // 연장근로 시간 조회
+            await loadRemainingOvertimeHours(employeeId); // 잔여 연장근로 시간 조회 추가
         }
     }
 };
@@ -136,29 +135,55 @@ const calculateTimeInMinutes = (time) => {
     return hours * 60 + minutes;
 };
 
-// 백엔드에서 연장근로 시간을 가져오는 함수
+// 백엔드에서 총 연장근로 시간을 가져오는 함수
 const loadTotalOvertimeHours = async (employeeId) => {
     const yearMonth = new Date().toISOString().slice(0, 7); // 현재 연도와 월을 yyyy-MM 형식으로 추출
     try {
         const url = `http://localhost:8080/api/v1/overtime/total-overtime?employeeId=${employeeId}&yearMonth=${yearMonth}`;
-        const response = await fetchGet(url);
-        const totalMinutes = parseInt(response.data, 10); // 숫자로 변환하여 저장
+        const responseData = await fetchGet(url);
+
+        // 응답 데이터가 유효하지 않으면 오류 발생
+        if (responseData === null || responseData === undefined) {
+            console.error('응답 데이터가 없습니다:', responseData);
+            throw new Error('Invalid total overtime response');
+        }
+
+        const totalMinutes = parseInt(responseData, 10);
         if (isNaN(totalMinutes)) {
+            console.error('응답 데이터가 유효하지 않습니다:', responseData);
             throw new Error('Invalid total overtime minutes');
         }
 
         // 총 연장 근로 시간을 설정
         totalOvertimeHours.value = totalMinutes;
-
-        // 남은 연장 근로 시간 계산
-        const remainingMinutes = MAX_OVERTIME_HOURS - totalMinutes;
-        remainingOvertimeHours.value = formatMinutesToHoursAndMinutes(remainingMinutes);
-
-        // 잔여 시간 초과 여부 확인
-        checkOvertimeExceed();
     } catch (error) {
         console.error('연장근로 시간 조회 중 오류가 발생했습니다:', error);
-        remainingOvertimeHours.value = formatMinutesToHoursAndMinutes(MAX_OVERTIME_HOURS); // 오류 발생 시 최대 시간 설정
+    }
+};
+
+// 잔여 연장 근로 시간을 백엔드에서 조회하는 함수
+const loadRemainingOvertimeHours = async (employeeId) => {
+    const yearMonth = new Date().toISOString().slice(0, 7);
+    try {
+        const url = `http://localhost:8080/api/v1/overtime/remaining-overtime?employeeId=${employeeId}&yearMonth=${yearMonth}`;
+        const responseData = await fetchGet(url);
+
+        // 응답 데이터가 유효하지 않으면 오류 발생
+        if (responseData === null || responseData === undefined) {
+            console.error('응답 데이터가 없습니다:', responseData);
+            throw new Error('Invalid remaining overtime response');
+        }
+
+        const remainingMinutes = parseInt(responseData, 10);
+        if (isNaN(remainingMinutes)) {
+            console.error('응답 데이터가 유효하지 않습니다:', responseData);
+            throw new Error('Invalid remaining overtime minutes');
+        }
+
+        remainingOvertimeHours.value = formatMinutesToHoursAndMinutes(remainingMinutes);
+        checkOvertimeExceed();
+    } catch (error) {
+        console.error('잔여 연장근로 시간 조회 중 오류가 발생했습니다:', error);
     }
 };
 
