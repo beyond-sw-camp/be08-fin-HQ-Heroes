@@ -5,35 +5,31 @@
         modal 
         @hide="closeModal" 
         :closable="false"
-        :style="{ width: '50vw', borderRadius: '12px' }" >
+        :style="{ width: '30vw', borderRadius: '12px' }" >
 
         <template #header>
-            <div class="font-bold text-lg">{{ certificationDetail.certificationName }}</div>
+            <div class="font-bold p-2" :style="{ fontSize: '1.5rem' }">{{ certificationDetail.certificationName }}</div>
         </template>
-
+        <hr />
         <div class="p-4">
-            <table class="table-auto w-full border-collapse">
+            <table class="certification-info">
                 <tr>
                     <td class="px-4 py-2"><strong>자격증 명:</strong></td>
-                    <td class="px-4 py-2">{{ certificationDetail.certificationName }}</td>
-                </tr>
-                <tr>
-                    <td class="px-4 py-2"><strong>취득 일:</strong></td>
-                    <td class="px-4 py-2">{{ formatDate(certificationDetail.acquisitionDate) }}</td>
+                    <td class="px-4 py-2 text-center">{{ certificationDetail.certificationName }}</td>
                 </tr>
                 <tr>
                     <td class="px-4 py-2"><strong>발급 기관:</strong></td>
-                    <td class="px-4 py-2">{{ certificationDetail.institution }}</td>
+                    <td class="px-4 py-2 text-center">{{ certificationDetail.institution }}</td>
                 </tr>
                 <tr>
-                    <td class="px-4 py-2"><strong>혜택:</strong></td>
-                    <td class="px-4 py-2">{{ certificationDetail.benefit }}</td>
+                    <td class="px-4 py-2"><strong>취득 일:</strong></td>
+                    <td class="px-4 py-2 text-center">{{ formatDate(certificationDetail.acquisitionDate) }}</td>
                 </tr>
             </table>
         </div>
 
         <template #footer>
-            <Button label="닫기" icon="pi pi-times" @click="closeModal" />
+            <Button label="닫기" @click="closeModal" />
         </template>
     </Dialog>
 </template>
@@ -66,4 +62,17 @@ function formatDate(date) {
     max-width: 500px;
     width: 100%;
 }
+
+.certification-info {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.certification-info th,
+.certification-info td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
 </style>
