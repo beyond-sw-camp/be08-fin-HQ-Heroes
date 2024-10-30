@@ -167,8 +167,9 @@
 <script setup>
 import router from '@/router';
 import { useAuthStore } from '@/stores/authStore';
+import { useNotificationStore } from '@/stores/notificationStore';
 import { onMounted, ref } from 'vue';
-import { fetchPut } from '../auth/service/AuthApiService';
+import { fetchGet, fetchPut } from '../auth/service/AuthApiService';
 import { getLoginEmployeeInfo } from '../auth/service/authService';
 import { getAttendanceTimes } from './service/attendanceService';
 import { getNotices } from './service/noticeService';
@@ -185,12 +186,14 @@ const checkOutTime = ref('퇴근전');
 const salaryDday = ref(0);
 const currentDate = ref(new Date().toLocaleDateString());
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 const annualLeave = ref(0); // 휴가 잔여 일수 저장 변수
 
 onMounted(async () => {
     announcements.value = await getNotices();
     const employeeId = window.localStorage.getItem('employeeId');
     const fetchedNotifications = await getReceiveNotificationsByEmployeeId(employeeId);
+    await fetchUnreadNotificationCount();
 
     // 최신 순으로 정렬
     notifications.value = fetchedNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -207,6 +210,21 @@ onMounted(async () => {
 
     salaryDday.value = daysUntilNextTenth();
 });
+
+// 읽지 않은 알림 개수 가져오기
+const fetchUnreadNotificationCount = async () => {
+    try {
+        const response = await fetchGet(`http://localhost:8080/api/v1/notification-service/unread-count/${localStorage.getItem('employeeId')}`);
+        if (response) {
+            console.log(response);
+            notificationStore.setUnreadCount(response); // 여기서 바로 업데이트
+        } else {
+            notificationStore.setUnreadCount(0); // 여기서 바로 업데이트
+        }
+    } catch (error) {
+        console.error('읽지 않은 알림 개수 가져오기 실패:', error);
+    }
+};
 
 const setAttendanceTimes = async (employeeId) => {
     const attendanceTimes = await getAttendanceTimes(employeeId);
@@ -234,11 +252,6 @@ const showNoticeDetail = (noticeId) => {
     router.push({ name: 'notice-detail', params: { id: noticeId } });
 };
 
-function closeDialog() {
-    displayDialog.value = false;
-    selectedAnnouncement.value = null;
-}
-
 const openNotificationModal = async (event) => {
     selectedNotification.value = event.data;
     const notificationId = event.data.notificationId;
@@ -257,6 +270,7 @@ const openNotificationModal = async (event) => {
         if (notificationIndex !== -1) {
             notifications.value[notificationIndex].status = 'READ';
         }
+        await fetchUnreadNotificationCount();
     } catch (error) {
         console.error('알림 상태 업데이트 중 오류 발생:', error);
     }
@@ -298,24 +312,24 @@ const DisplayDate = (dateString) => {
 
 // 급여일까지의 일수
 function daysUntilNextTenth() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
 
-  // 이번 달 10일 날짜 생성
-  let nextTenth = new Date(year, month, 10);
+    // 이번 달 10일 날짜 생성
+    let nextTenth = new Date(year, month, 10);
 
-  // 만약 오늘이 10일 이후라면 다음 달 10일로 설정
-  if (today > nextTenth) {
-    nextTenth = new Date(year, month + 1, 10);
-  }
+    // 만약 오늘이 10일 이후라면 다음 달 10일로 설정
+    if (today > nextTenth) {
+        nextTenth = new Date(year, month + 1, 10);
+    }
 
-  // 두 날짜 차이 계산 (밀리초 단위 -> 일 단위 변환)
-  const diffInMs = nextTenth - today;
-  const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+    // 두 날짜 차이 계산 (밀리초 단위 -> 일 단위 변환)
+    const diffInMs = nextTenth - today;
+    const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
 
-  console.log(diffInDays);
-  return diffInDays;
+    console.log(diffInDays);
+    return diffInDays;
 }
 
 const getFirstText = (htmlString) => {

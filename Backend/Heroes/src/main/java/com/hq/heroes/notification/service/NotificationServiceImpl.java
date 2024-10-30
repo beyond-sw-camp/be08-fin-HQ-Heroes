@@ -130,7 +130,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public int getUnreadNotificationCount(String employeeId) {
-        return notificationRepository.countByReceiver_EmployeeIdAndStatus(employeeId, NotificationStatus.UNREAD);
+        int count = notificationRepository.countByReceiver_EmployeeIdAndStatus(employeeId, NotificationStatus.UNREAD);
+        if(count == 0) {
+            return 0;
+        }
+        return count;
     }
 
 
@@ -153,6 +157,15 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Async
+    public void deleteNotificationAsync(Long notificationId, String employeeId) {
+        if (notificationId == null || employeeId == null) {
+            throw new IllegalArgumentException("필수 정보가 누락되었습니다.");
+        }
+        deleteNotification(notificationId,employeeId);
+    }
+
+    @Override
     @Transactional
     public boolean deleteNotification(Long notificationId, String employeeId) {
 
@@ -169,6 +182,7 @@ public class NotificationServiceImpl implements NotificationService {
         } else if (isReceiver) {
             // 수신자인 경우 receiveDelete를 true로 설정
             notification.setRecieveDelete(true);
+            notification.setStatus(NotificationStatus.READ);
         } else {
             throw new IllegalArgumentException("해당 알림과 관련된 사용자가 아닙니다.");
         }
@@ -198,11 +212,6 @@ public class NotificationServiceImpl implements NotificationService {
         // 알림 타입에서 카테고리와 메시지를 가져오기
         String category = notificationType.getCategory();
         String message;
-
-        System.out.println("================== 서비스 진입 =====================");
-        System.out.println("category = " + category);
-        System.out.println("params = " + params);
-        System.out.println("data = " + data);
 
         // 수신자 및 발신자 ID를 파라미터로 받아 사용
         String receiverId = (String) params.get("receiverId");

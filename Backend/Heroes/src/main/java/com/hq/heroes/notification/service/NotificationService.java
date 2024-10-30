@@ -34,6 +34,9 @@ public interface NotificationService {
 
     boolean markAsRead(Long notificationId, String employeeId);
 
+    @Async
+    void deleteNotificationAsync(Long notificationId, String employeeId);
+
     @Transactional
     boolean deleteNotification(Long notificationId, String employeeId);
 
