@@ -29,11 +29,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import Select from 'primevue/select';
-import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
+import InputText from 'primevue/inputtext';
+import Select from 'primevue/select';
+import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
 
 // 선택된 부서 정보
 const selectedDepartment = ref(null);
@@ -79,7 +80,7 @@ async function saveEvaluationCriteria() {
         // 각 평가 항목에 대한 수정된 질문 내용을 다시 합쳐서 저장
         evaluationCriteriaList.value.forEach(async (criteria, index) => {
             criteria.criteriaContent = criteriaQuestions.value[index].join('#');
-            
+
             updateEvaluationCriteriaList.value.criteriaContent = criteria.criteriaContent;
             updateEvaluationCriteriaList.value.criteriaTitle = criteria.criteriaTitle;
             updateEvaluationCriteriaList.value.deptId = criteria.deptId;
@@ -95,16 +96,17 @@ async function saveEvaluationCriteria() {
                     'Content-Type': 'application/json'
                 }
             });
-
-            if (response) {
-                console.log(`평가 기준 ID ${criteria.evaluationCriteriaId}가 성공적으로 저장되었습니다.`);
-            }
         });
 
-        alert('평가 기준이 성공적으로 저장되었습니다.');
+        await Swal.fire({
+            title: '평가 기준이 저장되었습니다.',
+            icon: 'success'
+        });
     } catch (error) {
-        console.error('평가 기준 저장 중 오류 발생:', error);
-        alert('평가 기준 저장에 실패했습니다.');
+        await Swal.fire({
+            title: '평가 기준이 저장 중 오류가 발생하였습니다.',
+            icon: 'error'
+        });
     }
 }
 
@@ -119,7 +121,7 @@ onMounted(() => {
     padding: 2rem;
     max-width: 900px;
     margin: 0 auto;
-    background-color: #f8f9fa;
+    background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     font-family: 'Arial', sans-serif;
