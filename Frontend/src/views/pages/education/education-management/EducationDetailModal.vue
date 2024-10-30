@@ -1,39 +1,41 @@
 <template>
     <Dialog :visible="visible" modal @hide="closeModal" header="교육 상세 정보" :style="{ width: '50vw' }" :closable="false">
         <template #header>
-            <div class="font-bold text-lg">{{ courseDetail ? courseDetail.educationName : '정보 없음' }}</div>
+            <div class="font-bold p-2" :style="{ fontSize: '1.5rem' }">{{ courseDetail ? courseDetail.educationName : '정보 없음' }}</div>
         </template>
+        <hr />
         <div class="p-4">
-            <table class="w-full table-auto">
+            <table class="education-info">
                 <tr>
-                    <td class="px-4 py-2"><strong>카테고리:</strong></td>
+                    <td class="px-4 py-2"><strong>카테고리</strong></td>
                     <td class="px-4 py-2">{{ courseDetail.categoryName }}</td>
                 </tr>
                 <tr>
-                    <td class="px-4 py-2"><strong>강사:</strong></td>
+                    <td class="px-4 py-2"><strong>강사</strong></td>
                     <td class="px-4 py-2">{{ courseDetail.instructorName }}</td>
                 </tr>
                 <tr>
-                    <td class="px-4 py-2"><strong>교육 기관:</strong></td>
+                    <td class="px-4 py-2"><strong>교육 기관</strong></td>
                     <td class="px-4 py-2">{{ courseDetail.institution }}</td>
                 </tr>
                 <tr>
-                    <td class="px-4 py-2"><strong>교육 신청일:</strong></td>
+                    <td class="px-4 py-2"><strong>교육 신청일</strong></td>
                     <td class="px-4 py-2">{{ formatDate(new Date(courseDetail.startDate)) }}</td>
                 </tr>
                 <tr>
-                    <td class="px-4 py-2"><strong>교육 종료일:</strong></td>
+                    <td class="px-4 py-2"><strong>교육 종료일</strong></td>
                     <td class="px-4 py-2">{{ formatDate(new Date(courseDetail.endDate)) }}</td>
                 </tr>
                 <tr>
-                    <td class="px-4 py-2"><strong>상태:</strong></td>
-                    <td class="px-4 py-2">{{ mapStatus(courseDetail.status) }}</td>
+                    <td class="px-4 py-2"><strong>상태</strong></td>
+                    <td class="px-4 py-2">{{ mapStatus(courseDetail.courseStatus) }}</td>
                 </tr>
             </table>
         </div>
 
         <template #footer>
-            <Button label="취소하기" severity="danger" class="p-button-outlined" @click="handleCancelClick" />
+            <!-- courseStatus가 '이수'가 아닐 때만 취소하기 버튼을 보여줌 -->
+            <Button v-if="mapStatus(courseDetail.courseStatus) !== '이수'" label="취소하기" severity="danger" class="p-button-outlined" @click="handleCancelClick" />
             <Button label="닫기" class="p-button-primary" @click="closeModal" />
         </template>
     </Dialog>
@@ -105,5 +107,19 @@ async function cancelEducation() {
         console.error('교육 취소에 실패했습니다.', error);
     }
 }
-
 </script>
+
+<style scoped>
+.education-info {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.education-info th,
+.education-info td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+</style>

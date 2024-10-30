@@ -136,29 +136,61 @@ async function fetchEducations() {
 async function fetchCategories() {
     try {
         const response = await fetchGet('http://localhost:8080/api/v1/educationCategory-service/categories');
-        categories.value = [{ categoryName: '전체' }, ...response.data];
+        
+        // 응답 데이터의 구조를 콘솔에 출력하여 확인
+        console.log("fetchCategories 응답:", response);
+
+        // response가 배열인지 확인
+        if (Array.isArray(response)) {
+            categories.value = [{ categoryName: '전체' }, ...response];
+        } else {
+            console.error('응답이 예상한 형태가 아닙니다:', response);
+            categories.value = [{ categoryName: '전체' }]; // 기본값 설정
+        }
     } catch (error) {
         console.error('카테고리 목록을 불러오지 못했습니다.', error);
     }
 }
 
 function filterEducations() {
+    const currentDate = new Date();
+    
+    // 각 교육의 상태를 업데이트합니다.
+    courses.value.forEach((education) => {
+        const educationStartDate = new Date(education.educationStart);
+        education.status = educationStartDate > currentDate ? '신청 가능' : '신청 마감';
+    });
+
+    // 교육을 필터링하고 역순으로 정렬합니다.
     filteredEducations.value = courses.value.filter((education) => {
         const matchesCategoryName = selectedcategoryName.value?.categoryName && selectedcategoryName.value.categoryName !== '전체'
-            ? education.categoryName === selectedcategoryName.value.categoryName 
+            ? education.categoryName === selectedcategoryName.value.categoryName
             : true;
 
-        // status 필터링 추가
-        const matchesStatus = selectededucationStatus.value && selectededucationStatus.value.status !== '전체' 
-            ? education.status === selectededucationStatus.value.status 
+        const matchesStatus = selectededucationStatus.value && selectededucationStatus.value.status !== '전체'
+            ? education.status === selectededucationStatus.value.status
             : true;
 
-        const matchesGlobalFilter = filters.value?.global?.value 
-            ? education.educationName.toLowerCase().includes(filters.value.global.value.toLowerCase()) 
+        const matchesGlobalFilter = filters.value?.global?.value
+            ? education.educationName.toLowerCase().includes(filters.value.global.value.toLowerCase())
             : true;
 
         return matchesCategoryName && matchesStatus && matchesGlobalFilter;
-    });
+    }).reverse(); // 필터링 후 역순으로 정렬합니다.
+}
+
+// openEducationDetail 함수가 중복으로 선언되지 않도록 확인 후, 필요 시 아래만 남겨두기
+function openEducationDetail(event) {
+    const course = event.data;
+    if (course.status === '신청 마감') {
+        Swal.fire({
+            icon: 'warning',
+            title: '알림',
+            text: '신청 기간이 지났어요!',
+        });
+        return;
+    }
+    router.push({ path: `/education-apply/education-detail/${course.educationId}` });
 }
 
 function initFilters() {
@@ -167,19 +199,6 @@ function initFilters() {
         educationName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
         categoryName: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
     };
-}
-
-function openEducationDetail(event) {
-    const course = event.data;
-    if (course.status === '신청 마감') {
-        Swal.fire({
-            icon: 'warning',
-            title: '알림',
-            text: '신청 기간이 마감된 교육입니다.',
-        });
-        return;
-    }
-    router.push({ path: `/education-apply/education-detail/${course.educationId}` });
 }
 
 function formatDate(date) {
