@@ -1,8 +1,10 @@
 package com.hq.heroes.notification.service;
 
 import com.hq.heroes.notification.dto.NotificationReqDTO;
+import com.hq.heroes.notification.dto.NotificationsReqDTO;
 import com.hq.heroes.notification.entity.Notification;
 import com.hq.heroes.notification.entity.enums.AutoNotificationType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -14,8 +16,11 @@ public interface NotificationService {
 
     Notification getNotificationById(Long notificationId);
 
+    @Async
+    void createNotificationAsync(NotificationReqDTO requestDTO);
+
     @Transactional
-    Notification createNotification(NotificationReqDTO requestDTO);
+    void createNotification(NotificationReqDTO requestDTO);
 
     @Transactional
     Notification updateNotification(Long notificationId, NotificationReqDTO requestDTO);
@@ -33,5 +38,8 @@ public interface NotificationService {
 
     @Transactional
     void sendAutomaticNotification(AutoNotificationType type, Map<String, Object> params, Object data);
+
+    @Async
+    void sendNotificationAsync(String receiverId, AutoNotificationType notificationType, Object data);
 
 }

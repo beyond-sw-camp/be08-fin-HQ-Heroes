@@ -17,12 +17,13 @@ import com.hq.heroes.notification.repository.NotificationRepository;
 import com.hq.heroes.salary.entity.SalaryHistory;
 import com.hq.heroes.vacation.entity.Vacation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -44,30 +45,35 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Async
+    public void createNotificationAsync(NotificationReqDTO requestDTO) {
+        if (requestDTO.getSenderId() == null || requestDTO.getReceiverId() == null || requestDTO.getCategoryId() == null) {
+            throw new IllegalArgumentException("필수 정보가 누락되었습니다.");
+        }
+        createNotification(requestDTO);
+    }
+
+    @Override
     @Transactional
-    public Notification createNotification(NotificationReqDTO requestDTO) {
-        // Fetch sender, receiver, and category
+    public void createNotification(NotificationReqDTO requestDTO) {
         Employee sender = employeeRepository.findById(requestDTO.getSenderId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid sender ID"));
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 발신자 ID입니다: " + requestDTO.getSenderId()));
         Employee receiver = employeeRepository.findById(requestDTO.getReceiverId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid receiver ID"));
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 수신자 ID입니다: " + requestDTO.getReceiverId()));
         NotificationCategory category = notificationCategoryRepository.findById(requestDTO.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 카테고리 ID입니다: " + requestDTO.getCategoryId()));
 
-        // 상태값이 없으면 기본값으로 'UNREAD' 설정
-        NotificationStatus status = requestDTO.getStatus() != null ? requestDTO.getStatus() : NotificationStatus.UNREAD;
-
-        // Create notification entity
         Notification notification = Notification.builder()
                 .sender(sender)
                 .receiver(receiver)
                 .category(category)
                 .message(requestDTO.getMessage())
-                .status(status)  // 상태값 설정
+                .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : NotificationStatus.UNREAD)  // 상태값 설정
                 .build();
 
-        return notificationRepository.save(notification);
+        notificationRepository.save(notification);
     }
+
 
 
     @Override
@@ -76,7 +82,6 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림 ID : " + notificationId));
 
-        // Update notification details
         notification.setMessage(requestDTO.getMessage());
         notification.setStatus(requestDTO.getStatus());
 
@@ -147,6 +152,15 @@ public class NotificationServiceImpl implements NotificationService {
         return true;
     }
 
+    // 자동 알림 발송을 비동기로 처리
+    @Async("notificationExecutor")
+    @Override
+    public void sendNotificationAsync(String receiverId, AutoNotificationType notificationType, Object data) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("receiverId", receiverId);
+        sendAutomaticNotification(notificationType, params, data);
+    }
+
     @Override
     @Transactional
     public void sendAutomaticNotification(AutoNotificationType notificationType, Map<String, Object> params, Object data) {
@@ -204,7 +218,8 @@ public class NotificationServiceImpl implements NotificationService {
             String month = salaryHistory.getSalaryMonth().getMonth().toString();    // 지급 월
 
             message = switch (notificationType) {
-                case MONTHLY_SALARY_PAYMENT -> "<html><body><p>" + month + "월 급여가 지급되었습니다.</p></body></html>";  // 배치 작업에서 보내줘야함.
+                case MONTHLY_SALARY_PAYMENT ->
+                        "<html><body><p>" + month + "월 급여가 지급되었습니다.</p></body></html>";  // 배치 작업에서 보내줘야함.
                 default -> throw new IllegalArgumentException("알 수 없는 급여 알림 타입입니다: " + notificationType);
             };
         } else if ("교육".equals(category) && data instanceof Education) {

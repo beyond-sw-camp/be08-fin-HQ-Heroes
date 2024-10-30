@@ -1,8 +1,11 @@
 package com.hq.heroes.notification.controller;
 
+import com.google.api.services.storage.model.Notifications;
 import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.notification.dto.NotificationReqDTO;
 import com.hq.heroes.notification.dto.NotificationResDTO;
+import com.hq.heroes.notification.dto.NotificationsReqDTO;
+import com.hq.heroes.notification.entity.Notification;
 import com.hq.heroes.notification.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -52,13 +55,29 @@ public class NotificationController {
         }
     }
 
-    //- 테스트
     @PostMapping("/notification")
     @Operation(summary = "알림 등록", description = "알림 정보를 받아 등록한다.")
-    public ResponseEntity<NotificationResDTO> createNotification(@RequestBody NotificationReqDTO requestDTO) {
-        com.hq.heroes.notification.entity.Notification notification = notificationService.createNotification(requestDTO);
-        return new ResponseEntity<>(notification.toResDTO(), HttpStatus.CREATED);
+    public ResponseEntity<String> createNotification(@RequestBody NotificationsReqDTO requestDTO) {
+        if (requestDTO.getSenderId() == null || requestDTO.getCategoryId() == null || requestDTO.getMessage() == null) {
+            return new ResponseEntity<>("필수 정보가 누락되었습니다.", HttpStatus.BAD_REQUEST);
+        }
+
+        for (String receiverId : requestDTO.getReceiverIds()) {
+            if (receiverId != null) {  // receiverId가 null이 아닐 때만 실행
+                NotificationReqDTO reqDTO = NotificationReqDTO.builder()
+                        .senderId(requestDTO.getSenderId())
+                        .receiverId(receiverId)
+                        .categoryId(requestDTO.getCategoryId())
+                        .status(requestDTO.getStatus())
+                        .message(requestDTO.getMessage())
+                        .build();
+                notificationService.createNotificationAsync(reqDTO);
+            }
+        }
+
+        return new ResponseEntity<>("알림 발송 성공", HttpStatus.CREATED);
     }
+
 
     //- 테스트
     @PutMapping("/notification/{notification-id}")
