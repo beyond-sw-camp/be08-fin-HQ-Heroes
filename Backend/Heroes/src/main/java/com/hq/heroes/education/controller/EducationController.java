@@ -102,6 +102,11 @@ public class EducationController {
     @Operation(summary = "교육 등록", description = "교육 정보를 받아서 등록한다.")
     public ResponseEntity<EducationResponseDTO> create(@RequestBody EducationRequestDTO requestDTO) {
         Education education = educationService.createEducation(requestDTO);
+        List<EmployeeDTO> employeeDTOList = employeeService.getAllEmployees();
+
+        for (EmployeeDTO employeeDTO : employeeDTOList) {
+            notificationService.sendNotificationAsync(employeeDTO.getEmployeeId(), AutoNotificationType.EDUCATION_ENROLL, education);
+        }
 
         return new ResponseEntity<>(education.toResponseDTO(), HttpStatus.CREATED);
     }

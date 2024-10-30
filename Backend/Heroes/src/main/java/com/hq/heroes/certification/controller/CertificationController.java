@@ -86,10 +86,7 @@ public class CertificationController {
         List<EmployeeDTO> employeeList = employeeService.getAllEmployeesByDepartment(certification.getDepartment().getDeptId());
 
         for (EmployeeDTO employeeDTO : employeeList) {
-            Map<String, Object> params = new HashMap<>();
-            String receiverId = employeeDTO.getEmployeeId();
-            params.put("receiverId", receiverId);
-            notificationService.sendAutomaticNotification(AutoNotificationType.COMPANY_CERTIFICATION_REGISTRATION, params, certification);
+            notificationService.sendNotificationAsync(employeeDTO.getEmployeeId(), AutoNotificationType.COMPANY_CERTIFICATION_REGISTRATION, certification);
         }
 
         return new ResponseEntity<>(certification.toResponseDTO(), HttpStatus.CREATED);
