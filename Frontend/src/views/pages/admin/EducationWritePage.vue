@@ -234,16 +234,15 @@ const sendMessage = async () => {
         console.log('API 응답:', result);
 
         if (result) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'success',
                 title: '교육 작성 완료',
                 text: '교육 정보가 성공적으로 작성되었습니다.',
                 confirmButtonText: '확인'
-            }).then(() => {
-                // 확인 버튼 클릭 후 다른 페이지로 이동
-                console.log('이동할 경로:', '/education-apply'); // 이동할 경로 로그
-                router.push({ path: '/education-apply' }); // 원하는 페이지의 경로로 수정
             });
+            // 확인 후 페이지 이동
+            console.log('이동할 경로:', '/manage-education'); // 이동할 경로 로그
+            router.push({ path: '/manage-education' }); // 원하는 페이지의 경로로 수정
         }
     } catch (error) {
         console.error('API 요청 실패:', error);
@@ -255,6 +254,7 @@ const sendMessage = async () => {
         });
     }
 };
+
 </script>
 
 <style scoped>
