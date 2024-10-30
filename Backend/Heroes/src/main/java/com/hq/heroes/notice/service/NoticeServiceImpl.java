@@ -28,9 +28,6 @@ public class NoticeServiceImpl implements NoticeService {
     private final EmployeeRepository employeeRepository;
 
     private NoticeResponseDTO convertToResponseDTO(Notice notice) {
-        // Employee 및 Updater 초기화
-        Hibernate.initialize(notice.getEmployee());
-        Hibernate.initialize(notice.getUpdater());
 
         return NoticeResponseDTO.builder()
                 .noticeId(notice.getNoticeId())
