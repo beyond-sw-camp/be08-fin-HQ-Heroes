@@ -91,8 +91,13 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         Employee employee = employeeEntity.get();
         Position position = employee.getPosition();
 
-        // 현재 날짜 정보
-        YearMonth currentMonth = YearMonth.now();
+//        // 현재 날짜 정보
+//        YearMonth currentMonth = YearMonth.now();
+//        YearMonth previousMonth = getPreviousMonth(currentMonth);  // 이전 달 계산
+
+        // 급여 생성 날짜 설정
+        LocalDate salaryDate = (dto.getSalaryDate() != null) ? dto.getSalaryDate() : LocalDate.now();
+        YearMonth currentMonth = YearMonth.from(salaryDate);  // 급여 생성 날짜로부터 월 정보 가져오기
         YearMonth previousMonth = getPreviousMonth(currentMonth);  // 이전 달 계산
 
         // 근무 시간
@@ -135,7 +140,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         // SalaryHistory 엔티티 생성 및 저장
         SalaryHistory salaryHistory = SalaryHistory.builder()
                 .employee(employee)
-                .salaryMonth(currentMonth.atDay(10).atStartOfDay())
+                .salaryMonth(previousMonth.atDay(10).atStartOfDay())
                 .preTaxTotal(preTaxTotal)
                 .nationalPension(nationalPension)
                 .healthInsurance(healthInsurance)

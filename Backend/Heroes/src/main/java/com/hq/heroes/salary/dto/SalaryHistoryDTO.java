@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 public class SalaryHistoryDTO {
     private Long salaryId;
     private String employeeId;
+    private LocalDate salaryDate; // 데이터 생성용 지급 일자
     private LocalDateTime salaryMonth; // 지급 일자
     private Double preTaxTotal; // 세전 총액
     private Double postTaxTotal; // 세후 총액
