@@ -46,10 +46,10 @@
                     />
                 </template>
             </Column>
-            <Column v-if="!showEducation" field="courseStatus" header="이수 상태" sortable style="min-width: 5rem">
+            <Column v-if="!showEducation" field="courseStatus" header="등록 상태" sortable style="min-width: 5rem">
                 <template #body="slotProps">
                     <Button 
-                        label="승인" 
+                        label="등록" 
                         :disabled="isLoading || slotProps.data.courseStatus === 'APPROVE'" 
                         @click="completeCourse(slotProps.data)" 
                         class="p-button-info" 

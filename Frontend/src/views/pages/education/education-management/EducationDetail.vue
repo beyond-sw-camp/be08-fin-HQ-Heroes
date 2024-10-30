@@ -49,10 +49,6 @@
                         <div v-html="educationCurriculum" class="curriculum-content"></div>
                     </td>
                 </tr>
-                <tr>
-                    <th>첨부 파일</th>
-                    <td>첨부 파일이 없습니다.</td>
-                </tr>
             </table>
             <div class="button-group">
                 <Button label="신청하기" icon="pi pi-pencil" @click="handleApplyClick" />
