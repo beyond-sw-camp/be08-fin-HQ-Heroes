@@ -1,6 +1,5 @@
 package com.hq.heroes.salary.dto;
 
-import com.hq.heroes.salary.entity.enums.Status;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +19,8 @@ public class SalaryHistoryDTO {
     private long workTime; // 근무 시간
     private long overTime; // 연장 근로 시간
     private Double baseSalary; // 시급
+    private Double totalSalary; // 기본 급여
+    private Double overSalary; // 연장 근로 수당
 
     // 공제 항목
     private Double nationalPension; // 국민연금

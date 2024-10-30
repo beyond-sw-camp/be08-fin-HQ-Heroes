@@ -218,8 +218,8 @@ const showSalaryModal = async (month) => {
   selectedMonth.value.workTime = monthData.workTime;
   selectedMonth.value.baseSalary = monthData.baseSalary;
   selectedMonth.value.overTime = monthData.overTime;
-  selectedMonth.value.overSalary = (monthData.baseSalary * 0.01) * monthData.overTime;
-  selectedMonth.value.totalSalary = monthData.baseSalary * monthData.workTime;
+  selectedMonth.value.overSalary = monthData.overSalary;
+  selectedMonth.value.totalSalary = monthData.totalSalary;
   selectedMonth.value.bonus = monthData.bonus;
 
   // 공제 데이터 설정
@@ -299,6 +299,7 @@ onMounted(async () => {
 
 .salary-cards {
   margin-bottom: 2rem;
+  min-height: 27rem;
 }
 
 .custom-box {
