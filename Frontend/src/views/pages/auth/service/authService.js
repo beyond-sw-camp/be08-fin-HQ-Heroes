@@ -7,7 +7,7 @@ const API_URL = 'http://localhost:8080';
 const { cookies } = useCookies(); // Initialize the cookies
 
 // 회원가입 메서드
-const register = async (employeeName, email, password, role, joinDate, birthDate, annualLeave, status, phoneNumber, roadAddress, lotAddress, detailedAddress, profileImage, deptId, teamId, positionId, jobId) => {
+const register = async (employeeName, email, password, role, joinDate, birthDate, annualLeave, status, phoneNumber, roadAddress, lotAddress, detailedAddress, profileImage, deptId, teamId, positionId, jobRoleId) => {
     const formData = new FormData();
     formData.append('employeeName', employeeName);
     formData.append('password', password);
@@ -25,7 +25,7 @@ const register = async (employeeName, email, password, role, joinDate, birthDate
     formData.append('deptId', deptId);
     formData.append('teamId', teamId);
     formData.append('positionId', positionId);
-    formData.append('jobId', jobId);
+    formData.append('jobRoleId', jobRoleId);
 
     try {
         const response = await axios.post(`${API_URL}/join`, formData, {
@@ -116,7 +116,8 @@ const login = async (employeeId, password) => {
             authStore.setIsLoggedIn(true);
             console.log('로그인 성공:', authStore);
             return { success: true, employeeId, accessToken };
-        } else {    // 로그인 실패
+        } else {
+            // 로그인 실패
             throw new Error('로그인 실패: 상태 코드가 200이 아닙니다.');
         }
     } catch (error) {
