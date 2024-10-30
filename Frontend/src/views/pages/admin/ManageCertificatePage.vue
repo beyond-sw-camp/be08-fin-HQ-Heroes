@@ -3,7 +3,7 @@
         <div class="card">
             <div class="flex flex-row justify-between mb-4">
                 <label class="text-xl font-bold">자격증 관리</label>
-                <Button label="추가하기" icon="pi pi-plus" class="custom-button" @click="showAddCertification" />
+                <Button label="추가하기" icon="pi pi-plus" class="custom-button" @click="() => { showAddCertification(); }" />
             </div>
 
             <!-- 필터 및 검색 섹션 -->
@@ -51,7 +51,7 @@
         </div>
 
         <!-- 자격증 조회 모달 -->
-        <Dialog v-model="isDetailDialogVisible" modal header="자격증 정보" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
+        <Dialog v-model:visible="isDetailDialogVisible" modal header="자격증 정보" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
             <div class="p-4">
                 <table class="table-auto w-full border-collapse">
                     <tr>
@@ -78,7 +78,7 @@
         </Dialog>
 
         <!-- 자격증 추가 모달 -->
-        <Dialog v-model="isAddDialogVisible" modal header="자격증 추가하기" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
+        <Dialog v-model:visible="isAddDialogVisible" modal header="자격증 추가하기" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
             <div class="flex flex-col gap-6">
                 <div>
                     <Select v-model="selectedDepartment" :options="departments" id="deptId" optionLabel="deptName" placeholder="부서를 선택하세요" @change="changeSelectedAddDeptId(selectedDepartment.deptId)" />
@@ -103,7 +103,7 @@
         </Dialog>
 
         <!-- 자격증 수정 모달 -->
-        <Dialog v-model="isEditDialogVisible" modal header="자격증 수정하기" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
+        <Dialog v-model:visible="isEditDialogVisible" modal header="자격증 수정하기" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
             <div class="flex flex-col gap-6">
                 <div>
                     <Select v-model="selectedDepartment" :options="departments" id="deptId" optionLabel="deptName" placeholder="부서를 선택하세요" @change="changeSelectedEditDeptId(selectedDepartment.deptId)" />
@@ -122,7 +122,7 @@
                 </div>
             </div>
             <template #footer>
-                <Button label="저장" icon="pi pi-check" class="p-button-primary" @click="updateCertification" />
+                <Button label="저장" icon="pi pi-check" class="p-button-primary" @click="editCertification" />
                 <Button label="취소" icon="pi pi-times" text class="p-button-text" @click="isEditDialogVisible = false" />
             </template>
         </Dialog>
@@ -134,6 +134,8 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { fetchGet, fetchPost, fetchPut, fetchDelete } from '../auth/service/AuthApiService';
+import Dialog from 'primevue/dialog';
+import Swal from 'sweetalert2';
 
 const certifications = ref([]);
 const filteredCertifications = ref([]);
@@ -146,7 +148,8 @@ const selectedCertification = ref({
     certificationName: '',
     benefit: '',
     institution: '',
-    deptId: 0
+    deptId: 0,
+    deptName: ''
 });
 
 const isAddDialogVisible = ref(false);
@@ -154,7 +157,8 @@ const addCertificationData = ref({
     certificationName: '',
     benefit: '',
     institution: '',
-    deptId: 0
+    deptId: 0,
+    deptName: ''
 });
 
 const isEditDialogVisible = ref(false);
@@ -242,17 +246,22 @@ async function saveCertification() {
     try {
         const response = await fetchPost('http://localhost:8080/api/v1/certification-service/certification', addCertificationData.value);
 
-        alert(response.certificationName + '이 추가되었습니다.');
+        // 모달 닫기
         isAddDialogVisible.value = false;
 
+        // 자격증 추가 완료 알림
+        await Swal.fire('추가 완료', '자격증 추가가 완료되었습니다.', 'success');
+        
+        // 페이지 새로 고침
         location.reload(); // 페이지를 새로 고침합니다.
     } catch (error) {
         console.error('자격증 추가 중 오류:', error);
-        alert('자격증 추가 중 오류가 발생했습니다. 다시 시도해주세요.');
+        // 오류 알림
+        Swal.fire('추가 실패', '자격증 추가 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
     }
 }
 
-// 자격증 수정하기
+// 자격증 수정하기 
 async function editCertification() {
     const editRequestData = {
         certificationName: editCertificationData.value.certificationName,
@@ -264,23 +273,38 @@ async function editCertification() {
 
     try {
         const response = await fetchPut(`http://localhost:8080/api/v1/certification-service/certification/${editCertificationData.value.certificationId}`, editRequestData);
-
-        alert('자격증 수정이 완료되었습니다.');
+        
+        // 모달 닫기
         isEditDialogVisible.value = false;
 
+        // 자격증 수정 완료 알림
+        await Swal.fire('수정 완료', '자격증 수정이 완료되었습니다.', 'success');
+        
         // 페이지 새로 고침
-        location.reload(); // 페이지를 새로 고침합니다.
+        location.reload(); // 즉시 페이지를 새로 고침합니다.
+
     } catch (error) {
         console.error('자격증 수정 중 오류:', error);
-        alert('자격증 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
+        // 오류 알림
+        Swal.fire('수정 실패', '자격증 수정 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
     }
 }
 
 // 교육 취소 확인 함수
-function confirmDeleteCertification(certification) {
-    const confirmCancel = confirm("자격증을 삭제하시겠습니까?"); // 확인 대화상자
-    if (confirmCancel) {
-        deleteCertification(certification); // 교육 취소
+async function confirmDeleteCertification(certification) {
+    const result = await Swal.fire({
+        title: '삭제 확인',
+        text: '자격증을 삭제하시겠습니까?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+    });
+
+    if (result.isConfirmed) {
+        deleteCertification(certification); // 자격증 삭제
+    } else {
+        Swal.fire('취소됨', '자격증 삭제가 취소되었습니다.', 'info'); // 취소 알림
     }
 }
 
@@ -291,12 +315,18 @@ async function deleteCertification(certification) {
     try {
         await fetchDelete(`http://localhost:8080/api/v1/certification-service/certification/${certificationId}`);
 
-        alert('자격증 삭제가 완료 되었습니다.');
-        location.reload(); // 페이지를 새로 고침합니다.
+        // 삭제 완료 알림
+        await Swal.fire({
+            title: "자격증 삭제가 완료되었습니다.",
+            icon: 'success'
+        });
 
+        // 페이지 새로 고침
+        location.reload();
     } catch (error) {
         console.error('자격증 삭제 중 오류:', error);
-        alert('자격증 삭제 중 오류가 발생했습니다. 다시 시도해주세요.');
+        // 오류 알림
+        Swal.fire('삭제 실패', '자격증 삭제 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
     }
 }
 
