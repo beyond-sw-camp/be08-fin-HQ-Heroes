@@ -184,10 +184,13 @@ const getFirstText = (htmlString) => {
     // HTML 문자열을 DOM으로 파싱
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, 'text/html');
-    // 첫 번째 텍스트 노드를 찾아 반환
-    const firstText = doc.body.textContent || '';
+
+    // 첫 번째 <p> 태그나 텍스트 노드를 찾아서 가져오기
+    const firstParagraph = doc.querySelector('p');
+    const firstText = firstParagraph ? firstParagraph.textContent : doc.body.textContent || '';
+
     // 첫 번째 텍스트를 반환하고, 너무 길 경우 생략 처리
-    return firstText.length > 10 ? firstText.slice(0, 10) + '…' : firstText;
+    return firstText.length > 7 ? firstText.slice(0, 7) + '…' : firstText;
 };
 
 // 알림 삭제 함수
