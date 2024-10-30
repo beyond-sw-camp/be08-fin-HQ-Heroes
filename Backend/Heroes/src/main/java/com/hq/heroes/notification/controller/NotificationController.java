@@ -116,7 +116,6 @@ public class NotificationController {
     }
 
 
-
     // 알림 상태 업데이트 API - 테스트
     @PutMapping("/notification/{notification-id}/read")
     @Operation(summary = "알림 읽음 처리", description = "알림을 읽은 후 상태를 'READ'로 업데이트한다.")
@@ -134,10 +133,10 @@ public class NotificationController {
     }
 
     // 알림 삭제 API - 테스트
-    @PutMapping("/notification/{notification-id}/delete")
+    @PutMapping("/notification/delete")
     @Operation(summary = "알림 삭제 처리", description = "알림의 삭제 상태를 true로 업데이트한다.")
     public ResponseEntity<Void> setNotificationDeleteStatus(
-            @Parameter(description = "알림 ID", example = "1") @PathVariable("notification-id") Long notificationId) {
+            @RequestBody Long[] notificationIds) {
 
         String employeeId = "";
 
@@ -153,14 +152,10 @@ public class NotificationController {
         } else {
             log.debug("No authenticated user found.");
         }
-
-        boolean updated = notificationService.deleteNotification(notificationId, employeeId);
-
-        if (updated) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        for (Long notificationId : notificationIds) {
+            notificationService.deleteNotificationAsync(notificationId, employeeId);
         }
+        return null;
     }
 
 
