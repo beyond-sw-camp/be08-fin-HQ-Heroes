@@ -1,7 +1,8 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import { useAuthStore } from '@/stores/authStore';
-import { fetchPut } from '@/views/pages/auth/service/AuthApiService';
+import { useNotificationStore } from '@/stores/notificationStore';
+import { fetchGet, fetchPut } from '@/views/pages/auth/service/AuthApiService';
 import fetchReissue from '@/views/pages/auth/service/fetchReissue'; // 토큰 갱신 함수
 import { getReceiveNotificationsByEmployeeId, getSendNotificationsByEmployeeId } from '@/views/pages/main/service/notificationService';
 import 'primeicons/primeicons.css';
@@ -15,6 +16,7 @@ import authService from '../views/pages/auth/service/authService';
 
 const { onMenuToggle } = useLayout();
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 const remainingTime = ref(''); // 남은 시간 표시를 위한 변수
 const showReissueDialog = ref(false);
 const notificationDrawerVisible = ref(false);
@@ -27,6 +29,7 @@ const progressValue = ref(); // ProgressBar 초기화
 const router = useRouter();
 
 let timer = null;
+let notificationTimer = null;
 
 // 로그아웃 처리
 const handleLogout = async () => {
@@ -110,12 +113,28 @@ const openNotificationDrawer = async () => {
         notifications.value = await getSendNotificationsByEmployeeId(employeeId);
     }
     await fetchNotifications();
+    await fetchUnreadNotificationCount();
     notificationDrawerVisible.value = true;
 };
 
 watch(selectNotificationsList, async () => {
     await fetchNotifications();
 });
+
+// 읽지 않은 알림 개수 가져오기
+const fetchUnreadNotificationCount = async () => {
+    try {
+        const response = await fetchGet(`http://localhost:8080/api/v1/notification-service/unread-count/${localStorage.getItem('employeeId')}`);
+        if (response) {
+            console.log(response);
+            notificationStore.setUnreadCount(response); // 여기서 바로 업데이트
+        } else {
+            notificationStore.setUnreadCount(0); // 여기서 바로 업데이트
+        }
+    } catch (error) {
+        console.error('읽지 않은 알림 개수 가져오기 실패:', error);
+    }
+};
 
 const openNotificationModal = async (data) => {
     selectedNotification.value = data;
@@ -136,6 +155,7 @@ const openNotificationModal = async (data) => {
         if (notificationIndex !== -1) {
             notifications.value[notificationIndex].status = 'READ';
         }
+        await fetchUnreadNotificationCount();
     } catch (error) {
         console.error('알림 상태 업데이트 중 오류 발생:', error);
     }
@@ -201,8 +221,6 @@ const getFirstText = (htmlString) => {
 
 // 알림 삭제 함수
 const deleteNotifications = async () => {
-    const employeeId = window.localStorage.getItem('employeeId');
-
     // 선택된 알림 목록에서 각 notificationId를 사용하여 삭제 API 호출
     const selectedNotificationIds = selectedNotification.value.map((n) => n.notificationId);
 
@@ -214,28 +232,17 @@ const deleteNotifications = async () => {
 
     // 사용자가 확인을 누르면 삭제 진행
     if (userConfirmed) {
-        progressVisible.value = true; // ProgressBar 모달 표시
-        progressValue.value = 0; // ProgressBar 초기화
-
         try {
             // 선택된 알림들에 대해 삭제 API 호출
-            for (let i = 0; i < selectedNotificationIds.length; i++) {
-                const notificationId = selectedNotificationIds[i];
-                const url = `http://localhost:8080/api/v1/notification-service/notification/${notificationId}/delete`;
-
-                // 서버에 삭제 요청 (receiveDelete 또는 sendDelete 값 변경)
-                await fetchPut(url, { employeeId });
-
-                // ProgressBar 값 업데이트
-                progressValue.value = Math.round(((i + 1) / notificationCount) * 100);
-            }
-
+            const url = `http://localhost:8080/api/v1/notification-service/notification/delete`;
+            // 서버에 삭제 요청 (receiveDelete 또는 sendDelete 값 변경)
+            await fetchPut(url, selectedNotificationIds);
             // 삭제가 성공하면 알림 목록을 다시 가져와 화면 갱신
-            await fetchNotifications();
-
-            // 선택된 알림 목록 초기화
             selectedNotification.value = [];
 
+            await fetchNotifications();
+            await fetchUnreadNotificationCount();
+            // 선택된 알림 목록 초기화
             alert(`${notificationCount}개의 알림이 삭제되었습니다.`);
         } catch (error) {
             console.error('알림 삭제 중 오류 발생:', error.message);
@@ -253,11 +260,14 @@ const deleteNotifications = async () => {
 onMounted(async () => {
     timer = setInterval(updateRemainingTime, 1000); // 1초마다 업데이트
     updateRemainingTime(); // 첫 화면 로드 시 바로 호출
+    notificationTimer = setInterval(fetchUnreadNotificationCount, 30000); // 30초마다 업데이트
+    fetchUnreadNotificationCount();
 });
 
 // 페이지가 닫힐 때 타이머 정리
 onBeforeUnmount(() => {
     clearInterval(timer);
+    clearInterval(notificationTimer);
 });
 
 const goToLogin = () => router.push('/login');
@@ -327,7 +337,9 @@ const goToSignUp = () => router.push('/signup');
                     <Button icon="pi pi-sign-out" severity="danger" outlined rounded @click="handleLogout" class="ml-2" />
 
                     <!-- 알림 Drawer 띄우는 버튼 -->
+                    <!-- 프로필 이미지 및 배지 -->
                     <Button class="ml-2" rounded icon="pi pi-bell" @click="openNotificationDrawer" />
+                    <OverlayBadge v-if="notificationStore.unreadCount > 0" :value="notificationStore.unreadCount" severity="danger" class="inline-flex mb-6"> </OverlayBadge>
                 </div>
             </div>
 

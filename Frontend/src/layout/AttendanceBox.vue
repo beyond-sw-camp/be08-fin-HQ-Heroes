@@ -10,9 +10,7 @@
 
             <!-- 프로필 이미지 및 배지 -->
             <div class="ml-4">
-                <OverlayBadge :value="unreadNotificationCount" severity="danger" class="inline-flex">
-                    <Avatar class="p-overlay-badge custom-avatar" :image="authStore.employeeData.profileImageUrl" size="custom" />
-                </OverlayBadge>
+                <Avatar class="p-overlay-badge custom-avatar" :image="authStore.employeeData.profileImageUrl" size="custom" />
             </div>
         </div>
 
@@ -25,20 +23,20 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
+import { useNotificationStore } from '@/stores/notificationStore';
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
 import Avatar from 'primevue/avatar'; // PrimeVue Avatar 가져오기
-import OverlayBadge from 'primevue/overlaybadge'; // PrimeVue OverlayBadge 가져오기
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchGet, fetchPost } from '../views/pages/auth/service/AuthApiService';
 import authService from '../views/pages/auth/service/authService'; // fetchPost, fetchGet 메서드 가져오기
 
 const router = useRouter(); // useRouter 훅 호출
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 const currentDay = ref('');
 const currentTime = ref('');
 const isCheckedIn = ref(false); // 출근 여부를 나타내는 상태
-const unreadNotificationCount = ref(0); // 읽지 않은 알림 개수
 
 const getKoreanDate = () => {
     const date = new Date();
@@ -55,11 +53,6 @@ const updateCurrentTime = () => {
     const date = new Date();
     currentTime.value = date.toLocaleTimeString('ko-KR', { hour12: false });
 };
-
-// unreadNotificationCount가 변경될 때마다 업데이트를 감지하는 watch
-watch(unreadNotificationCount, (newCount) => {
-    console.log(`읽지 않은 알림 개수 업데이트: ${newCount}`);
-});
 
 // 출근/퇴근 처리
 const handleAttendance = async () => {
@@ -102,18 +95,6 @@ const handleLogout = async () => {
     }
 };
 
-// 읽지 않은 알림 개수 가져오기
-const fetchUnreadNotificationCount = async () => {
-    try {
-        const response = await fetchGet(`http://localhost:8080/api/v1/notification-service/unread-count/${authStore.employeeData.employeeId}`);
-        if (response) {
-            unreadNotificationCount.value = response;
-        }
-    } catch (error) {
-        console.error('읽지 않은 알림 개수 가져오기 실패:', error);
-    }
-};
-
 // 컴포넌트가 로드될 때 출근 여부 및 알림 상태 확인
 onMounted(async () => {
     getKoreanDate();
@@ -140,10 +121,6 @@ onMounted(async () => {
     if (employeeData) {
         authStore.setEmployeeData(employeeData); // store에 직접 저장
     }
-
-    // 읽지 않은 알림 개수를 가져오는 폴링 인터벌 설정 (예: 30초 간격)
-    fetchUnreadNotificationCount();
-    setInterval(fetchUnreadNotificationCount, 1000); // 30초마다 업데이트
 });
 </script>
 
