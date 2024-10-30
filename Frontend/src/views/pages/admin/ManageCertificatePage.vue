@@ -131,7 +131,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { fetchGet, fetchPost, fetchPut, fetchDelete } from '../auth/service/AuthApiService';
 import Dialog from 'primevue/dialog';
