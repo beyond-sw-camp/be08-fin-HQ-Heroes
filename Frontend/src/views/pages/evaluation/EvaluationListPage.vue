@@ -64,13 +64,14 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount, watch, computed } from 'vue';
-import router from '@/router';
 import { useAuthStore } from '@/stores/authStore';
+import { computed, onBeforeMount, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { fetchGet } from '../auth/service/AuthApiService';
 
 // 인증된 사용자 정보를 가져옴
 const authStore = useAuthStore();
+const router = useRouter();
 
 // 상태 변수 선언
 const employees = ref([]); // 전체 직원 목록

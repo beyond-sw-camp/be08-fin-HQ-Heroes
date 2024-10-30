@@ -3,7 +3,6 @@ import { useAuthStore } from '@/stores/authStore';
 import AdminLoginPage from '@/views/pages/auth/AdminLoginPage.vue';
 import LoginPage from '@/views/pages/auth/LoginPage.vue';
 import ResetPWPage from '@/views/pages/auth/ResetPWPage.vue';
-import SignUpPage from '@/views/pages/auth/SignUpPage.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -187,6 +186,11 @@ const router = createRouter({
                     path: '/education-update/:id',
                     name: 'education-update',
                     component: () => import('@/views/pages/admin/EducationUpdatePage.vue')
+                },
+                {
+                    path: '/signup',
+                    name: 'sign-up',
+                    component: () => import('@/views/pages/auth/SignUpPage.vue')
                 }
             ]
         },
@@ -197,10 +201,6 @@ const router = createRouter({
         {
             path: '/admin-login',
             component: AdminLoginPage
-        },
-        {
-            path: '/signup',
-            component: SignUpPage
         },
         {
             path: '/reset-password',

@@ -1,8 +1,8 @@
 <script setup>
-import router from '@/router';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import apiService from '../auth/service/authService';
 
 // Form fields
@@ -32,6 +32,7 @@ const selectedDepartment = ref(null);
 const selectedTeam = ref(null);
 const selectedJobRole = ref(null);
 const selectedPosition = ref(null);
+const router = useRouter();
 
 // Error messages
 const errors = ref({
@@ -76,7 +77,7 @@ async function fetchTeams(selectedDeptId) {
 
 async function fetchJobRoles() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/jobRoles');
+        const response = await axios.get('http://localhost:8080/api/v1/employee/jobs');
         jobRoles.value = [...response.data];
     } catch (error) {
         console.error('직무 데이터를 가져오는 중 오류 발생:', error);
@@ -114,7 +115,7 @@ async function registerEmployee() {
     }
 
     try {
-        await apiService.register(
+        const response = await apiService.register(
             employeeName.value,
             email.value,
             password.value,
@@ -133,11 +134,11 @@ async function registerEmployee() {
             selectedPosition.value?.positionId,
             selectedJobRole.value?.jobRoleId
         );
-        Swal.fire('회원가입 성공', '회원가입이 완료되었습니다.', 'success');
+        await Swal.fire('사원 등록 성공', `사원 번호 : ${response.joinResult}`, 'success');
         router.push('/');
     } catch (error) {
-        Swal.fire('회원가입 실패', '다시 시도해주세요.', 'error');
-        console.error('회원가입 중 오류:', error);
+        Swal.fire('사원 등록 실패', '다시 시도해주세요.', 'error');
+        console.error('사원 등록 중 오류:', error);
     }
 }
 
@@ -293,7 +294,7 @@ onMounted(() => {
 
 <template>
     <div class="form-container">
-        <h1 class="main-title">회원가입</h1>
+        <h1 class="main-title">사원 등록</h1>
 
         <div class="form-group">
             <label for="employeeName">이름</label>
@@ -359,29 +360,39 @@ onMounted(() => {
             <small v-if="errors.joinDate" class="error-text">{{ errors.joinDate }}</small>
         </div>
 
-        <div class="form-group">
-            <label for="selectedDepartment">부서</label>
-            <Select v-model="selectedDepartment" :options="departments" id="deptId" optionLabel="deptName" placeholder="부서를 선택하세요" @change="fetchTeams(selectedDepartment.deptId)" />
-            <small v-if="errors.selectedDepartment" class="error-text">{{ errors.selectedDepartment }}</small>
-        </div>
+        <hr class="divider mb-2" />
 
-        <div class="form-group">
-            <label for="selectedTeam">팀</label>
-            <Select v-model="selectedTeam" :options="teams" id="teamId" optionLabel="teamName" placeholder="팀을 선택하세요" :disabled="!isTeamSelectable" />
-            <small v-if="errors.selectedTeam" class="error-text">{{ errors.selectedTeam }}</small>
-        </div>
+        <!-- 부서와 팀을 한 row에 배치 -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="selectedDepartment">부서</label>
+                <Select v-model="selectedDepartment" :options="departments" id="deptId" optionLabel="deptName" placeholder="부서를 선택하세요" @change="fetchTeams(selectedDepartment.deptId)" />
+                <small v-if="errors.selectedDepartment" class="error-text">{{ errors.selectedDepartment }}</small>
+            </div>
 
-        <div class="form-group">
-            <label for="selectedJobRole">직무</label>
-            <Select id="jobRole" v-model="selectedJobRole" :options="jobRoles" optionLabel="jobRoleName" placeholder="직무를 선택하세요" />
-            <small v-if="errors.selectedJobRole" class="error-text">{{ errors.selectedJobRole }}</small>
+            <div class="form-group ml-4">
+                <label for="selectedTeam">팀</label>
+                <Select v-model="selectedTeam" :options="teams" id="teamId" optionLabel="teamName" placeholder="팀을 선택하세요" :disabled="!isTeamSelectable" />
+                <small v-if="errors.selectedTeam" class="error-text">{{ errors.selectedTeam }}</small>
+            </div>
         </div>
+        <hr class="divider mb-2" />
 
-        <div class="form-group">
-            <label for="selectedPosition">직책</label>
-            <Select id="position" v-model="selectedPosition" :options="positions" optionLabel="positionName" placeholder="직책을 선택하세요" />
-            <small v-if="errors.selectedPosition" class="error-text">{{ errors.selectedPosition }}</small>
+        <!-- 직무와 직책을 한 row에 배치 -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="selectedJobRole">직무</label>
+                <Select id="jobRole" v-model="selectedJobRole" :options="jobRoles" optionLabel="jobRoleName" placeholder="직무를 선택하세요" />
+                <small v-if="errors.selectedJobRole" class="error-text">{{ errors.selectedJobRole }}</small>
+            </div>
+
+            <div class="form-group ml-4">
+                <label for="selectedPosition">직책</label>
+                <Select id="position" v-model="selectedPosition" :options="positions" optionLabel="positionName" placeholder="직책을 선택하세요" />
+                <small v-if="errors.selectedPosition" class="error-text">{{ errors.selectedPosition }}</small>
+            </div>
         </div>
+        <hr class="divider mb-2" />
 
         <div class="form-group">
             <label for="role">역할</label>
@@ -390,14 +401,14 @@ onMounted(() => {
         </div>
 
         <div class="flex justify-end">
-            <Button label="회원가입" @click="registerEmployee" />
+            <Button label="사원 등록" @click="registerEmployee" />
         </div>
     </div>
 </template>
 
 <style scoped>
 .form-container {
-    width: 80vh;
+    width: 55rem;
     margin: auto;
     padding: 20px;
     background-color: #fff;
@@ -411,8 +422,16 @@ onMounted(() => {
     margin-bottom: 20px;
 }
 
+.form-row {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    flex-wrap: nowrap;
+}
+
 .form-group {
-    margin-bottom: 20px;
+    flex: 1;
+    margin-bottom: 10px;
 }
 
 .form-group label {

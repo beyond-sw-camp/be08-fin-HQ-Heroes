@@ -102,7 +102,7 @@ public class JoinService {
             log.debug("============== 프로필 이미지가 존재하지 않습니다. ================= ");
         }
 
-        return savedEmployee.getEmployeeName() + "님 환영합니다!";
+        return savedEmployee.getEmployeeId();
     }
 }
 

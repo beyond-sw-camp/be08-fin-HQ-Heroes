@@ -8,6 +8,7 @@ import 'primeicons/primeicons.css';
 import Button from 'primevue/button'; // PrimeVue 버튼 import
 import Dialog from 'primevue/dialog';
 import Divider from 'primevue/divider';
+import Swal from 'sweetalert2';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import authService from '../views/pages/auth/service/authService';
@@ -35,6 +36,11 @@ const handleLogout = async () => {
 
         // 로그아웃 완료 후 로그인 화면으로 이동
         await router.push('/login');
+
+        await Swal.fire({
+            title: '로그아웃이 되었습니다.',
+            icon: 'success'
+        });
     } catch (err) {
         console.error('로그아웃 오류: ', err.message);
         alert('로그아웃 중 오류가 발생했습니다.');
@@ -230,7 +236,7 @@ const deleteNotifications = async () => {
             // 선택된 알림 목록 초기화
             selectedNotification.value = [];
 
-            console.log('알림 삭제 완료 및 목록 갱신');
+            alert(`${notificationCount}개의 알림이 삭제되었습니다.`);
         } catch (error) {
             console.error('알림 삭제 중 오류 발생:', error.message);
         } finally {
