@@ -25,7 +25,10 @@
                             <input type="date" id="startDate" v-model="form.vacationStartDate" class="input" />
                         </div>
                         <div class="time-block">
-                            <label for="endDate" class="label">종료 날짜</label>
+                            <label for="endDate" class="label">
+                                종료 날짜
+                                <small v-if="isDateInvalid" class="text-red-500 ml-2">시작 날짜는 종료 날짜보다 이전이어야 합니다.</small>
+                            </label>
                             <input type="date" id="endDate" v-model="form.vacationEndDate" class="input" />
                         </div>
                     </div>
@@ -99,7 +102,7 @@ import axios from 'axios';
 import Avatar from 'primevue/avatar'; // Avatar 컴포넌트
 import TreeSelect from 'primevue/treeselect'; // TreeSelect 컴포넌트
 import Swal from 'sweetalert2';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
 
@@ -131,6 +134,15 @@ const selectedApproverName = ref('');
 const selectedApplicantName = ref('');
 const selectedApplicantId = ref('');
 const selectedApproverId = ref('');
+
+const isDateInvalid = ref(false); // 날짜 유효성 상태 변수
+
+// 날짜 변경 시 유효성 검사
+watch([() => form.value.vacationStartDate, () => form.value.vacationEndDate], ([newStartDate, newEndDate]) => {
+    if (newStartDate && newEndDate) {
+        isDateInvalid.value = newStartDate > newEndDate; // 시작 날짜가 종료 날짜보다 나중일 때 경고 표시
+    }
+});
 
 const loadEmployeeData = async () => {
     const employeeId = window.localStorage.getItem('employeeId');
@@ -233,6 +245,16 @@ const handleApproverChange = (selectedApprover) => {
 };
 
 const submitForm = async () => {
+    // 날짜 오류가 있는 경우 경고창 표시
+    if (isDateInvalid.value) {
+        Swal.fire({
+            icon: 'error',
+            title: '날짜 오류',
+            text: '날짜를 다시 확인해 주세요. 시작 날짜는 종료 날짜보다 이전이어야 합니다.',
+            confirmButtonText: '확인'
+        });
+        return; // 날짜 오류가 있으면 함수 종료
+    }
     // 연차 일수가 0일 경우 경고 메시지 출력 후 함수 종료
     if (employeeData.value.annualLeave <= 0) {
         Swal.fire({
@@ -366,5 +388,12 @@ const submitForm = async () => {
 
 .logged-in-user {
     margin-bottom: 20px;
+}
+
+.text-red-500 {
+    color: red;
+}
+.ml-2 {
+    margin-left: 0.5rem;
 }
 </style>
