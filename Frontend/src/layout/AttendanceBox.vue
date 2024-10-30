@@ -136,8 +136,9 @@ onMounted(async () => {
         authStore.setEmployeeData(employeeData); // store에 직접 저장
     }
 
-    // 읽지 않은 알림 개수 가져오기
+    // 읽지 않은 알림 개수를 가져오는 폴링 인터벌 설정 (예: 30초 간격)
     fetchUnreadNotificationCount();
+    setInterval(fetchUnreadNotificationCount, 30000); // 30초마다 업데이트
 });
 </script>
 
