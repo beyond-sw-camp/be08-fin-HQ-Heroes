@@ -62,6 +62,11 @@
                             <label for="hireDate">입사일</label>
                             <input type="text" id="hireDate" v-model="hireDate" class="form-control readonly-input" readonly />
                         </div>
+
+                        <div class="form-group">
+                            <label for="hireDate">재직상태</label>
+                            <input type="text" id="status" :value="employeeData.status === 'ACTIVE' ? '재직중' : '퇴 사'" class="form-control readonly-input" readonly />
+                        </div>
                     </div>
                 </div>
 
@@ -165,6 +170,7 @@ const employeeData = ref({
     jobRoleName: '',
     positionName: '',
     email: '',
+    status: '',
     joinDate: '',
     birthDate: '',
     phoneNumber: '',
