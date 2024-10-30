@@ -77,7 +77,6 @@ import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 import { fetchGet } from '../../auth/service/AuthApiService';
 import Swal from 'sweetalert2';
 
@@ -100,20 +99,34 @@ const statusOptions = ref([
 
 async function fetchEducations() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/education-service/education');
-        courses.value = response.data;
+        const response = await fetchGet('http://localhost:8080/api/v1/education-service/education');
+        
+        // API 응답을 console에 출력
+        console.log("FetchEducations 응답:", response);
+        
+        if (response) { // response가 null이 아닐 때
+            courses.value = response; // 응답 데이터가 배열로 올바르게 설정됨
+        } else {
+            courses.value = []; // 응답이 null일 경우 빈 배열로 초기화
+        }
 
         // 현재 날짜 가져오기
         const currentDate = new Date();
 
-        filteredEducations.value = courses.value.map(course => {
-            // 시작 날짜가 현재 날짜 이후인 경우 상태를 '신청 마감'으로 설정
-            const educationStartDate = new Date(course.educationStart);
-            return {
-                ...course,
-                status: educationStartDate > currentDate ? '신청 가능' : '신청 마감'
-            };
-        }).reverse(); // 역순으로 정렬
+        // courses.value가 배열인지 확인하고 map 호출
+        if (Array.isArray(courses.value)) {
+            filteredEducations.value = courses.value.map(course => {
+                // 시작 날짜가 현재 날짜 이후인 경우 상태를 '신청 가능'으로 설정
+                const educationStartDate = new Date(course.educationStart);
+                return {
+                    ...course,
+                    status: educationStartDate > currentDate ? '신청 가능' : '신청 마감'
+                };
+            }).reverse(); // 역순으로 정렬
+        } else {
+            console.warn("courses.value는 배열이 아닙니다:", courses.value);
+            filteredEducations.value = []; // courses.value가 배열이 아닐 경우 빈 배열로 초기화
+        }
 
     } catch (error) {
         console.error("신청 기간이 지났습니다.", error);
@@ -122,7 +135,7 @@ async function fetchEducations() {
 
 async function fetchCategories() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/educationCategory-service/categories');
+        const response = await fetchGet('http://localhost:8080/api/v1/educationCategory-service/categories');
         categories.value = [{ categoryName: '전체' }, ...response.data];
     } catch (error) {
         console.error('카테고리 목록을 불러오지 못했습니다.', error);
