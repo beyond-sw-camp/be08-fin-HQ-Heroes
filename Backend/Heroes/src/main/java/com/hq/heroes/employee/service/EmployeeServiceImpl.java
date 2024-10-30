@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,20 +33,40 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final TeamRepository teamRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    public EmployeeDTO convertToDTO(Employee employee) {
+        return EmployeeDTO.builder()
+                .employeeId(employee.getEmployeeId())
+                .employeeName(employee.getEmployeeName())
+                .teamName(employee.getTeam() != null ? employee.getTeam().getTeamName() : null)
+                .deptName(employee.getDepartment() != null ? employee.getDepartment().getDeptName() : null)
+                .jobRoleName(employee.getJob() != null ? employee.getJob().getJobRoleName() : null)
+                .positionName(employee.getPosition() != null ? employee.getPosition().getPositionName() : null)
+                .email(employee.getEmail())
+                .joinDate(employee.getJoinDate())
+                .annualLeave(employee.getAnnualLeave())
+                .birthDate(employee.getBirthDate())
+                .phoneNumber(employee.getPhoneNumber())
+                .roadAddress(employee.getRoadAddress())
+                .lotAddress(employee.getLotAddress())
+                .detailedAddress(employee.getDetailedAddress())
+                .profileImageUrl(employee.getProfileImageUrl())
+                .build();
+    }
+
 
     @Override
     public List<EmployeeDTO> getAllEmployees() {
-        return employeeRepository.findAllEmployeesDTO();
+        return employeeRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Override
     public List<EmployeeDTO> getAllEmployeesByDepartment(Long deptId) {
-        return employeeRepository.findEmployeesByDepartmentId(deptId).stream().map(Employee::toResponseDTO).toList();
+        return employeeRepository.findEmployeesByDepartmentId(deptId).stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Override
-    public Employee getEmployeeById(String id) {
-        return employeeRepository.findById(id).orElse(null);
+    public EmployeeDTO getEmployeeById(String id) {
+        return employeeRepository.findById(id).map(this::convertToDTO).orElse(null);
     }
 
     @Override

@@ -45,10 +45,10 @@ public class EmployeeController {
     public ResponseEntity<EmployeeDTO> getAllEmployee(
             @Parameter(description = "사원 ID", example = "2024106824") @PathVariable("employee-id") String employeeId
     ) {
-        Employee employee = employeeService.getEmployeeById(employeeId);
+        EmployeeDTO employeeDTO = employeeService.getEmployeeById(employeeId);
 
-        if (employee != null) {
-            return ResponseEntity.ok(employee.toResponseDTO());
+        if (employeeDTO != null) {
+            return ResponseEntity.ok(employeeDTO);
         } else {
             return ResponseEntity.notFound().build(); // 수정된 부분
         }
