@@ -373,11 +373,11 @@ const goToSignUp = () => router.push('/signup');
         </div>
 
         <div class="flex items-center justify-between gap-3 mb-2">
-            <div class="flex">
+            <div class="flex gap-2">
                 <Button label="알림 발송" icon="pi pi-send" @click="goTosendNotificationPage" severity="info"></Button>
+                <ToggleButton unstyled v-model="selectNotificationsList" onLabel="보낸 알림" offLabel="받은 알림" :style="toggleButtonStyle" />
             </div>
             <div class="flex gap-2">
-                <ToggleButton unstyled v-model="selectNotificationsList" onLabel="보낸 알림" offLabel="받은 알림" :style="toggleButtonStyle" />
                 <Button label="삭제" icon="pi pi-trash" @click="deleteNotifications" severity="danger"></Button>
             </div>
         </div>
