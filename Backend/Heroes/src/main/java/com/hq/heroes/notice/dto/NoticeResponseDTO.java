@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class NoticeResponseDTO {
 
     private Long noticeId;

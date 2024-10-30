@@ -8,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class NoticeUpdateRequestDTO {
     private String title;
     private String content;
