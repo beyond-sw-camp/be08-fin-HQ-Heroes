@@ -44,20 +44,12 @@
                 </div>
             </div>
         </div>
-
-        <!-- 알림 발송 진행상황 모달 -->
-        <Dialog header="알림 발송 중" v-model:visible="progressVisible" :modal="true" :closable="false" style="width: 50vw">
-            <ProgressBar :value="progressValue"></ProgressBar>
-            <p>{{ progressValue }}% 완료</p>
-        </Dialog>
     </div>
 </template>
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
 import Avatar from 'primevue/avatar';
-import Dialog from 'primevue/dialog';
-import ProgressBar from 'primevue/progressbar';
 import Select from 'primevue/select';
 import Tree from 'primevue/tree';
 import Quill from 'quill';
@@ -74,9 +66,6 @@ const selectedKeys = ref({}); // 선택된 노드 상태
 const expandedKeys = ref({}); // 트리의 확장 상태를 관리하는 ref
 const categories = ref([]);
 const selectedCategory = ref('');
-
-const progressValue = ref(0); // ProgressBar의 현재 값
-const progressVisible = ref(false); // ProgressBar 모달 표시 여부
 
 import Swal from 'sweetalert2';
 import { watch } from 'vue';
@@ -287,8 +276,6 @@ const sendMessage = async () => {
         }
 
         const senderId = window.localStorage.getItem('employeeId');
-        progressVisible.value = true; // ProgressBar 모달을 표시
-        progressValue.value = 0; // ProgressBar 초기화
 
         const payload = {
             senderId,
@@ -299,8 +286,6 @@ const sendMessage = async () => {
         };
 
         await sendNotification(payload);
-
-        progressVisible.value = false; // ProgressBar 모달 닫기
 
         await Swal.fire({
             title: '알림이 발송되었습니다.',

@@ -1,11 +1,7 @@
 import axios from 'axios';
-import { useRoute, useRouter } from 'vue-router';
 import fetchReissue from './fetchReissue';
 
 const fetchGet = async (url) => {
-    const router = useRouter();
-    const route = useRoute();
-
     try {
         const response = await axios.get(url, {
             withCredentials: true,
@@ -20,9 +16,6 @@ const fetchGet = async (url) => {
             const reissueSuccess = await fetchReissue();
             if (reissueSuccess) {
                 return await fetchAuthorizedPage(url);
-            } else {
-                alert('관리자가 아닙니다.');
-                router.push({ path: '/login', query: { redirect: route.path } });
             }
         }
     } catch (error) {
@@ -32,8 +25,6 @@ const fetchGet = async (url) => {
 };
 
 const fetchPost = async (url, data) => {
-    const router = useRouter();
-    const route = useRoute();
     let reissueAttempted = false;
 
     try {
@@ -53,9 +44,6 @@ const fetchPost = async (url, data) => {
                 return await fetchPost(url, data);
             }
         }
-
-        alert('관리자가 아닙니다.');
-        router.push({ path: '/login', query: { redirect: route.path } });
     } catch (error) {
         console.error('Error fetching authorized page:', error);
     }
@@ -63,8 +51,6 @@ const fetchPost = async (url, data) => {
 };
 
 const fetchPut = async (url, data) => {
-    const router = useRouter();
-    const route = useRoute();
     try {
         const response = await axios.put(url, data, {
             withCredentials: true, // 인증 토큰이 필요한 경우
@@ -85,9 +71,6 @@ const fetchPut = async (url, data) => {
 };
 
 const fetchPutEmployee = async (url, employeeData, profileImageFile) => {
-    const router = useRouter();
-    const route = useRoute();
-
     const formData = new FormData();
     formData.append('employeeData', new Blob([JSON.stringify(employeeData)], { type: 'application/json' }));
 
@@ -111,9 +94,6 @@ const fetchPutEmployee = async (url, employeeData, profileImageFile) => {
             const reissueSuccess = await fetchReissue();
             if (reissueSuccess) {
                 return await fetchPut(url, employeeData, profileImageFile);
-            } else {
-                alert('관리자가 아닙니다.');
-                router.push({ path: '/login', query: { redirect: route.path } });
             }
         }
     } catch (error) {
@@ -123,9 +103,6 @@ const fetchPutEmployee = async (url, employeeData, profileImageFile) => {
 };
 
 const fetchDelete = async (url) => {
-    const router = useRouter();
-    const route = useRoute();
-
     try {
         const response = await axios.delete(url, {
             withCredentials: true,
@@ -140,9 +117,6 @@ const fetchDelete = async (url) => {
             const reissueSuccess = await fetchReissue();
             if (reissueSuccess) {
                 return await fetchDelete(url);
-            } else {
-                alert('관리자가 아닙니다.');
-                router.push({ path: '/login', query: { redirect: route.path } });
             }
         }
     } catch (error) {
