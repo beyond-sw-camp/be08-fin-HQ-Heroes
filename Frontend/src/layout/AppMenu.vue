@@ -9,6 +9,7 @@ const model = ref([
                 label: '관리자 기능',
                 icon: 'pi pi-key',
                 items: [
+                    { label: '사원 등록', icon: 'pi pi-fw pi-user-plus', to: '/signup' },
                     { label: '사원 정보 수정', icon: 'pi pi-fw pi-user-edit', to: '/update-emp-info' },
                     { label: '교육 관리', icon: 'pi pi-fw pi-book', to: '/manage-education' },
                     { label: '자격증 관리', icon: 'pi pi-fw pi-credit-card', to: '/manage-certifications' },
