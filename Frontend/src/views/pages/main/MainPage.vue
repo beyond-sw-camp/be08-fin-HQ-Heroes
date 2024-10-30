@@ -182,7 +182,7 @@ const selectedAnnouncement = ref(null);
 const selectedNotification = ref(null);
 const checkInTime = ref('출근전');
 const checkOutTime = ref('퇴근전');
-const salaryDday = ref('');
+const salaryDday = ref(0);
 const currentDate = ref(new Date().toLocaleDateString());
 const authStore = useAuthStore();
 const annualLeave = ref(0); // 휴가 잔여 일수 저장 변수
@@ -204,6 +204,8 @@ onMounted(async () => {
     if (employeeData && employeeData.annualLeave !== null) {
         annualLeave.value = employeeData.annualLeave;
     }
+
+    salaryDday.value = daysUntilNextTenth();
 });
 
 const setAttendanceTimes = async (employeeId) => {
@@ -293,6 +295,28 @@ const DisplayDate = (dateString) => {
     // 마지막 마침표 제거
     return formattedDate.endsWith('.') ? formattedDate.slice(0, -1) : formattedDate;
 };
+
+// 급여일까지의 일수
+function daysUntilNextTenth() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+
+  // 이번 달 10일 날짜 생성
+  let nextTenth = new Date(year, month, 10);
+
+  // 만약 오늘이 10일 이후라면 다음 달 10일로 설정
+  if (today > nextTenth) {
+    nextTenth = new Date(year, month + 1, 10);
+  }
+
+  // 두 날짜 차이 계산 (밀리초 단위 -> 일 단위 변환)
+  const diffInMs = nextTenth - today;
+  const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+
+  console.log(diffInDays);
+  return diffInDays;
+}
 
 const getFirstText = (htmlString) => {
     // HTML 문자열을 DOM으로 파싱
