@@ -56,12 +56,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<EmployeeDTO> getAllEmployees() {
-        return employeeRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+        return employeeRepository.findAll().stream()
+                // 사원 ID가 "0000"이 아닌 경우만 필터링
+                .filter(employee -> !employee.getEmployeeId().equals("0000"))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public List<EmployeeDTO> getAllEmployeesByDepartment(Long deptId) {
-        return employeeRepository.findEmployeesByDepartmentId(deptId).stream().map(this::convertToDTO).collect(Collectors.toList());
+        return employeeRepository.findEmployeesByDepartmentId(deptId).stream()
+                .filter(employee -> !employee.getEmployeeId().equals("0000"))
+                .map(this::convertToDTO).collect(Collectors.toList());
     }
 
     @Override
