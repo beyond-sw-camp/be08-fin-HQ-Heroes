@@ -2,6 +2,7 @@ package com.hq.heroes.common.batch;
 
 import com.hq.heroes.evaluation.entity.Evaluation;
 import com.hq.heroes.evaluation.repository.EvaluationRepository;
+import com.hq.heroes.notification.dto.NotificationResDTO;
 import com.hq.heroes.notification.entity.Notification;
 import com.hq.heroes.notification.entity.enums.AutoNotificationType;
 import com.hq.heroes.notification.repository.NotificationRepository;
@@ -57,15 +58,15 @@ public class SendEvaluationBatch {
 
     @Bean
     public RepositoryItemReader<Evaluation> evaluationReader() {
-
         return new RepositoryItemReaderBuilder<Evaluation>()
                 .name("evaluationReader")
                 .pageSize(10)
-                .methodName("findAll")
+                .methodName("findAllWithEmployeeAndEvaluator")
                 .repository(evaluationRepository)
                 .sorts(Map.of("evaluationId", Sort.Direction.ASC))
                 .build();
     }
+
 
     @Bean
     public ItemProcessor<Evaluation, Notification> evaluationToNotificationProcessor() {
@@ -77,6 +78,7 @@ public class SendEvaluationBatch {
                 /*
                     테스트용 @ @
                  */
+
                 if (!item.isNotificationSent()) {
                     AutoNotificationType notificationType = AutoNotificationType.EVALUATION_RESULT;
 
@@ -85,6 +87,7 @@ public class SendEvaluationBatch {
 
                     item.setNotificationSent(true);
                     evaluationRepository.save(item);
+
                     return notificationService.sendAutomaticNotification(notificationType, params, item);
                 }
 

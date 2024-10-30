@@ -21,7 +21,7 @@ public interface EmployeeService {
     /*
         특정 사원 조회
      */
-    Employee getEmployeeById(String id);
+    EmployeeDTO getEmployeeById(String id);
 
     /*
         사원 정보 수정

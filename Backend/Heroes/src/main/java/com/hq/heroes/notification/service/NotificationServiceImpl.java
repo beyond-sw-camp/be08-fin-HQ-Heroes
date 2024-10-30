@@ -8,6 +8,7 @@ import com.hq.heroes.education.entity.Course;
 import com.hq.heroes.education.entity.Education;
 import com.hq.heroes.evaluation.entity.Evaluation;
 import com.hq.heroes.notification.dto.NotificationReqDTO;
+import com.hq.heroes.notification.dto.NotificationResDTO;
 import com.hq.heroes.notification.entity.Notification;
 import com.hq.heroes.notification.entity.NotificationCategory;
 import com.hq.heroes.notification.entity.enums.AutoNotificationType;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,15 +35,36 @@ public class NotificationServiceImpl implements NotificationService {
     private final EmployeeRepository employeeRepository;
     private final NotificationCategoryRepository notificationCategoryRepository;
 
-    @Override
-    public List<Notification> getAllNotifications() {
-        return notificationRepository.findAll();
+    // 추가: DTO로 변환하는 메서드
+    public NotificationResDTO convertToNotificationDTO(Notification notification) {
+        return NotificationResDTO.builder()
+                .notificationId(notification.getNotificationId())
+                .senderName(notification.getSender().getEmployeeName())
+                .receiverName(notification.getReceiver().getEmployeeName())
+                .categoryName(notification.getCategory().getNotificationCategoryName())
+                .message(notification.getMessage())
+                .status(notification.getStatus())
+                .createdAt(notification.getCreatedAt())
+                .receiveDelete(notification.isRecieveDelete())
+                .sendDelete(notification.isSendDelete())
+                .build();
     }
 
     @Override
-    public Notification getNotificationById(Long notificationId) {
-        return notificationRepository.findById(notificationId)
-                .orElse(null);
+    public List<NotificationResDTO> getAllNotifications() {
+        // Notification 엔티티 리스트를 불러온 후, 각 엔티티를 NotificationResDTO로 변환하여 반환
+        List<Notification> notifications = notificationRepository.findAll();
+        return notifications.stream()
+                .map(this::convertToNotificationDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public NotificationResDTO getNotificationById(Long notificationId) {
+        // 특정 Notification 엔티티를 조회한 후 DTO로 변환하여 반환
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림 ID : " + notificationId));
+        return convertToNotificationDTO(notification);
     }
 
     @Override
@@ -74,27 +97,35 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
     }
 
-
-
     @Override
-    @Transactional
-    public Notification updateNotification(Long notificationId, NotificationReqDTO requestDTO) {
+    public NotificationResDTO updateNotification(Long notificationId, NotificationReqDTO requestDTO) {
+        // 알림을 수정한 후, 변경된 알림을 DTO로 변환하여 반환
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림 ID : " + notificationId));
 
         notification.setMessage(requestDTO.getMessage());
         notification.setStatus(requestDTO.getStatus());
 
-        return notificationRepository.save(notification);
-    }
-
-    public List<Notification> getNotificationsByReceiverId(String employeeId) {
-        return notificationRepository.findByReceiver_EmployeeId(employeeId);
+        Notification updatedNotification = notificationRepository.save(notification);
+        return convertToNotificationDTO(updatedNotification);
     }
 
     @Override
-    public List<Notification> getNotificationsBySenderId(String employeeId) {
-        return notificationRepository.findBySender_EmployeeId(employeeId);
+    public List<NotificationResDTO> getNotificationsByReceiverId(String employeeId) {
+        // 특정 수신자 ID에 대한 Notification 리스트를 조회한 후 DTO로 변환하여 반환
+        List<Notification> notifications = notificationRepository.findByReceiver_EmployeeId(employeeId);
+        return notifications.stream()
+                .map(this::convertToNotificationDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<NotificationResDTO> getNotificationsBySenderId(String employeeId) {
+        // 특정 발신자 ID에 대한 Notification 리스트를 조회한 후 DTO로 변환하여 반환
+        List<Notification> notifications = notificationRepository.findBySender_EmployeeId(employeeId);
+        return notifications.stream()
+                .map(this::convertToNotificationDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -323,9 +354,9 @@ public class NotificationServiceImpl implements NotificationService {
             message = switch (notificationType) {
                 case EVALUATION_RESULT -> "<html>\n" +
                         "    <body>\n" +
-//                        "        <p>[<strong>평가</strong>] " + evaluation.getEmployee().getEmployeeName() + "님의 평가 결과 입니다.</p>\n" +
-//                        "        <p><strong>평가 점수:</strong> " + evaluation.getScore() + "</p>\n" +
-//                        "        <p><strong>평가일:</strong> " + evaluation.getUpdatedAt() + "</p>\n" +
+                        "        <p>[<strong>평가</strong>] " + evaluation.getEmployee().getEmployeeName() + "님의 평가 결과 입니다.</p>\n" +
+                        "        <p><strong>평가 점수:</strong> " + evaluation.getScore() + "</p>\n" +
+                        "        <p><strong>평가일:</strong> " + evaluation.getUpdatedAt() + "</p>\n" +
                         "    aa</body>\n" +
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 평가 알림 타입입니다: " + notificationType);

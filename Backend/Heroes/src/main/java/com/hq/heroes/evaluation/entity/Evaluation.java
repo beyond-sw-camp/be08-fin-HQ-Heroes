@@ -18,6 +18,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @Table(name = "tb_evaluation")
+@ToString
 public class Evaluation {
 
     @Id
@@ -51,20 +52,6 @@ public class Evaluation {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    // 엔티티를 응답 DTO로 변환하는 메서드
-    public EvaluationResDTO toResponseDTO() {
-        return EvaluationResDTO.builder()
-                .evaluationId(this.evaluationId)
-                .employeeId(this.employee.getEmployeeId())  // employee 엔티티에서 사원 이름 추출
-                .evaluatorId(this.evaluator.getEmployeeId())  // evaluator 엔티티에서 평가자 ID 추출
-                .evaluatorName(this.evaluator.getEmployeeName()) // evaluator 엔티티에서 평가자 이름 추출
-                .score(this.score)
-                .comments(this.comments)
-                .createdAt(this.createdAt)
-                .updatedAt(this.updatedAt)
-                .build();
-    }
 
     // 요청 DTO를 엔티티로 변환하는 메서드
     public static Evaluation fromRequestDTO(EvaluationReqDTO requestDTO, Employee employee, Employee evaluator) {

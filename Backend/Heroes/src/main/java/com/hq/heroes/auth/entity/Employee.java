@@ -140,24 +140,4 @@ public class Employee {
         return sb.toString();
     }
 
-    public EmployeeDTO toResponseDTO() {
-        return EmployeeDTO.builder()
-                .employeeId(this.employeeId)
-                .employeeName(this.employeeName)
-                .teamName(this.team != null ? this.team.getTeamName() : null)
-                .deptName(this.department != null ? this.department.getDeptName() : null)
-                .jobRoleName(this.job != null ? this.job.getJobRoleName() : null)
-                .positionName(this.position != null ? this.position.getPositionName() : null)
-                .email(this.email)
-                .joinDate(this.joinDate)
-                .annualLeave(this.annualLeave)
-                .birthDate(this.birthDate)
-                .phoneNumber(this.phoneNumber)
-                .roadAddress(this.roadAddress)
-                .lotAddress(this.lotAddress)
-                .detailedAddress(this.detailedAddress)
-                .profileImageUrl(this.profileImageUrl)
-                .build();
-    }
-
 }
