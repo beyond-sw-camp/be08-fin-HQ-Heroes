@@ -52,6 +52,10 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
             throw new IllegalArgumentException("존재하지 않는 사원입니다.");
         }
 
+        long years = ChronoUnit.YEARS.between(employee.get().getJoinDate(), LocalDate.now());
+
+        double salary = calculateSalary(employee.get().getPosition().getBaseSalary(), years);
+
         return histories.stream()
                 .map(salaryHistory -> {
                     return SalaryHistoryDTO.builder() // 수정된 부분
@@ -62,8 +66,10 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
                             .postTaxTotal(salaryHistory.getPostTaxTotal()) // 세후 총액
                             .bonus(salaryHistory.getBonus()) // 성과급
                             .workTime(salaryHistory.getWorkTime()) // 근무 시간
-                            .overTime(salaryHistory.getOverTime()) // 연장 근로 시간
                             .baseSalary(employee.get().getPosition().getBaseSalary()) // 시급
+                            .totalSalary(salary * salaryHistory.getWorkTime()) // 기본 급여
+                            .overTime(salaryHistory.getOverTime()) // 연장 근로 시간
+                            .overSalary(salaryHistory.getOverTime() * (salary * salaryHistory.getWorkTime() * 0.01)) // 연장 근로 수당
                             .nationalPension(salaryHistory.getNationalPension()) // 국민연금
                             .healthInsurance(salaryHistory.getHealthInsurance()) // 건강보험
                             .longTermCare(salaryHistory.getLongTermCare()) // 장기요양
@@ -90,18 +96,13 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         YearMonth previousMonth = getPreviousMonth(currentMonth);  // 이전 달 계산
 
         // 근무 시간
-        long totalWorkHours = attendanceService.calculateTotalWorkHours(employee.getEmployeeId(), previousMonth) / 60;
+        long totalWorkHours = attendanceService.calculateTotalWorkHours(employee.getEmployeeId(), previousMonth);
 
         // 근무 연수 계산
         long years = ChronoUnit.YEARS.between(employee.getJoinDate(), LocalDate.now());
 
         // 기본급 계산
-        double baseSalary = position.getBaseSalary() * totalWorkHours;
-
-        // 근무 연수에 따른 5% 복리 적용
-        for (int i = 0; i < years; i++) {
-            baseSalary *= 1.05;
-        }
+        double baseSalary = calculateSalary(position.getBaseSalary(), years) * totalWorkHours;
 
         // 연장 근로 시간
         long totalOverHours = overtimeService.getTotalOvertimeHoursForMonth(employee.getEmployeeId(), previousMonth) / 60;
@@ -150,6 +151,16 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
 
         SalaryHistory savedSalaryHistory = salaryHistoryRepository.save(salaryHistory);
         return convertToDTO(savedSalaryHistory);
+    }
+
+    // 근무 연수에 따른 5% 복리 적용
+    private double calculateSalary(double baseSalary, long years) {
+        // 근무 연수에 따른 5% 복리 적용
+        for (long i = 0; i < years; i++) {
+            baseSalary *= 1.05;
+        }
+
+        return baseSalary;
     }
 
     // 이전 달 계산 메서드
