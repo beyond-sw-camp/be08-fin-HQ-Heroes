@@ -28,55 +28,50 @@ public class NoticeController {
     @GetMapping("/notice")
     @Operation(summary = "공지사항 목록 조회", description = "전체 공지사항의 목록을 조회한다.")
     public ResponseEntity<List<NoticeResponseDTO>> getNotices() {
-        
-        List<Notice> notices = noticeService.getNotices();
-        List<NoticeResponseDTO> noticeDTOs = notices.stream().map(Notice::toResponseDTO).collect(Collectors.toList());
+        List<NoticeResponseDTO> noticeDTOs = noticeService.getNotices(); // DTO 리스트 반환
 
-        if (!notices.isEmpty()) {
-            return new ResponseEntity<>(noticeDTOs, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(noticeDTOs, HttpStatus.OK); // 변경: 빈 리스트에 대해서는 200 OK 반환
-        }
+        // 빈 리스트에 대해서도 200 OK 반환
+        return new ResponseEntity<>(noticeDTOs, HttpStatus.OK);
     }
 
-    // 특정 공지사항 조회 - 테스트
+
+    // 특정 공지사항 조회
     @GetMapping("/notice/{notice-id}")
     @Operation(summary = "공지사항 상세 조회", description = "공지사항 ID로 해당공지사항의 정보를 조회한다.")
     public ResponseEntity<NoticeResponseDTO> getNoticeById(
             @Parameter(description = "공지사항 ID", example = "1") @PathVariable("notice-id") Long noticeId) {
-        Notice notice = noticeService.getNoticeById(noticeId);
 
-        if (notice != null) {
-            NoticeResponseDTO noticeDTO = notice.toResponseDTO();
+        NoticeResponseDTO noticeDTO = noticeService.getNoticeById(noticeId);
+
+        if (noticeDTO != null) {
             return new ResponseEntity<>(noticeDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 
-    // 공지사항 등록 - 테스트
+
+    // 공지사항 등록
     @PostMapping("/notice")
     @Operation(summary = "공지사항 등록", description = "공지사항 정보를 받아서 등록한다.")
     public ResponseEntity<NoticeResponseDTO> create(@RequestBody NoticeRequestDTO requestDTO) {
 
-        Notice notice = noticeService.createNotice(requestDTO);
-        return new ResponseEntity<>(notice.toResponseDTO(), HttpStatus.CREATED);
+        NoticeResponseDTO responseDTO = noticeService.createNotice(requestDTO);
+        return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
     }
 
-    // 공지사항 수정 - 테스트
+    // 공지사항 수정
     @PutMapping("/notice/{notice-id}")
-    @Operation(summary = "공지사항 수정", description = "공지사항 정보를 받아 수정한다.")
     public ResponseEntity<NoticeResponseDTO> update(
             @Parameter(description = "공지사항 ID", example = "1") @PathVariable("notice-id") Long noticeId,
             @RequestBody NoticeUpdateRequestDTO requestDTO) {
 
         System.out.println("공지사항 수정 noticeId = " + noticeId);
-        System.out.println("공지사항 수정 requestDTO = " + requestDTO);
 
-        Notice notice = noticeService.updateNotice(noticeId, requestDTO);
+        NoticeResponseDTO responseDTO = noticeService.updateNotice(noticeId, requestDTO);
 
-        if (notice != null) {
-            return new ResponseEntity<>(notice.toResponseDTO(), HttpStatus.OK);
+        if (responseDTO != null) {
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }

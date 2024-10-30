@@ -74,14 +74,10 @@ public class SendEvaluationBatch {
             @Override
             public Notification process(Evaluation item) throws Exception {
 
-                System.out.println(" item.isNotificationSent() = " +  item.isNotificationSent());
-                // 이게 true로 나와야 함 그래야 if문 진입
-                
                 /*
                     테스트용 @ @
                  */
                 if (!item.isNotificationSent()) {
-                    System.out.println("=============== true ================= ");
                     AutoNotificationType notificationType = AutoNotificationType.EVALUATION_RESULT;
 
                     Map<String, Object> params = new HashMap<>();
@@ -92,22 +88,31 @@ public class SendEvaluationBatch {
                     return notificationService.sendAutomaticNotification(notificationType, params, item);
                 }
 
+
+
                 /*
-                    평가 등록 3일 후 알림 발송
+                    실제 로직 - > 마감일 6/30, 12/30일에 알림발송
                  */
 
-//                LocalDateTime createdAt = item.getCreatedAt();
-//                LocalDateTime threeDaysLater = createdAt.plusDays(3); // 생성일로부터 3일 후
+//                LocalDate today = LocalDate.now();
+//                int month = today.getMonthValue();
+//                int day = today.getDayOfMonth();
 //
-//                if (!item.isNotificationSent() && LocalDateTime.now().isAfter(threeDaysLater)) {
-//                    AutoNotificationType  notificationType = AutoNotificationType.EVALUATION_RESULT;
-//                    Map<String, Object> params = new HashMap<>();
-//                    params.put("receiverId", item.getEvaluationId());
+//                // 오늘이 6월 30일 또는 12월 30일인 경우에만 수행
+//                if ((month == 6 && day == 30) || (month == 12 && day == 30)) {
+//                    if (!item.isNotificationSent()) {
+//                        System.out.println("=============== true ================= ");
+//                        AutoNotificationType notificationType = AutoNotificationType.EVALUATION_RESULT;
 //
-//                    item.setNotificationSent(true);
-//                    evaluationRepository.save(item);
-//                    notificationService.sendAutomaticNotification(notificationType, params, item);
+//                        Map<String, Object> params = new HashMap<>();
+//                        params.put("receiverId", item.getEmployee().getEmployeeId());
+//
+//                        item.setNotificationSent(true);
+//                        evaluationRepository.save(item);
+//                        return notificationService.sendAutomaticNotification(notificationType, params, item);
+//                    }
 //                }
+//
 
                 return null;
             }
