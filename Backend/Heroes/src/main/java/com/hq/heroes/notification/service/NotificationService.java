@@ -37,7 +37,7 @@ public interface NotificationService {
     boolean deleteNotification(Long notificationId, String employeeId);
 
     @Transactional
-    void sendAutomaticNotification(AutoNotificationType type, Map<String, Object> params, Object data);
+    Notification sendAutomaticNotification(AutoNotificationType type, Map<String, Object> params, Object data);
 
     @Async
     void sendNotificationAsync(String receiverId, AutoNotificationType notificationType, Object data);

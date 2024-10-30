@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -19,7 +20,7 @@ public class EvaluationResDTO {
     private String evaluatorName; // 평가자 이름
     private Double score;  // 평가 점수
     private String comments;  // 평가 코멘트
-    private Date createdAt;  // 생성 일시
-    private Date updatedAt;  // 수정 일시
+    private LocalDateTime createdAt;  // 생성 일시
+    private LocalDateTime updatedAt;  // 수정 일시
 
 }

@@ -8,6 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -40,13 +41,16 @@ public class Evaluation {
     @Column(name = "comments", columnDefinition = "TEXT")
     private String comments;
 
+    @Column(name = "notification_sent", nullable = false)
+    private boolean notificationSent = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     // 엔티티를 응답 DTO로 변환하는 메서드
     public EvaluationResDTO toResponseDTO() {

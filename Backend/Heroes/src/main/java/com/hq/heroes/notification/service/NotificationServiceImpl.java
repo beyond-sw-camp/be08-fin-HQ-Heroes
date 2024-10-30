@@ -163,10 +163,15 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public void sendAutomaticNotification(AutoNotificationType notificationType, Map<String, Object> params, Object data) {
+    public Notification sendAutomaticNotification(AutoNotificationType notificationType, Map<String, Object> params, Object data) {
         // 알림 타입에서 카테고리와 메시지를 가져오기
         String category = notificationType.getCategory();
         String message;
+
+        System.out.println("================== 서비스 진입 =====================");
+        System.out.println("category = " + category);
+        System.out.println("params = " + params);
+        System.out.println("data = " + data);
 
         // 수신자 및 발신자 ID를 파라미터로 받아 사용
         String receiverId = (String) params.get("receiverId");
@@ -318,10 +323,10 @@ public class NotificationServiceImpl implements NotificationService {
             message = switch (notificationType) {
                 case EVALUATION_RESULT -> "<html>\n" +
                         "    <body>\n" +
-                        "        <p>[<strong>평가</strong>] " + evaluation.getEmployee() + "님의 평가 결과 입니다.</p>\n" +
-                        "        <p><strong>평가 점수:</strong> " + evaluation.getScore().toString() + "</p>\n" +
-                        "        <p><strong>평가일:</strong> " + evaluation.getUpdatedAt().toString() + "</p>\n" +
-                        "    </body>\n" +
+//                        "        <p>[<strong>평가</strong>] " + evaluation.getEmployee().getEmployeeName() + "님의 평가 결과 입니다.</p>\n" +
+//                        "        <p><strong>평가 점수:</strong> " + evaluation.getScore() + "</p>\n" +
+//                        "        <p><strong>평가일:</strong> " + evaluation.getUpdatedAt() + "</p>\n" +
+                        "    aa</body>\n" +
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 평가 알림 타입입니다: " + notificationType);
             };
@@ -340,6 +345,8 @@ public class NotificationServiceImpl implements NotificationService {
                 .build();
 
         notificationRepository.save(notification);
+
+        return notification;
     }
 
 
