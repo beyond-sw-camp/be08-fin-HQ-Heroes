@@ -56,7 +56,7 @@
                         <div class="name-block">
                             <label for="applicant" class="label">신청인</label>
                             <!-- TreeSelect로 신청인 선택 -->
-                            <TreeSelect v-model="form.applicantName" :options="employeeTreeData" @node-select="handleEmployeeChange" optionLabel="label" selectionMode="single" class="input" placeholder="신청인을 선택하세요">
+                            <TreeSelect v-model="form.applicantName" :options="employeeTreeData" @node-select="handleEmployeeChange" optionLabel="label" selectionMode="single" class="input" :placeholder="form.applicantName || '신청인을 선택하세요'">
                                 <template #default="slotProps">
                                     <div class="flex items-center">
                                         <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X" size="normal" shape="circle" class="mr-2" style="background-color: #dee9fc; color: #1a2551" />
@@ -215,6 +215,8 @@ onMounted(() => {
     form.value.vacationEndDate = new Date().toISOString().split('T')[0];
 
     loadEmployeeData().then(() => {
+        form.value.applicantName = employeeData.value.employeeName; // 로그인된 사용자의 이름을 기본값으로 설정
+
         loadEmployeeTreeData(); // 신청자 목록 로드
         loadApproverTreeData(); // 결재자 목록 로드 (팀장만)
     });
