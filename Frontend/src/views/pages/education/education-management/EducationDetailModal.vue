@@ -33,8 +33,8 @@
         </div>
 
         <template #footer>
+            <Button label="취소하기" severity="danger" class="p-button-outlined" @click="handleCancelClick" />
             <Button label="닫기" class="p-button-primary" @click="closeModal" />
-            <Button label="취소하기" severity="danger" class="p-button-primary" @click="handleCancelClick" />
         </template>
     </Dialog>
 </template>

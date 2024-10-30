@@ -1,7 +1,7 @@
 <template>
     <div class="education-detail-page">
         <div class="card">
-            <label class="text-xl font-bold" style="margin-bottom: 4rem">교육 내용 - 수정</label>
+            <label class="text-xl font-bold" style="margin-bottom: 4rem">교육 수정</label>
 
             <!-- 교육기관 입력 -->
             <div class="input-group">
@@ -257,6 +257,17 @@ const cancelEdit = () => {
 </script>
 
 <style scoped>
+.date-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.date-block {
+    flex: 1;
+}
+
 .notice-detail-page {
     display: flex;
     justify-content: center;
