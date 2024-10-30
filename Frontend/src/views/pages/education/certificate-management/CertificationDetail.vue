@@ -1,10 +1,15 @@
 <template>
-    <Dialog :visible="visible" header="자격증 상세 정보" modal @hide="closeModal" :closable="false" :style="{ width: '50vw', borderRadius: '12px' }" >
+    <Dialog :visible="visible" modal @hide="closeModal" :closable="false" :style="{ width: '30vw', borderRadius: '12px' }">
         <template #header>
-            <div class="font-bold text-lg">{{ certificationDetail.certificationName }}</div>
+            <div 
+                class="font-bold p-2" 
+                :style="{ fontSize: '1.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }">
+                {{ certificationDetail ? certificationDetail.deptName : '정보 없음' }}
+            </div>
         </template>
+        <hr />
         <div class="p-4">
-            <table class="table-auto w-full border-collapse">
+            <table class="certification-info">
                 <tr>
                     <td class="px-4 py-2"><strong>부서:</strong></td>
                     <td class="px-4 py-2">{{ certificationDetail.deptName || 'N/A' }}</td>
@@ -24,7 +29,7 @@
             </table>
         </div>
         <template #footer>
-            <Button label="닫기" icon="pi pi-times" @click="closeModal" />
+            <Button label="닫기" @click="closeModal" />
         </template>
     </Dialog>
 </template>
@@ -57,4 +62,21 @@ function formatDate(date) {
     max-width: 500px;
     width: 100%;
 }
+
+.tr {
+    font-size: large;
+}
+
+.certification-info {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.certification-info th,
+.certification-info td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
 </style>
