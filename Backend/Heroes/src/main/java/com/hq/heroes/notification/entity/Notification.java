@@ -54,21 +54,6 @@ public class Notification {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Date createdAt;
 
-    // 추가: DTO로 변환하는 메서드
-    public NotificationResDTO toResDTO() {
-        return NotificationResDTO.builder()
-                .notificationId(this.notificationId)
-                .senderName(this.sender.getEmployeeName())
-                .receiverName(this.receiver.getEmployeeName())
-                .categoryName(this.category.getNotificationCategoryName())
-                .message(this.message)
-                .status(this.status)
-                .createdAt(this.createdAt)
-                .receiveDelete(this.recieveDelete)
-                .sendDelete(this.sendDelete)
-                .build();
-    }
-
     public NotificationReqDTO toReqDTO() {
         return NotificationReqDTO.builder()
                 .senderId(this.sender.getEmployeeId())

@@ -1,6 +1,7 @@
 package com.hq.heroes.notification.service;
 
 import com.hq.heroes.notification.dto.NotificationReqDTO;
+import com.hq.heroes.notification.dto.NotificationResDTO;
 import com.hq.heroes.notification.dto.NotificationsReqDTO;
 import com.hq.heroes.notification.entity.Notification;
 import com.hq.heroes.notification.entity.enums.AutoNotificationType;
@@ -12,9 +13,9 @@ import java.util.Map;
 
 public interface NotificationService {
 
-    List<Notification> getAllNotifications();
+    List<NotificationResDTO> getAllNotifications();
 
-    Notification getNotificationById(Long notificationId);
+    NotificationResDTO getNotificationById(Long notificationId);
 
     @Async
     void createNotificationAsync(NotificationReqDTO requestDTO);
@@ -23,11 +24,11 @@ public interface NotificationService {
     void createNotification(NotificationReqDTO requestDTO);
 
     @Transactional
-    Notification updateNotification(Long notificationId, NotificationReqDTO requestDTO);
+    NotificationResDTO updateNotification(Long notificationId, NotificationReqDTO requestDTO);
 
-    List<Notification> getNotificationsByReceiverId(String employeeId);
+    List<NotificationResDTO> getNotificationsByReceiverId(String employeeId);
 
-    List<Notification> getNotificationsBySenderId(String employeeId);
+    List<NotificationResDTO> getNotificationsBySenderId(String employeeId);
 
     int getUnreadNotificationCount(String employeeId);
 

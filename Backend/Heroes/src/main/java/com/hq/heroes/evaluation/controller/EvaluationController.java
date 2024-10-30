@@ -32,10 +32,9 @@ public class EvaluationController {
     @GetMapping("/evaluations")
     @Operation(summary = "평가 목록 조회", description = "전체 평가 목록을 조회한다.")
     public ResponseEntity<List<EvaluationResDTO>> getEvaluations() {
-        List<Evaluation> evaluations = evaluationService.getEvaluations();
-        List<EvaluationResDTO> evaluationDTOs = evaluations.stream().map(Evaluation::toResponseDTO).collect(Collectors.toList());
+        List<EvaluationResDTO> evaluationResDTOS = evaluationService.getEvaluations();
 
-        return new ResponseEntity<>(evaluationDTOs, HttpStatus.OK);
+        return new ResponseEntity<>(evaluationResDTOS, HttpStatus.OK);
     }
 
     //- 테스트
@@ -58,10 +57,9 @@ public class EvaluationController {
             log.debug("No authenticated user found.");
         }
 
-        List<Evaluation> evaluations = evaluationService.getEvaluationsByEmployeeId(employeeId);
-        List<EvaluationResDTO> evaluationDTOs = evaluations.stream().map(Evaluation::toResponseDTO).collect(Collectors.toList());
+        List<EvaluationResDTO> evaluationResDTOS = evaluationService.getEvaluationsByEmployeeId(employeeId);
 
-        return new ResponseEntity<>(evaluationDTOs, HttpStatus.OK);
+        return new ResponseEntity<>(evaluationResDTOS, HttpStatus.OK);
     }
 
     @GetMapping("/evaluations/by-evaluatorId")
@@ -84,15 +82,9 @@ public class EvaluationController {
             log.warn("No authenticated user found.");
         }
 
-        List<Evaluation> evaluations = evaluationService.getEvaluationsByEvaluatorId(evaluatorId);
-        List<EvaluationResDTO> evaluationDTOs = evaluations.stream()
-                .map(Evaluation::toResponseDTO)
-                .collect(Collectors.toList());
+        List<EvaluationResDTO> evaluationResDTOS = evaluationService.getEvaluationsByEvaluatorId(evaluatorId);
 
-        evaluationDTOs.forEach(evaluationDTO ->
-                log.info("Evaluation ID: {}, Evaluator Name: {}", evaluationDTO.getEvaluationId(), evaluationDTO.getEvaluatorName()));
-
-        return new ResponseEntity<>(evaluationDTOs, HttpStatus.OK);
+        return new ResponseEntity<>(evaluationResDTOS, HttpStatus.OK);
     }
 
 
@@ -103,10 +95,10 @@ public class EvaluationController {
     @Operation(summary = "평가 상세 조회", description = "평가 ID로 해당 평가 정보를 조회한다.")
     public ResponseEntity<EvaluationResDTO> getEvaluationById(
             @Parameter(description = "평가 ID", example = "1") @PathVariable("evaluation-id") Long evaluationId) {
-        Evaluation evaluation = evaluationService.getEvaluationById(evaluationId);
+        EvaluationResDTO evaluationResDTO = evaluationService.getEvaluationById(evaluationId);
 
-        if (evaluation != null) {
-            return new ResponseEntity<>(evaluation.toResponseDTO(), HttpStatus.OK);
+        if (evaluationResDTO != null) {
+            return new ResponseEntity<>(evaluationResDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -116,8 +108,8 @@ public class EvaluationController {
     @PostMapping("/evaluation")
     @Operation(summary = "평가 등록", description = "평가 정보를 받아서 등록한다.")
     public ResponseEntity<EvaluationResDTO> create(@RequestBody EvaluationReqDTO requestDTO) {
-        Evaluation evaluation = evaluationService.createEvaluation(requestDTO);
-        return new ResponseEntity<>(evaluation.toResponseDTO(), HttpStatus.CREATED);
+        EvaluationResDTO evaluationResDTO = evaluationService.createEvaluation(requestDTO);
+        return new ResponseEntity<>(evaluationResDTO, HttpStatus.CREATED);
     }
 
     // 평가 수정 - 테스트
@@ -127,10 +119,10 @@ public class EvaluationController {
             @Parameter(description = "평가 ID", example = "1") @PathVariable("evaluation-id") Long evaluationId,
             @RequestBody EvaluationReqDTO requestDTO) {
 
-        Evaluation evaluation = evaluationService.updateEvaluation(evaluationId, requestDTO);
+        EvaluationResDTO evaluationResDTO = evaluationService.updateEvaluation(evaluationId, requestDTO);
 
-        if (evaluation != null) {
-            return new ResponseEntity<>(evaluation.toResponseDTO(), HttpStatus.OK);
+        if (evaluationResDTO != null) {
+            return new ResponseEntity<>(evaluationResDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -161,13 +153,9 @@ public class EvaluationController {
             @RequestParam String period) {
 
         // 해당 기간의 평가 기록을 조회하는 서비스 로직 호출
-        List<Evaluation> existingEvaluations = evaluationService.findEvaluationsByEmployeeEvaluatorAndPeriod(employeeId, evaluatorId, period);
+        List<EvaluationResDTO> evaluationResDTOS = evaluationService.findEvaluationsByEmployeeEvaluatorAndPeriod(employeeId, evaluatorId, period);
 
-        List<EvaluationResDTO> evaluationDTOs = existingEvaluations.stream()
-                .map(Evaluation::toResponseDTO)
-                .collect(Collectors.toList());
-
-        return new ResponseEntity<>(evaluationDTOs, HttpStatus.OK);
+        return new ResponseEntity<>(evaluationResDTOS, HttpStatus.OK);
     }
 
 

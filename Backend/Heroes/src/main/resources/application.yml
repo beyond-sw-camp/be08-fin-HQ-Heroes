@@ -52,6 +52,8 @@ Spring:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
         format_sql: true
+        enable_lazy_load_no_trans: true
+    open-in-view: true
 
 
   security:

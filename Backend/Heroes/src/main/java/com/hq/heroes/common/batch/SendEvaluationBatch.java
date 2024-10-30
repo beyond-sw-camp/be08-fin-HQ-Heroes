@@ -2,6 +2,7 @@ package com.hq.heroes.common.batch;
 
 import com.hq.heroes.evaluation.entity.Evaluation;
 import com.hq.heroes.evaluation.repository.EvaluationRepository;
+import com.hq.heroes.notification.dto.NotificationResDTO;
 import com.hq.heroes.notification.entity.Notification;
 import com.hq.heroes.notification.entity.enums.AutoNotificationType;
 import com.hq.heroes.notification.repository.NotificationRepository;
@@ -85,6 +86,7 @@ public class SendEvaluationBatch {
 
                     item.setNotificationSent(true);
                     evaluationRepository.save(item);
+
                     return notificationService.sendAutomaticNotification(notificationType, params, item);
                 }
 

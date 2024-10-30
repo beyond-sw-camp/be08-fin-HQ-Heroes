@@ -32,6 +32,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final TeamRepository teamRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+
     @Override
     public List<EmployeeDTO> getAllEmployees() {
         return employeeRepository.findAllEmployeesDTO();
@@ -39,7 +40,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<EmployeeDTO> getAllEmployeesByDepartment(Long deptId) {
-        return employeeRepository.findEmployeesByDepartmentId(deptId);
+        return employeeRepository.findEmployeesByDepartmentId(deptId).stream().map(Employee::toResponseDTO).toList();
     }
 
     @Override
