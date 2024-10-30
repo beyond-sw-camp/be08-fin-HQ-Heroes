@@ -49,14 +49,6 @@
                 </Column>
             </DataTable>
         </div>
-
-        <Dialog v-model:visible="displayDeleteConfirmDialog" modal="true" header="삭제 확인" :style="{ width: '400px' }" :draggable="false" :closable="true">
-            <p>정말로 이 공지사항을 삭제하시겠습니까?</p>
-            <template #footer>
-                <Button label="삭제" icon="pi pi-check" class="p-button-danger" @click="handleDeleteNotice" />
-                <Button label="취소" icon="pi pi-times" text class="p-button-text" @click="closeDeleteConfirmDialog" />
-            </template>
-        </Dialog>
     </div>
 </template>
 
@@ -70,6 +62,7 @@ import Dropdown from 'primevue/dropdown';
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import InputText from 'primevue/inputtext';
+import Swal from 'sweetalert2';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchCategories } from './service/adminNoticeCategoryService';
@@ -115,16 +108,21 @@ const filterNotices = () => {
 // 페이지 마운트 시 데이터 초기화
 onMounted(async () => {
     try {
-        notices.value = await fetchNotices();
+        const fetchedNotices = await fetchNotices();
         const fetchedCategories = await fetchCategories(); // 카테고리 데이터 가져오기
 
-        // '전체' 카테고리 추가 및 기본 선택
-        categories.value = [{ id: null, categoryName: '전체' }, ...fetchedCategories];
-        selectedCategory.value = categories.value[0]; // 기본값을 '전체'로 설정
+        // 데이터가 유효한지 확인
+        notices.value = Array.isArray(fetchedNotices) ? fetchedNotices : [];
 
-        filterNotices(); // 필터링 수행
+        // '전체' 카테고리 추가 및 기본 선택
+        categories.value = [{ id: null, categoryName: '전체' }, ...(Array.isArray(fetchedCategories) ? fetchedCategories : [])];
+
+        selectedCategory.value = categories.value[0]; // 기본값을 '전체'로 설정
+        filterNotices(); // 필터링
     } catch (error) {
         console.error('Error fetching notices or categories:', error);
+        notices.value = []; // 예외 시 빈 배열로 초기화
+        categories.value = [{ id: null, categoryName: '전체' }]; // 기본값 추가
     }
 });
 
@@ -145,23 +143,32 @@ const formatDateTime = (dateString) => {
 
 const updaterInterval = ref(null); // Interval을 저장할 변수
 
-
 // 공지사항 삭제 확인
 const confirmDeleteNotice = (notice) => {
     selectedNotice.value = notice;
-    displayDeleteConfirmDialog.value = true;
+    Swal.fire({
+        title: '삭제 확인',
+        text: '정말로 이 공지사항을 삭제하시겠습니까?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            await handleDeleteNotice();
+        }
+    });
 };
-
 // 공지사항 삭제
 const handleDeleteNotice = async () => {
     try {
         await deleteNotice(selectedNotice.value.noticeId);
         notices.value = notices.value.filter((notice) => notice.noticeId !== selectedNotice.value.noticeId);
         filterNotices(); // 삭제 후 필터링
-
-        closeDeleteConfirmDialog(); // 다이얼로그 닫기
+        Swal.fire('공지사항 삭제', '공지사항이 정상적으로 삭제되었습니다.', 'success'); // 삭제 완료 알림
     } catch (error) {
         console.error('Error deleting notice:', error);
+        Swal.fire('공지사항 삭제 실패', '공지사항 삭제 중 오류가 발생했습니다.', 'error'); // 오류 알림
     }
 };
 
@@ -170,7 +177,6 @@ const closeDeleteConfirmDialog = () => {
     displayDeleteConfirmDialog.value = false;
     selectedNotice.value = null;
 };
-
 
 // 페이지 이동
 const showWriteNoticePage = () => {

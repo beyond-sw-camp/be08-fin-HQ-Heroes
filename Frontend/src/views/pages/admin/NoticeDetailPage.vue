@@ -5,17 +5,17 @@
 
             <div class="input-group">
                 <h3 class="input-title">제 목</h3>
-                <input type="text" v-model="editableNotice.title" class="message-input" :readonly="!isEditMode" placeholder="제목을 입력하세요" />
+                <input type="text" v-model="editableNotice.title" class="message-input" readonly placeholder="제목을 입력하세요" />
             </div>
 
             <div class="input-group">
                 <h3 class="input-title">작성자</h3>
-                <input type="text" v-model="editableNotice.employeeName" class="message-input" :readonly="!isEditMode" />
+                <input type="text" v-model="editableNotice.employeeName" class="message-input" readonly />
             </div>
 
             <div class="input-group">
                 <h3 class="input-title">카테고리</h3>
-                <select v-model="editableNotice.categoryId" class="message-input" :disabled="!isEditMode">
+                <select v-model="editableNotice.categoryId" class="message-input" disabled>
                     <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId">
                         {{ category.categoryName }}
                     </option>
@@ -24,8 +24,7 @@
 
             <div class="input-group">
                 <h3 class="input-title">내 용</h3>
-                <div v-if="isEditMode" ref="editor" class="message-editor edit-mode"></div>
-                <div v-else v-html="editableNotice.content" class="message-content"></div>
+                <div v-html="editableNotice.content" class="message-content"></div>
             </div>
 
             <div class="button-group">
@@ -37,8 +36,7 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
-import Quill from 'quill';
-import { nextTick, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { fetchCategories } from './service/adminNoticeCategoryService';
 import { fetchNoticeById } from './service/adminNoticeService';
@@ -60,28 +58,6 @@ const isAdmin = () => {
 
 const goBackToList = () => {
     router.push('/manage-notices');
-};
-
-// Quill 에디터 초기화
-const initializeEditor = async () => {
-    await nextTick();
-
-    if (!quillInstance.value) {
-        quillInstance.value = new Quill(editor.value, {
-            theme: 'snow',
-            modules: {
-                toolbar: isEditMode.value ? [[{ header: [1, 2, false] }], ['bold', 'italic', 'underline'], ['link', 'image'], [{ list: 'ordered' }, { list: 'bullet' }]] : false
-            }
-        });
-
-        // isEditMode 상태에 따른 에디터 활성화/비활성화
-        quillInstance.value.enable(isEditMode.value);
-
-        // 에디터 내용을 불러오기
-        if (editableNotice.value.content) {
-            quillInstance.value.root.innerHTML = editableNotice.value.content;
-        }
-    }
 };
 
 // 공지사항 데이터 불러오기 및 Quill 에디터에 표시
@@ -108,8 +84,6 @@ const loadCategories = async () => {
 onMounted(async () => {
     await loadCategories();
     if (!isNewNotice.value) await loadNotice();
-    initializeEditor();
-    isAdmin();
 });
 </script>
 
