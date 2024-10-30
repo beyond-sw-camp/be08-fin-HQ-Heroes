@@ -4,17 +4,37 @@
             <div class="font-bold text-lg">{{ courseDetail ? courseDetail.educationName : '정보 없음' }}</div>
         </template>
         <div class="p-4">
-            <p><strong>카테고리:</strong> {{ courseDetail.categoryName }}</p>
-            <p><strong>강사:</strong> {{ courseDetail.instructorName }}</p>
-            <p><strong>교육 기관:</strong> {{ courseDetail.institution }}</p>
-            <p><strong>교육 신청일:</strong> {{ formatDate(new Date(courseDetail.startDate)) }}</p>
-            <p><strong>교육 종료일:</strong> {{ formatDate(new Date(courseDetail.endDate)) }}</p>
-            <p><strong>상태:</strong> {{ mapStatus(courseDetail.status) }}</p>
+            <table class="w-full table-auto">
+                <tr>
+                    <td class="px-4 py-2"><strong>카테고리:</strong></td>
+                    <td class="px-4 py-2">{{ courseDetail.categoryName }}</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2"><strong>강사:</strong></td>
+                    <td class="px-4 py-2">{{ courseDetail.instructorName }}</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2"><strong>교육 기관:</strong></td>
+                    <td class="px-4 py-2">{{ courseDetail.institution }}</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2"><strong>교육 신청일:</strong></td>
+                    <td class="px-4 py-2">{{ formatDate(new Date(courseDetail.startDate)) }}</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2"><strong>교육 종료일:</strong></td>
+                    <td class="px-4 py-2">{{ formatDate(new Date(courseDetail.endDate)) }}</td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2"><strong>상태:</strong></td>
+                    <td class="px-4 py-2">{{ mapStatus(courseDetail.status) }}</td>
+                </tr>
+            </table>
         </div>
 
         <template #footer>
-            <Button label="취소하기" icon="pi pi-times" class="p-button-text" @click="handleCancelClick" />
-            <Button label="닫기" icon="pi pi-check" class="p-button-primary" @click="closeModal" />
+            <Button label="닫기" class="p-button-primary" @click="closeModal" />
+            <Button label="취소하기" severity="danger" class="p-button-primary" @click="handleCancelClick" />
         </template>
     </Dialog>
 </template>
