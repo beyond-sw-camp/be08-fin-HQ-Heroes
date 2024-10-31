@@ -3,19 +3,15 @@
         <div class="card">
             <div class="flex flex-row justify-between mb-4">
                 <label class="text-xl font-bold">공지사항 목록</label>
-                <Button v-if="isAdmin()" label="공지사항 추가" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
+                <Button v-if="isAdmin()" label="추가하기" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
             </div>
-            <div class="flex flex-row justify-between mb-2">
-                <div>
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
                     <Dropdown class="mr-2" v-model="selectedCategory" :options="categories" optionLabel="categoryName" placeholder="카테고리 선택" @change="filterNotices" />
                 </div>
-                <div>
-                    <InputGroup>
-                        <InputGroupAddon>
-                            <i class="pi pi-search"></i>
-                        </InputGroupAddon>
-                        <InputText placeholder="제목 및 작성자 검색" v-model="globalFilter" @input="filterNotices" />
-                    </InputGroup>
+                <div class="relative search-container"> 
+                    <InputText placeholder="검색하기..." v-model="globalFilter" @input="filterNotices" class="search-input" />
+                    <i class="pi pi-search search-icon" />
                 </div>
             </div>
 
@@ -41,12 +37,13 @@
                 <Column field="title" header="제목" sortable />
                 <Column field="employeeName" header="작성자" sortable />
 
-                <Column v-if="isAdmin()" field="action" header="수정 / 삭제">
-                    <template #body="slotProps">
-                        <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click.stop="goToNoticeUpdate(slotProps.data.noticeId)" />
-                        <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" />
-                    </template>
-                </Column>
+                <!-- 수정 및 삭제 관련 열 주석 처리 -->
+                <!-- <Column v-if="isAdmin()" field="action" header="수정 / 삭제"> -->
+                <!--     <template #body="slotProps"> -->
+                <!--         <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click.stop="goToNoticeUpdate(slotProps.data.noticeId)" /> -->
+                <!--         <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" /> -->
+                <!--     </template> -->
+                <!-- </Column> -->
             </DataTable>
         </div>
     </div>
@@ -159,6 +156,7 @@ const confirmDeleteNotice = (notice) => {
         }
     });
 };
+
 // 공지사항 삭제
 const handleDeleteNotice = async () => {
     try {
@@ -194,9 +192,10 @@ const showNoticeDetail = (noticeId) => {
     router.push({ path: `/notice/${noticeId}` });
 };
 
-const goToNoticeUpdate = (noticeId) => {
-    router.push({ name: 'notice-update', params: { id: noticeId } });
-};
+// 수정 관련 함수 주석 처리
+// const goToNoticeUpdate = (noticeId) => {
+//     router.push({ name: 'notice-update', params: { id: noticeId } });
+// };
 
 // 컴포넌트가 제거되기 전에 인터벌 정리
 onBeforeUnmount(() => {
@@ -208,6 +207,23 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.search-container {
+    position: relative;
+}
+
+.search-input {
+    padding-left: 40px; /* 아이콘과의 간격 조정 */
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px; /* 아이콘 위치 조정 */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem; /* 아이콘 크기 조정 (필요시 조정) */
+    color: #888; /* 아이콘 색상 조정 (선택사항) */
+}
+
 .card {
     width: 100%;
     background-color: white;

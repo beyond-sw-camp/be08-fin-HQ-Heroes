@@ -1,10 +1,12 @@
 <template>
     <div class="card">
-        <div class="notice-detail text-lg">
+        <div class="notice-detail">
+            <Button label="목록 >" icon="pi pi-bars" @click="goBackToList" text />
+
             <div class="text-lg flex justify-between">
                 <div class="font-bold text-3xl">
                     <span>
-                        [{{ categories.find((category) => category.categoryId === editableNotice.categoryId)?.categoryName || '카테고리 없음' }}]
+                        [{{ categories.find(category => category.categoryId === editableNotice.categoryId)?.categoryName || '카테고리 없음' }}]
                         {{ editableNotice.title }}
                     </span>
                 </div>
@@ -16,33 +18,25 @@
             </div>
 
             <hr />
-            <table class="notice-info">
-                <!-- <tr>
-                    <th class="input-title">제 목</th>
-                    <td>{{ editableNotice.title }}</td>
-                </tr> -->
-                <!-- <tr>
-                    <th class="input-title">작성자</th>
-                    <td>{{ editableNotice.employeeName }}</td>
-                </tr> -->
+            <table class="notice-info text-lg">
                 <tr>
-                    <th class="input-title">카테고리</th>
+                    <th style="text-align: left; width: 150px;">카테고리</th> <!-- 원하는 너비로 조정 -->
                     <td>
-                        <template v-if="editableNotice.categoryId">
-                            {{ categories.find((category) => category.categoryId === editableNotice.categoryId).categoryName }}
-                        </template>
+                        {{ categories.find(category => category.categoryId === editableNotice.categoryId)?.categoryName || '카테고리 없음' }}
                     </td>
                 </tr>
                 <tr>
-                    <th style="text-align: left; vertical-align: top">내 용</th>
+                    <th style="text-align: left; vertical-align: top; width: 150px;">내 용</th> <!-- 원하는 너비로 조정 -->
                     <td>
                         <div v-html="editableNotice.content" class="message-content"></div>
                     </td>
                 </tr>
             </table>
 
-            <div class="button-group">
-                <Button label="목록" icon="pi pi-fw pi-book" @click="goBackToList" class="gray-button" />
+            <div v-if="isAdmin()" field="action" class="button-group">
+                <Button v-if="editMode" label="저장" icon="pi pi-save" @click="saveChanges" />
+                <Button v-if="!editMode" label="수정" icon="pi pi-pencil" @click.stop="goToNoticeUpdate(editableNotice.noticeId)" />
+                <Button v-if="!editMode" label="삭제" severity="danger" icon="pi pi-trash" @click.stop="confirmDeleteNotice(editableNotice)" />
             </div>
         </div>
     </div>
@@ -52,8 +46,9 @@
 import { useAuthStore } from '@/stores/authStore';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 import { fetchCategories } from './service/adminNoticeCategoryService';
-import { fetchNoticeById } from './service/adminNoticeService';
+import { fetchNoticeById, deleteNotice } from './service/adminNoticeService';
 import Divider from 'primevue/divider';
 
 const route = useRoute();
@@ -65,6 +60,7 @@ const isNewNotice = ref(!route.params.id);
 const categories = ref([]);
 const editor = ref(null);
 const quillInstance = ref(null);
+const selectedNotice = ref(null); // selectedNotice 변수를 정의하여 초기화
 
 // 관리자인지 확인
 const isAdmin = () => {
@@ -73,6 +69,40 @@ const isAdmin = () => {
 
 const goBackToList = () => {
     router.push('/manage-notices');
+};
+
+const goToNoticeUpdate = (noticeId) => {
+    router.push({ name: 'notice-update', params: { id: noticeId } });
+};
+
+// 공지사항 삭제 확인
+const confirmDeleteNotice = (notice) => {
+    selectedNotice.value = notice; // selectedNotice에 선택한 공지사항 저장
+    Swal.fire({
+        title: '삭제 확인',
+        text: '정말로 이 공지사항을 삭제하시겠습니까?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            await handleDeleteNotice();
+        }
+    });
+};
+
+// 공지사항 삭제
+const handleDeleteNotice = async () => {
+    try {
+        await deleteNotice(selectedNotice.value.noticeId);
+        Swal.fire('공지사항 삭제', '공지사항이 정상적으로 삭제되었습니다.', 'success'); // 삭제 완료 알림
+        router.push('/manage-notices'); // 삭제 후 /manage-notices로 이동
+    } catch (error) {
+        console.error('Error deleting notice:', error);
+        Swal.fire('공지사항 삭제 실패', '공지사항 삭제 중 오류가 발생했습니다.', 'error'); // 오류 알림
+    }
+    selectedNotice.value = null; // 삭제 후 selectedNotice 초기화
 };
 
 // 공지사항 데이터 불러오기 및 Quill 에디터에 표시
@@ -131,16 +161,6 @@ hr {
     text-align: left;
 }
 
-.input-group {
-    margin-bottom: 1.5rem;
-}
-
-.input-title {
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-}
-
 .message-input {
     width: 100%;
     padding: 0.75rem;
@@ -165,13 +185,12 @@ hr {
     text-align: left;
     display: inline-block;
     max-width: 100%;
-    /* padding: 20px 0; */
 }
 
 .button-group {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    gap: 10px;
+    padding: 10px 0;
 }
 </style>
