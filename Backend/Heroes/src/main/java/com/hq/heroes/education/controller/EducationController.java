@@ -1,6 +1,7 @@
 package com.hq.heroes.education.controller;
 
 import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.education.dto.CourseResponseDTO;
 import com.hq.heroes.education.dto.EducationRequestDTO;
 import com.hq.heroes.education.dto.EducationResponseDTO;
 import com.hq.heroes.education.entity.Course;
@@ -68,12 +69,12 @@ public class EducationController {
     public ResponseEntity<?> applyForEducation(@PathVariable Long educationId, @PathVariable String employeeId) {
         try {
             // 신청 인원 수 증가 로직 (중복 신청 시 IllegalStateException 발생)
-            Course course = educationService.incrementCurrentParticipants(educationId, employeeId);
+            CourseResponseDTO courseResponseDTO = educationService.incrementCurrentParticipants(educationId, employeeId);
 
             Map<String, Object> params = new HashMap<>();
-            String receiverId = course.getEmployee().getEmployeeId();
+            String receiverId = courseResponseDTO.getEmployeeId();
             params.put("receiverId", receiverId);
-            notificationService.sendAutomaticNotification(AutoNotificationType.EDUCATION_APPLICATION, params, course);
+            notificationService.sendAutomaticNotification(AutoNotificationType.EDUCATION_APPLICATION, params, courseResponseDTO);
 
             // 성공 시 JSON 응답
             return ResponseEntity.ok(Collections.singletonMap("message", "교육이 신청되었습니다."));

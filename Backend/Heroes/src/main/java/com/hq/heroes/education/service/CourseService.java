@@ -7,16 +7,16 @@ import java.util.List;
 
 public interface CourseService  {
 
-    Course getCourseById(Long id);
+    CourseResponseDTO getCourseById(Long id);
 
     //- 테스트
-    List<Course> getCourseByEmployeeId(String employeeId);
+    List<CourseResponseDTO> getCourseByEmployeeId(String employeeId);
 
     //- 테스트
     boolean cancelEducation(Long courseId);
 
     //- 테스트
-    Course completeCourse(Long courseId);
+    CourseResponseDTO completeCourse(Long courseId);
 
     List<CourseResponseDTO> getAllCourses();
 }

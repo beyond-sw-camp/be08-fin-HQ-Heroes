@@ -34,19 +34,4 @@ public class Course {
     @Column(name = "course_status", nullable = false)
     private CourseStatus courseStatus = CourseStatus.FAIL;
 
-    public CourseResponseDTO toResponseDTO() {
-        return CourseResponseDTO.builder()
-                .courseId(this.courseId)
-                .educationName(this.education.getEducationName())
-                .employeeName(this.employee.getEmployeeName())
-                .instructorName(this.education.getInstructorName())
-                .institution(this.education.getInstitution())
-                .startDate(this.education.getStartDate())
-                .endDate(this.education.getEndDate())
-                .categoryName(this.education.getEducationCategory().getCategoryName())
-                .courseStatus(this.courseStatus)
-                .educationCurriculum(this.education.getEducationCurriculum())
-                .build();
-    }
-
 }

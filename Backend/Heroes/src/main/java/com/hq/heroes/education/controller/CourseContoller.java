@@ -60,28 +60,22 @@ public class CourseContoller {
         }
 
         // 해당 사원의 신청한 교육 목록을 서비스에서 조회
-        List<Course> courses = courseService.getCourseByEmployeeId(employeeId);
-
-        // Course 엔티티를 CourseResponseDTO로 변환
-        List<CourseResponseDTO> courseDTOs = courses.stream()
-                .map(Course::toResponseDTO)
-                .collect(Collectors.toList());
+        List<CourseResponseDTO> courseResponseDTOS = courseService.getCourseByEmployeeId(employeeId);
 
         // 응답 반환
-        return new ResponseEntity<>(courseDTOs, HttpStatus.OK);
+        return new ResponseEntity<>(courseResponseDTOS, HttpStatus.OK);
     }
 
     // 교육 취소하기 - 테스트
     @DeleteMapping("/cancel/{courseId}")
     @Operation(summary = "교육 취소하기", description = "수강 ID로 교육 신청을 취소한다.")
     public ResponseEntity<Void> cancelEducation(@PathVariable Long courseId) {
-        System.out.println("courseId ========== " + courseId);
-        Course course = courseService.getCourseById(courseId);
+        CourseResponseDTO courseResponseDTO = courseService.getCourseById(courseId);
 
         Map<String, Object> params = new HashMap<>();
-        String receiverId = course.getEmployee().getEmployeeId();
+        String receiverId = courseResponseDTO.getEmployeeId();
         params.put("receiverId", receiverId);
-        notificationService.sendAutomaticNotification(AutoNotificationType.EDUCATION_CANCEL, params, course);
+        notificationService.sendAutomaticNotification(AutoNotificationType.EDUCATION_CANCEL, params, courseResponseDTO);
 
         boolean isCancelled = educationService.cancelEducation(courseId); // 메서드 이름을 적절하게 변경하세요.
         if (isCancelled) {
@@ -95,12 +89,12 @@ public class CourseContoller {
     @PostMapping("/complete/{courseId}")
     @Operation(summary = "교육 이수하기", description = "수강 ID로 미이수된 교육을 이수로 바꾼다.")
     public ResponseEntity<String> completeCourse(@PathVariable Long courseId) {
-        Course course = courseService.completeCourse(courseId);
+        CourseResponseDTO courseResponseDTO = courseService.completeCourse(courseId);
 
         Map<String, Object> params = new HashMap<>();
-        String receiverId = course.getEmployee().getEmployeeId();
+        String receiverId = courseResponseDTO.getEmployeeId();
         params.put("receiverId", receiverId);
-        notificationService.sendAutomaticNotification(AutoNotificationType.EDUCATION_COMPLETION, params, course);
+        notificationService.sendAutomaticNotification(AutoNotificationType.EDUCATION_COMPLETION, params, courseResponseDTO);
 
         return ResponseEntity.ok("교육이 이수 되었습니다.");
     }

@@ -1,12 +1,9 @@
 package com.hq.heroes.certification.controller;
 
-import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.certification.dto.CertificationRequestDTO;
 import com.hq.heroes.certification.dto.CertificationResponseDTO;
-import com.hq.heroes.certification.entity.Certification;
 import com.hq.heroes.certification.service.CertificationService;
 import com.hq.heroes.employee.dto.EmployeeDTO;
-import com.hq.heroes.employee.entity.Department;
 import com.hq.heroes.employee.service.EmployeeService;
 import com.hq.heroes.notification.entity.enums.AutoNotificationType;
 import com.hq.heroes.notification.service.NotificationService;
@@ -18,10 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,13 +30,12 @@ public class CertificationController {
     @GetMapping("/certification")
     @Operation(summary = "자격증 목록 조회", description = "전체 자격증의 목록을 조회한다.")
     public ResponseEntity<List<CertificationResponseDTO>> getCertifications() {
-        List<Certification> certifications = certificationService.getCertifications();
-        List<CertificationResponseDTO> certificationDTOS = certifications.stream().map(Certification::toResponseDTO).toList();
+        List<CertificationResponseDTO> certificationResponseDTOS = certificationService.getCertifications();
 
-        if (!certifications.isEmpty()) {
-            return new ResponseEntity<>(certificationDTOS, HttpStatus.OK);
+        if (!certificationResponseDTOS.isEmpty()) {
+            return new ResponseEntity<>(certificationResponseDTOS, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(certificationDTOS, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(certificationResponseDTOS, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -52,11 +45,10 @@ public class CertificationController {
     public ResponseEntity<CertificationResponseDTO> getCertificationById(
             @Parameter(description = "자격증 ID", example = "1")
             @PathVariable("certification-id") Long certificationId) {
-        Certification certification = certificationService.getCertificationById(certificationId);
+        CertificationResponseDTO certificationResponseDTO = certificationService.getCertificationById(certificationId);
 
-        if (certification != null) {
-            CertificationResponseDTO certificationDTO = certification.toResponseDTO();
-            return new ResponseEntity<>(certificationDTO, HttpStatus.OK);
+        if (certificationResponseDTO != null) {
+            return new ResponseEntity<>(certificationResponseDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -69,27 +61,24 @@ public class CertificationController {
             @Parameter(description = "부서 이름", example = "IT기술본부")
             @RequestParam("deptName") String deptName) {
 
-        List<Certification> certification = certificationService.getCertificationListByDeptName(deptName);
-        List<CertificationResponseDTO> certificationDTOs = certification.stream()
-                .map(Certification::toResponseDTO)
-                .collect(Collectors.toList());
+        List<CertificationResponseDTO> certificationResponseDTOS = certificationService.getCertificationListByDeptName(deptName);
 
-        return new ResponseEntity<>(certificationDTOs, HttpStatus.OK);
+        return new ResponseEntity<>(certificationResponseDTOS, HttpStatus.OK);
     }
 
     // 자격증 정보 등록 - 테스트
     @PostMapping("/certification")
     @Operation(summary = "자격증 등록", description = "자격증 정보를 받아서 등록한다.")
     public ResponseEntity<CertificationResponseDTO> create(@RequestBody CertificationRequestDTO requestDTO) {
-        Certification certification = certificationService.createCertification(requestDTO);
+        CertificationResponseDTO certificationResponseDTO = certificationService.createCertification(requestDTO);
 
-        List<EmployeeDTO> employeeList = employeeService.getAllEmployeesByDepartment(certification.getDepartment().getDeptId());
+        List<EmployeeDTO> employeeList = employeeService.getAllEmployeesByDepartment(certificationResponseDTO.getDeptId());
 
         for (EmployeeDTO employeeDTO : employeeList) {
-            notificationService.sendNotificationAsync(employeeDTO.getEmployeeId(), AutoNotificationType.COMPANY_CERTIFICATION_REGISTRATION, certification);
+            notificationService.sendNotificationAsync(employeeDTO.getEmployeeId(), AutoNotificationType.COMPANY_CERTIFICATION_REGISTRATION, certificationResponseDTO);
         }
 
-        return new ResponseEntity<>(certification.toResponseDTO(), HttpStatus.CREATED);
+        return new ResponseEntity<>(certificationResponseDTO, HttpStatus.CREATED);
     }
 
     // 자격증 정보 수정 - 테스트
@@ -100,10 +89,10 @@ public class CertificationController {
             @PathVariable("certification-id") Long certificationId,
             @RequestBody CertificationRequestDTO requestDTO) {
 
-        Certification certification = certificationService.updateCertification(certificationId, requestDTO);
+        CertificationResponseDTO certificationResponseDTO = certificationService.updateCertification(certificationId, requestDTO);
 
-        if (certification != null) {
-            return new ResponseEntity<>(certification.toResponseDTO(), HttpStatus.OK);
+        if (certificationResponseDTO != null) {
+            return new ResponseEntity<>(certificationResponseDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }

@@ -2,6 +2,7 @@ package com.hq.heroes.education.service;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import com.hq.heroes.education.dto.CourseResponseDTO;
 import com.hq.heroes.education.dto.EducationRequestDTO;
 import com.hq.heroes.education.dto.EducationResponseDTO;
 import com.hq.heroes.education.entity.Course;
@@ -29,7 +30,21 @@ public class EducationServiceImpl implements EducationService {
     private final EducationCategoryRepository educationCategoryRepository;
     private final CourseRepository courseRepository;
     private final EmployeeRepository employeeRepository;
-    private final CourseServiceImpl courseServiceImpl;
+
+    public CourseResponseDTO convertToDto(Course course) {
+        return CourseResponseDTO.builder()
+                .courseId(course.getCourseId())
+                .educationName(course.getEducation().getEducationName())
+                .employeeName(course.getEmployee().getEmployeeName())
+                .instructorName(course.getEducation().getInstructorName())
+                .institution(course.getEducation().getInstitution())
+                .startDate(course.getEducation().getStartDate())
+                .endDate(course.getEducation().getEndDate())
+                .categoryName(course.getEducation().getEducationCategory().getCategoryName())
+                .courseStatus(course.getCourseStatus())
+                .educationCurriculum(course.getEducation().getEducationCurriculum())
+                .build();
+    }
 
     public EducationResponseDTO convertToDTO(Education education) {
         return EducationResponseDTO.builder()
@@ -60,37 +75,8 @@ public class EducationServiceImpl implements EducationService {
         return convertToDTO(education);
     }
 
-//    @Override
-//    public boolean incrementCurrentParticipants(Long educationId, String employeeId) {
-//
-//        Education education = educationRepository.findById(educationId)
-//                .orElseThrow(() -> new IllegalArgumentException("교육을 찾을 수 없습니다."));
-//
-//        Employee employee = employeeRepository.findByEmployeeId(employeeId)
-//                .orElseThrow(() -> new IllegalArgumentException("사원을 찾을 수 없습니다."));
-//
-//        // 현재 인원 수 증가
-//        education.setCurrentParticipant(education.getCurrentParticipant() + 1);
-//        educationRepository.save(education);
-//
-//        System.out.println("employee = " + employee);
-//        System.out.println("education = " + education);
-//
-//        Course course = Course.builder()
-//                .education(education)
-//                .employee(employee)
-//                .courseStatus(CourseStatus.FAIL)
-//                .build();
-//
-//        System.out.println("course = " + course);
-//
-//        courseRepository.save(course);
-//
-//        return true;
-//    }
-
     @Override
-    public Course incrementCurrentParticipants(Long educationId, String employeeId) {
+    public CourseResponseDTO incrementCurrentParticipants(Long educationId, String employeeId) {
         // 교육이 존재하는지 확인
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(() -> new IllegalArgumentException("교육을 찾을 수 없습니다."));
@@ -117,7 +103,7 @@ public class EducationServiceImpl implements EducationService {
 
         courseRepository.save(course); // Course 엔티티 저장
 
-        return course; // 성공 메시지 반환
+        return convertToDto(course); // 성공 메시지 반환
     }
 
     // 교육 등록

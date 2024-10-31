@@ -1,5 +1,6 @@
 package com.hq.heroes.education.service;
 
+import com.hq.heroes.education.dto.CourseResponseDTO;
 import com.hq.heroes.education.dto.EducationRequestDTO;
 import com.hq.heroes.education.dto.EducationResponseDTO;
 import com.hq.heroes.education.entity.Course;
@@ -18,7 +19,7 @@ public interface EducationService {
 
     boolean deleteEducation(Long educationId);
 
-    Course incrementCurrentParticipants(Long educationId, String employeeId);
+    CourseResponseDTO incrementCurrentParticipants(Long educationId, String employeeId);
 
     boolean cancelEducation(Long courseId);
 }

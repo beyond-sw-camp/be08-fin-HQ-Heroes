@@ -7,13 +7,13 @@ import com.hq.heroes.certification.entity.EmployeeCertification;
 import java.util.List;
 
 public interface EmployeeCertificationService {
-    //- 테스트
-    List<EmployeeCertification> getMyCertificationByEmployeeId(String employeeId);
 
-    //- 테스트
-    EmployeeCertification createEmployeeCertification(EmployeeCertificationRequestDTO requestDTO);
+    List<EmployeeCertificationResponseDTO> getMyCertificationByEmployeeId(String employeeId);
 
-    EmployeeCertification completeCertification(Long registrationId);
+    EmployeeCertificationResponseDTO createEmployeeCertification(EmployeeCertificationRequestDTO requestDTO);
+
+    EmployeeCertificationResponseDTO completeCertification(Long registrationId);
 
     List<EmployeeCertificationResponseDTO> getAllCertification();
+
 }
