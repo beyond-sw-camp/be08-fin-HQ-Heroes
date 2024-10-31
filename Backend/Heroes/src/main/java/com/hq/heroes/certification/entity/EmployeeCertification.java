@@ -45,16 +45,4 @@ public class EmployeeCertification {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
-
-    public EmployeeCertificationResponseDTO toECResponseDTO() {
-        return EmployeeCertificationResponseDTO.builder()
-                .registrationId(this.registrationId)
-                .certificationName(this.certificationName)
-                .institution(this.institution)
-                .acquisitionDate(this.acquisitionDate)
-                .employeeId(this.employee.getEmployeeId())
-                .employeeName(this.employee.getEmployeeName())
-                .employeeCertificationStatus(this.employeeCertificationStatus)
-                .build();
-    }
 }

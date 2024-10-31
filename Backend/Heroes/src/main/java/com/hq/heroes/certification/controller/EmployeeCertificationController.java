@@ -54,10 +54,8 @@ public class EmployeeCertificationController {
             System.out.println("No authentication user found.");
         }
 
-        List<EmployeeCertification> employeeCertification = employeeCertificationService.getMyCertificationByEmployeeId(employeeId);
-        List<EmployeeCertificationResponseDTO> employeeCertificationResponseDTOs = employeeCertification.stream()
-                .map(EmployeeCertification::toECResponseDTO)
-                .collect(Collectors.toList());
+        List<EmployeeCertificationResponseDTO> employeeCertificationResponseDTOs = employeeCertificationService.getMyCertificationByEmployeeId(employeeId);
+
 
         return new ResponseEntity<>(employeeCertificationResponseDTOs, HttpStatus.OK);
     }
@@ -66,26 +64,26 @@ public class EmployeeCertificationController {
     @PostMapping("/my-certification")
     @Operation(summary = "사원 자격증 등록", description = "사원 자격증 정보를 받아서 등록한다.")
     public ResponseEntity<EmployeeCertificationResponseDTO> create(@RequestBody EmployeeCertificationRequestDTO requestDTO) {
-        EmployeeCertification employeeCertification = employeeCertificationService.createEmployeeCertification(requestDTO);
+        EmployeeCertificationResponseDTO employeeCertificationResponseDTO = employeeCertificationService.createEmployeeCertification(requestDTO);
 
         Map<String, Object> params = new HashMap<>();
-        String receiverId = employeeCertification.getEmployee().getEmployeeId();
+        String receiverId = employeeCertificationResponseDTO.getEmployeeId();
         params.put("receiverId", receiverId);
-        notificationService.sendAutomaticNotification(AutoNotificationType.EMPLOYEE_CERTIFICATION_REGISTRATION, params, employeeCertification);
+        notificationService.sendAutomaticNotification(AutoNotificationType.EMPLOYEE_CERTIFICATION_REGISTRATION, params, employeeCertificationResponseDTO);
 
-        return new ResponseEntity<>(employeeCertification.toECResponseDTO(), HttpStatus.CREATED);
+        return new ResponseEntity<>(employeeCertificationResponseDTO, HttpStatus.CREATED);
     }
 
     // 자격증 등록 완료
     @PostMapping("/complete/{registrationId}")
     @Operation(summary = "사원 자격증 승인하기", description = "등록 ID로 사원이 신청한 자격증이 등록되도록 한다.")
     public ResponseEntity<String> completeCertification(@PathVariable Long registrationId) {
-        EmployeeCertification employeeCertification = employeeCertificationService.completeCertification(registrationId);
+        EmployeeCertificationResponseDTO employeeCertificationResponseDTO = employeeCertificationService.completeCertification(registrationId);
 
         Map<String, Object> params = new HashMap<>();
-        String receiverId = employeeCertification.getEmployee().getEmployeeId();
+        String receiverId = employeeCertificationResponseDTO.getEmployeeId();
         params.put("receiverId", receiverId);
-        notificationService.sendAutomaticNotification(AutoNotificationType.EMPLOYEE_CERTIFICATION_APPROVAL, params, employeeCertification);
+        notificationService.sendAutomaticNotification(AutoNotificationType.EMPLOYEE_CERTIFICATION_APPROVAL, params, employeeCertificationResponseDTO);
 
         return ResponseEntity.ok("사원 자격증 등록이 완료되었습니다.");
     }

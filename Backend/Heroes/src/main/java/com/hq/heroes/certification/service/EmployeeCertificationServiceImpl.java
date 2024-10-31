@@ -22,14 +22,26 @@ public class EmployeeCertificationServiceImpl implements EmployeeCertificationSe
     private final EmployeeCertificationRepository employeeCertificationRepository;
     private final EmployeeRepository employeeRepository;
 
+    public EmployeeCertificationResponseDTO convertToResponseDTO(EmployeeCertification employeeCertification) {
+        return EmployeeCertificationResponseDTO.builder()
+                .registrationId(employeeCertification.getRegistrationId())
+                .certificationName(employeeCertification.getCertificationName())
+                .institution(employeeCertification.getInstitution())
+                .acquisitionDate(employeeCertification.getAcquisitionDate())
+                .employeeId(employeeCertification.getEmployee().getEmployeeId())
+                .employeeName(employeeCertification.getEmployee().getEmployeeName())
+                .employeeCertificationStatus(employeeCertification.getEmployeeCertificationStatus())
+                .build();
+    }
+
     @Override
-    public List<EmployeeCertification> getMyCertificationByEmployeeId(String employeeId) {
-        return employeeCertificationRepository.findByEmployee_EmployeeId(employeeId);
+    public List<EmployeeCertificationResponseDTO> getMyCertificationByEmployeeId(String employeeId) {
+        return employeeCertificationRepository.findByEmployee_EmployeeId(employeeId).stream().map(this::convertToResponseDTO).collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public EmployeeCertification createEmployeeCertification(EmployeeCertificationRequestDTO requestDTO) {
+    public EmployeeCertificationResponseDTO createEmployeeCertification(EmployeeCertificationRequestDTO requestDTO) {
         Employee employee = employeeRepository.findById(requestDTO.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
 
@@ -41,24 +53,23 @@ public class EmployeeCertificationServiceImpl implements EmployeeCertificationSe
                 .employee(employee)
                 .build();
 
-        return employeeCertificationRepository.save(employeeCertification);
+        return convertToResponseDTO(employeeCertificationRepository.save(employeeCertification));
     }
 
-    public EmployeeCertification completeCertification(Long registrationId) {
+    public EmployeeCertificationResponseDTO completeCertification(Long registrationId) {
         EmployeeCertification employeeCertification = employeeCertificationRepository.findById(registrationId)
                 .orElseThrow(() -> new IllegalArgumentException("등록한 자격증을 찾을 수 없습니다."));
 
         employeeCertification.setEmployeeCertificationStatus(EmployeeCertificationStatus.APPROVE); // 상태를 승인으로 변경
         employeeCertificationRepository.save(employeeCertification);
-        return employeeCertification;
+        return convertToResponseDTO(employeeCertification);
     }
 
     @Override
     public List<EmployeeCertificationResponseDTO> getAllCertification() {
-        List<EmployeeCertification> employeeCertifications = employeeCertificationRepository.findAll();
-        return employeeCertifications.stream()
-                .map(EmployeeCertification::toECResponseDTO)
-                .collect(Collectors.toList());
+        return employeeCertificationRepository.findAll().stream()
+                .map(this::convertToResponseDTO).collect(Collectors.toList());
+
     }
 
 }
