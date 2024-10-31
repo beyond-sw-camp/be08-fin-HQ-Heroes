@@ -35,8 +35,17 @@
                 <!-- 승인/반려 버튼 (항상 표시되도록 수정) -->
                 <Column header="승인/반려" style="min-width: 8rem">
                     <template #body="slotProps">
-                        <Button  label="승인" :disabled="isLoading" @click="approveVacation(slotProps.data.vacationId)" class="p-button-success mr-2" />
-                        <Button label="반려" :disabled="isLoading" @click="rejectVacation(slotProps.data.vacationId)" class="p-button-danger" />
+                        <div v-if="slotProps.data.vacationStatus === '대기 중'">
+                            <Button label="승인" :disabled="isLoading" @click="approveVacation(slotProps.data.vacationId)" class="p-button-success mr-2" />
+                            <Button label="반려" :disabled="isLoading" @click="rejectVacation(slotProps.data.vacationId)" class="p-button-danger" />
+                        </div>
+                        <div v-else-if="slotProps.data.vacationStatus === '취소 대기중'">
+                            <Button label="취소 승인" :disabled="isLoading" @click="approveCancelVacation(slotProps.data.vacationId)" class="p-button-info mr-2" />
+                            <Button label="취소 반려" :disabled="isLoading" @click="rejectCancelVacation(slotProps.data.vacationId)" class="p-button-warning" />
+                        </div>
+                        <div v-else>
+                            <span>처리 완료</span>
+                        </div>
                     </template>
                 </Column>
             </DataTable>
@@ -97,7 +106,7 @@ const toast = useToast();
 
 // 대기중인 휴가 상태만 필터링한 직원 목록
 const filteredEmployees = computed(() => {
-    return employees.value.filter((emp) => emp.vacationStatus === '대기 중');
+    return employees.value.filter((emp) => emp.vacationStatus === '대기 중' || emp.vacationStatus === '취소 대기중');
 });
 
 // 관리자나 팀장과 상관없이 모든 사원이 볼 수 있는 페이지
@@ -165,6 +174,40 @@ async function rejectVacation(vacationId) {
     }
 }
 
+// 휴가 취소 승인
+async function approveCancelVacation(vacationId) {
+    if (isLoading.value) return; // 중복 요청 방지
+    isLoading.value = true;
+
+    try {
+        await fetchPost(`http://localhost:8080/api/v1/vacation/approveCancel/${vacationId}`);
+        employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '취소됨' } : emp));
+        toast.add({ severity: 'success', summary: 'Success', detail: '휴가 취소가 승인되었습니다.' });
+        window.location.reload(); // 새로고침
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: '휴가 취소 승인 실패.' });
+    } finally {
+        isLoading.value = false;
+    }
+}
+
+// 휴가 취소 반려
+async function rejectCancelVacation(vacationId) {
+    if (isLoading.value) return; // 중복 요청 방지
+    isLoading.value = true;
+
+    try {
+        await fetchPost(`http://localhost:8080/api/v1/vacation/rejectCancel/${vacationId}`);
+        employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '반려됨' } : emp));
+        toast.add({ severity: 'success', summary: 'Success', detail: '휴가 취소가 반려되었습니다.' });
+        window.location.reload(); // 새로고침
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: '휴가 취소 반려 실패.' });
+    } finally {
+        isLoading.value = false;
+    }
+}
+
 // 휴가 상태를 한국어로 매핑하는 함수
 function mapStatus(status) {
     switch (status) {
@@ -174,6 +217,10 @@ function mapStatus(status) {
             return '반려됨';
         case 'PENDING':
             return '대기 중';
+        case 'CANCEL':
+            return '취소 대기중';
+        case 'CANCELED':
+            return '취소됨';
         default:
             return '알 수 없음';
     }

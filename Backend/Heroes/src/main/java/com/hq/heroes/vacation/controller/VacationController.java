@@ -62,17 +62,14 @@ public class VacationController {
     @PostMapping("/cancel")
     public ResponseEntity<String> requestVacationCancel(@RequestBody VacationDTO vacationDTO) {
         try {
-            if (vacationDTO.getVacationId() == null || vacationDTO.getComment() == null || vacationDTO.getApproverName() == null) {
-                return ResponseEntity.badRequest().body("필수 정보가 누락되었습니다.");
-            }
-
-            // 휴가 취소 처리
-            Vacation vacation = vacationService.cancelVacation(vacationDTO);
+            vacationService.cancelVacation(vacationDTO);
 
             // 자동 알림 발송
+            Vacation vacation = vacationRepository.findById(vacationDTO.getVacationId())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 휴가 요청을 찾을 수 없습니다."));
+
             Map<String, Object> params = new HashMap<>();
-            params.put("receiverId", vacation.getApprover().getEmployeeId()); // 승인자 ID
-            params.put("cancelReason", vacationDTO.getComment()); // 취소 사유
+            params.put("receiverId", vacation.getApprover().getEmployeeId()); // 결재자 ID
             notificationService.sendAutomaticNotification(AutoNotificationType.VACATION_CANCEL_REQUEST, params, vacation);
 
             return ResponseEntity.ok("휴가 취소 요청이 성공적으로 전송되었습니다.");
@@ -80,6 +77,51 @@ public class VacationController {
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("휴가 취소 요청 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+
+    // 휴가 취소 승인
+    @PostMapping("/approveCancel/{vacationId}")
+    public ResponseEntity<String> approveCancelVacation(@PathVariable Long vacationId) {
+        try {
+            vacationService.approveCancelVacation(vacationId);
+
+            // 자동 알림 발송
+            Vacation vacation = vacationRepository.findById(vacationId)
+                    .orElseThrow(() -> new RuntimeException("Invalid vacation ID"));
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("receiverId", vacation.getApplicant().getEmployeeId()); // 신청자 ID
+            notificationService.sendAutomaticNotification(AutoNotificationType.VACATION_CANCELLATION_APPROVAL, params, vacation);
+
+            return ResponseEntity.ok("휴가 취소가 성공적으로 승인되었습니다.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body("해당 휴가를 찾을 수 없습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("휴가 취소 승인 중 오류가 발생했습니다.");
+        }
+    }
+
+    // 휴가 취소 반려
+    @PostMapping("/rejectCancel/{vacationId}")
+    public ResponseEntity<String> rejectCancelVacation(@PathVariable Long vacationId) {
+        try {
+            vacationService.rejectCancelVacation(vacationId);
+
+            // 자동 알림 발송
+            Vacation vacation = vacationRepository.findById(vacationId)
+                    .orElseThrow(() -> new RuntimeException("Invalid vacation ID"));
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("receiverId", vacation.getApplicant().getEmployeeId()); // 신청자 ID
+            notificationService.sendAutomaticNotification(AutoNotificationType.VACATION_CANCELLATION_REJECTION, params, vacation);
+
+            return ResponseEntity.ok("휴가 취소가 성공적으로 반려되었습니다.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body("해당 휴가를 찾을 수 없습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("휴가 취소 반려 중 오류가 발생했습니다.");
         }
     }
 
