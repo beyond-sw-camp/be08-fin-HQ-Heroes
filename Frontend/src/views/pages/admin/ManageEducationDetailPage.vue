@@ -71,6 +71,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
+import { fetchGet } from '../auth/service/AuthApiService';
 
 const route = useRoute();
 const router = useRouter();
@@ -86,14 +87,6 @@ const institution = ref('');
 const educationCurriculum = ref('');
 const editMode = ref(false);
 const educationId = ref(0);
-
-const fetchGet = async (url) => {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error('네트워크 응답이 좋지 않습니다.');
-    }
-    return response.json();
-};
 
 const fetchEducationDetails = async (educationId) => {
     try {
