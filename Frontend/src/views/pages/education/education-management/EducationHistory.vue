@@ -44,7 +44,7 @@
                     {{ data.educationName }}
                 </template>
             </Column>
-            <Column field="startDate" sortable header="교육 신청일" dataType="date" style="min-width: 10rem; text-align: left;">
+            <Column field="startDate" sortable header="교육 시작일" dataType="date" style="min-width: 10rem; text-align: left;">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.startDate)) }}
                 </template>

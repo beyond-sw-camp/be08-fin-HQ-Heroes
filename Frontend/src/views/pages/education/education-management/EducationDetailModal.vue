@@ -34,8 +34,12 @@
         </div>
 
         <template #footer>
-            <!-- courseStatus가 '이수'가 아닐 때만 취소하기 버튼을 보여줌 -->
-            <Button v-if="mapStatus(courseDetail.courseStatus) !== '이수'" label="취소하기" severity="danger" class="p-button-outlined" @click="handleCancelClick" />
+            <!-- courseStatus가 '이수'가 아니고 교육 시작일이 지나지 않았을 때만 취소하기 버튼을 보여줌 -->
+            <Button v-if="mapStatus(courseDetail.courseStatus) !== '이수' && !isCourseStarted(courseDetail.startDate)"
+                    label="취소하기"
+                    severity="danger"
+                    class="p-button-outlined"
+                    @click="handleCancelClick" />
             <Button label="닫기" class="p-button-primary" @click="closeModal" />
         </template>
     </Dialog>
@@ -64,6 +68,9 @@ const formatDate = (date) => `${date.getFullYear()}-${date.getMonth() + 1}-${dat
 
 // 상태를 텍스트로 변환하는 함수
 const mapStatus = (status) => status === 'PASS' ? '이수' : '미이수';
+
+// 교육 시작 여부 확인 함수
+const isCourseStarted = (startDate) => new Date(startDate) <= new Date();
 
 // 취소 버튼 클릭 처리 함수
 async function handleCancelClick() {
@@ -121,5 +128,4 @@ async function cancelEducation() {
     border-bottom: 1px solid #ddd;
     text-align: left;
 }
-
 </style>
