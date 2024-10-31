@@ -1,10 +1,20 @@
 <template>
     <div class="card">
-        <h4 class="m-0 title mb-4">교육/자격증 승인 관리</h4>
+        <div class="flex flex-row justify-between mb-4">
+            <label class="text-xl font-bold">교육/자격증 승인 관리</label>
+        </div>
         <div class="flex flex-wrap gap-2 items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-                <Button label="교육" class="p-button-outlined" @click="loadEducationRequests" />
-                <Button label="자격증" class="p-button-outlined" @click="loadCertificationRequests" />
+                <Button 
+                    label="교육" 
+                    :class="['p-button-outlined', { 'active-button': showEducation }]" 
+                    @click="loadEducationRequests" 
+                />
+                <Button 
+                    label="자격증" 
+                    :class="['p-button-outlined', { 'active-button': !showEducation }]" 
+                    @click="loadCertificationRequests" 
+                />
             </div>
             <div class="flex items-center search-input-container">
                 <i class="pi pi-search search-icon" />
@@ -219,5 +229,12 @@ function mapCertificationStatus(certificationStatus) {
 
 .search-input {
     padding-left: 24px; /* 아이콘과 겹치지 않도록 여백 추가 */
+}
+
+/* 활성화된 버튼 스타일 */
+.active-button {
+    background-color: #007ad9; /* 원하는 색상으로 변경 */
+    color: white;
+    border-color: #007ad9;
 }
 </style>

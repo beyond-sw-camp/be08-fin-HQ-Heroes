@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <Dialog v-model:visible="addDialogVisible" modal="true" header="자격증 추가하기" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
+    <Dialog v-model:visible="addDialogVisible" modal="true" header="자격증 추가하기" :style="{ width: '30vw', borderRadius: '12px' }" :draggable="false" :closable="false">
         <div class="flex flex-col gap-6">
             <div>
                 <label for="certificationName" class="block font-bold mb-3">자격증 명</label>
