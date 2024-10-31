@@ -159,7 +159,7 @@ const loadEmployeeTreeData = async () => {
     try {
         const response = await fetchGet('http://localhost:8080/api/v1/employee/employees');
         // 로그인된 사용자의 부서명을 기준으로 필터링
-        const filteredEmployees = response.data.filter(
+        const filteredEmployees = response.filter(
             (employee) => employee.deptName === employeeData.value.deptName // 부서명이 같은 직원만 포함
         );
         employeeTreeData.value = convertToTreeModel(filteredEmployees); // 필터링된 데이터를 트리 구조로 변환

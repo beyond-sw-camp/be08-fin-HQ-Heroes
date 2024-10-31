@@ -236,14 +236,15 @@ const deleteNotifications = async () => {
             // 선택된 알림들에 대해 삭제 API 호출
             const url = `http://localhost:8080/api/v1/notification-service/notification/delete`;
             // 서버에 삭제 요청 (receiveDelete 또는 sendDelete 값 변경)
-            await fetchPut(url, selectedNotificationIds);
+            const response = await fetchPut(url, selectedNotificationIds);
             // 삭제가 성공하면 알림 목록을 다시 가져와 화면 갱신
+            if (response != null) {
+                alert(`${notificationCount}개의 알림이 삭제되었습니다.`);
+            }
+            // 선택된 알림 목록 초기화
             selectedNotification.value = [];
-
             await fetchNotifications();
             await fetchUnreadNotificationCount();
-            // 선택된 알림 목록 초기화
-            alert(`${notificationCount}개의 알림이 삭제되었습니다.`);
         } catch (error) {
             console.error('알림 삭제 중 오류 발생:', error.message);
         } finally {
