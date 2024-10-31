@@ -31,28 +31,28 @@
                         <!-- 부서 선택 -->
                         <div class="form-group">
                             <label for="deptName">부서명</label>
-                            <select id="deptName" v-model="selectedDeptId" @change="fetchTeams(selectedDeptId)" class="form-control">
+                            <select id="deptName" v-model="selectedDeptId" @change="fetchTeams(selectedDeptId)" class="form-control" :disabled="isReadonly" :class="{ 'readonly-input': isReadonly }">
                                 <option v-for="dept in departments" :key="dept.deptId" :value="dept.deptId">{{ dept.deptName }}</option>
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="teamName">팀명</label>
-                            <select id="teamName" v-model="selectedTeamId" class="form-control">
+                            <select id="teamName" v-model="selectedTeamId" class="form-control" :disabled="isReadonly" :class="{ 'readonly-input': isReadonly }">
                                 <option v-for="team in teams" :key="team.teamId" :value="team.teamId">{{ team.teamName }}</option>
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="jobRoleName">직무</label>
-                            <select id="jobRoleName" v-model="selectedJobId" class="form-control" :disabled="isReadonly">
+                            <select id="jobRoleName" v-model="selectedJobId" class="form-control" :disabled="isReadonly" :class="{ 'readonly-input': isReadonly }">
                                 <option v-for="job in jobs" :key="job.jobId" :value="job.jobId">{{ job.jobRoleName }}</option>
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="positionName">직책</label>
-                            <select id="positionName" v-model="selectedPositionId" class="form-control">
+                            <select id="positionName" v-model="selectedPositionId" class="form-control" :disabled="isReadonly" :class="{ 'readonly-input': isReadonly }">
                                 <option v-for="position in positions" :key="position.positionId" :value="position.positionId">{{ position.positionName }}</option>
                             </select>
                         </div>
@@ -86,7 +86,7 @@
 
                     <div class="form-group">
                         <label for="name">성명</label>
-                        <input type="text" id="name" v-model="employeeData.employeeName" class="form-control" />
+                        <input type="text" id="name" v-model="employeeData.employeeName" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
                     </div>
 
                     <div class="form-group">
@@ -96,30 +96,30 @@
 
                     <div class="form-group">
                         <label for="phone">연락처</label>
-                        <input type="text" id="phone" v-model="employeeData.phoneNumber" class="form-control" />
+                        <input type="text" id="phone" v-model="employeeData.phoneNumber" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
                     </div>
 
                     <div class="form-group">
                         <label for="email">이메일</label>
-                        <input type="text" id="email" v-model="employeeData.email" class="form-control" />
+                        <input type="text" id="email" v-model="employeeData.email" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
                     </div>
 
                     <div class="form-group">
                         <label for="employeeAddress">도로명 주소</label>
                         <div class="address-group">
-                            <input type="text" id="employeeAddress" v-model="employeeData.roadAddress" class="form-control address-input" />
+                            <input type="text" id="employeeAddress" v-model="employeeData.roadAddress" class="form-control address-input" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
                             <button @click="searchZipCode" class="btn-zipcode" style="margin-left: 10px">우편번호 검색</button>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="address">지 번</label>
-                        <input type="text" id="address" v-model="employeeData.lotAddress" class="form-control" />
+                        <input type="text" id="address" v-model="employeeData.lotAddress" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
                     </div>
 
                     <div class="form-group">
                         <label for="detailedAddress">상세 주소</label>
-                        <input type="text" id="detailedAddress" v-model="employeeData.detailedAddress" class="form-control detailed-address" />
+                        <input type="text" id="detailedAddress" v-model="employeeData.detailedAddress" class="form-control detailed-address" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
                     </div>
                 </div>
             </div>
@@ -135,7 +135,7 @@
 <script setup>
 import { adminUpdateEmployeeInfo } from '@/views/pages/auth/service/authService'; // 서비스 파일에서 메소드 가져오기
 import Swal from 'sweetalert2';
-import { defineEmits, defineProps, ref, watch } from 'vue';
+import { defineEmits, defineProps, ref, watch, computed, readonly } from 'vue';
 import { fetchGet } from '../auth/service/AuthApiService';
 
 const props = defineProps({
@@ -298,6 +298,17 @@ const fetchPositions = async () => {
     }
 };
 
+const isReadonly = computed(() => {
+    return employeeData.value.status === 'INACTIVE';
+});
+
+watch(
+    () => employeeData.value.status,
+    (newStatus) => {
+        isReadonly.value = newStatus === 'INACTIVE'; // 변경 시 바로 수정되지 않고 읽기 전용 상태만 업데이트
+    }
+);
+
 // props.employee가 변경될 때마다 직원 정보 업데이트
 watch(
     () => props.employee,
@@ -377,6 +388,14 @@ const handleDepartmentChange = async () => {
 .readonly-input[readonly] {
     background-color: #f0f0f0; /* 회색 배경 */
     cursor: not-allowed; /* 커서를 not-allowed로 변경 */
+}
+
+select.readonly-input {
+  appearance: none; /* 기본 드롭다운 화살표 제거 */
+  -webkit-appearance: none; /* Safari 브라우저에서 기본 드롭다운 화살표 제거 */
+  -moz-appearance: none; /* Firefox에서 기본 드롭다운 화살표 제거 */
+  cursor: not-allowed; /* 커서를 비활성화로 변경 */
+  background-color: #f0f0f0; /* 회색 배경 */
 }
 
 /* 버튼 그룹 스타일 */
