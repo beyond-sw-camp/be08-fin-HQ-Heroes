@@ -10,6 +10,9 @@ public interface VacationService {
     // 휴가 제출
     Vacation submitVacation(VacationDTO vacationDTO);
 
+    // 휴가 취소
+    Vacation cancelVacation(VacationDTO vacationDTO);
+
     // 모든 휴가 조회
     List<VacationDTO> getAllVacations();
 

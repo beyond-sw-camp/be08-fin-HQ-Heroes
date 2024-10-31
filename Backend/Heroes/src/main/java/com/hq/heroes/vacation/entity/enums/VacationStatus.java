@@ -3,5 +3,6 @@ package com.hq.heroes.vacation.entity.enums;
 public enum VacationStatus {
     APPROVED,
     REJECTED,
-    PENDING
+    PENDING,
+    CANCEL_REQUESTED
 }
