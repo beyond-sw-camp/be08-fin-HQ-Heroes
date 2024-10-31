@@ -31,24 +31,58 @@
                     <div class="time-section">
                         <div class="time-block">
                             <label for="startTime" class="label">시작 시간</label>
-                            <input type="time" id="startTime" v-model="form.overtimeStartTime" class="input" />
+                            <!-- 시작 시간: 18:00부터 1시간 단위로 -->
+                            <select id="startTime" v-model="form.overtimeStartTime" class="input">
+                                <option value="18:00">1타임(18:00 ~ 19:00)</option>
+                                <option value="19:00">2타임(19:00 ~ 20:00)</option>
+                                <option value="20:00">3타임(20:00 ~ 21:00)</option>
+                                <option value="21:00">4타임(21:00 ~ 22:00)</option>
+                                <option value="22:00">5타임(22:00 ~ 23:00)</option>
+                                <option value="23:00">6타임(23:00 ~ 00:00)</option>
+                                <option value="00:00">7타임(00:00 ~ 01:00)</option>
+                            </select>
                         </div>
                         <div class="time-block">
                             <label for="endTime" class="label">종료 시간</label>
-                            <input type="time" id="endTime" v-model="form.overtimeEndTime" class="input" @input="checkOvertimeExceed" />
-                            <!-- 잔여 시간을 초과하면 경고 표시 -->
-                            <p v-if="overtimeExceed" class="error-message">잔여 시간을 초과했습니다!</p>
+                            <!-- 종료 시간: 19:00부터 1시간 단위로 -->
+                            <select id="endTime" v-model="form.overtimeEndTime" class="input" @change="checkOvertimeExceed">
+                                <option value="19:00">1타임(18:00 ~ 19:00)</option>
+                                <option value="20:00">2타임(19:00 ~ 20:00)</option>
+                                <option value="21:00">3타임(20:00 ~ 21:00)</option>
+                                <option value="22:00">4타임(21:00 ~ 22:00)</option>
+                                <option value="23:00">5타임(22:00 ~ 23:00)</option>
+                                <option value="00:00">6타임(23:00 ~ 00:00)</option>
+                                <option value="01:00">7타임(00:00 ~ 01:00)</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="name-section">
                         <div class="name-block">
                             <label for="applicant" class="label">신청인</label>
-                            <input type="text" id="applicant" v-model="form.employeeName" class="input" :placeholder="employeeData.employeeName" />
+                            <!-- TreeSelect로 신청인 선택 -->
+                            <TreeSelect v-model="form.applicantName" :options="employeeTreeData" @node-select="handleEmployeeChange" optionLabel="label" selectionMode="single" class="input" :placeholder="form.applicantName || '신청인을 선택하세요'">
+                                <template #default="slotProps">
+                                    <div class="flex items-center">
+                                        <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X" size="normal" shape="circle" class="mr-2" style="background-color: #dee9fc; color: #1a2551" />
+                                        <Avatar v-else-if="slotProps.node.key.startsWith('emp-')" :image="slotProps.node.profileImageUrl" size="normal" shape="circle" class="mr-2" />
+                                        <span>{{ slotProps.node.label }}</span>
+                                    </div>
+                                </template>
+                            </TreeSelect>
                         </div>
                         <div class="name-block">
                             <label for="approver" class="label">결재자</label>
-                            <input type="text" id="approver" v-model="form.approverName" class="input" placeholder="결재자 이름" />
+                            <!-- TreeSelect로 결재자 선택 -->
+                            <TreeSelect v-model="form.approverName" :options="approverTreeData" @node-select="handleApproverChange" optionLabel="label" selectionMode="single" class="input" placeholder="결재자를 선택하세요">
+                                <template #default="slotProps">
+                                    <div class="flex items-center">
+                                        <Avatar v-if="slotProps.node.key.startsWith('emp-') && !slotProps.node.profileImageUrl" label="X" size="normal" shape="circle" class="mr-2" style="background-color: #dee9fc; color: #1a2551" />
+                                        <Avatar v-else-if="slotProps.node.key.startsWith('emp-')" :image="slotProps.node.profileImageUrl" size="normal" shape="circle" class="mr-2" />
+                                        <span>{{ slotProps.node.label }}</span>
+                                    </div>
+                                </template>
+                            </TreeSelect>
                         </div>
                     </div>
                 </div>
@@ -66,6 +100,8 @@
 
 <script setup>
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService'; // 메서드 가져오기
+import Avatar from 'primevue/avatar';
+import TreeSelect from 'primevue/treeselect';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
 import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
@@ -86,6 +122,14 @@ const employeeData = ref({
     employeeId: ''
 });
 
+const employeeTreeData = ref([]);
+const approverTreeData = ref([]);
+
+const selectedApplicantName = ref(''); // 신청인의 이름
+const selectedApplicantId = ref(''); // 신청인의 ID
+const selectedApproverName = ref(''); // 결재자의 이름
+const selectedApproverId = ref(''); // 결재자의 ID
+
 const totalOvertimeHours = ref(0); // 숫자형 초기값
 const remainingOvertimeHours = ref(0); // 숫자형 초기값
 const overtimeExceed = ref(false); // 잔여 시간을 초과했는지 여부
@@ -99,23 +143,30 @@ const checkDateInvalid = () => {
     isDateInvalid.value = startDate > endDate; // 시작 날짜가 종료 날짜보다 이후일 때 경고 표시
 };
 
-// 오늘 날짜를 yyyy-mm-dd 형식으로 변환하는 함수
-const getTodayDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-    const day = String(today.getDate()).padStart(2, '0'); // 일이 한 자리수일 경우 0을 채움
-    return `${year}-${month}-${day}`;
-};
-
 // 잔여 시간을 초과했는지 체크하는 함수
 const checkOvertimeExceed = () => {
+    // 시작 시간과 종료 시간에서 각 타임의 시간을 분 단위로 계산
     const startTimeInMinutes = calculateTimeInMinutes(form.value.overtimeStartTime);
     const endTimeInMinutes = calculateTimeInMinutes(form.value.overtimeEndTime);
-    const overtimeMinutes = endTimeInMinutes - startTimeInMinutes;
+    const selectedOvertimeMinutes = endTimeInMinutes - startTimeInMinutes;
 
-    // 남은 시간(`remainingOvertimeHours`)만으로 초과 여부 확인
-    overtimeExceed.value = overtimeMinutes > remainingOvertimeHours.value;
+    // 남은 연장 근로 시간을 분 단위로 변환하여 초과 여부 확인
+    const remainingMinutes = parseInt(remainingOvertimeHours.value.split('시간')[0]) * 60; // 남은 시간을 분으로 계산
+
+    // 초과 여부 확인
+    if (selectedOvertimeMinutes > remainingMinutes) {
+        overtimeExceed.value = true;
+
+        // 초과 시 경고 알림
+        Swal.fire({
+            icon: 'error',
+            title: '제출 불가',
+            text: '선택한 시간이 잔여 연장 근로 시간을 초과했습니다.',
+            confirmButtonText: '확인'
+        });
+    } else {
+        overtimeExceed.value = false;
+    }
 };
 
 // 로그인된 사용자 정보를 가져오는 함수
@@ -128,6 +179,74 @@ const loadEmployeeData = async () => {
             await loadTotalOvertimeHours(employeeId); // 연장근로 시간 조회
             await loadRemainingOvertimeHours(employeeId); // 잔여 연장근로 시간 조회 추가
         }
+    }
+};
+
+// TreeSelect에 필요한 트리 모델 변환 함수
+const convertToTreeModel = (data) => {
+    const departments = data.reduce((acc, employee) => {
+        const dept = acc.find((d) => d.label === employee.deptName);
+        if (!dept) {
+            acc.push({
+                key: `dept-${employee.deptName}`,
+                label: employee.deptName,
+                icon: 'pi pi-building',
+                children: []
+            });
+        }
+        const deptIndex = acc.findIndex((d) => d.label === employee.deptName);
+        const team = acc[deptIndex].children.find((t) => t.label === employee.teamName);
+        if (!team) {
+            acc[deptIndex].children.push({
+                key: `team-${employee.teamName}`,
+                label: employee.teamName,
+                icon: 'pi pi-users',
+                children: []
+            });
+        }
+        const teamIndex = acc[deptIndex].children.findIndex((t) => t.label === employee.teamName);
+        acc[deptIndex].children[teamIndex].children.push({
+            key: `emp-${employee.employeeId}`,
+            label: employee.employeeName,
+            profileImageUrl: employee.profileImageUrl,
+            jobName: employee.jobName,
+            positionName: employee.positionName
+        });
+        return acc;
+    }, []);
+    return departments;
+};
+
+// 신청인 목록 로드
+const loadEmployeeTreeData = async () => {
+    try {
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees');
+
+        // 로그인된 사용자의 팀 이름으로 필터링
+        const filteredEmployees = response.filter((employee) => employee.teamName === employeeData.value.teamName);
+
+        // 필터링된 데이터를 트리 구조로 변환
+        employeeTreeData.value = convertToTreeModel(filteredEmployees);
+    } catch (error) {
+        console.error('Error fetching employee data:', error);
+    }
+};
+
+// 팀장만 포함된 결재자 목록 로드
+const loadApproverTreeData = async () => {
+    try {
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees');
+        if (response) {
+            // 부서명이 같고 "팀장"인 경우만 필터링 (팀장만 포함)
+            const filteredApprovers = response.filter(
+                (employee) =>
+                    employee.deptName === employeeData.value.deptName && // 같은 부서
+                    employee.positionName === '팀장' // 팀장 직위만 포함
+            );
+            approverTreeData.value = convertToTreeModel(filteredApprovers); // 필터링된 팀장 목록을 트리 구조로 변환
+        }
+    } catch (error) {
+        console.error('Error fetching approver data:', error);
     }
 };
 
@@ -201,35 +320,63 @@ const loadRemainingOvertimeHours = async (employeeId) => {
 
 // 페이지 로드 시 데이터 초기화
 onMounted(() => {
-    form.value.overtimeStartDate = getTodayDate();
-    form.value.overtimeEndDate = getTodayDate();
-    loadEmployeeData(); // 로그인된 사용자 정보 로드
+    form.value.overtimeStartDate = new Date().toISOString().split('T')[0];
+    form.value.overtimeEndDate = new Date().toISOString().split('T')[0];
+    loadEmployeeData().then(() => {
+        form.value.applicantName = employeeData.value.employeeName; // 로그인된 사용자의 이름을 기본값으로 설정
+        selectedApplicantName.value = employeeData.value.employeeName;
+        selectedApplicantId.value = `emp-${employeeData.value.employeeId}`; // applicantId 설정
+
+        loadEmployeeTreeData(); // 신청자 목록 로드
+        loadApproverTreeData(); // 결재자 목록 로드 (팀장만)
+    });
 });
+
+const handleEmployeeChange = (selectedEmployee) => {
+    selectedApplicantId.value = selectedEmployee.key; // 선택된 신청인의 ID 추출
+    selectedApplicantName.value = Object(selectedEmployee).label; // 선택된 신청인의 이름 설정
+};
+
+const handleApproverChange = (selectedApprover) => {
+    selectedApproverId.value = selectedApprover.key; // 선택된 결재자의 ID 추출
+    selectedApproverName.value = Object(selectedApprover).label; // 선택된 결재자의 이름 설정
+};
 
 const submitForm = async () => {
     try {
-        // 날짜 오류가 있는 경우 경고창 표시
+        // 잔여 시간을 초과한 경우 제출 중단
+        checkOvertimeExceed();
+
+        if (overtimeExceed.value) {
+            return;
+        }
+        // 날짜 유효성 검사
         if (isDateInvalid.value) {
             Swal.fire({
                 icon: 'error',
                 title: '날짜 오류',
-                text: '날짜를 다시 확인해 주세요. 시작 날짜는 종료 날짜보다 이전이어야 합니다.',
+                text: '시작 날짜는 종료 날짜보다 이전이어야 합니다.',
                 confirmButtonText: '확인'
             });
-            return; // 날짜 오류가 있으면 함수 종료
+            return;
         }
-        // overtimeStart와 overtimeEnd를 각각 Date와 Time으로 분리해서 보냄
+
+        // `employeeId`, `approverId` 등은 문자열(`String`) 형태로 설정
         const requestBody = {
-            employeeId: employeeData.value.employeeId, // 로그인된 사용자 ID 포함
-            approverId: employeeData.value.approverId, // 결재자 ID 추가
-            overtimeStartDate: form.value.overtimeStartDate, // 시작 날짜
-            overtimeStartTime: form.value.overtimeStartTime || '00:00', // 시작 시간
-            overtimeEndDate: form.value.overtimeEndDate, // 종료 날짜
-            overtimeEndTime: form.value.overtimeEndTime || '23:59', // 종료 시간
-            employeeName: form.value.employeeName, // 신청인 이름
-            approverName: form.value.approverName, // 결재자 이름
-            comment: form.value.comment // 사유
+            employeeId: employeeData.value.employeeId,
+            applicantId: selectedApplicantId.value.replace('emp-', ''),
+            approverId: selectedApproverId.value.replace('emp-', ''), // 결재자 ID 추가
+            employeeName: employeeData.value.employeeName,
+            approverName: selectedApproverName.value,
+            applicantName: selectedApplicantName.value,
+            overtimeStartDate: form.value.overtimeStartDate,
+            overtimeStartTime: form.value.overtimeStartTime || '00:00',
+            overtimeEndDate: form.value.overtimeEndDate,
+            overtimeEndTime: form.value.overtimeEndTime || '23:59',
+            comment: form.value.comment
         };
+
+        console.log('Sending request body:', requestBody); // 전송 데이터 확인
 
         await fetchPost('http://localhost:8080/api/v1/overtime/submit', requestBody);
 
