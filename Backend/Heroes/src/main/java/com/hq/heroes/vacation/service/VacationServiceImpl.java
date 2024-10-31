@@ -12,6 +12,8 @@ import com.hq.heroes.vacation.repository.VacationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -89,9 +91,9 @@ public class VacationServiceImpl implements VacationService {
 
         // 휴가 종류에 따라 복구 일수 설정
         if (vacation.getVacationType() == VacationType.DAY_OFF) {
-            // 시작일과 종료일의 차이를 계산하여 일수에 맞게 복구 (하루당 4 복구)
-            long days = ChronoUnit.DAYS.between(vacation.getVacationStartDate(), vacation.getVacationEndDate()) + 1;
-            refundAmount = days * 4; // 일수에 따른 복구
+            // 시작일과 종료일 사이의 평일 수 계산 (주말 제외)
+            long days = calculateWeekdaysBetween(vacation.getVacationStartDate(), vacation.getVacationEndDate());
+            refundAmount = days * 4; // 평일에 따른 복구
         } else if (vacation.getVacationType() == VacationType.HALF_DAY_OFF ||
                 vacation.getVacationType() == VacationType.SICK_LEAVE ||
                 vacation.getVacationType() == VacationType.EVENT_LEAVE) {
@@ -130,7 +132,7 @@ public class VacationServiceImpl implements VacationService {
         // 휴가 종류에 따른 차감 일수 설정
         if (vacation.getVacationType() == VacationType.DAY_OFF) {
             // 시작일과 종료일의 차이를 계산하여 일수로 차감 (하루당 4 차감)
-            long days = ChronoUnit.DAYS.between(vacation.getVacationStartDate(), vacation.getVacationEndDate()) + 1;
+            long days = calculateWeekdaysBetween(vacation.getVacationStartDate(), vacation.getVacationEndDate());
             deductionAmount = days * 4; // 일수에 따른 차감
         } else if (vacation.getVacationType() == VacationType.HALF_DAY_OFF ||
                 vacation.getVacationType() == VacationType.SICK_LEAVE ||
@@ -151,6 +153,21 @@ public class VacationServiceImpl implements VacationService {
         // 변경 사항 저장
         employeeRepository.save(employee);
         vacationRepository.save(vacation);
+    }
+
+    // 주말 제외한 평일 계산 함수
+    private long calculateWeekdaysBetween(LocalDate startDate, LocalDate endDate) {
+        long weekdays = 0;
+        LocalDate date = startDate;
+
+        while (!date.isAfter(endDate)) {
+            DayOfWeek day = date.getDayOfWeek();
+            if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY) {
+                weekdays++;
+            }
+            date = date.plusDays(1);
+        }
+        return weekdays;
     }
 
     private long calculateQuarterDeduction(LocalTime startTime, LocalTime endTime) {
