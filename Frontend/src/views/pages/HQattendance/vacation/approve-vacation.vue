@@ -35,7 +35,7 @@
                 <!-- 승인/반려 버튼 (항상 표시되도록 수정) -->
                 <Column header="승인/반려" style="min-width: 8rem">
                     <template #body="slotProps">
-                        <Button label="승인" :disabled="isLoading" @click="approveVacation(slotProps.data.vacationId)" class="p-button-success" />
+                        <Button  label="승인" :disabled="isLoading" @click="approveVacation(slotProps.data.vacationId)" class="p-button-success mr-2" />
                         <Button label="반려" :disabled="isLoading" @click="rejectVacation(slotProps.data.vacationId)" class="p-button-danger" />
                     </template>
                 </Column>

@@ -2,7 +2,7 @@
     <div class="flex lg:flex-row flex-col bg-surface-0 min-h-screen">
         <div class="flex-1 flex items-center justify-center">
             <div class="flex-1">
-                <img src="https://fqjltiegiezfetthbags.supabase.co/storage/v1/render/image/public/block.images/blocks/hero/hero-1.png" alt="hero-1" class="h-screen w-screen object-cover lg:[clip-path:polygon(80%_100%,100%_0%,0%_0%,0%_100%)]" />
+                <img src="https://media.discordapp.net/attachments/1279791869991059579/1301515878369857592/architecture-1048092_640.jpg?ex=6724c29e&is=6723711e&hm=aec119ec64cd78a25dde5094d49032c3e3326f5dbc9f942d2dce967e5283fcb8&=&format=webp&width=800&height=600" alt="hero-1" class="h-screen w-screen object-cover lg:[clip-path:polygon(80%_100%,100%_0%,0%_0%,0%_100%)]" />
             </div>
         </div>
         <div class="flex-1 flex items-center justify-center">

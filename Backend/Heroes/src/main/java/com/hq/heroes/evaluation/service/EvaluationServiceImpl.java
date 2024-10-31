@@ -32,8 +32,8 @@ public class EvaluationServiceImpl implements EvaluationService {
                 .evaluatorName(evaluation.getEvaluator().getEmployeeName()) // evaluator 엔티티에서 평가자 이름 추출
                 .score(evaluation.getScore())
                 .comments(evaluation.getComments())
-                .createdAt(evaluation.getCreatedAt())
-                .updatedAt(evaluation.getUpdatedAt())
+                .createdAt(evaluation.getCreatedAt().toString())
+                .updatedAt(evaluation.getUpdatedAt().toString())
                 .build();
     }
 

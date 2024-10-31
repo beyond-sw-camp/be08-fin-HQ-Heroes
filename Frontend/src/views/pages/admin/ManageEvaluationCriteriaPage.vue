@@ -29,12 +29,12 @@
 </template>
 
 <script setup>
-import axios from 'axios';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
+import { fetchGet, fetchPut } from '../auth/service/AuthApiService';
 
 // 선택된 부서 정보
 const selectedDepartment = ref(null);
@@ -52,8 +52,8 @@ const criteriaQuestions = ref([]); // 각 평가 항목의 질문을 저장할 �
 // 부서 목록을 가져오는 함수
 async function fetchDepartments() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/departments');
-        departments.value = response.data;
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/departments');
+        departments.value = response;
     } catch (error) {
         console.error('부서 목록을 가져오는 중 오류 발생:', error);
     }
@@ -64,8 +64,8 @@ async function fetchEvaluationCriteria() {
     if (!selectedDepartment.value) return;
 
     try {
-        const response = await axios.get(`http://localhost:8080/api/v1/evaluation-criteria/by-department?deptName=${selectedDepartment.value.deptName}`);
-        evaluationCriteriaList.value = response.data;
+        const response = await fetchGet(`http://localhost:8080/api/v1/evaluation-criteria/by-department?deptName=${selectedDepartment.value.deptName}`);
+        evaluationCriteriaList.value = response;
 
         // 각 평가 항목의 질문을 기준으로 데이터를 초기화
         criteriaQuestions.value = evaluationCriteriaList.value.map((criteria) => criteria.criteriaContent.split('#'));
@@ -89,7 +89,7 @@ async function saveEvaluationCriteria() {
             const url = `http://localhost:8080/api/v1/evaluation-criteria/${criteria.evaluationCriteriaId}`;
 
             // 수정된 평가 기준 데이터를 저장하는 API 호출
-            const response = await axios.put(url, updateEvaluationCriteriaList.value, {
+            const response = await fetchPut(url, updateEvaluationCriteriaList.value, {
                 withCredentials: true,
                 headers: {
                     access: window.localStorage.getItem('access'),

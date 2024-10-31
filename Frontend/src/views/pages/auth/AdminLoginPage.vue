@@ -2,14 +2,14 @@
     <div class="relative flex items-center justify-center bg-surface-0">
         <div class="flex-1 flex items-center justify-center">
             <div class="flex-1">
-                <img src="https://fqjltiegiezfetthbags.supabase.co/storage/v1/render/image/public/block.images/blocks/hero/hero-1.png" alt="hero-1" class="h-screen w-screen object-cover lg:[clip-path:polygon(80%_100%,100%_0%,0%_0%,0%_100%)]" />
+                <img src="https://media.discordapp.net/attachments/1279791869991059579/1301515878369857592/architecture-1048092_640.jpg?ex=6724c29e&is=6723711e&hm=aec119ec64cd78a25dde5094d49032c3e3326f5dbc9f942d2dce967e5283fcb8&=&format=webp&width=800&height=600" alt="hero-1" class="h-screen w-screen object-cover lg:[clip-path:polygon(80%_100%,100%_0%,0%_0%,0%_100%)]" />
             </div>
         </div>
         <div class="flex-1 flex items-center justify-center">
             <div class="relative flex flex-col items-center justify-center min-h-screen">
                 <div class="text-center mb-8">
-                    <div class="text-primary text-3xl font-medium mb-4">HeRoes</div>
-                    <span class="text-primary font-semibold leading-normal">관리자 로그인</span>
+                    <div class="text-red-600 text-3xl font-medium mb-4">HeRoes</div>
+                    <span class="text-red-600 font-semibold leading-normal">관리자 로그인</span>
                 </div>
 
                 <div class="flex flex-col gap-3">
@@ -22,8 +22,8 @@
                         <Password id="adminPassword" v-model="password" placeholder="비밀번호를 입력해주세요" :toggleMask="true" class="flex-1" fluid :feedback="false" />
                     </div>
                     <div class="flex flex-row items-center justify-center">
-                        <label for="adminNo" class="text-surface-900 font-semibold block">인증코드</label>
-                        <span class="font-medium no-underline text-right cursor-pointer hover:text-primary ml-auto" @click="requestAuthCode" :disabled="isLoading">{{ isLoading ? '발급 중...' : '인증코드 발급' }}</span>
+                        <label for="adminNo" class="text-surface-900 font-semibold text-base block">인증코드</label>
+                        <span class="font-medium no-underline text-sm text-right cursor-pointer hover:text-primary ml-auto" @click="requestAuthCode" :disabled="isLoading">{{ isLoading ? '발급 중...' : '인증코드 발급' }}</span>
                     </div>
 
                     <div v-if="timeRemaining > 0" class="flex items-center justify-center">

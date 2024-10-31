@@ -20,7 +20,7 @@ public class EvaluationResDTO {
     private String evaluatorName; // 평가자 이름
     private Double score;  // 평가 점수
     private String comments;  // 평가 코멘트
-    private LocalDateTime createdAt;  // 생성 일시
-    private LocalDateTime updatedAt;  // 수정 일시
+    private String createdAt;  // 생성 일시
+    private String updatedAt;  // 수정 일시
 
 }
