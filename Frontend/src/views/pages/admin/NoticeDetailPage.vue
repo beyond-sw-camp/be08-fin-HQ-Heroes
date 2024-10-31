@@ -1,8 +1,7 @@
 <template>
     <div class="card">
+        <Button class="list" label="목록 >" icon="pi pi-bars" @click="goBackToList" text style="margin-left: 10px; margin-bottom: 1rem;" />
         <div class="notice-detail">
-            <Button label="목록 >" icon="pi pi-bars" @click="goBackToList" text />
-
             <div class="text-lg flex justify-between">
                 <div class="font-bold text-3xl">
                     <span>
@@ -44,12 +43,11 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
+import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import Swal from 'sweetalert2';
 import { fetchCategories } from './service/adminNoticeCategoryService';
-import { fetchNoticeById, deleteNotice } from './service/adminNoticeService';
-import Divider from 'primevue/divider';
+import { deleteNotice, fetchNoticeById } from './service/adminNoticeService';
 
 const route = useRoute();
 const router = useRouter();
@@ -64,6 +62,7 @@ const selectedNotice = ref(null); // selectedNotice 변수를 정의하여 초�
 
 // 관리자인지 확인
 const isAdmin = () => {
+    // return authStore.employeeData.isAdmin === 'ROLE_ADMIN';
     return true;
 };
 
