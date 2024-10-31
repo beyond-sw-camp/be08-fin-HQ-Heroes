@@ -102,7 +102,7 @@ function handleDepartmentChange(event) {
 async function fetchEmployeeList() {
     try {
         // 권한이 필요한 페이지에 접근할 때 fetchAuthorizedPage 사용
-        const employeesData = await fetchGet('http://localhost:8080/api/v1/employee/employees', router.push, router.currentRoute.value);
+        const employeesData = await fetchGet('http://localhost:8080/api/v1/employee/active/employees', router.push, router.currentRoute.value);
 
         if (employeesData) {
             // JSON.parse 제거

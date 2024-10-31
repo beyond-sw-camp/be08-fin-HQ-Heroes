@@ -2,6 +2,7 @@ package com.hq.heroes.employee.controller;
 
 import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.auth.entity.Employee;
+import com.hq.heroes.auth.entity.enums.Status;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.employee.dto.EmployeeDTO;
 import com.hq.heroes.employee.dto.PasswordUpdateDTO;
@@ -26,6 +27,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,6 +60,21 @@ public class EmployeeController {
     @GetMapping("/employees")
     public ResponseEntity<?> getAllEmployees() {
         List<EmployeeDTO> employees = employeeService.getAllEmployees();
+
+        // 사원이 없을 경우 메시지와 함께 200 OK 반환
+        if (employees.isEmpty()) {
+            return ResponseEntity.ok("사원이 없습니다.");
+        }
+
+        return ResponseEntity.ok(employees);
+    }
+
+    // status 가 'ACTIVE' 인 모든 사원 조회를 위한 API
+    @GetMapping("/active/employees")
+    public ResponseEntity<?> getAllEmployeesWithActive() {
+        List<EmployeeDTO> employees = employeeService.getAllEmployees()
+                .stream().filter(employee -> employee.getStatus() == Status.ACTIVE)
+                .collect(Collectors.toList());
 
         // 사원이 없을 경우 메시지와 함께 200 OK 반환
         if (employees.isEmpty()) {
