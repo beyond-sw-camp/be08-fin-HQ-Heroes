@@ -32,19 +32,23 @@
             </div>
         </div>
 
-        <!-- 휴가 잔여 일수 카드 -->
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div class="ml-3 mt-7">
                         <span class="block text-muted-color font-medium mb-2">휴가 잔여 일수</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ annualLeave }}일</div>
+                        <!-- 소수점 여부에 따라 다른 형식으로 표시 -->
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">
+                            <!-- 소수점이 있는 경우 소수점 한 자리까지 표시 -->
+                            <span v-if="(annualLeave / 4) % 1 !== 0">{{ (annualLeave / 4).toFixed(1) }}일</span>
+                            <!-- 소수점이 없는 경우 정수로만 표시 -->
+                            <span v-else>{{ annualLeave / 4 }}일</span>
+                        </div>
                     </div>
                     <div class="flex items-center justify-center bg-cyan-100 rounded-border mt-8 mr-4" style="width: 2.5rem; height: 2.5rem">
                         <i class="pi pi-shopping-bag text-cyan-500 !text-xl"></i>
                     </div>
                 </div>
-                <!-- <span class="text-muted-color">{{ currentDate }}</span> -->
             </div>
         </div>
 
