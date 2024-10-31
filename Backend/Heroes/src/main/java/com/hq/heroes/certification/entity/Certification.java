@@ -1,11 +1,8 @@
 package com.hq.heroes.certification.entity;
 
-import com.hq.heroes.certification.dto.CertificationResponseDTO;
 import com.hq.heroes.employee.entity.Department;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -37,15 +34,4 @@ public class Certification {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dept_id", nullable = false)
     private Department department;
-
-    public CertificationResponseDTO toResponseDTO() {
-        return CertificationResponseDTO.builder()
-                .certificationId(this.certificationId)
-                .certificationName(this.certificationName)
-                .institution(this.institution)
-                .benefit(this.benefit)
-                .deptName(this.department != null ? this.department.getDeptName() : null) // null 체크 추가
-                .deptId(this.department != null ? this.department.getDeptId() : null)
-                .build();
-    }
 }

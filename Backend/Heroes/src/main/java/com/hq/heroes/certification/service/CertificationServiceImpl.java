@@ -1,6 +1,7 @@
 package com.hq.heroes.certification.service;
 
 import com.hq.heroes.certification.dto.CertificationRequestDTO;
+import com.hq.heroes.certification.dto.CertificationResponseDTO;
 import com.hq.heroes.certification.entity.Certification;
 import com.hq.heroes.certification.repository.CertificationRepository;
 import com.hq.heroes.employee.entity.Department;
@@ -18,27 +19,42 @@ public class CertificationServiceImpl implements CertificationService {
     private final CertificationRepository certificationRepository;
     private final DepartmentRepository departmentRepository;
 
-    @Override
-    public List<Certification> getCertifications() {
-            return certificationRepository.findAll();
+    public CertificationResponseDTO convertToDTO(Certification certification) {
+        return CertificationResponseDTO.builder()
+                .certificationId(certification.getCertificationId())
+                .certificationName(certification.getCertificationName())
+                .institution(certification.getInstitution())
+                .benefit(certification.getBenefit())
+                .deptName(certification.getDepartment() != null ? certification.getDepartment().getDeptName() : null) // null 체크 추가
+                .deptId(certification.getDepartment() != null ? certification.getDepartment().getDeptId() : null)
+                .build();
     }
 
     @Override
-    public Certification getCertificationById(Long certificationId) {
-        return certificationRepository.findById(certificationId).orElse(null);
+    public List<CertificationResponseDTO> getCertifications() {
+            return certificationRepository.findAll().stream().map(this::convertToDTO).toList();
     }
 
     @Override
-    public List<Certification> getCertificationListByDeptName (String deptName) {
+    public CertificationResponseDTO getCertificationById(Long certificationId) {
+        Optional<Certification> certification =
+                Optional.ofNullable(certificationRepository
+                        .findById(certificationId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리 ID : " + certificationId)));;
+        return convertToDTO(certification.get());
+    }
+
+    @Override
+    public List<CertificationResponseDTO> getCertificationListByDeptName (String deptName) {
         Department department = departmentRepository.findByDeptName(deptName)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid department name: " + deptName));
 
-        return certificationRepository.findByDepartment(department);
+        return certificationRepository
+                .findByDepartment(department).stream().map(this::convertToDTO).toList();
     }
 
     @Override
     @Transactional
-    public Certification createCertification(CertificationRequestDTO requestDTO) {
+    public CertificationResponseDTO createCertification(CertificationRequestDTO requestDTO) {
         Department department = departmentRepository.findById(requestDTO.getDeptId())
                 .orElseThrow(() -> new IllegalArgumentException("Department not found"));
 
@@ -49,12 +65,12 @@ public class CertificationServiceImpl implements CertificationService {
                 .department(department)
                 .build();
 
-        return certificationRepository.save(certification);
+        return convertToDTO(certificationRepository.save(certification));
     }
 
     @Override
     @Transactional
-    public Certification updateCertification(Long certificationId, CertificationRequestDTO requestDTO) {
+    public CertificationResponseDTO updateCertification(Long certificationId, CertificationRequestDTO requestDTO) {
         Certification certification = certificationRepository.findById(certificationId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 교육 ID : " + certificationId));
 
@@ -70,7 +86,7 @@ public class CertificationServiceImpl implements CertificationService {
         certification.setBenefit(requestDTO.getBenefit());
 
 
-        return certificationRepository.save(certification);
+        return convertToDTO(certificationRepository.save(certification));
     }
 
     @Override
