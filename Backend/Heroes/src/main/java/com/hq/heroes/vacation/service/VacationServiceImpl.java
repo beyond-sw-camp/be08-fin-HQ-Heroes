@@ -64,14 +64,53 @@ public class VacationServiceImpl implements VacationService {
 
     @Override
     public Vacation cancelVacation(VacationDTO vacationDTO) {
+        // 이미 불러온 vacationDTO의 정보를 그대로 사용하여 엔티티 수정
         Vacation vacation = vacationRepository.findById(vacationDTO.getVacationId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 휴가 요청을 찾을 수 없습니다."));
 
-        // 휴가 상태를 취소 요청 상태로 변경
-        vacation.setVacationStatus(VacationStatus.CANCEL_REQUESTED);
-        vacation.setComment(vacationDTO.getComment()); // 취소 사유를 코멘트 필드에 저장
+        // 취소 요청 상태로 업데이트하고 코멘트를 설정
+        vacation.setVacationStatus(VacationStatus.CANCEL);
 
-        return vacationRepository.save(vacation); // 업데이트된 휴가 엔티티 반환
+        // vacation 엔티티를 저장하여 업데이트된 정보를 반환
+        return vacationRepository.save(vacation);
+    }
+
+    public void approveCancelVacation(Long vacationId) {
+        // 휴가 조회
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow(() -> new RuntimeException("Invalid vacation ID"));
+
+        // 휴가 상태를 CANCELED로 업데이트
+        vacation.setVacationStatus(VacationStatus.CANCELED);
+
+        Employee employee = vacation.getEmployee();
+        long refundAmount;
+
+        // 휴가 종류에 따라 복구 일수 설정
+        if (vacation.getVacationType() == VacationType.DAY_OFF) {
+            refundAmount = 4; // 월차는 4 복구
+        } else if (vacation.getVacationType() == VacationType.HALF_DAY_OFF ||
+                vacation.getVacationType() == VacationType.SICK_LEAVE ||
+                vacation.getVacationType() == VacationType.EVENT_LEAVE) {
+            // 반차, 병가, 경조는 쿼터 단위로 복구
+            refundAmount = calculateQuarterDeduction(vacation.getVacationStartTime(), vacation.getVacationEndTime());
+        } else {
+            throw new RuntimeException("Invalid vacation type");
+        }
+
+        // 연차 복구
+        employee.setAnnualLeave(employee.getAnnualLeave() + refundAmount);
+
+        // 변경 사항 저장
+        employeeRepository.save(employee);
+        vacationRepository.save(vacation);
+    }
+
+    public void rejectCancelVacation(Long vacationId) {
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow(() -> new RuntimeException("휴가를 찾을 수 없습니다."));
+        vacation.setVacationStatus(VacationStatus.REJECTED); // 상태를 반려로 변경
+        vacationRepository.save(vacation);
     }
 
 

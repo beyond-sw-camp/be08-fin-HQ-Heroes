@@ -25,8 +25,13 @@
                 <!-- 취소 버튼 추가 -->
                 <Column header="휴가 취소" style="min-width: 5rem">
                     <template #body="slotProps">
-                        <!-- 현재 날짜보다 시작일이 이후이면서 상태가 반려됨이 아닌 경우에만 취소 버튼 보이기 -->
-                        <Button v-if="!isPastDate(slotProps.data.vacationStart) && slotProps.data.vacationStatus !== '반려됨'" label="취소" class="p-button-danger" @click="openCancelModal(slotProps.data)" />
+                        <!-- 현재 날짜보다 시작일이 이후이면서 상태가 '반려됨', '취소됨', '취소 대기중'이 아닌 경우에만 취소 버튼 보이기 -->
+                        <Button
+                            v-if="!isPastDate(slotProps.data.vacationStart) && slotProps.data.vacationStatus !== '반려됨' && slotProps.data.vacationStatus !== '취소됨' && slotProps.data.vacationStatus !== '취소 대기중'"
+                            label="취소"
+                            class="p-button-danger"
+                            @click="openCancelModal(slotProps.data)"
+                        />
                         <div v-else style="height: 2.5rem"></div>
                         <!-- 빈 div로 높이 맞추기 -->
                     </template>
@@ -85,10 +90,6 @@
                 <!-- 월차가 아닌 경우에만 종료 시간 표시 -->
                 <p v-if="selectedEmployee.vacationType !== '월차'"><strong>종료 시간:</strong> {{ selectedEmployee.vacationEndTime }}</p>
                 <p><strong>결재자:</strong> {{ selectedEmployee.approverName }}</p>
-                <div>
-                    <label for="cancelReason" class="block font-bold mb-2">취소 사유:</label>
-                    <textarea id="cancelReason" v-model="cancelReason" class="textarea full-width bordered-textarea" rows="4" placeholder="취소 사유를 입력하세요."></textarea>
-                </div>
             </div>
             <template #footer>
                 <Button label="제출" icon="pi pi-check" class="p-button-success" @click="submitCancelRequest" />
@@ -146,8 +147,10 @@ function mapStatus(status) {
             return '반려됨';
         case 'PENDING':
             return '대기 중';
-        case 'CANCEL_REQUESTED':
+        case 'CANCEL':
             return '취소 대기중';
+        case 'CANCELED':
+            return '취소됨';
         default:
             return '알 수 없음';
     }
@@ -188,7 +191,6 @@ async function submitCancelRequest() {
     try {
         const requestBody = {
             vacationId: selectedEmployee.value.vacationId,
-            comment: cancelReason.value,
             approverId: selectedEmployee.value.approverId // 결재자 ID 전달
         };
         console.log(requestBody);
@@ -200,6 +202,8 @@ async function submitCancelRequest() {
         // 모달 닫기 및 초기화
         cancelDialogVisible.value = false;
         cancelReason.value = '';
+
+        window.location.reload();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: '휴가 취소 요청 실패.' });
     }
