@@ -29,7 +29,7 @@ Spring:
     job:
       enabled: false
     jdbc:
-      initialize-schema: always
+      initialize-schema: never
 
   mail:
     default-encoding: UTF-8
