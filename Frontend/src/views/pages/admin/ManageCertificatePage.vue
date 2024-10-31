@@ -82,7 +82,7 @@
         </Dialog>
 
         <!-- 자격증 추가 모달 -->
-        <Dialog v-model:visible="isAddDialogVisible" modal header="자격증 추가하기" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
+        <Dialog v-model:visible="isAddDialogVisible" modal header="자격증 추가하기" :style="{ width: '30vw', borderRadius: '12px' }" :draggable="false" :closable="false">
             <div class="flex flex-col gap-6">
                 <div>
                     <Select v-model="selectedDepartment" :options="departments" id="deptId" optionLabel="deptName" placeholder="부서를 선택하세요" @change="changeSelectedAddDeptId(selectedDepartment.deptId)" />
@@ -101,13 +101,13 @@
                 </div>
             </div>
             <template #footer>
-                <Button label="저장" icon="pi pi-check" class="p-button-primary" @click="saveCertification" />
-                <Button label="취소" icon="pi pi-times" text class="p-button-text" @click="isAddDialogVisible = false" />
+                <Button label="저장" class="p-button-primary" @click="saveCertification" />
+                <Button label="취소" text class="p-button-text" @click="isAddDialogVisible = false" />
             </template>
         </Dialog>
 
         <!-- 자격증 수정 모달 -->
-        <Dialog v-model:visible="isEditDialogVisible" modal header="자격증 수정하기" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
+        <Dialog v-model:visible="isEditDialogVisible" modal header="자격증 수정하기" :style="{ width: '30vw', borderRadius: '12px' }" :draggable="false" :closable="false">
             <div class="flex flex-col gap-6">
                 <div>
                     <Select v-model="selectedDepartment" :options="departments" id="deptId" optionLabel="deptName" placeholder="부서를 선택하세요" @change="changeSelectedEditDeptId(selectedDepartment.deptId)" />
@@ -126,8 +126,8 @@
                 </div>
             </div>
             <template #footer>
-                <Button label="저장" icon="pi pi-check" class="p-button-primary" @click="editCertification" />
-                <Button label="취소" icon="pi pi-times" text class="p-button-text" @click="isEditDialogVisible = false" />
+                <Button label="저장" class="p-button-primary" @click="editCertification" />
+                <Button label="취소" text class="p-button-text" @click="isEditDialogVisible = false" />
             </template>
         </Dialog>
     </div>

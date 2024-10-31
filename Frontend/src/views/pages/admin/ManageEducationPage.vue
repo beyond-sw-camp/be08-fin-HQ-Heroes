@@ -3,7 +3,7 @@
         <div class="card">
             <div class="flex flex-row justify-between mb-4">
                 <label class="text-xl font-bold">교육 관리</label>
-                <Button label="교육 추가" icon="pi pi-plus" class="custom-button" @click="goToWriteNotice" />
+                <Button label="추가하기" icon="pi pi-plus" class="custom-button" @click="goToWriteNotice" />
             </div>
 
             <!-- 필터 및 검색 섹션 -->
@@ -39,7 +39,7 @@
                 <Column field="categoryName" sortable header="카테고리" />
                 <Column field="educationName" sortable header="교육 명" />
                 <Column field="institution" sortable header="교육 기관" />
-                <Column field="educationStart" sortable header="교육 시작일">
+                <Column field="educationStart" sortable header="교육 기간">
                     <template #body="{ data }">
                         {{ formatDate(data.educationStart) }} ~ {{ formatDate(data.educationEnd) }}
                     </template>
