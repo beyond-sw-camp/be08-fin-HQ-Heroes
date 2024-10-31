@@ -45,7 +45,7 @@
 
                         <div class="form-group">
                             <label for="jobRoleName">직무</label>
-                            <select id="jobRoleName" v-model="selectedJobId" class="form-control">
+                            <select id="jobRoleName" v-model="selectedJobId" class="form-control" :disabled="isReadonly">
                                 <option v-for="job in jobs" :key="job.jobId" :value="job.jobId">{{ job.jobRoleName }}</option>
                             </select>
                         </div>
