@@ -40,7 +40,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
 
     @Override
     public List<SalaryHistoryDTO> getAllSalaries(String employeeId) {
-        List<SalaryHistory> histories = salaryHistoryRepository.findByEmployee_EmployeeId(employeeId);
+        List<SalaryHistory> histories = salaryHistoryRepository.findSalaryHistoriesByEmployeeId(employeeId);
 
         // 급여 기록이 없으면 예외 처리
         if (histories.isEmpty()) {
@@ -83,7 +83,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
 
     @Override
     public SalaryHistoryDTO createSalary(SalaryHistoryDTO dto) {
-        Optional<Employee> employeeEntity = employeeRepository.findById(dto.getEmployeeId());
+        Optional<Employee> employeeEntity = employeeRepository.findByIdWithDetails(dto.getEmployeeId());
         if (employeeEntity.isEmpty()) {
             throw new IllegalArgumentException("존재하지 않는 사원입니다.");
         }
@@ -253,7 +253,7 @@ public class SalaryHistoryServiceImpl implements SalaryHistoryService {
         LocalDateTime lastCheckInDate = getLastCheckInDate(employeeId);
         LocalDateTime threeMonthsAgo = lastCheckInDate.minusMonths(3);
 
-        List<SalaryHistory> salaryHistories = salaryHistoryRepository.findByEmployee_EmployeeIdAndSalaryMonthBetween(
+        List<SalaryHistory> salaryHistories = salaryHistoryRepository.findSalaryHistoriesByEmployeeIdAndSalaryMonthBetween(
                 employeeId, threeMonthsAgo, lastCheckInDate);
 
         // SalaryHistory를 SalaryHistoryDTO로 변환
