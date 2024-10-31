@@ -2,12 +2,14 @@
     <div class="card">
         <div class="education-detail">
             <Button label="목록 >" icon="pi pi-bars" @click="goBackToList" text />
-            <h2>[{{ categoryName }}]  {{ educationName }} </h2>
+            <div class="text-3xl font-bold">
+                <span>[{{ categoryName }}]  {{ educationName }} </span>
+            </div>
 
             <hr />
 
             <!-- education-info 테이블로 수정 -->
-            <table class="education-info">
+            <table class="education-info text-lg">
                 <tr>
                     <th style="text-align: left;">교육 기간</th>
                     <td>
@@ -238,13 +240,6 @@ hr {
     justify-content: flex-end;
     gap: 10px;
     padding: 10px 0;
-}
-
-input {
-    margin: 0 5px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
 }
 
 .curriculum-content {
