@@ -119,7 +119,7 @@
         </div>
     </div>
     <!-- 비밀번호 변경 Dialog -->
-    <Dialog v-model:visible="visible" header="비밀번호 변경" modal style="width: 30rem">
+    <Dialog v-model:visible="visible" :closable="false" header="비밀번호 변경" modal style="width: 25rem">
         <div>
             <div class="form-group">
                 <label for="currentPassword" class="form-label-inline ml-5 mb-1">현재 비밀번호</label>
@@ -133,7 +133,7 @@
                 <small v-if="errors.newPassword" class="error-text ml-5">{{ errors.newPassword }}</small>
             </div>
 
-            <div class="flex items-center justify-end gap-2">
+            <div class="flex items-center justify-center gap-2">
                 <Button label="변경" severity="primary" raised @click="submitPasswordChange" />
                 <Button label="취소" severity="secondary" raised @click="visible = false" />
             </div>
@@ -253,7 +253,6 @@ const submitPasswordChange = async () => {
             Swal.fire('성공', '비밀번호가 변경되었습니다.', 'success');
             await authservice.logout();
             router.push('/login');
-
         } else {
             alert('현재 비밀번호가 일치하지 않습니다.');
         }
@@ -420,6 +419,7 @@ h2 {
 /* Form 그룹 전체 디자인 */
 .form-group {
     display: flex;
+    width: auto;
     flex-direction: column;
     margin-bottom: 10px;
 }
@@ -432,7 +432,6 @@ h2 {
 }
 
 .form-control-inline {
-    width: 65%; /* input의 넓이 조정 */
     padding: 8px;
     margin-left: 5%;
     border: 1px solid #ddd;

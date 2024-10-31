@@ -62,29 +62,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { fetchGet } from '../../auth/service/AuthApiService';
+import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
 import Swal from 'sweetalert2';
-
-async function fetchPost(url, data) {
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            throw new Error(`서버 오류: ${response.status}`);
-        }
-
-        return response;
-    } catch (error) {
-        console.error("요청 중 오류 발생:", error);
-        throw error;
-    }
-}
 
 const route = useRoute();
 const router = useRouter();

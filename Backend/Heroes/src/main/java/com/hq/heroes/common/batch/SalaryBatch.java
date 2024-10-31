@@ -2,6 +2,8 @@ package com.hq.heroes.common.batch;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import com.hq.heroes.notification.entity.enums.AutoNotificationType;
+import com.hq.heroes.notification.service.NotificationService;
 import com.hq.heroes.salary.dto.SalaryHistoryDTO;
 import com.hq.heroes.salary.entity.SalaryHistory;
 import com.hq.heroes.salary.repository.SalaryHistoryRepository;
@@ -33,6 +35,7 @@ public class SalaryBatch {
     private final EmployeeRepository employeeRepository;
     private final SalaryHistoryService salaryHistoryService;
     private final SalaryHistoryRepository salaryHistoryRepository;
+    private final NotificationService notificationService;
 
     @Bean
     public Job salaryJob() {
@@ -75,6 +78,8 @@ public class SalaryBatch {
                         .build();
 
                 SalaryHistoryDTO result = salaryHistoryService.createSalary(requestDTO);
+
+                notificationService.sendNotificationAsync(result.getEmployeeId(), AutoNotificationType.MONTHLY_SALARY_PAYMENT, result);
 
                 return SalaryHistory.builder()
                         .employee(employee)

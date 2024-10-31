@@ -128,13 +128,13 @@ async function fetchEvaluationById(evaluationId) {
     }
 }
 
-// 날짜 포맷팅 함수
 function formatDate(date) {
-    if (!(date instanceof Date)) {
-        date = new Date(date);
-    }
-    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+    const year = String(date.getFullYear()).slice(2); // yy 형식으로 변경
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 두 자리 형식
+    const day = String(date.getDate()).padStart(2, '0'); // 두 자리 형식
+    return `${year}-${month}-${day}`;
 }
+
 
 // 컴포넌트가 마운트될 때 평가 데이터 가져오기 (전체 목록)
 onBeforeMount(() => {

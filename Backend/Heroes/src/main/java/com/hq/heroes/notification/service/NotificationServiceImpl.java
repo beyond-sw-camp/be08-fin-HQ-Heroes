@@ -18,6 +18,7 @@ import com.hq.heroes.notification.entity.enums.AutoNotificationType;
 import com.hq.heroes.notification.entity.enums.NotificationStatus;
 import com.hq.heroes.notification.repository.NotificationCategoryRepository;
 import com.hq.heroes.notification.repository.NotificationRepository;
+import com.hq.heroes.salary.dto.SalaryHistoryDTO;
 import com.hq.heroes.salary.entity.SalaryHistory;
 import com.hq.heroes.vacation.entity.Vacation;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.NumberFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -134,7 +134,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public int getUnreadNotificationCount(String employeeId) {
         int count = notificationRepository.countByReceiver_EmployeeIdAndStatus(employeeId, NotificationStatus.UNREAD);
-        if(count == 0) {
+        if (count == 0) {
             return 0;
         }
         return count;
@@ -165,7 +165,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (notificationId == null || employeeId == null) {
             throw new IllegalArgumentException("필수 정보가 누락되었습니다.");
         }
-        deleteNotification(notificationId,employeeId);
+        deleteNotification(notificationId, employeeId);
     }
 
     @Override
@@ -258,13 +258,26 @@ public class NotificationServiceImpl implements NotificationService {
                 case MONTHLY_VACATION_GRANTED -> "<html><body><p>월차가 지급되었습니다.</p></body></html>";   // 배치 작업에서 보내줘야함.
                 default -> throw new IllegalArgumentException("알 수 없는 근태 알림 타입입니다: " + notificationType);
             };
-        } else if ("급여".equals(category) && data instanceof SalaryHistory salaryHistory) {
+        } else if ("급여".equals(category) && data instanceof SalaryHistoryDTO salaryHistoryDTO) {
             // 급여 카테고리의 알림
-            String month = salaryHistory.getSalaryMonth().getMonth().toString();    // 지급 월
+            Optional<Employee> employee = employeeRepository.findByEmployeeId(salaryHistoryDTO.getEmployeeId());
+            int month = salaryHistoryDTO.getSalaryMonth().getMonthValue();
+            String employeeName = employee.get().getEmployeeName();
+            Double salary = salaryHistoryDTO.getPostTaxTotal();
+            int salaryInt = (int) Math.floor(salary); // 소수점 이하 버림
+
+            // 한국 원화 형식으로 변환
+            NumberFormat currencyFormat = NumberFormat.getNumberInstance(Locale.KOREA);
+            String formattedSalary = currencyFormat.format(salaryInt) + "원";
 
             message = switch (notificationType) {
-                case MONTHLY_SALARY_PAYMENT ->
-                        "<html><body><p>" + month + "월 급여가 지급되었습니다.</p></body></html>";  // 배치 작업에서 보내줘야함.
+                case MONTHLY_SALARY_PAYMENT -> "<html>\n" +
+                        "    <body>\n" +
+                        "        <p>[<strong>급여</strong>] " + month + "월 급여가 지급되었습니다.</p>\n" +
+                        "        <p><strong>사원 이름:</strong> " + employeeName + "</p>\n" +
+                        "        <p><strong>총 급여:</strong> " + formattedSalary + "</p>\n" +
+                        "    </body>\n" +
+                        "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 급여 알림 타입입니다: " + notificationType);
             };
         } else if ("교육".equals(category) && data instanceof EducationResponseDTO educationResponseDTO) {
