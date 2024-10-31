@@ -3,7 +3,16 @@
         <div class="card">
             <div class="flex flex-row justify-between mb-4">
                 <label class="text-xl font-bold">자격증 관리</label>
-                <Button label="추가하기" icon="pi pi-plus" class="custom-button" @click="() => { showAddCertification(); }" />
+                <Button
+                    label="추가하기"
+                    icon="pi pi-plus"
+                    class="custom-button"
+                    @click="
+                        () => {
+                            showAddCertification();
+                        }
+                    "
+                />
             </div>
 
             <!-- 필터 및 검색 섹션 -->
@@ -19,32 +28,28 @@
             </div>
 
             <!-- 자격증 목록 테이블 -->
-            <DataTable 
-                :value="filteredCertifications" 
-                v-model:selection="selectedCertification" 
-                paginator dataKey="certificationId" 
-                :rows="10" 
-                :globalFilterFields="['certificationName', 'deptName', 'institution']" 
+            <DataTable
+                :value="filteredCertifications"
+                v-model:selection="selectedCertification"
+                paginator
+                dataKey="certificationId"
+                :rows="10"
+                :globalFilterFields="['certificationName', 'deptName', 'institution']"
                 removableSort
+                selectionMode="single"
+                @row-click="showCertificationDetails(data)"
             >
-
                 <Column field="deptName" sortable header="부서 명" />
                 <Column field="certificationName" sortable header="자격증 명" />
                 <Column field="institution" sortable header="발급 기관" />
                 <Column field="benefit" sortable header="혜택" />
                 <Column class="w-16 !text-end">
                     <template #body="{ data }">
-                        <Button icon="pi pi-search" @click="showCertificationDetails(data)" severity="info" rounded></Button>
-                    </template>
-                </Column>
-                <Column class="w-16 !text-end">
-                    <template #body="{ data }">
-                        <Button icon="pi pi-pencil" @click="showEditCertification(data)" severity="primary" rounded></Button>
-                    </template>
-                </Column>
-                <Column class="w-16 !text-end">
-                    <template #body="{ data }">
-                        <Button icon="pi pi-trash" @click="confirmDeleteCertification(data)" severity="danger" rounded></Button>
+                        <div style="display: flex; gap: 0.5rem">
+                            <!-- flexbox와 gap 사용 -->
+                            <Button icon="pi pi-pencil" @click.stop="showEditCertification(data)" severity="primary" rounded></Button>
+                            <Button icon="pi pi-trash" @click.stop="confirmDeleteCertification(data)" severity="danger" rounded></Button>
+                        </div>
                     </template>
                 </Column>
             </DataTable>
@@ -254,7 +259,7 @@ async function saveCertification() {
 
         // 자격증 추가 완료 알림
         await Swal.fire('추가 완료', '자격증 추가가 완료되었습니다.', 'success');
-        
+
         // 페이지 새로 고침
         location.reload(); // 페이지를 새로 고침합니다.
     } catch (error) {
@@ -264,7 +269,7 @@ async function saveCertification() {
     }
 }
 
-// 자격증 수정하기 
+// 자격증 수정하기
 async function editCertification() {
     const editRequestData = {
         certificationName: editCertificationData.value.certificationName,
@@ -276,16 +281,15 @@ async function editCertification() {
 
     try {
         const response = await fetchPut(`http://localhost:8080/api/v1/certification-service/certification/${editCertificationData.value.certificationId}`, editRequestData);
-        
+
         // 모달 닫기
         isEditDialogVisible.value = false;
 
         // 자격증 수정 완료 알림
         await Swal.fire('수정 완료', '자격증 수정이 완료되었습니다.', 'success');
-        
+
         // 페이지 새로 고침
         location.reload(); // 즉시 페이지를 새로 고침합니다.
-
     } catch (error) {
         console.error('자격증 수정 중 오류:', error);
         // 오류 알림
@@ -320,7 +324,7 @@ async function deleteCertification(certification) {
 
         // 삭제 완료 알림
         await Swal.fire({
-            title: "자격증 삭제가 완료되었습니다.",
+            title: '자격증 삭제가 완료되었습니다.',
             icon: 'success'
         });
 
