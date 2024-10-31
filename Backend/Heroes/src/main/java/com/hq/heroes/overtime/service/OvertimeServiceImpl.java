@@ -30,8 +30,12 @@ public class OvertimeServiceImpl implements OvertimeService {
         LocalDate startDate = month.atDay(1);
         LocalDate endDate = month.atEndOfMonth();
 
-        // 해당 직원의 해당 월 승인된 연장근로 시간 조회 및 합산
-        List<Overtime> approvedOvertimes = overtimeRepository.findByEmployee_EmployeeIdAndOvertimeStartDateBetween(employeeId, startDate, endDate);
+        // 해당 직원의 해당 월 승인된 연장 근로 시간 조회 및 합산 (APPROVED 상태만 포함)
+        List<Overtime> approvedOvertimes = overtimeRepository.findByEmployee_EmployeeIdAndOvertimeStartDateBetween(employeeId, startDate, endDate)
+                .stream()
+                .filter(overtime -> overtime.getOvertimeStatus() == OvertimeStatus.APPROVED) // APPROVED 상태 필터
+                .collect(Collectors.toList());
+
         long totalOvertimeMinutes = approvedOvertimes.stream()
                 .mapToLong(overtime -> {
                     LocalDateTime startTime = overtime.getOvertimeStartDate().atTime(overtime.getOvertimeStartTime());
@@ -48,10 +52,14 @@ public class OvertimeServiceImpl implements OvertimeService {
         LocalDate startDate = month.atDay(1);  // 해당 월의 첫날
         LocalDate endDate = month.atEndOfMonth();  // 해당 월의 마지막 날
 
-        List<Overtime> overtimes = overtimeRepository.findByEmployee_EmployeeIdAndOvertimeStartDateBetween(employeeId, startDate, endDate);
+        // APPROVED 상태의 연장 근로만 포함하도록 필터링
+        List<Overtime> approvedOvertimes = overtimeRepository.findByEmployee_EmployeeIdAndOvertimeStartDateBetween(employeeId, startDate, endDate)
+                .stream()
+                .filter(overtime -> overtime.getOvertimeStatus() == OvertimeStatus.APPROVED) // APPROVED 상태 필터링
+                .collect(Collectors.toList());
 
         // 두 시간의 차이를 계산하고 합산
-        return overtimes.stream()
+        return approvedOvertimes.stream()
                 .mapToLong(overtime -> {
                     LocalDateTime startTime = overtime.getOvertimeStartDate().atTime(overtime.getOvertimeStartTime());
                     LocalDateTime endTime = overtime.getOvertimeEndDate().atTime(overtime.getOvertimeEndTime());
