@@ -1,11 +1,13 @@
 <template>
     <div class="card">
-        <Button class="list" label="목록 >" icon="pi pi-bars" @click="goBackToList" text style="margin-left: 10px; margin-bottom: 1rem;" />
+        <div class="flex justify-end mb-4">
+            <Button label="목록" icon="pi pi-bars" @click="goBackToList" outlined style="margin-right: 5rem;"/>
+        </div>
         <div class="notice-detail">
             <div class="text-lg flex justify-between">
                 <div class="font-bold text-3xl">
                     <span>
-                        [{{ categories.find(category => category.categoryId === editableNotice.categoryId)?.categoryName || '카테고리 없음' }}]
+                        [{{ categories.find((category) => category.categoryId === editableNotice.categoryId)?.categoryName || '카테고리 없음' }}]
                         {{ editableNotice.title }}
                     </span>
                 </div>
@@ -19,13 +21,15 @@
             <hr />
             <table class="notice-info text-lg">
                 <tr>
-                    <th style="text-align: left; width: 150px;">카테고리</th> <!-- 원하는 너비로 조정 -->
+                    <th style="text-align: left; width: 150px">카테고리</th>
+                    <!-- 원하는 너비로 조정 -->
                     <td>
-                        {{ categories.find(category => category.categoryId === editableNotice.categoryId)?.categoryName || '카테고리 없음' }}
+                        {{ categories.find((category) => category.categoryId === editableNotice.categoryId)?.categoryName || '카테고리 없음' }}
                     </td>
                 </tr>
                 <tr>
-                    <th style="text-align: left; vertical-align: top; width: 150px;">내 용</th> <!-- 원하는 너비로 조정 -->
+                    <th style="text-align: left; vertical-align: top; width: 150px">내 용</th>
+                    <!-- 원하는 너비로 조정 -->
                     <td>
                         <div v-html="editableNotice.content" class="message-content"></div>
                     </td>
