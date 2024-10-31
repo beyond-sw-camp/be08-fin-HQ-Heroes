@@ -25,8 +25,8 @@
                 <!-- 취소 버튼 추가 -->
                 <Column header="휴가 취소" style="min-width: 5rem">
                     <template #body="slotProps">
-                        <!-- 현재 날짜보다 시작일이 이후인 경우에만 취소 버튼 보이기 -->
-                        <Button v-if="!isPastDate(slotProps.data.vacationStart)" label="취소" class="p-button-danger" @click="openCancelModal(slotProps.data)" />
+                        <!-- 현재 날짜보다 시작일이 이후이면서 상태가 반려됨이 아닌 경우에만 취소 버튼 보이기 -->
+                        <Button v-if="!isPastDate(slotProps.data.vacationStart) && slotProps.data.vacationStatus !== '반려됨'" label="취소" class="p-button-danger" @click="openCancelModal(slotProps.data)" />
                         <div v-else style="height: 2.5rem"></div>
                         <!-- 빈 div로 높이 맞추기 -->
                     </template>
