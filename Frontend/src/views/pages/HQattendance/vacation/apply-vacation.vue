@@ -228,6 +228,8 @@ onMounted(() => {
 
     loadEmployeeData().then(() => {
         form.value.applicantName = employeeData.value.employeeName; // 로그인된 사용자의 이름을 기본값으로 설정
+        selectedApplicantName.value = employeeData.value.employeeName;
+        selectedApplicantId.value = `emp-${employeeData.value.employeeId}`; // applicantId 설정
 
         loadEmployeeTreeData(); // 신청자 목록 로드
         loadApproverTreeData(); // 결재자 목록 로드 (팀장만)

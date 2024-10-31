@@ -5,10 +5,13 @@ import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.vacation.dto.VacationDTO;
 import com.hq.heroes.vacation.entity.Vacation;
 import com.hq.heroes.vacation.entity.enums.VacationStatus;
+import com.hq.heroes.vacation.entity.enums.VacationType;
 import com.hq.heroes.vacation.repository.VacationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,14 +78,48 @@ public class VacationServiceImpl implements VacationService {
         vacation.setVacationStatus(VacationStatus.APPROVED);
 
         Employee employee = vacation.getEmployee();
-        if (employee.getAnnualLeave() > 0) {
-            employee.setAnnualLeave(employee.getAnnualLeave() - 1);
+        long deductionAmount;
+
+        // 휴가 종류에 따른 차감 일수 설정
+        if (vacation.getVacationType() == VacationType.DAY_OFF) {
+            deductionAmount = 4; // 월차는 4 차감
+        } else if (vacation.getVacationType() == VacationType.HALF_DAY_OFF ||
+                vacation.getVacationType() == VacationType.SICK_LEAVE ||
+                vacation.getVacationType() == VacationType.EVENT_LEAVE) {
+            // 반차, 병가, 경조는 쿼터 단위로 차감
+            deductionAmount = calculateQuarterDeduction(vacation.getVacationStartTime(), vacation.getVacationEndTime());
+        } else {
+            throw new RuntimeException("Invalid vacation type");
+        }
+
+        if (employee.getAnnualLeave() >= deductionAmount) {
+            employee.setAnnualLeave(employee.getAnnualLeave() - deductionAmount);
         } else {
             throw new RuntimeException("연차가 부족합니다.");
         }
 
         employeeRepository.save(employee);
         vacationRepository.save(vacation);
+    }
+
+    private long calculateQuarterDeduction(LocalTime startTime, LocalTime endTime) {
+        // 4개의 쿼터 시간대 리스트로 설정
+        List<String> timeSlots = Arrays.asList("09:00", "11:00", "13:00", "16:00", "18:00");
+
+        // LocalTime을 문자열로 변환
+        String startStr = startTime.toString().substring(0, 5);
+        String endStr = endTime.toString().substring(0, 5);
+
+        int startIdx = timeSlots.indexOf(startStr);
+        int endIdx = timeSlots.indexOf(endStr);
+
+        // 인덱스가 유효한지 확인 후 차감 일수 계산
+        if (startIdx == -1 || endIdx == -1 || startIdx >= endIdx) {
+            throw new RuntimeException("Invalid time range for half-day vacation");
+        }
+
+        // 선택된 쿼터 수만큼 1씩 차감
+        return endIdx - startIdx;
     }
 
     public void rejectVacation(Long vacationId) {
