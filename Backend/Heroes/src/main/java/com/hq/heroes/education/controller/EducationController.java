@@ -40,10 +40,9 @@ public class EducationController {
     @GetMapping("/education")
     @Operation(summary = "교육 목록 조회", description = "전체 교육의 목록을 조회한다.")
     public ResponseEntity<List<EducationResponseDTO>> getEducations() {
-        List<Education> educations = educationService.getEducations(); // 수정된 부분
-        List<EducationResponseDTO> educationDTOs = educations.stream().map(Education::toResponseDTO).collect(Collectors.toList());
+        List<EducationResponseDTO> educationDTOs = educationService.getEducations(); // 수정된 부분
 
-        if (!educations.isEmpty()) {
+        if (!educationDTOs.isEmpty()) {
             return new ResponseEntity<>(educationDTOs, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(educationDTOs, HttpStatus.NOT_FOUND);
@@ -55,11 +54,10 @@ public class EducationController {
     @Operation(summary = "교육 상세 조회", description = "교육 ID로 해당 교육의 정보를 조회한다.")
     public ResponseEntity<EducationResponseDTO> getEducationById(
             @Parameter(description = "교육 ID", example = "1") @PathVariable("education-id") Long educationId) {
-        Education education = educationService.getEducationById(educationId);
+        EducationResponseDTO educationResponseDTO = educationService.getEducationById(educationId);
 
-        if (education != null) {
-            EducationResponseDTO educationDTO = education.toResponseDTO();
-            return new ResponseEntity<>(educationDTO, HttpStatus.OK);
+        if (educationResponseDTO != null) {
+            return new ResponseEntity<>(educationResponseDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
@@ -101,14 +99,14 @@ public class EducationController {
     @PostMapping("/education")
     @Operation(summary = "교육 등록", description = "교육 정보를 받아서 등록한다.")
     public ResponseEntity<EducationResponseDTO> create(@RequestBody EducationRequestDTO requestDTO) {
-        Education education = educationService.createEducation(requestDTO);
+        EducationResponseDTO educationResponseDTO = educationService.createEducation(requestDTO);
         List<EmployeeDTO> employeeDTOList = employeeService.getAllEmployees();
 
         for (EmployeeDTO employeeDTO : employeeDTOList) {
-            notificationService.sendNotificationAsync(employeeDTO.getEmployeeId(), AutoNotificationType.EDUCATION_ENROLL, education);
+            notificationService.sendNotificationAsync(employeeDTO.getEmployeeId(), AutoNotificationType.EDUCATION_ENROLL, educationResponseDTO);
         }
 
-        return new ResponseEntity<>(education.toResponseDTO(), HttpStatus.CREATED);
+        return new ResponseEntity<>(educationResponseDTO, HttpStatus.CREATED);
     }
 
     // 교육 정보 수정 - 테스트
@@ -118,10 +116,10 @@ public class EducationController {
             @Parameter(description = "교육 ID", example = "1")
             @PathVariable("education-id") Long educationId,
             @RequestBody EducationRequestDTO requestDTO) {
-        Education education = educationService.updateEducation(educationId, requestDTO);
+        EducationResponseDTO educationResponseDTO = educationService.updateEducation(educationId, requestDTO);
 
-        if (education != null) {
-            return new ResponseEntity<>(education.toResponseDTO(), HttpStatus.OK);
+        if (educationResponseDTO != null) {
+            return new ResponseEntity<>(educationResponseDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }

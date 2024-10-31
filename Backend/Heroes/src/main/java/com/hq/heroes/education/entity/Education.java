@@ -58,23 +58,6 @@ public class Education {
     @JoinColumn(name = "category_id", nullable = false)
     private EducationCategory educationCategory;
 
-    public EducationResponseDTO toResponseDTO() {
-        return EducationResponseDTO.builder()
-                .educationId(this.educationId)
-                .instructorName(this.instructorName)
-                .educationName(this.educationName)
-                .institution(this.institution)
-                .educationStart(this.startDate != null ? LocalDate.from(this.startDate) : null) // 널 체크 추가
-                .educationEnd(this.endDate != null ? LocalDate.from(this.endDate) : null) // 널 체크 추가
-                .participants(this.participants)
-                .categoryName(this.educationCategory != null ? this.educationCategory.getCategoryName() : null) // 널 체크 추가
-                .categoryId(this.educationCategory != null ? this.educationCategory.getCategoryId() : null)
-                .educationCurriculum(this.educationCurriculum)
-                .currentParticipant(this.currentParticipant)
-                .build();
-    }
-
-
     // 현재 신청 인원 증가 메소드
     public void incrementCurrentParticipant() {
         this.currentParticipant++;
