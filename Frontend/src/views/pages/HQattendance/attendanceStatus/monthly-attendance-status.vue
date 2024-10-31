@@ -1,6 +1,10 @@
 <template>
     <div class="card">
-        <h2 class="font-semibold text-xl mb-4">월 근태 현황</h2>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold text-xl">월 근태 현황</h2>
+            <!-- 엑셀 내보내기 버튼을 오른쪽으로 이동 -->
+            <Button label="Excel 내보내기" icon="pi pi-file-excel" class="p-button-success" @click="exportToExcel" />
+        </div>
         <DataTable
             :value="filteredAttendanceRecords"
             :paginator="true"
@@ -19,11 +23,6 @@
                 <div class="flex justify-between items-center">
                     <!-- 선택된 월에 따라 필터링 -->
                     <Dropdown v-model="selectedMonth" :options="months" optionLabel="name" optionValue="value" placeholder="월 선택" class="ml-4" @change="filterByMonth" />
-
-                    <!-- 내보내기 버튼 -->
-                    <div class="flex gap-2">
-                        <Button label="Excel 내보내기" icon="pi pi-file-excel" class="p-button-success" @click="exportToExcel" />
-                    </div>
 
                     <!-- 검색 기능을 오른쪽으로 이동 -->
                     <div class="relative search-container">

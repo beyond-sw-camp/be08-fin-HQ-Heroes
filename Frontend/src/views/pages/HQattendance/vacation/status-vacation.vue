@@ -25,7 +25,10 @@
                 <!-- 취소 버튼 추가 -->
                 <Column header="휴가 취소" style="min-width: 5rem">
                     <template #body="slotProps">
-                        <Button label="취소" class="p-button-danger" @click="openCancelModal(slotProps.data)" />
+                        <!-- 현재 날짜보다 시작일이 이후인 경우에만 취소 버튼 보이기 -->
+                        <Button v-if="!isPastDate(slotProps.data.vacationStart)" label="취소" class="p-button-danger" @click="openCancelModal(slotProps.data)" />
+                        <div v-else style="height: 2.5rem"></div>
+                        <!-- 빈 div로 높이 맞추기 -->
                     </template>
                 </Column>
             </DataTable>
@@ -98,7 +101,7 @@
 <script setup>
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
-import { fetchGet } from '../../auth/service/AuthApiService'; // 수정된 fetch 함수 사용
+import { fetchGet, fetchPost } from '../../auth/service/AuthApiService'; // 수정된 fetch 함수 사용
 
 const employees = ref([]);
 const filters = ref({ global: { value: null } });
@@ -127,7 +130,8 @@ onMounted(async () => {
                 vacationEndTime: record.vacationEndTime.substring(0, 5),
                 approverName: record.approverName,
                 vacationStatus: mapStatus(record.vacationStatus)
-            }));
+            }))
+            .sort((a, b) => new Date(b.vacationStart) - new Date(a.vacationStart)); // 최신순으로 정렬
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.' });
     }
@@ -171,6 +175,14 @@ function openCancelModal(employee) {
     cancelDialogVisible.value = true;
 }
 
+// 함수 추가: 날짜가 현재 날짜보다 이전인지 확인
+function isPastDate(date) {
+    const today = new Date();
+    const formattedDate = new Date(date);
+    // 날짜 비교를 위해 시간 정보를 제거합니다.
+    return formattedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0);
+}
+
 // 취소 요청 제출
 async function submitCancelRequest() {
     try {
@@ -179,7 +191,10 @@ async function submitCancelRequest() {
             comment: cancelReason.value,
             approverId: selectedEmployee.value.approverId // 결재자 ID 전달
         };
+        console.log(requestBody);
         await fetchPost('http://localhost:8080/api/v1/vacation/cancel', requestBody);
+        console.log(requestBody);
+
         toast.add({ severity: 'success', summary: 'Success', detail: '휴가 취소 요청이 제출되었습니다.' });
 
         // 모달 닫기 및 초기화

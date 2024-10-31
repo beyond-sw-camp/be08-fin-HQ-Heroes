@@ -98,7 +98,6 @@
 
 <script setup>
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
-import axios from 'axios';
 import Avatar from 'primevue/avatar'; // Avatar 컴포넌트
 import TreeSelect from 'primevue/treeselect'; // TreeSelect 컴포넌트
 import Swal from 'sweetalert2';
@@ -158,7 +157,7 @@ const loadEmployeeData = async () => {
 // 전체 사원 목록을 트리 구조로 변환하는 함수
 const loadEmployeeTreeData = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/employees');
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees');
         // 로그인된 사용자의 부서명을 기준으로 필터링
         const filteredEmployees = response.data.filter(
             (employee) => employee.deptName === employeeData.value.deptName // 부서명이 같은 직원만 포함
@@ -246,6 +245,15 @@ const handleApproverChange = (selectedApprover) => {
     selectedApproverName.value = Object(selectedApprover).label; // 선택된 결재자의 이름 설정
 };
 
+// 추가: 휴가 신청 일수 계산 함수
+const calculateRequestedDays = () => {
+    const startDate = new Date(form.value.vacationStartDate);
+    const endDate = new Date(form.value.vacationEndDate);
+    const timeDifference = Math.abs(endDate - startDate);
+    const totalDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+    return totalDays + 1;
+};
+
 const submitForm = async () => {
     // 날짜 오류가 있는 경우 경고창 표시
     if (isDateInvalid.value) {
@@ -256,6 +264,17 @@ const submitForm = async () => {
             confirmButtonText: '확인'
         });
         return; // 날짜 오류가 있으면 함수 종료
+    }
+
+    const requestedDays = calculateRequestedDays();
+    if (requestedDays > employeeData.value.annualLeave / 4) {
+        Swal.fire({
+            icon: 'error',
+            title: '휴가 일수 초과',
+            text: `신청하려는 휴가 일수(${requestedDays}일)가 잔여 휴가 일수를 초과합니다.`,
+            confirmButtonText: '확인'
+        });
+        return;
     }
     // 연차 일수가 0일 경우 경고 메시지 출력 후 함수 종료
     if (employeeData.value.annualLeave <= 0) {

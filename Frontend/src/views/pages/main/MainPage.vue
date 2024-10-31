@@ -37,12 +37,13 @@
                 <div class="flex justify-between mb-4">
                     <div class="ml-3 mt-7">
                         <span class="block text-muted-color font-medium mb-2">휴가 잔여 일수</span>
-                        <!-- 소수점 여부에 따라 다른 형식으로 표시 -->
                         <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">
-                            <!-- 소수점이 있는 경우 소수점 한 자리까지 표시 -->
-                            <span v-if="(annualLeave / 4) % 1 !== 0">{{ (annualLeave / 4).toFixed(1) }}일</span>
-                            <!-- 소수점이 없는 경우 정수로만 표시 -->
-                            <span v-else>{{ annualLeave / 4 }}일</span>
+                            <span v-if="annualLeave > 0">
+                                {{ Math.floor(annualLeave / 4) }}일
+                                <span v-if="annualLeave % 4 > 0">{{ annualLeave % 4 }}쿼터</span>
+                            </span>
+                            <span v-else>0일</span>
+                            <!-- 휴가 잔여일이 없을 경우 -->
                         </div>
                     </div>
                     <div class="flex items-center justify-center bg-cyan-100 rounded-border mt-8 mr-4" style="width: 2.5rem; height: 2.5rem">
