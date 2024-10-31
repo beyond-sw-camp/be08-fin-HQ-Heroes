@@ -98,7 +98,6 @@
 
 <script setup>
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
-import axios from 'axios';
 import Avatar from 'primevue/avatar'; // Avatar 컴포넌트
 import TreeSelect from 'primevue/treeselect'; // TreeSelect 컴포넌트
 import Swal from 'sweetalert2';
@@ -158,7 +157,7 @@ const loadEmployeeData = async () => {
 // 전체 사원 목록을 트리 구조로 변환하는 함수
 const loadEmployeeTreeData = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/employees');
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees');
         // 로그인된 사용자의 부서명을 기준으로 필터링
         const filteredEmployees = response.data.filter(
             (employee) => employee.deptName === employeeData.value.deptName // 부서명이 같은 직원만 포함
