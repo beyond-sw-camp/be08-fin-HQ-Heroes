@@ -64,8 +64,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="hireDate">재직상태</label>
-                            <input type="text" id="status" :value="employeeData.status === 'ACTIVE' ? '재직중' : '퇴 사'" class="form-control readonly-input" readonly />
+                            <label for="status">재직상태</label>
+                            <select id="status" v-model="employeeData.status" class="form-control">
+                                <option value="ACTIVE">재직중</option>
+                                <option value="INACTIVE">퇴사</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -239,10 +242,14 @@ const enableEditing = () => {
 
     console.log('updatedEmployeeData: ', updatedEmployeeData);
     adminUpdateEmployeeInfo(updatedEmployeeData, profileImageFile.value)
-        .then(() => {
+    .then(() => {
             Swal.fire({
                 title: '수정되었습니다.',
                 icon: 'success'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleClose(); // 모달 닫기
+                }
             });
         })
         .catch((error) => {

@@ -20,6 +20,8 @@
             style="table-layout: fixed !important;"
             @row-click="openEducationDetail"
             class="data-table-custom"
+            
+            
         >
             <!-- 필터와 테이블 헤더 -->
             <template #header>
@@ -50,7 +52,7 @@
                     {{ data.educationName }}
                 </template>
             </Column>
-            <Column field="educationEnd" sortable header="교육 일정" dataType="date" style="min-width: 8rem; text-align: left;">
+            <Column field="educationEnd" sortable header="수강 기간" dataType="date" style="min-width: 8rem; text-align: left;">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.educationStart)) }} ~ {{ formatDate(new Date(data.educationEnd)) }}
                 </template>
@@ -211,6 +213,10 @@ function onSelectionChange(e) {
     selectedCourse.value = e.value;
 }
 
+function rowClass(data) {
+    return data.status !== '신청 가능' ? 'inactive-row' : '';
+}
+
 onBeforeMount(() => {
     initFilters();
     fetchCategories();
@@ -220,6 +226,12 @@ onBeforeMount(() => {
 </script>
 
 <style scoped>
+
+:deep(.inactive-row) {
+    background-color: #f8d7da !important; /* 연한 빨간 배경 */
+    color: #721c24 !important; 
+}
+
 .search-container {
     display: flex;
     align-items: center;

@@ -56,9 +56,4 @@ public interface EmployeeRepository extends JpaRepository<Employee,String> {
             "WHERE a.checkIn IS NOT NULL OR a.checkOut IS NOT NULL")
     Page<Employee> findEmployeesWithAttendance(Pageable pageable);
 
-    /*
-    SELECT DISTINCT e.employee_id FROM tb_employee e
-    JOIN tb_attendance a ON e.employee_id = a.employee_id
-    WHERE a.check_in IS NOT NULL OR a.check_out IS NOT NULL
-     */
 }
