@@ -2,8 +2,10 @@ package com.hq.heroes.notification.service;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import com.hq.heroes.certification.dto.EmployeeCertificationResponseDTO;
 import com.hq.heroes.certification.entity.Certification;
 import com.hq.heroes.certification.entity.EmployeeCertification;
+import com.hq.heroes.education.dto.CourseResponseDTO;
 import com.hq.heroes.education.dto.EducationResponseDTO;
 import com.hq.heroes.education.entity.Course;
 import com.hq.heroes.education.entity.Education;
@@ -281,31 +283,29 @@ public class NotificationServiceImpl implements NotificationService {
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
             };
-        } else if ("교육".equals(category) && data instanceof Course course) {
+        } else if ("교육".equals(category) && data instanceof CourseResponseDTO courseResponseDTO) {
             // 교육 - 교육 카테고리 알림
-            Education education = course.getEducation();
-
             message = switch (notificationType) {
                 case EDUCATION_APPLICATION -> "<html>\n" +
                         "    <body>\n" +
                         "        <p>[<strong>교육</strong>] 교육이 신청되었습니다.</p>\n" +
-                        "        <p><strong>신청한 교육명:</strong> " + education.getEducationName() + "</p>\n" +
-                        "        <p><strong>시작일:</strong> " + education.getStartDate().toString() + "</p>\n" +
-                        "        <p><strong>종료일:</strong> " + education.getEndDate().toString() + "</p>\n" +
+                        "        <p><strong>신청한 교육명:</strong> " + courseResponseDTO.getEducationName() + "</p>\n" +
+                        "        <p><strong>시작일:</strong> " + courseResponseDTO.getStartDate().toString() + "</p>\n" +
+                        "        <p><strong>종료일:</strong> " + courseResponseDTO.getEndDate().toString() + "</p>\n" +
                         "    </body>\n" +
                         "</html>\n";
                 case EDUCATION_CANCEL -> "<html>\n" +
                         "    <body>\n" +
                         "        <p>[<strong>교육</strong>] 교육 신청이 취소되었습니다.</p>\n" +
-                        "        <p><strong>취소한 교육명:</strong> " + education.getEducationName() + "</p>\n" +
+                        "        <p><strong>취소한 교육명:</strong> " + courseResponseDTO.getEducationName() + "</p>\n" +
                         "    </body>\n" +
                         "</html>\n";
                 case EDUCATION_COMPLETION -> "<html>\n" +
                         "    <body>\n" +
                         "        <p>[<strong>교육</strong>] 교육이 이수 처리되었습니다.</p>\n" +
-                        "        <p><strong>이수한 교육명:</strong> " + education.getEducationName() + "</p>\n" +
-                        "        <p><strong>시작일:</strong> " + education.getStartDate().toString() + "</p>\n" +
-                        "        <p><strong>종료일:</strong> " + education.getEndDate().toString() + "</p>\n" +
+                        "        <p><strong>이수한 교육명:</strong> " + courseResponseDTO.getEducationName() + "</p>\n" +
+                        "        <p><strong>시작일:</strong> " + courseResponseDTO.getStartDate().toString() + "</p>\n" +
+                        "        <p><strong>종료일:</strong> " + courseResponseDTO.getEndDate().toString() + "</p>\n" +
                         "    </body>\n" +
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
@@ -326,25 +326,25 @@ public class NotificationServiceImpl implements NotificationService {
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
             };
-        } else if ("교육".equals(category) && data instanceof EmployeeCertification employeeCertification) {
+        } else if ("교육".equals(category) && data instanceof EmployeeCertificationResponseDTO employeeCertificationResponseDTO) {
             // 교육 - 사원 자격증 카테고리 알림
-            String employeeName = employeeCertification.getEmployee().getEmployeeName();
+            String employeeName = employeeCertificationResponseDTO.getEmployeeName();
 
             message = switch (notificationType) {
                 case EMPLOYEE_CERTIFICATION_REGISTRATION -> "<html>\n" +
                         "    <body>\n" +
                         "        <p>[<strong>자격증</strong>] " + employeeName + "님의 자격증 등록을 요청하였습니다.</p>\n" +
-                        "        <p><strong>자격증명:</strong> " + employeeCertification.getCertificationName() + "</p>\n" +
-                        "        <p><strong>발급기관:</strong> " + employeeCertification.getInstitution() + "</p>\n" +
-                        "        <p><strong>취득일:</strong> " + employeeCertification.getAcquisitionDate().toString() + "</p>\n" +
+                        "        <p><strong>자격증명:</strong> " + employeeCertificationResponseDTO.getCertificationName() + "</p>\n" +
+                        "        <p><strong>발급기관:</strong> " + employeeCertificationResponseDTO.getInstitution() + "</p>\n" +
+                        "        <p><strong>취득일:</strong> " + employeeCertificationResponseDTO.getAcquisitionDate().toString() + "</p>\n" +
                         "    </body>\n" +
                         "</html>\n";
                 case EMPLOYEE_CERTIFICATION_APPROVAL -> "<html>\n" +
                         "    <body>\n" +
                         "        <p>[<strong>자격증</strong>] " + employeeName + "님의 자격증이 등록 되었습니다.</p>\n" +
-                        "        <p><strong>자격증명:</strong> " + employeeCertification.getCertificationName() + "</p>\n" +
-                        "        <p><strong>발급기관:</strong> " + employeeCertification.getInstitution() + "</p>\n" +
-                        "        <p><strong>취득일:</strong> " + employeeCertification.getAcquisitionDate().toString() + "</p>\n" +
+                        "        <p><strong>자격증명:</strong> " + employeeCertificationResponseDTO.getCertificationName() + "</p>\n" +
+                        "        <p><strong>발급기관:</strong> " + employeeCertificationResponseDTO.getInstitution() + "</p>\n" +
+                        "        <p><strong>취득일:</strong> " + employeeCertificationResponseDTO.getAcquisitionDate().toString() + "</p>\n" +
                         "    </body>\n" +
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
