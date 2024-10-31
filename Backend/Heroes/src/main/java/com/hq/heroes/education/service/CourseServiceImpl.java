@@ -17,17 +17,36 @@ import java.util.stream.Collectors;
 public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
 
-    @Override
-    public Course getCourseById(Long id) {
-
-        Optional<Course> course = courseRepository.findById(id);
-
-        return course.get();
+    public CourseResponseDTO convertToDto(Course course) {
+        return CourseResponseDTO.builder()
+                .courseId(course.getCourseId())
+                .employeeId(course.getEmployee().getEmployeeId())
+                .educationName(course.getEducation().getEducationName())
+                .employeeName(course.getEmployee().getEmployeeName())
+                .instructorName(course.getEducation().getInstructorName())
+                .institution(course.getEducation().getInstitution())
+                .startDate(course.getEducation().getStartDate())
+                .endDate(course.getEducation().getEndDate())
+                .categoryName(course.getEducation().getEducationCategory().getCategoryName())
+                .courseStatus(course.getCourseStatus())
+                .educationCurriculum(course.getEducation().getEducationCurriculum())
+                .build();
     }
 
     @Override
-    public List<Course> getCourseByEmployeeId (String employeeId) {
-        return courseRepository.findByEmployee_EmployeeId(employeeId);
+    public CourseResponseDTO getCourseById(Long id) {
+
+        Optional<Course> course = courseRepository.findById(id);
+
+        return convertToDto(course.get());
+    }
+
+    @Override
+    public List<CourseResponseDTO> getCourseByEmployeeId(String employeeId) {
+        return courseRepository.findByEmployee_EmployeeId(employeeId)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -41,20 +60,17 @@ public class CourseServiceImpl implements CourseService {
         return false;
     }
 
-    public Course completeCourse(Long courseId) {
+    public CourseResponseDTO completeCourse(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("수강 내역을 찾을 수 없습니다."));
 
         course.setCourseStatus(CourseStatus.PASS); // 상태를 이수로 변경
         courseRepository.save(course);
-        return course;
+        return convertToDto(course);
     }
 
     @Override
     public List<CourseResponseDTO> getAllCourses() {
-        List<Course> courses = courseRepository.findAll();
-        return courses.stream()
-                .map(Course::toResponseDTO)
-                .collect(Collectors.toList());
+        return courseRepository.findAll().stream().map(this::convertToDto).toList();
     }
 }
