@@ -109,7 +109,7 @@ public class SecurityConfig {
                     }
                 }))
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join", "/reissue", "/reset-password", "/logout", "/mails/**", "/**").permitAll()
+                        .requestMatchers("/login", "/", "/join", "/reissue", "/reset-password", "/logout", "/mails/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
 
