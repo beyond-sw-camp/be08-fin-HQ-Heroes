@@ -78,11 +78,12 @@
       <Dialog
         :header="salaryDialogHeader"
         v-model:visible="displayModal"
-        :style="{ width: '70vw', marginLeft: '15%', marginTop: '5%' }"
+        :style="{ width: '70vw', marginLeft: '20%', marginTop: '3%' }"
         class="salary-dialog"
         @hide="closeSalaryModal"
         :draggable="false"
         pt:mask:class="backdrop-blur-sm"
+        :closable="false"
       >
         <div class="salary-modal">
           <div class="salary-details">
@@ -135,21 +136,21 @@
               </div>
             </div>
           </div>
-          <!-- <div class="total-net-pay font-semibold mt-4 text-lg text-center">
-            <span>실지급액 : </span>
-            <span>{{ formatCurrency(selectedMonth?.postTaxTotal) }}</span>
-          </div> -->
-          <div class="total-panel">
-            <div class="total-item">
-              <span>급여 합계 : </span><span>{{ formatCurrency(selectedMonth?.preTaxTotal) }}</span>
-              <span> - 공제액 합계 : </span><span>{{ formatCurrency(totalDeductions) }}</span>
+          <div>
+            <div class="flex justify-content-end flex-wrap">
+              <div class="flex align-items-center justify-content-center w-4rem h-4rem font-bold border-round ml-80">급여 합계</div>
+              <div class="flex align-items-center justify-content-center w-4rem h-4rem font-bold border-round ml-10">{{ formatCurrency(selectedMonth?.preTaxTotal) }}</div>
             </div>
-            <div class="total-item total-net">
-              <span>실지급액 : </span><span>{{ selectedMonth?.postTaxTotal }}</span>
+            <div class="flex justify-content-end flex-wrap">
+              <div class="flex align-items-center justify-content-center w-4rem h-4rem font-bold border-round ml-80">공제액 합계</div>
+              <div class="flex align-items-center justify-content-center w-4rem h-4rem font-bold border-round ml-10">- {{ formatCurrency(totalDeductions) }}</div>
+            </div>
+            <div class="flex justify-content-end flex-wrap">
+              <div class="flex align-items-center justify-content-center w-4rem h-4rem font-bold border-round ml-80">실지급액</div>
+              <div class="flex align-items-center justify-content-center w-4rem h-4rem font-bold border-round ml-10">{{ formatCurrency(selectedMonth?.postTaxTotal) }}</div>
             </div>
           </div>
           
-
           <div class="modal-footer">
             <Button label="닫기" class="p-button-text" @click="closeSalaryModal" />
           </div>
@@ -441,40 +442,10 @@ onMounted(async () => {
   margin: 0.5rem;
 }
 
-.total-panel {
-  /* margin-top: 20px;
-  padding-top: 10px;
-  border-top: 1px solid #ddd; */
-
-  width: 95%;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  background: #f9fafb;
-  margin: 1.5rem;
-}
-
-.total-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.total-net {
-  font-weight: bold;
-  color: #6366f1;
-}
-
-.info-item {
+.info-item, .deduction-item {
   display: flex;
   justify-content: space-between;
   padding: 0.75rem 0;
-}
-
-.deduction-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem 0;
 }
 
 .total-deductions {
@@ -495,7 +466,7 @@ onMounted(async () => {
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  margin-top: 1rem;
+  margin-right: 1.5rem;
 }
 
 @keyframes fadeIn {

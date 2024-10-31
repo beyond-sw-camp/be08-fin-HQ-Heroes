@@ -10,7 +10,7 @@
                     <Dropdown class="mr-2" v-model="selectedCategory" :options="categories" optionLabel="categoryName" placeholder="카테고리 선택" @change="filterNotices" />
                 </div>
                 <div class="relative search-container"> 
-                    <InputText placeholder="검색하기..." v-model="globalFilter" @input="filterNotices" class="search-input" />
+                    <InputText placeholder="검색" v-model="globalFilter" @input="filterNotices" class="search-input" />
                     <i class="pi pi-search search-icon" />
                 </div>
             </div>
@@ -37,13 +37,13 @@
                 <Column field="title" header="제목" sortable />
                 <Column field="employeeName" header="작성자" sortable />
 
-                <!-- 수정 및 삭제 관련 열 주석 처리 -->
-                <!-- <Column v-if="isAdmin()" field="action" header="수정 / 삭제"> -->
-                <!--     <template #body="slotProps"> -->
-                <!--         <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click.stop="goToNoticeUpdate(slotProps.data.noticeId)" /> -->
-                <!--         <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" /> -->
-                <!--     </template> -->
-                <!-- </Column> -->
+                <!-- 수정 및 삭제 -->
+                <Column v-if="isAdmin()" field="action" header="수정 / 삭제">
+                    <template #body="slotProps">
+                        <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click="goToNoticeUpdate(slotProps.data.noticeId)" />
+                        <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" />
+                    </template>
+                </Column>
             </DataTable>
         </div>
     </div>
@@ -56,8 +56,6 @@ import Button from 'primevue/button';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import Dropdown from 'primevue/dropdown';
-import InputGroup from 'primevue/inputgroup';
-import InputGroupAddon from 'primevue/inputgroupaddon';
 import InputText from 'primevue/inputtext';
 import Swal from 'sweetalert2';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
