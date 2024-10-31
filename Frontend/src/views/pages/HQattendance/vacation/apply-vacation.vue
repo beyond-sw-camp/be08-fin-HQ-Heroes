@@ -246,6 +246,15 @@ const handleApproverChange = (selectedApprover) => {
     selectedApproverName.value = Object(selectedApprover).label; // 선택된 결재자의 이름 설정
 };
 
+// 추가: 휴가 신청 일수 계산 함수
+const calculateRequestedDays = () => {
+    const startDate = new Date(form.value.vacationStartDate);
+    const endDate = new Date(form.value.vacationEndDate);
+    const timeDifference = Math.abs(endDate - startDate);
+    const totalDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+    return totalDays + 1;
+};
+
 const submitForm = async () => {
     // 날짜 오류가 있는 경우 경고창 표시
     if (isDateInvalid.value) {
@@ -256,6 +265,17 @@ const submitForm = async () => {
             confirmButtonText: '확인'
         });
         return; // 날짜 오류가 있으면 함수 종료
+    }
+
+    const requestedDays = calculateRequestedDays();
+    if (requestedDays > employeeData.value.annualLeave / 4) {
+        Swal.fire({
+            icon: 'error',
+            title: '휴가 일수 초과',
+            text: `신청하려는 휴가 일수(${requestedDays}일)가 잔여 휴가 일수를 초과합니다.`,
+            confirmButtonText: '확인'
+        });
+        return;
     }
     // 연차 일수가 0일 경우 경고 메시지 출력 후 함수 종료
     if (employeeData.value.annualLeave <= 0) {
