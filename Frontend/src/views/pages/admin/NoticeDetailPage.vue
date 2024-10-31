@@ -1,8 +1,19 @@
 <template>
     <div class="card">
-        <div class="notice-detail">
-            <h2>[{{ categories.find(category => category.categoryId === editableNotice.categoryId)?.categoryName || '카테고리 없음' }}] {{ editableNotice.title }} </h2>
-            <h4><b>작성자 |</b> {{ editableNotice.employeeName }} </h4>
+        <div class="notice-detail text-lg">
+            <div class="text-lg flex justify-between">
+                <div class="font-bold text-3xl">
+                    <span>
+                        [{{ categories.find((category) => category.categoryId === editableNotice.categoryId)?.categoryName || '카테고리 없음' }}]
+                        {{ editableNotice.title }}
+                    </span>
+                </div>
+                <div>
+                    <span class="font-bold">작성자</span>
+                    <span class="cursor-auto ml-2 mr-2">|</span>
+                    <span>{{ editableNotice.employeeName }}</span>
+                </div>
+            </div>
 
             <hr />
             <table class="notice-info">
@@ -18,12 +29,12 @@
                     <th class="input-title">카테고리</th>
                     <td>
                         <template v-if="editableNotice.categoryId">
-                            {{ categories.find(category => category.categoryId === editableNotice.categoryId).categoryName }}
+                            {{ categories.find((category) => category.categoryId === editableNotice.categoryId).categoryName }}
                         </template>
                     </td>
                 </tr>
                 <tr>
-                    <th style="text-align: left; vertical-align: top;">내 용</th>
+                    <th style="text-align: left; vertical-align: top">내 용</th>
                     <td>
                         <div v-html="editableNotice.content" class="message-content"></div>
                     </td>
@@ -43,6 +54,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { fetchCategories } from './service/adminNoticeCategoryService';
 import { fetchNoticeById } from './service/adminNoticeService';
+import Divider from 'primevue/divider';
 
 const route = useRoute();
 const router = useRouter();
@@ -96,7 +108,6 @@ onMounted(async () => {
     margin: 0; /* 불필요한 외부 여백 제거 */
     padding: 0 5rem; /* 내부 여백만 설정하여 card 경계에 맞추기 */
 }
-
 
 h2 {
     font-size: 24px;
