@@ -146,9 +146,10 @@ function filterCourses() {
     filteredCourses.value = tempCourses; // 필터링된 교육 목록 업데이트
 }
 
-// 날짜 포맷팅
+// 날짜 포맷 함수
 function formatDate(date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const formattedDate = new Date(date);
+    return `${formattedDate.getFullYear()}-${String(formattedDate.getMonth() + 1).padStart(2, '0')}-${String(formattedDate.getDate()).padStart(2, '0')}`;
 }
 
 // 상태에 따라 이수 여부를 매핑

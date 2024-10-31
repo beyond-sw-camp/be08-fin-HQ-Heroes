@@ -64,7 +64,10 @@ function closeModal() {
 }
 
 // 날짜 포맷 함수
-const formatDate = (date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+function formatDate(date) {
+    const formattedDate = new Date(date);
+    return `${formattedDate.getFullYear()}-${String(formattedDate.getMonth() + 1).padStart(2, '0')}-${String(formattedDate.getDate()).padStart(2, '0')}`;
+}
 
 // 상태를 텍스트로 변환하는 함수
 const mapStatus = (status) => status === 'PASS' ? '이수' : '미이수';

@@ -201,13 +201,12 @@ function initFilters() {
     };
 }
 
+// 날짜 포맷 함수
 function formatDate(date) {
-    return date.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-    });
+    const formattedDate = new Date(date);
+    return `${formattedDate.getFullYear()}-${String(formattedDate.getMonth() + 1).padStart(2, '0')}-${String(formattedDate.getDate()).padStart(2, '0')}`;
 }
+
 function onSelectionChange(e) {
     selectedCourse.value = e.value;
 }

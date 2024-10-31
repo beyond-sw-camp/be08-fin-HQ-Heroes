@@ -51,29 +51,33 @@
         </div>
 
         <!-- 자격증 조회 모달 -->
-        <Dialog v-model:visible="isDetailDialogVisible" modal header="자격증 정보" :style="{ width: '50vw', borderRadius: '12px' }" :draggable="false" :closable="false">
+        <Dialog v-model:visible="isDetailDialogVisible" modal header="자격증 정보" :style="{ width: '30vw', borderRadius: '12px' }" :draggable="false" :closable="false">
+            <template #header>
+                <div class="font-bold p-2" :style="{ fontSize: '1.5rem' }">{{ selectedCertification ? selectedCertification.certificationName : '정보 없음' }}</div>
+            </template>
+            <hr />
             <div class="p-4">
-                <table class="table-auto w-full border-collapse">
+                <table class="education-info">
                     <tr>
-                        <td class="px-4 py-2"><strong>부서:</strong></td>
+                        <td class="px-4 py-2"><strong>부서</strong></td>
                         <td class="px-4 py-2">{{ selectedCertification.deptName || 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td class="px-4 py-2"><strong>자격증 명:</strong></td>
+                        <td class="px-4 py-2"><strong>자격증 명</strong></td>
                         <td class="px-4 py-2">{{ selectedCertification.certificationName || 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td class="px-4 py-2"><strong>발급 기관:</strong></td>
+                        <td class="px-4 py-2"><strong>발급 기관</strong></td>
                         <td class="px-4 py-2">{{ selectedCertification.institution || 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <td class="px-4 py-2"><strong>혜택:</strong></td>
+                        <td class="px-4 py-2"><strong>혜택</strong></td>
                         <td class="px-4 py-2">{{ selectedCertification.benefit || 'N/A' }}</td>
                     </tr>
                 </table>
             </div>
             <template #footer>
-                <Button label="닫기" icon="pi pi-times" @click="isDetailDialogVisible = false" />
+                <Button label="닫기" @click="isDetailDialogVisible = false" />
             </template>
         </Dialog>
 
@@ -340,13 +344,27 @@ onMounted(() => {
 .search-container {
     position: relative;
 }
+
 .search-input {
     padding-left: 30px;
 }
+
 .search-icon {
     position: absolute;
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
+}
+
+.education-info {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.education-info th,
+.education-info td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
 }
 </style>
