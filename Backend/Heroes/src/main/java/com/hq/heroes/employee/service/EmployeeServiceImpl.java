@@ -37,13 +37,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         return EmployeeDTO.builder()
                 .employeeId(employee.getEmployeeId())
                 .employeeName(employee.getEmployeeName())
+                .teamId(employee.getTeam() != null ? employee.getTeam().getTeamId() : null)
                 .teamName(employee.getTeam() != null ? employee.getTeam().getTeamName() : null)
-                .deptName(employee.getDepartment() != null ? employee.getDepartment().getDeptName() : null)
+                .deptId(employee.getTeam() != null && employee.getTeam().getDepartment() != null ? employee.getTeam().getDepartment().getDeptId() : null)
+                .deptName(employee.getTeam() != null && employee.getTeam().getDepartment() != null ? employee.getTeam().getDepartment().getDeptName() : null)
+                .jobRoleId(employee.getJob() != null ? employee.getJob().getJobRoleId() : null)
                 .jobRoleName(employee.getJob() != null ? employee.getJob().getJobRoleName() : null)
+                .positionId(employee.getPosition() != null ? employee.getPosition().getPositionId() : null)
                 .positionName(employee.getPosition() != null ? employee.getPosition().getPositionName() : null)
                 .email(employee.getEmail())
                 .joinDate(employee.getJoinDate())
                 .annualLeave(employee.getAnnualLeave())
+                .status(employee.getStatus())
                 .birthDate(employee.getBirthDate())
                 .phoneNumber(employee.getPhoneNumber())
                 .roadAddress(employee.getRoadAddress())
@@ -52,6 +57,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .profileImageUrl(employee.getProfileImageUrl())
                 .build();
     }
+
 
 
     @Override
@@ -118,6 +124,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setRoadAddress(employeeDTO.getRoadAddress());
         employee.setLotAddress(employeeDTO.getLotAddress());
         employee.setDetailedAddress(employeeDTO.getDetailedAddress());
+        employee.setStatus(employeeDTO.getStatus());
 
         Department department = departmentRepository.findById(employeeDTO.getDeptId()).orElseThrow();
         JobRole job = jobRepository.findById(employeeDTO.getJobRoleId()).orElseThrow();

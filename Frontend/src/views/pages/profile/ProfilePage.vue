@@ -1,6 +1,6 @@
 <template>
     <div class="main-container">
-        <h1 class="main-title">직원 정보</h1>
+        <h1 class="main-title">사원 정보</h1>
 
         <!-- 비밀번호 수정 버튼과 연필 아이콘 -->
         <div class="icon-group">

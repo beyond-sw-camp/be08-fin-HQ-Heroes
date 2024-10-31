@@ -189,8 +189,12 @@ function showEmployeeDetails(event) {
 
 // 날짜 포맷팅 함수
 function formatDate(date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
+
 
 function onRowSelect(event) {
     console.log('선택된 직원:', event.data);

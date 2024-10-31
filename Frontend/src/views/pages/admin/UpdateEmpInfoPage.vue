@@ -18,6 +18,7 @@
             :metaKeySelection="false"
             @rowSelect="onRowSelect"
             @rowUnselect="onRowUnselect"
+            :rowClass="rowClass"
         >
             <template #header>
                 <div class="flex justify-between items-center">
@@ -103,7 +104,7 @@ function handleDepartmentChange(event) {
     filterByDepartmentAndTeam();
 }
 
-// 직원 목록을 가져오는 함수
+// 사원 목록을 가져오는 함수
 async function fetchEmployeeList() {
     try {
         const response = await fetchGet('http://localhost:8080/api/v1/employee/employees'); // API 호출
@@ -176,14 +177,19 @@ function initFilters() {
 // 직원 상세 보기 함수
 function showEmployeeDetails(event) {
     selectedEmployee.value = event.data;
+    console.log('event.data :', JSON.stringify(event.data, null, 2));
     console.log('선택된 직원 상세 보기:', JSON.stringify(selectedEmployee.value, null, 2)); // 구조 로그 추가
     displayDialog.value = true;
 }
 
 // 날짜 포맷팅 함수
 function formatDate(date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
+
 
 function onRowSelect(event) {
     selectedEmployee.value = event.data;
@@ -197,6 +203,10 @@ function onRowUnselect(event) {
     displayDialog.value = false;
 }
 
+function rowClass(data) {
+    return data.status !== 'ACTIVE' ? 'inactive-row' : '';
+}
+
 // 컴포넌트 마운트 시 데이터 가져오기
 onBeforeMount(() => {
     fetchEmployeeList();
@@ -208,6 +218,11 @@ onBeforeMount(() => {
 <style scoped lang="scss">
 :deep(.p-datatable-frozen-tbody) {
     font-weight: bold;
+}
+
+:deep(.inactive-row) {
+    background-color: #f8d7da !important; /* 연한 빨간 배경 */
+    color: #721c24 !important; /* 어두운 빨간 글씨 */
 }
 
 .search-container {
