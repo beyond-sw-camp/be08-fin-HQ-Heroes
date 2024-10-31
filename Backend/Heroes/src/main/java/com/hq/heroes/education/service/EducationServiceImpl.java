@@ -3,6 +3,7 @@ package com.hq.heroes.education.service;
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.education.dto.EducationRequestDTO;
+import com.hq.heroes.education.dto.EducationResponseDTO;
 import com.hq.heroes.education.entity.Course;
 import com.hq.heroes.education.entity.Education;
 import com.hq.heroes.education.entity.EducationCategory;
@@ -30,14 +31,33 @@ public class EducationServiceImpl implements EducationService {
     private final EmployeeRepository employeeRepository;
     private final CourseServiceImpl courseServiceImpl;
 
-    @Override
-    public List<Education> getEducations() {
-        return educationRepository.findAll();
+    public EducationResponseDTO convertToDTO(Education education) {
+        return EducationResponseDTO.builder()
+                .educationId(education.getEducationId())
+                .instructorName(education.getInstructorName())
+                .educationName(education.getEducationName())
+                .institution(education.getInstitution())
+                .educationStart(education.getStartDate() != null ? LocalDate.from(education.getStartDate()) : null) // 널 체크 추가
+                .educationEnd(education.getEndDate() != null ? LocalDate.from(education.getEndDate()) : null) // 널 체크 추가
+                .participants(education.getParticipants())
+                .categoryName(education.getEducationCategory() != null ? education.getEducationCategory().getCategoryName() : null) // 널 체크 추가
+                .categoryId(education.getEducationCategory() != null ? education.getEducationCategory().getCategoryId() : null)
+                .educationCurriculum(education.getEducationCurriculum())
+                .currentParticipant(education.getCurrentParticipant())
+                .build();
     }
 
     @Override
-    public Education getEducationById(Long educationId) {
-        return educationRepository.findById(educationId).orElse(null);
+    public List<EducationResponseDTO> getEducations() {
+        return educationRepository.findAll().stream().map(this::convertToDTO).toList();
+    }
+
+    @Override
+    public EducationResponseDTO getEducationById(Long educationId) {
+        Education education = educationRepository.findById(educationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 ID의 교육이 존재하지 않습니다."));
+
+        return convertToDTO(education);
     }
 
 //    @Override
@@ -100,79 +120,75 @@ public class EducationServiceImpl implements EducationService {
         return course; // 성공 메시지 반환
     }
 
-    // 교육 취소하기
-
+    // 교육 등록
     @Override
     @Transactional
-    public Education createEducation(EducationRequestDTO requestDTO) {
+    public EducationResponseDTO createEducation(EducationRequestDTO requestDTO) {
         EducationCategory category = educationCategoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
-        System.out.println("requestDTO = " + requestDTO.toString());
-
         Education education = Education.builder()
-                .educationName(requestDTO.getEducationName()) // 교육 이름
-                .instructorName(requestDTO.getInstructorName()) // 강사 이름
-                .institution(requestDTO.getInstitution()) // 교육 기관
-                .startDate(LocalDate.from(requestDTO.getEducationStart())) // 교육 시작일
-                .endDate(LocalDate.from(requestDTO.getEducationEnd())) // 교육 종료일
-                .participants(requestDTO.getParticipants()) // 수강 정원
-                .educationCategory(category) // 카테고리
-                .educationCurriculum(requestDTO.getEducationCurriculum() != null ? requestDTO.getEducationCurriculum() : "") // 커리큘럼
+                .educationName(requestDTO.getEducationName())
+                .instructorName(requestDTO.getInstructorName())
+                .institution(requestDTO.getInstitution())
+                .startDate(LocalDate.from(requestDTO.getEducationStart()))
+                .endDate(LocalDate.from(requestDTO.getEducationEnd()))
+                .participants(requestDTO.getParticipants())
+                .educationCategory(category)
+                .educationCurriculum(requestDTO.getEducationCurriculum() != null ? requestDTO.getEducationCurriculum() : "")
                 .build();
 
-        return educationRepository.save(education);
+        education = educationRepository.save(education);
+        return convertToDTO(education);
     }
 
+    // 교육 수정
     @Override
     @Transactional
-    public Education updateEducation(Long educationId, EducationRequestDTO requestDTO) {
+    public EducationResponseDTO updateEducation(Long educationId, EducationRequestDTO requestDTO) {
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 교육 ID : " + educationId));
-        Optional<EducationCategory> categoryOpt = Optional.ofNullable(educationCategoryRepository.findById(requestDTO.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리 ID : " + requestDTO.getCategoryId())));
-        EducationCategory category = categoryOpt.get();
+        EducationCategory category = educationCategoryRepository.findById(requestDTO.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리 ID : " + requestDTO.getCategoryId()));
 
-        education.setEducationName(requestDTO.getEducationName()); // 교육 이름
-        education.setInstitution(requestDTO.getInstitution()); // 교육 기관
-        education.setInstructorName(requestDTO.getInstructorName()); // 강사 이름
-        education.setStartDate(LocalDate.from(requestDTO.getEducationStart())); // 강의 시작일
-        education.setEndDate(LocalDate.from(requestDTO.getEducationEnd())); // 강의 종료일
+        education.setEducationName(requestDTO.getEducationName());
+        education.setInstitution(requestDTO.getInstitution());
+        education.setInstructorName(requestDTO.getInstructorName());
+        education.setStartDate(LocalDate.from(requestDTO.getEducationStart()));
+        education.setEndDate(LocalDate.from(requestDTO.getEducationEnd()));
         education.setEducationCategory(category);
         education.setParticipants(requestDTO.getParticipants());
         education.setEducationCurriculum(requestDTO.getEducationCurriculum());
 
-        return educationRepository.save(education);
+        education = educationRepository.save(education);
+        return convertToDTO(education);
     }
 
+    // 교육 취소
     @Override
     @Transactional
     public boolean cancelEducation(Long courseId) {
-        // 교육 과정을 찾기
         Optional<Course> courseOpt = courseRepository.findById(courseId);
         if (courseOpt.isPresent()) {
             Course course = courseOpt.get();
             Education education = course.getEducation();
 
-            // 참가자 수 감소
-            int currentParticipant = education.getCurrentParticipant(); // 현재 참가자 수 가져오기
+            int currentParticipant = education.getCurrentParticipant();
             if (currentParticipant > 0) {
-                education.setCurrentParticipant(currentParticipant - 1); // 참가자 수 -1
-                educationRepository.save(education); // 변경 사항 저장
-                System.out.println("현재 참가자 수 = " + (currentParticipant - 1)); // 감소한 참가자 수 출력
+                education.setCurrentParticipant(currentParticipant - 1);
+                educationRepository.save(education);
+                System.out.println("현재 참가자 수 = " + (currentParticipant - 1));
             } else {
-                log.debug("참가자가 없습니다."); // 참가자가 없는 경우 출력
+                log.debug("참가자가 없습니다.");
             }
 
-            // 신청 정보 삭제 (해당 신청을 찾아서 삭제)
-            courseRepository.delete(course); // course를 삭제합니다.
-
-            return true; // 교육 취소 성공
-        } else {
-            return false; // 교육이 존재하지 않음
+            courseRepository.delete(course);
+            return true;
         }
+        return false;
     }
 
+    // 교육 삭제
     @Override
     @Transactional
     public boolean deleteEducation(Long educationId) {
@@ -182,5 +198,4 @@ public class EducationServiceImpl implements EducationService {
         }
         return false;
     }
-
 }

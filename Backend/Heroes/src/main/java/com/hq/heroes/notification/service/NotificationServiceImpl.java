@@ -4,6 +4,7 @@ import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.certification.entity.Certification;
 import com.hq.heroes.certification.entity.EmployeeCertification;
+import com.hq.heroes.education.dto.EducationResponseDTO;
 import com.hq.heroes.education.entity.Course;
 import com.hq.heroes.education.entity.Education;
 import com.hq.heroes.evaluation.entity.Evaluation;
@@ -226,9 +227,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다: " + category));
 
         // 근태 카테고리인 경우에만 휴가 관련 데이터 처리
-        if ("근태".equals(category) && data instanceof Vacation) {
-            // 근태 카테고리의 알림
-            Vacation vacation = (Vacation) data;
+        if ("근태".equals(category) && data instanceof Vacation vacation) {
             String startDate = vacation.getVacationStartDate().toString();
             String endDate = vacation.getVacationEndDate().toString();
 
@@ -257,9 +256,8 @@ public class NotificationServiceImpl implements NotificationService {
                 case MONTHLY_VACATION_GRANTED -> "<html><body><p>월차가 지급되었습니다.</p></body></html>";   // 배치 작업에서 보내줘야함.
                 default -> throw new IllegalArgumentException("알 수 없는 근태 알림 타입입니다: " + notificationType);
             };
-        } else if ("급여".equals(category) && data instanceof SalaryHistory) {
+        } else if ("급여".equals(category) && data instanceof SalaryHistory salaryHistory) {
             // 급여 카테고리의 알림
-            SalaryHistory salaryHistory = (SalaryHistory) data;
             String month = salaryHistory.getSalaryMonth().getMonth().toString();    // 지급 월
 
             message = switch (notificationType) {
@@ -267,27 +265,25 @@ public class NotificationServiceImpl implements NotificationService {
                         "<html><body><p>" + month + "월 급여가 지급되었습니다.</p></body></html>";  // 배치 작업에서 보내줘야함.
                 default -> throw new IllegalArgumentException("알 수 없는 급여 알림 타입입니다: " + notificationType);
             };
-        } else if ("교육".equals(category) && data instanceof Education) {
+        } else if ("교육".equals(category) && data instanceof EducationResponseDTO educationResponseDTO) {
             // 교육 - 교육 카테고리 알림
-            Education education = (Education) data;
-            String EducationCategory = education.getEducationCategory().getCategoryName();  // 교육 카테고리
-            String institution = education.getInstitution();    // 교육 기관
-            String educationName = education.getEducationName();  // 교육 명
+            String educationCategory = educationResponseDTO.getCategoryName();  // 교육 카테고리
+            String institution = educationResponseDTO.getInstitution();    // 교육 기관
+            String educationName = educationResponseDTO.getEducationName();  // 교육 명
 
             message = switch (notificationType) {
                 case EDUCATION_ENROLL -> "<html>\n" +
                         "    <body>\n" +
-                        "        <p>[<strong>" + EducationCategory + "</strong>] 새로운 교육이 등록되었습니다.</p>\n" +
+                        "        <p>[<strong>" + educationCategory + "</strong>] 새로운 교육이 등록되었습니다.</p>\n" +
                         "        <p><strong>교육기관:</strong> " + institution + "</p>\n" +
                         "        <p><strong>교육명:</strong> " + educationName + "</p>\n" +
                         "    </body>\n" +
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
             };
-        } else if ("교육".equals(category) && data instanceof Course) {
+        } else if ("교육".equals(category) && data instanceof Course course) {
             // 교육 - 교육 카테고리 알림
-            Course course = (Course) data;
-            Education education = ((Course) data).getEducation();
+            Education education = course.getEducation();
 
             message = switch (notificationType) {
                 case EDUCATION_APPLICATION -> "<html>\n" +
@@ -314,9 +310,8 @@ public class NotificationServiceImpl implements NotificationService {
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
             };
-        } else if ("교육".equals(category) && data instanceof Certification) {
+        } else if ("교육".equals(category) && data instanceof Certification certification) {
             // 교육 - 회사 자격증 카테고리 알림
-            Certification certification = (Certification) data;
             String deptName = certification.getDepartment().getDeptName();
 
             message = switch (notificationType) {
@@ -331,9 +326,8 @@ public class NotificationServiceImpl implements NotificationService {
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
             };
-        } else if ("교육".equals(category) && data instanceof EmployeeCertification) {
+        } else if ("교육".equals(category) && data instanceof EmployeeCertification employeeCertification) {
             // 교육 - 사원 자격증 카테고리 알림
-            EmployeeCertification employeeCertification = (EmployeeCertification) data;
             String employeeName = employeeCertification.getEmployee().getEmployeeName();
 
             message = switch (notificationType) {
@@ -355,10 +349,7 @@ public class NotificationServiceImpl implements NotificationService {
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
             };
-        } else if ("평가".equals(category) && data instanceof Evaluation) {
-            // 평가 카테고리 알림
-            Evaluation evaluation = (Evaluation) data;
-
+        } else if ("평가".equals(category) && data instanceof Evaluation evaluation) {
             // 배치 작업에서 보내줘야함.
             message = switch (notificationType) {
                 case EVALUATION_RESULT -> "<html>\n" +
