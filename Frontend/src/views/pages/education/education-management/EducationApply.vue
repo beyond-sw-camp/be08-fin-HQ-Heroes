@@ -50,7 +50,7 @@
                     {{ data.educationName }}
                 </template>
             </Column>
-            <Column field="educationEnd" sortable header="수강 기간" dataType="date" style="min-width: 8rem; text-align: left;">
+            <Column field="educationEnd" sortable header="교육 일정" dataType="date" style="min-width: 8rem; text-align: left;">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.educationStart)) }} ~ {{ formatDate(new Date(data.educationEnd)) }}
                 </template>

@@ -6,7 +6,7 @@
             <!-- education-info 테이블로 수정 -->
             <table class="education-info">
                 <tr>
-                    <th style="text-align: left;">교육 기간</th>
+                    <th style="text-align: left;">교육 일정</th>
                     <td>
                         <template v-if="editMode">
                             <input type="date" v-model="educationStart" /> ~ 

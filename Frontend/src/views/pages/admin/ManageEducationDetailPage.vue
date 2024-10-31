@@ -1,7 +1,9 @@
 <template>
     <div class="card">
         <div class="education-detail">
-            <Button label="목록 >" icon="pi pi-bars" @click="goBackToList" text />
+            <div class="flex justify-end mb-4">
+                <Button label="목록" icon="pi pi-bars" @click="goBackToList" outlined />
+            </div>
             <div class="text-3xl font-bold">
                 <span>[{{ categoryName }}]  {{ educationName }} </span>
             </div>
@@ -11,7 +13,7 @@
             <!-- education-info 테이블로 수정 -->
             <table class="education-info text-lg">
                 <tr>
-                    <th style="text-align: left;">교육 기간</th>
+                    <th style="text-align: left;">교육 일정</th>
                     <td>
                         <template v-if="editMode">
                             <input type="date" v-model="educationStart" /> ~ 
