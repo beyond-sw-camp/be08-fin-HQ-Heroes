@@ -7,15 +7,15 @@
             <!-- No Data Template -->
             <template #empty>No evaluations found.</template>
 
-            <!-- 연도 컬럼 -->
             <Column field="year" header="연도" :sortable="true" style="min-width: 8rem">
-                <template #body="{ data }">{{ formatDate(new Date(data.updatedAt)).split('-')[0] }}</template>
+                <template #body="{ data }">
+                    {{ new Date(data.updatedAt).getFullYear() }}
+                </template>
             </Column>
 
-            <!-- 반기 컬럼 -->
             <Column field="halfTerm" header="반기" style="min-width: 12rem">
                 <template #body="{ data }">
-                    {{ formatDate(new Date(data.updatedAt)).split('-')[1] > 6 ? '하반기' : '상반기' }}
+                    {{ new Date(data.updatedAt).getMonth() + 1 > 6 ? '하반기' : '상반기' }}
                 </template>
             </Column>
 
@@ -89,8 +89,8 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount } from 'vue';
 import router from '@/router';
+import { onBeforeMount, ref } from 'vue';
 import { fetchGet } from '../auth/service/AuthApiService';
 
 // State variables
@@ -129,12 +129,19 @@ async function fetchEvaluationById(evaluationId) {
 }
 
 function formatDate(date) {
-    const year = String(date.getFullYear()).slice(2); // yy 형식으로 변경
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // 두 자리 형식
-    const day = String(date.getDate()).padStart(2, '0'); // 두 자리 형식
+    // 문자열 날짜나 null 값 확인 및 변환
+    const parsedDate = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+
+    // 유효한 날짜인지 확인
+    if (isNaN(parsedDate)) {
+        return ''; // 유효하지 않은 날짜일 경우 빈 문자열 반환
+    }
+
+    const year = String(parsedDate.getFullYear()).slice(2); // yy 형식으로 변경
+    const month = String(parsedDate.getMonth() + 1).padStart(2, '0'); // 두 자리 형식
+    const day = String(parsedDate.getDate()).padStart(2, '0'); // 두 자리 형식
     return `${year}-${month}-${day}`;
 }
-
 
 // 컴포넌트가 마운트될 때 평가 데이터 가져오기 (전체 목록)
 onBeforeMount(() => {
