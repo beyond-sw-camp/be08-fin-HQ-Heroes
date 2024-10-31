@@ -31,13 +31,29 @@
                     <div class="time-section">
                         <div class="time-block">
                             <label for="startTime" class="label">시작 시간</label>
-                            <input type="time" id="startTime" v-model="form.overtimeStartTime" class="input" />
+                            <!-- 시작 시간: 18:00부터 1시간 단위로 -->
+                            <select id="startTime" v-model="form.overtimeStartTime" class="input">
+                                <option value="18:00">1타임(18:00 ~ 19:00)</option>
+                                <option value="19:00">2타임(19:00 ~ 20:00)</option>
+                                <option value="20:00">3타임(20:00 ~ 21:00)</option>
+                                <option value="21:00">4타임(21:00 ~ 22:00)</option>
+                                <option value="22:00">5타임(22:00 ~ 23:00)</option>
+                                <option value="23:00">6타임(23:00 ~ 00:00)</option>
+                                <option value="00:00">7타임(00:00 ~ 01:00)</option>
+                            </select>
                         </div>
                         <div class="time-block">
                             <label for="endTime" class="label">종료 시간</label>
-                            <input type="time" id="endTime" v-model="form.overtimeEndTime" class="input" @input="checkOvertimeExceed" />
-                            <!-- 잔여 시간을 초과하면 경고 표시 -->
-                            <p v-if="overtimeExceed" class="error-message">잔여 시간을 초과했습니다!</p>
+                            <!-- 종료 시간: 19:00부터 1시간 단위로 -->
+                            <select id="endTime" v-model="form.overtimeEndTime" class="input" @change="checkOvertimeExceed">
+                                <option value="19:00">1타임(18:00 ~ 19:00)</option>
+                                <option value="20:00">2타임(19:00 ~ 20:00)</option>
+                                <option value="21:00">3타임(20:00 ~ 21:00)</option>
+                                <option value="22:00">4타임(21:00 ~ 22:00)</option>
+                                <option value="23:00">5타임(22:00 ~ 23:00)</option>
+                                <option value="00:00">6타임(23:00 ~ 00:00)</option>
+                                <option value="01:00">7타임(00:00 ~ 01:00)</option>
+                            </select>
                         </div>
                     </div>
 
@@ -127,23 +143,30 @@ const checkDateInvalid = () => {
     isDateInvalid.value = startDate > endDate; // 시작 날짜가 종료 날짜보다 이후일 때 경고 표시
 };
 
-// 오늘 날짜를 yyyy-mm-dd 형식으로 변환하는 함수
-const getTodayDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-    const day = String(today.getDate()).padStart(2, '0'); // 일이 한 자리수일 경우 0을 채움
-    return `${year}-${month}-${day}`;
-};
-
 // 잔여 시간을 초과했는지 체크하는 함수
 const checkOvertimeExceed = () => {
+    // 시작 시간과 종료 시간에서 각 타임의 시간을 분 단위로 계산
     const startTimeInMinutes = calculateTimeInMinutes(form.value.overtimeStartTime);
     const endTimeInMinutes = calculateTimeInMinutes(form.value.overtimeEndTime);
-    const overtimeMinutes = endTimeInMinutes - startTimeInMinutes;
+    const selectedOvertimeMinutes = endTimeInMinutes - startTimeInMinutes;
 
-    // 남은 시간(`remainingOvertimeHours`)만으로 초과 여부 확인
-    overtimeExceed.value = overtimeMinutes > remainingOvertimeHours.value;
+    // 남은 연장 근로 시간을 분 단위로 변환하여 초과 여부 확인
+    const remainingMinutes = parseInt(remainingOvertimeHours.value.split('시간')[0]) * 60; // 남은 시간을 분으로 계산
+
+    // 초과 여부 확인
+    if (selectedOvertimeMinutes > remainingMinutes) {
+        overtimeExceed.value = true;
+
+        // 초과 시 경고 알림
+        Swal.fire({
+            icon: 'error',
+            title: '제출 불가',
+            text: '선택한 시간이 잔여 연장 근로 시간을 초과했습니다.',
+            confirmButtonText: '확인'
+        });
+    } else {
+        overtimeExceed.value = false;
+    }
 };
 
 // 로그인된 사용자 정보를 가져오는 함수
@@ -321,6 +344,12 @@ const handleApproverChange = (selectedApprover) => {
 
 const submitForm = async () => {
     try {
+        // 잔여 시간을 초과한 경우 제출 중단
+        checkOvertimeExceed();
+
+        if (overtimeExceed.value) {
+            return;
+        }
         // 날짜 유효성 검사
         if (isDateInvalid.value) {
             Swal.fire({
