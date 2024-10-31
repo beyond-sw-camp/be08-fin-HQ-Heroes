@@ -17,13 +17,21 @@
                 <Column field="vacationType" header="휴가 종류" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationStart" header="시작일" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationEnd" header="종료일" sortable style="min-width: 5rem"></Column>
-                <Column field="vacationStartTime" header="시작 시간" sortable style="min-width: 5rem" v-if="selectedEmployee.vacationType !== '월차'"></Column>
-                <Column field="vacationEndTime" header="종료 시간" sortable style="min-width: 5rem" v-if="selectedEmployee.vacationType !== '월차'"></Column>
+                <Column field="vacationStartTime" header="시작 시간" sortable style="min-width: 5rem"></Column>
+                <Column field="vacationEndTime" header="종료 시간" sortable style="min-width: 5rem"></Column>
                 <Column field="approverName" header="결재자" sortable style="min-width: 5rem"></Column>
                 <Column field="vacationStatus" header="상태" sortable style="min-width: 5rem"></Column>
+
+                <!-- 취소 버튼 추가 -->
+                <Column header="휴가 취소" style="min-width: 5rem">
+                    <template #body="slotProps">
+                        <Button label="취소" class="p-button-danger" @click="openCancelModal(slotProps.data)" />
+                    </template>
+                </Column>
             </DataTable>
         </div>
 
+        <!-- 정보 모달 -->
         <Dialog v-model:visible="infoDialog" :style="{ width: '450px' }" header="휴가 정보" :modal="true">
             <div class="flex flex-col gap-4">
                 <div>
@@ -38,7 +46,7 @@
                     <label for="vacationStart" class="block font-bold mb-2">시작일</label>
                     <p id="vacationStart">{{ selectedEmployee.vacationStart }}</p>
                 </div>
-                <div v-if="selectedEmployee.vacationType !== '월차'">
+                <div>
                     <label for="vacationStartTime" class="block font-bold mb-2">시작 시간</label>
                     <p id="vacationStartTime">{{ selectedEmployee.vacationStartTime }}</p>
                 </div>
@@ -46,7 +54,7 @@
                     <label for="vacationEnd" class="block font-bold mb-2">종료일</label>
                     <p id="vacationEnd">{{ selectedEmployee.vacationEnd }}</p>
                 </div>
-                <div v-if="selectedEmployee.vacationType !== '월차'">
+                <div>
                     <label for="vacationEndTime" class="block font-bold mb-2">종료 시간</label>
                     <p id="vacationEndTime">{{ selectedEmployee.vacationEndTime }}</p>
                 </div>
@@ -63,6 +71,27 @@
                 <Button label="닫기" icon="pi pi-times" class="close-button" @click="infoDialog = false" />
             </template>
         </Dialog>
+
+        <Dialog v-model:visible="cancelDialogVisible" :style="{ width: '450px' }" header="휴가 취소 요청" :modal="true">
+            <div class="flex flex-col gap-4">
+                <p><strong>휴가 종류:</strong> {{ selectedEmployee.vacationType }}</p>
+                <p><strong>시작일:</strong> {{ selectedEmployee.vacationStart }}</p>
+                <p><strong>종료일:</strong> {{ selectedEmployee.vacationEnd }}</p>
+                <!-- 월차가 아닌 경우에만 시작 시간 표시 -->
+                <p v-if="selectedEmployee.vacationType !== '월차'"><strong>시작 시간:</strong> {{ selectedEmployee.vacationStartTime }}</p>
+                <!-- 월차가 아닌 경우에만 종료 시간 표시 -->
+                <p v-if="selectedEmployee.vacationType !== '월차'"><strong>종료 시간:</strong> {{ selectedEmployee.vacationEndTime }}</p>
+                <p><strong>결재자:</strong> {{ selectedEmployee.approverName }}</p>
+                <div>
+                    <label for="cancelReason" class="block font-bold mb-2">취소 사유:</label>
+                    <textarea id="cancelReason" v-model="cancelReason" class="textarea full-width bordered-textarea" rows="4" placeholder="취소 사유를 입력하세요."></textarea>
+                </div>
+            </div>
+            <template #footer>
+                <Button label="제출" icon="pi pi-check" class="p-button-success" @click="submitCancelRequest" />
+                <Button label="닫기" icon="pi pi-times" class="p-button-secondary" @click="cancelDialogVisible = false" />
+            </template>
+        </Dialog>
     </div>
 </template>
 
@@ -75,6 +104,8 @@ const employees = ref([]);
 const filters = ref({ global: { value: null } });
 const selectedEmployee = ref({});
 const infoDialog = ref(false);
+const cancelDialogVisible = ref(false);
+const cancelReason = ref('');
 const toast = useToast();
 
 onMounted(async () => {
@@ -111,6 +142,8 @@ function mapStatus(status) {
             return '반려됨';
         case 'PENDING':
             return '대기 중';
+        case 'CANCEL_REQUESTED':
+            return '취소 대기중';
         default:
             return '알 수 없음';
     }
@@ -131,6 +164,31 @@ function mapVacationType(vacationType) {
             return '기타';
     }
 }
+
+// 취소 모달 열기
+function openCancelModal(employee) {
+    selectedEmployee.value = employee;
+    cancelDialogVisible.value = true;
+}
+
+// 취소 요청 제출
+async function submitCancelRequest() {
+    try {
+        const requestBody = {
+            vacationId: selectedEmployee.value.vacationId,
+            comment: cancelReason.value,
+            approverId: selectedEmployee.value.approverId // 결재자 ID 전달
+        };
+        await fetchPost('http://localhost:8080/api/v1/vacation/cancel', requestBody);
+        toast.add({ severity: 'success', summary: 'Success', detail: '휴가 취소 요청이 제출되었습니다.' });
+
+        // 모달 닫기 및 초기화
+        cancelDialogVisible.value = false;
+        cancelReason.value = '';
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: '휴가 취소 요청 실패.' });
+    }
+}
 </script>
 
 <style scoped>
@@ -149,5 +207,30 @@ function mapVacationType(vacationType) {
 .close-button:hover {
     background-color: #c82333 !important;
     border: 1px solid #c82333 !important;
+}
+
+.p-button-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.p-button-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}
+.full-width {
+    width: 100%;
+}
+
+.bordered-textarea {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    resize: none; /* 사용자가 크기를 조절할 수 없도록 설정 (선택 사항) */
+}
+
+.bordered-textarea:focus {
+    border-color: #6366f1; /* 포커스 시 테두리 색상 변경 */
+    outline: none; /* 기본 아웃라인 제거 */
 }
 </style>

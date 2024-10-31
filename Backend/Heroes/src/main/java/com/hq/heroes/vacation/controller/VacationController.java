@@ -10,6 +10,7 @@ import com.hq.heroes.vacation.repository.VacationRepository;
 import com.hq.heroes.vacation.service.VacationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -54,6 +55,31 @@ public class VacationController {
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("휴가 신청 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    // 휴가 취소 신청
+    @PostMapping("/cancel")
+    public ResponseEntity<String> requestVacationCancel(@RequestBody VacationDTO vacationDTO) {
+        try {
+            if (vacationDTO.getVacationId() == null || vacationDTO.getComment() == null || vacationDTO.getApproverName() == null) {
+                return ResponseEntity.badRequest().body("필수 정보가 누락되었습니다.");
+            }
+
+            // 휴가 취소 처리
+            Vacation vacation = vacationService.cancelVacation(vacationDTO);
+
+            // 자동 알림 발송
+            Map<String, Object> params = new HashMap<>();
+            params.put("receiverId", vacation.getApprover().getEmployeeId()); // 승인자 ID
+            params.put("cancelReason", vacationDTO.getComment()); // 취소 사유
+            notificationService.sendAutomaticNotification(AutoNotificationType.VACATION_CANCEL_REQUEST, params, vacation);
+
+            return ResponseEntity.ok("휴가 취소 요청이 성공적으로 전송되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("휴가 취소 요청 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 

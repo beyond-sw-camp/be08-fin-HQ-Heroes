@@ -2,6 +2,8 @@ package com.hq.heroes.vacation.service;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import com.hq.heroes.notification.entity.enums.AutoNotificationType;
+import com.hq.heroes.notification.service.NotificationService;
 import com.hq.heroes.vacation.dto.VacationDTO;
 import com.hq.heroes.vacation.entity.Vacation;
 import com.hq.heroes.vacation.entity.enums.VacationStatus;
@@ -11,9 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,15 +25,6 @@ public class VacationServiceImpl implements VacationService {
 
     @Override
     public Vacation submitVacation(VacationDTO vacationDTO) {
-
-        System.out.println("============================");
-        System.out.println("Employee ID: " + vacationDTO.getEmployeeId());
-        System.out.println("Approver Name: " + vacationDTO.getApproverName());
-        System.out.println("Applicant Name: " + vacationDTO.getApplicantName());
-        System.out.println("Start Date: " + vacationDTO.getVacationStartDate());
-        System.out.println("End Date: " + vacationDTO.getVacationEndDate());
-        System.out.println("DTO" +  vacationDTO.toString());
-        System.out.println("============================");
 
         // null 체크 및 로그 출력
         if (vacationDTO.getVacationStartDate() == null || vacationDTO.getVacationEndDate() == null) {
@@ -70,6 +61,19 @@ public class VacationServiceImpl implements VacationService {
 
         return vacationRepository.save(vacation);
     }
+
+    @Override
+    public Vacation cancelVacation(VacationDTO vacationDTO) {
+        Vacation vacation = vacationRepository.findById(vacationDTO.getVacationId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 휴가 요청을 찾을 수 없습니다."));
+
+        // 휴가 상태를 취소 요청 상태로 변경
+        vacation.setVacationStatus(VacationStatus.CANCEL_REQUESTED);
+        vacation.setComment(vacationDTO.getComment()); // 취소 사유를 코멘트 필드에 저장
+
+        return vacationRepository.save(vacation); // 업데이트된 휴가 엔티티 반환
+    }
+
 
     public void approveVacation(Long vacationId) {
         Vacation vacation = vacationRepository.findById(vacationId)
