@@ -149,10 +149,13 @@ function showEmployeeDetails(data) {
     router.push({ name: 'evaluationDetail', params: { employeeId: data.employeeId } });
 }
 
-// 날짜 포맷 함수
 function formatDate(date) {
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const year = String(date.getFullYear()).slice(2); // yy 형식으로 변경
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 두 자리 형식
+    const day = String(date.getDate()).padStart(2, '0'); // 두 자리 형식
+    return `${year}-${month}-${day}`;
 }
+
 
 // 로그인한 사용자의 팀명이 변경될 때마다 직원 목록을 필터링
 watch(
