@@ -12,7 +12,7 @@
                 <Button label="반차" @click="setCategoryFilter('HALF_DAY_OFF')" class="filter-btn half-day-btn" />
                 <Button label="병가" @click="setCategoryFilter('SICK_LEAVE')" class="filter-btn sick-leave-btn" />
                 <Button label="경조" @click="setCategoryFilter('EVENT_LEAVE')" class="filter-btn event-leave-btn" />
-                <Button label="개인 일정만 보기" @click="togglePersonalView" class="filter-btn personal-btn" />
+                <Button :label="isPersonalView ? '전체 일정 보기' : '개인 일정만 보기'" @click="togglePersonalView" class="filter-btn personal-btn" />
 
                 <!-- 사이드바 닫기 버튼 -->
                 <Button icon="pi pi-times" label="닫기" @click="toggleSidebar" class="close-sidebar-btn" />
@@ -403,10 +403,13 @@ export default {
     top: 0;
     left: 0;
     width: 200px;
-    height: 100%;
+    height: auto;
+    max-height: 60%;
+    overflow-y: auto;
     background-color: #f9f9f9;
     padding: 16px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    border-radius: 10px; /* 모서리 둥글게 */
     z-index: 10;
 }
 
