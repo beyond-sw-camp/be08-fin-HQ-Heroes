@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -88,7 +89,9 @@ public class VacationServiceImpl implements VacationService {
 
         // 휴가 종류에 따라 복구 일수 설정
         if (vacation.getVacationType() == VacationType.DAY_OFF) {
-            refundAmount = 4; // 월차는 4 복구
+            // 시작일과 종료일의 차이를 계산하여 일수에 맞게 복구 (하루당 4 복구)
+            long days = ChronoUnit.DAYS.between(vacation.getVacationStartDate(), vacation.getVacationEndDate()) + 1;
+            refundAmount = days * 4; // 일수에 따른 복구
         } else if (vacation.getVacationType() == VacationType.HALF_DAY_OFF ||
                 vacation.getVacationType() == VacationType.SICK_LEAVE ||
                 vacation.getVacationType() == VacationType.EVENT_LEAVE) {
@@ -105,6 +108,7 @@ public class VacationServiceImpl implements VacationService {
         employeeRepository.save(employee);
         vacationRepository.save(vacation);
     }
+
 
     public void rejectCancelVacation(Long vacationId) {
         Vacation vacation = vacationRepository.findById(vacationId)
@@ -125,7 +129,9 @@ public class VacationServiceImpl implements VacationService {
 
         // 휴가 종류에 따른 차감 일수 설정
         if (vacation.getVacationType() == VacationType.DAY_OFF) {
-            deductionAmount = 4; // 월차는 4 차감
+            // 시작일과 종료일의 차이를 계산하여 일수로 차감 (하루당 4 차감)
+            long days = ChronoUnit.DAYS.between(vacation.getVacationStartDate(), vacation.getVacationEndDate()) + 1;
+            deductionAmount = days * 4; // 일수에 따른 차감
         } else if (vacation.getVacationType() == VacationType.HALF_DAY_OFF ||
                 vacation.getVacationType() == VacationType.SICK_LEAVE ||
                 vacation.getVacationType() == VacationType.EVENT_LEAVE) {
@@ -135,12 +141,14 @@ public class VacationServiceImpl implements VacationService {
             throw new RuntimeException("Invalid vacation type");
         }
 
+        // 연차가 충분한지 확인하고 차감 적용
         if (employee.getAnnualLeave() >= deductionAmount) {
             employee.setAnnualLeave(employee.getAnnualLeave() - deductionAmount);
         } else {
             throw new RuntimeException("연차가 부족합니다.");
         }
 
+        // 변경 사항 저장
         employeeRepository.save(employee);
         vacationRepository.save(vacation);
     }
