@@ -1,31 +1,34 @@
 <template>
-    <div class="notice-detail-page">
-        <div class="card">
-            <label class="text-xl font-bold" style="margin-bottom: 4rem">공지사항 내용</label>
+    <div class="card">
+        <div class="notice-detail">
+            <h2>[{{ categories.find(category => category.categoryId === editableNotice.categoryId)?.categoryName || '카테고리 없음' }}] {{ editableNotice.title }} </h2>
+            <h4><b>작성자 |</b> {{ editableNotice.employeeName }} </h4>
 
-            <div class="input-group">
-                <h3 class="input-title">제 목</h3>
-                <input type="text" v-model="editableNotice.title" class="message-input" readonly placeholder="제목을 입력하세요" />
-            </div>
-
-            <div class="input-group">
-                <h3 class="input-title">작성자</h3>
-                <input type="text" v-model="editableNotice.employeeName" class="message-input" readonly />
-            </div>
-
-            <div class="input-group">
-                <h3 class="input-title">카테고리</h3>
-                <select v-model="editableNotice.categoryId" class="message-input" disabled>
-                    <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId">
-                        {{ category.categoryName }}
-                    </option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <h3 class="input-title">내 용</h3>
-                <div v-html="editableNotice.content" class="message-content"></div>
-            </div>
+            <hr />
+            <table class="notice-info">
+                <!-- <tr>
+                    <th class="input-title">제 목</th>
+                    <td>{{ editableNotice.title }}</td>
+                </tr> -->
+                <!-- <tr>
+                    <th class="input-title">작성자</th>
+                    <td>{{ editableNotice.employeeName }}</td>
+                </tr> -->
+                <tr>
+                    <th class="input-title">카테고리</th>
+                    <td>
+                        <template v-if="editableNotice.categoryId">
+                            {{ categories.find(category => category.categoryId === editableNotice.categoryId).categoryName }}
+                        </template>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="text-align: left; vertical-align: top;">내 용</th>
+                    <td>
+                        <div v-html="editableNotice.content" class="message-content"></div>
+                    </td>
+                </tr>
+            </table>
 
             <div class="button-group">
                 <Button label="목록" icon="pi pi-fw pi-book" @click="goBackToList" class="gray-button" />
@@ -88,16 +91,33 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.notice-detail-page {
-    display: flex;
-    justify-content: center;
+.notice-detail {
+    width: 100%; /* "card" 크기에 맞추기 위해 전체 너비로 설정 */
+    margin: 0; /* 불필요한 외부 여백 제거 */
+    padding: 0 5rem; /* 내부 여백만 설정하여 card 경계에 맞추기 */
 }
 
-.card {
+
+h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+hr {
+    margin: 20px 0;
+}
+
+.notice-info {
     width: 100%;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-collapse: collapse;
+}
+
+.notice-info th,
+.notice-info td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
 }
 
 .input-group {
@@ -131,11 +151,10 @@ onMounted(async () => {
 }
 
 .message-content {
-    min-height: 300px;
-    padding: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    word-wrap: break-word;
+    text-align: left;
+    display: inline-block;
+    max-width: 100%;
+    /* padding: 20px 0; */
 }
 
 .button-group {
