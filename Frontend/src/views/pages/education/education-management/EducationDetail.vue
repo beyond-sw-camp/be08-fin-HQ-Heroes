@@ -208,14 +208,12 @@ onMounted(() => {
     }
 });
 
+// 날짜 포맷 함수
 function formatDate(date) {
-    if (!date) return '';
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}.${month}.${day}`;
+    const formattedDate = new Date(date);
+    return `${formattedDate.getFullYear()}-${String(formattedDate.getMonth() + 1).padStart(2, '0')}-${String(formattedDate.getDate()).padStart(2, '0')}`;
 }
+
 </script>
 
 <style scoped>

@@ -49,12 +49,6 @@ const { certificationDetail } = toRefs(props);
 function closeModal() {
     emit('update:visible', false); // 부모에게 모달을 닫으라는 이벤트 전송
 }
-
-// 날짜 포맷 함수
-function formatDate(date) {
-    const formattedDate = new Date(date);
-    return `${formattedDate.getFullYear()}-${formattedDate.getMonth() + 1}-${formattedDate.getDate()}`;
-}
 </script>
 
 <style scoped>
