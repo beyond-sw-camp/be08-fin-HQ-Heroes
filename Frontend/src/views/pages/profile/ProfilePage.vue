@@ -249,7 +249,10 @@ const submitPasswordChange = async () => {
 
     try {
         const response = await fetchPost('http://localhost:8080/api/v1/employee/update-password', passwordUpdate.value);
-        if (response) {
+        console.log('response', response);
+
+        if (response.includes('비밀번호가 변경되었습니다.')) {
+            console.log('response', response.status);
             visible.value = false; // Dialog 닫기
             Swal.fire('성공', '비밀번호가 변경되었습니다.', 'success');
             await authservice.logout();

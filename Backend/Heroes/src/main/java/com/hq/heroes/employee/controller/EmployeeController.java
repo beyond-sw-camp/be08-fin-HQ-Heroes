@@ -176,7 +176,7 @@ public class EmployeeController {
             );
 
             if (isUpdated) {
-                return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+                return ResponseEntity.status(HttpStatus.OK).body("비밀번호가 변경되었습니다.");
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("현재 비밀번호가 일치하지 않습니다.");
             }

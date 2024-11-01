@@ -102,12 +102,14 @@ const displayDialog = ref(false); // Dialog 표시 여부
 async function fetchEvaluationsByEmployeeId() {
     try {
         const evaluationData = await fetchGet('http://localhost:8080/api/v1/evaluation-service/evaluations/by-employeeId', router.push, router.currentRoute.value);
-        evaluations.value = evaluationData || [];
+        
+        evaluations.value = (evaluationData || []).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     } catch (error) {
         console.error('사원 ID로 평가 데이터를 가져오는 중 오류 발생:', error);
         evaluations.value = [];
     }
 }
+
 
 // 평가 상세 보기 함수
 function showEvaluationDetails(event) {
