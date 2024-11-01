@@ -3,9 +3,10 @@
         <div class="flex justify-between mb-0 items-center">
             <!-- 왼쪽: 이름 및 팀 정보 -->
             <div class="flex flex-col">
-                <span class="block text-surface-900 font-bold">{{ authStore.employeeData.teamName }} {{ authStore.employeeData.employeeName }}님</span>
-                <div class="text-muted-color font-medium text-l">{{ currentDay }}</div>
-                <div class="text-muted-color font-medium">{{ currentTime }}</div>
+                <span class="block text-surface-900 font-bold">{{ authStore.employeeData.teamName }}</span>
+                <span class="block text-surface-900 font-bold">{{ authStore.employeeData.employeeName }}님</span>
+                <div class="text-muted-color font-medium text-base">{{ currentDay }}</div>
+                <div class="text-muted-color font-medium text-sm">{{ currentTime }}</div>
             </div>
 
             <!-- 프로필 이미지 및 배지 -->
@@ -43,10 +44,11 @@ const getKoreanDate = () => {
     const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
     const day = dayNames[date.getDay()];
     const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const dayOfMonth = date.getDate();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const dayOfMonth = String(date.getDate()).padStart(2, '0');
     currentDay.value = `${year}/${month}/${dayOfMonth}(${day})`;
 };
+
 
 // 대한민국 현재 시간을 업데이트하는 함수
 const updateCurrentTime = () => {
