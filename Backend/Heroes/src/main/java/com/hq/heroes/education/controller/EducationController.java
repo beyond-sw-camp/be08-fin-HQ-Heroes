@@ -70,12 +70,13 @@ public class EducationController {
         try {
             // 신청 인원 수 증가 로직 (중복 신청 시 IllegalStateException 발생)
             CourseResponseDTO courseResponseDTO = educationService.incrementCurrentParticipants(educationId, employeeId);
+            System.out.println("courseResponseDTO.getEducationName() = " + courseResponseDTO.getEducationName());
 
             Map<String, Object> params = new HashMap<>();
-            String receiverId = courseResponseDTO.getEmployeeId();
-            params.put("receiverId", receiverId);
+            params.put("receiverId", employeeId);
+            System.out.println("receiverId = " + employeeId);
             notificationService.sendAutomaticNotification(AutoNotificationType.EDUCATION_APPLICATION, params, courseResponseDTO);
-
+            System.out.println("courseResponseDTO 커리큘럼 = " + courseResponseDTO.getEducationCurriculum());
             // 성공 시 JSON 응답
             return ResponseEntity.ok(Collections.singletonMap("message", "교육이 신청되었습니다."));
 

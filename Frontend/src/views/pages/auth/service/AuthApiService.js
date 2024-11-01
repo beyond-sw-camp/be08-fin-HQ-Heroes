@@ -46,6 +46,7 @@ const fetchPost = async (url, data) => {
         }
     } catch (error) {
         console.error('Error fetching authorized page:', error);
+        return error;
     }
     return null;
 };
