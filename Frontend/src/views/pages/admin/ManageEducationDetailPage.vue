@@ -71,7 +71,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
-import { fetchGet } from '../auth/service/AuthApiService';
+import { fetchDelete, fetchGet } from '../auth/service/AuthApiService';
 
 const route = useRoute();
 const router = useRouter();
@@ -123,26 +123,6 @@ const gotoEducationUpdate = () => {
     router.push({ name: 'education-update', params: { id: educationId.value } });
 };
 
-async function fetchDelete(url) {
-    const response = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            // 필요한 경우 인증 헤더 등을 추가하세요.
-            // 'Authorization': `Bearer ${token}`
-        }
-    });
-
-    // 응답이 성공적이지 않으면 오류를 던집니다.
-    if (!response.ok) {
-        const errorMessage = await response.text(); // 서버에서 반환한 오류 메시지
-        console.error(`Error: ${response.status} ${response.statusText} - ${errorMessage}`); // 콘솔에 오류 출력
-        throw new Error(`Error: ${response.status} ${response.statusText} - ${errorMessage}`);
-    }
-
-    return response;
-}
-
 const deleteEducation = async () => {
     try {
         // 삭제 확인 알림
@@ -158,8 +138,9 @@ const deleteEducation = async () => {
         if (result.isConfirmed) {
             const response = await fetchDelete(`http://localhost:8080/api/v1/education-service/education/${educationId.value}`);
 
+            console.log(response);
             // 삭제 성공 시 알림 표시
-            if (response && (response.status === 200 || response.status === 204)) {
+            if (response.message.includes('교육이 삭제되었습니다.')) {
                 await Swal.fire({
                     title: '교육이 삭제되었습니다.',
                     icon: 'success'

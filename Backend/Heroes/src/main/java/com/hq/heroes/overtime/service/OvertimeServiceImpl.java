@@ -23,7 +23,7 @@ public class OvertimeServiceImpl implements OvertimeService {
     private final OvertimeRepository overtimeRepository;
     private final EmployeeRepository employeeRepository;
 
-    private static final long MAX_OVERTIME_HOURS = 40 * 60; // 최대 연장 근로 시간 (분 단위로 설정)
+    private static final long MAX_OVERTIME_HOURS = 5 * 60; // 최대 연장 근로 시간 (분 단위로 설정)
 
     public long getRemainingOvertimeHours(String employeeId, YearMonth month) {
         // 해당 월의 첫날과 마지막 날을 설정

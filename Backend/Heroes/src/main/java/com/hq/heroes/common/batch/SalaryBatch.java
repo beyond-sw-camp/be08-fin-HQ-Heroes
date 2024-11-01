@@ -70,35 +70,29 @@ public class SalaryBatch {
     public ItemProcessor<Employee, SalaryHistory> salaryProcessor() {
         return employee -> {
 
-            LocalDate today = LocalDate.now();
-            if (today.getDayOfMonth() == 10) { // 매달 10일에만 처리
+            SalaryHistoryDTO requestDTO = SalaryHistoryDTO.builder()
+                    .employeeId(employee.getEmployeeId())
+                    .build();
 
-                SalaryHistoryDTO requestDTO = SalaryHistoryDTO.builder()
-                        .employeeId(employee.getEmployeeId())
-                        .build();
+            SalaryHistoryDTO result = salaryHistoryService.createSalary(requestDTO);
 
-                SalaryHistoryDTO result = salaryHistoryService.createSalary(requestDTO);
+            notificationService.sendNotificationAsync(result.getEmployeeId(), AutoNotificationType.MONTHLY_SALARY_PAYMENT, result);
 
-                notificationService.sendNotificationAsync(result.getEmployeeId(), AutoNotificationType.MONTHLY_SALARY_PAYMENT, result);
-
-                return SalaryHistory.builder()
-                        .employee(employee)
-                        .preTaxTotal(result.getPreTaxTotal())
-                        .postTaxTotal(result.getPostTaxTotal())
-                        .salaryMonth(result.getSalaryMonth())
-                        .employmentInsurance(result.getEmploymentInsurance())
-                        .healthInsurance(result.getHealthInsurance())
-                        .incomeTax(result.getIncomeTax())
-                        .localIncomeTax(result.getLocalIncomeTax())
-                        .nationalPension(result.getNationalPension())
-                        .longTermCare(result.getLongTermCare())
-                        .bonus(result.getBonus())
-                        .workTime(result.getWorkTime())
-                        .overTime(result.getOverTime())
-                        .build();
-
-            }
-            return null;
+            return SalaryHistory.builder()
+                    .employee(employee)
+                    .preTaxTotal(result.getPreTaxTotal())
+                    .postTaxTotal(result.getPostTaxTotal())
+                    .salaryMonth(result.getSalaryMonth())
+                    .employmentInsurance(result.getEmploymentInsurance())
+                    .healthInsurance(result.getHealthInsurance())
+                    .incomeTax(result.getIncomeTax())
+                    .localIncomeTax(result.getLocalIncomeTax())
+                    .nationalPension(result.getNationalPension())
+                    .longTermCare(result.getLongTermCare())
+                    .bonus(result.getBonus())
+                    .workTime(result.getWorkTime())
+                    .overTime(result.getOverTime())
+                    .build();
         };
     }
 

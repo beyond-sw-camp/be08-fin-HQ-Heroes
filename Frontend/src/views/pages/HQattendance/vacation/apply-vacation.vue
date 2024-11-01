@@ -214,6 +214,7 @@ const convertToTreeModel = (data) => {
             label: employee.employeeName,
             profileImageUrl: employee.profileImageUrl,
             jobName: employee.jobName,
+            icon: 'pi pi-user',
             positionName: employee.positionName
         });
         return acc;

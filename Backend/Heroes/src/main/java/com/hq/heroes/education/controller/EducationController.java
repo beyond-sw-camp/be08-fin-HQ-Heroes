@@ -130,15 +130,15 @@ public class EducationController {
     // 교육 삭제 -테스트
     @DeleteMapping("/education/{education-id}")
     @Operation(summary = "교육 삭제", description = "교육 ID로 해당 교욱을 삭제한다.")
-    public ResponseEntity<Void> delete(
+    public ResponseEntity<?> delete(
             @Parameter(description = "교육 ID", example = "1") @PathVariable("education-id") Long educationId) {
 
         boolean isDeleted = educationService.deleteEducation(educationId);
 
         if (isDeleted) {
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.ok(Collections.singletonMap("message", "교육이 삭제되었습니다."));
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(Collections.singletonMap("message", "교육삭제 중 에러가 발생하였습니다."));
         }
     }
 

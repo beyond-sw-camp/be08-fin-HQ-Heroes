@@ -61,12 +61,12 @@
 </template>
 
 <script setup>
-import router from '@/router';
 import axios from 'axios';
 import InputOtp from 'primevue/inputotp';
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
 import adminService from '../auth/service/authService';
+import { useRouter } from 'vue-router';
 
 const employeeId = ref('');
 const password = ref('');
@@ -74,6 +74,7 @@ const authCode = ref('');
 const isLoading = ref(false); // 로딩 상태
 const authCodeTimer = ref(null); // 타이머 상태
 const timeRemaining = ref(0); // 남은 시간
+const router = useRouter();
 
 const handleAdminLogin = async () => {
     if (!employeeId.value || !password.value || !authCode.value) {

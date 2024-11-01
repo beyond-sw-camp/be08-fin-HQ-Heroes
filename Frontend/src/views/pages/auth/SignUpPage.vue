@@ -1,9 +1,9 @@
 <script setup>
-import axios from 'axios';
 import Swal from 'sweetalert2';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import apiService from '../auth/service/authService';
+import { fetchGet } from './service/AuthApiService';
 
 // Form fields
 const employeeName = ref('');
@@ -54,8 +54,8 @@ const errors = ref({
 // Fetch departments, teams, jobRoles, and positions
 async function fetchDepartments() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/departments');
-        departments.value = [...response.data];
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/departments');
+        departments.value = [...response];
     } catch (error) {
         console.error('부서 데이터를 가져오는 중 오류 발생:', error);
     }
@@ -64,10 +64,10 @@ async function fetchDepartments() {
 async function fetchTeams(selectedDeptId) {
     deptId.value = selectedDeptId;
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/teams', {
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/teams', {
             params: { deptId: selectedDeptId }
         });
-        teams.value = [...response.data];
+        teams.value = [...response];
         isTeamSelectable.value = true;
     } catch (error) {
         console.error('팀 데이터를 가져오는 중 오류 발생:', error);
@@ -77,8 +77,8 @@ async function fetchTeams(selectedDeptId) {
 
 async function fetchJobRoles() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/jobs');
-        jobRoles.value = [...response.data];
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/jobs');
+        jobRoles.value = [...response];
     } catch (error) {
         console.error('직무 데이터를 가져오는 중 오류 발생:', error);
     }
@@ -86,8 +86,8 @@ async function fetchJobRoles() {
 
 async function fetchPositions() {
     try {
-        const response = await axios.get('http://localhost:8080/api/v1/employee/positions');
-        positions.value = [...response.data];
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/positions');
+        positions.value = [...response];
     } catch (error) {
         console.error('직책 데이터를 가져오는 중 오류 발생:', error);
     }

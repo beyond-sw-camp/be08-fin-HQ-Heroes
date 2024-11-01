@@ -20,6 +20,7 @@ public class SalarySchedule {
 
     // 매월 10일 자정 실행 (Asia/Seoul 시간 기준)
     @Scheduled(cron = "0 0 0 10 * *", zone = "Asia/Seoul")
+//    @Scheduled(cron = "*/10 * * * * *", zone = "Asia/Seoul")
     public void runSalaryJob() throws Exception {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String date = dateFormat.format(new Date());

@@ -218,6 +218,7 @@ const enableEditing = () => {
                 title: '수정되었습니다.',
                 icon: 'success'
             });
+            window.location.reload();
         })
         .catch((error) => {
             Swal.fire({
