@@ -66,7 +66,7 @@ onMounted(async () => {
     
     // 카테고리 데이터 로드
     const fetchedCategories = await fetchCategories();
-    categories.value = [{ id: null, categoryName: '전체' }, ...fetchedCategories];
+    categories.value = [...fetchedCategories];
 
     // Quill 에디터 초기화
     quillEditor = new Quill(editor.value, {
@@ -183,7 +183,7 @@ const resizeImage = (file, maxWidth, maxHeight) => {
 const loadCategories = async () => {
     try {
         const fetchedCategories = await fetchCategories();
-        categories.value = [{ id: null, categoryName: '전체' }, ...fetchedCategories];
+        categories.value = [ ...fetchedCategories];
     } catch (error) {
         console.error('카테고리 조회 중 오류:', error);
     }
