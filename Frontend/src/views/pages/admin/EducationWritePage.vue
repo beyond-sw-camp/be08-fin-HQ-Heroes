@@ -48,6 +48,7 @@
                         </div>
                         <div class="date-block">
                             <label for="endDate" class="input-title"><b>종료 날짜 *</b></label>
+                            <small v-if="isDateInvalid" class="text-red-500 ml-2">시작 날짜는 종료 날짜보다 이전이어야 합니다.</small>
                             <input type="date" v-model="endDate" class="message-input" />
                         </div>
                     </div>
@@ -71,7 +72,7 @@
 <script setup>
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { fetchGet, fetchPost } from '../auth/service/AuthApiService'; // fetchPost 사용
 import Swal from 'sweetalert2';
 import router from '@/router';
@@ -86,11 +87,15 @@ const message = ref(''); // Quill 에디터 내용
 const editor = ref(null); // Quill 에디터 참조 변수
 const startDate = ref(''); // 시작 날짜
 const endDate = ref(''); // 종료 날짜
+const isDateInvalid = ref(false);
 
 let quillEditor = null; // quillEditor 변수
 
 // Quill 에디터 초기화
 onMounted(async () => {
+    // 현재 날짜를 "YYYY-MM-DD" 형식으로 설정
+    const today = new Date().toISOString().split('T')[0];
+    startDate.value = today;
     await fetchCategories();
 
     quillEditor = new Quill(editor.value, {
@@ -212,26 +217,36 @@ const fetchCategories = async () => {
     }
 };
 
+// 날짜 변경 시 유효성 검사
+watch([startDate, endDate], ([newStartDate, newEndDate]) => {
+    isDateInvalid.value = newStartDate && newEndDate && newStartDate > newEndDate;
+});
+
 // 메시지 전송 로직
 const sendMessage = async () => {
+    if (isDateInvalid.value) {
+        Swal.fire({
+            icon: 'error',
+            title: '유효성 오류',
+            text: '종료 날짜는 시작 날짜보다 이후여야 합니다.',
+            confirmButtonText: '확인'
+        });
+        return;
+    }
+
     try {
         const requestBody = {
-            educationName: subject.value, // 교육명
-            instructorName: instructor.value, // 강사명
-            institution: institution.value, // 교육기관
-            educationStart: startDate.value, // 시작 날짜
-            educationEnd: endDate.value, // 종료 날짜
-            categoryId: getCategoryById(selectedCategory.value), // 카테고리 ID
-            educationCurriculum: message.value, // 교육 커리큘럼 (Quill 에디터 내용)
-            participants: capacity.value // 수강정원
+            educationName: subject.value,
+            instructorName: instructor.value,
+            institution: institution.value,
+            educationStart: startDate.value,
+            educationEnd: endDate.value,
+            categoryId: getCategoryById(selectedCategory.value),
+            educationCurriculum: message.value,
+            participants: capacity.value
         };
 
-        console.log('전송 데이터:', requestBody);
-
         const result = await fetchPost('http://localhost:8080/api/v1/education-service/education', requestBody);
-
-        // 요청 결과 로그
-        console.log('API 응답:', result);
 
         if (result) {
             await Swal.fire({
@@ -240,9 +255,7 @@ const sendMessage = async () => {
                 text: '교육 정보가 성공적으로 작성되었습니다.',
                 confirmButtonText: '확인'
             });
-            // 확인 후 페이지 이동
-            console.log('이동할 경로:', '/manage-education'); // 이동할 경로 로그
-            router.push({ path: '/manage-education' }); // 원하는 페이지의 경로로 수정
+            router.push({ path: '/manage-education' });
         }
     } catch (error) {
         console.error('API 요청 실패:', error);
@@ -254,7 +267,6 @@ const sendMessage = async () => {
         });
     }
 };
-
 </script>
 
 <style scoped>
@@ -353,5 +365,12 @@ body {
 
 .send-button:hover {
     background-color: #4f46e5;
+}
+
+.text-red-500 {
+    color: red;
+}
+.ml-2 {
+    margin-left: 0.5rem;
 }
 </style>

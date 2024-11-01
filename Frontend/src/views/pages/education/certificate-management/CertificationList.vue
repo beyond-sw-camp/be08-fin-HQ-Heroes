@@ -2,7 +2,7 @@
     <div class="card">
         <div class="flex flex-row justify-between mb-4">
             <label class="text-xl font-bold">자격증 목록</label>
-            <Button label="추가하기" icon="pi pi-plus" class="custom-button" @click="showAddOrUpdateDialog(null)" />
+            <Button label="등록하기" icon="pi pi-plus" class="custom-button" @click="showAddOrUpdateDialog(null)" />
         </div>
 
         <div class="grid grid-cols-12 gap-4">
