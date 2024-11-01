@@ -19,7 +19,7 @@
                     />
                 </div>
                 <div class="relative search-container">
-                    <InputText v-model="globalFilter" placeholder="검색" class="pl-8 search-input" />
+                    <InputText v-model="globalFilter" placeholder="검색" @input="filterEducations" class="pl-8 search-input" />
                     <i class="pi pi-search search-icon" />
                 </div>
             </div>
@@ -77,11 +77,18 @@ const router = useRouter();
 // 필터링 함수
 function filterEducations() {
     filteredEducations.value = educations.value.filter((education) => {
-        const matchesCategoryName = selectedcategoryName.value?.categoryName !== '전체' ? education.categoryName === selectedcategoryName.value.categoryName : true;
-        const matchesDate = selectedDate.value ? new Date(education.educationStart) <= new Date(selectedDate.value) && new Date(education.educationEnd) >= new Date(selectedDate.value) : true;
-        const matchesGlobalFilter = globalFilter.value ? education.educationName.toLowerCase().includes(globalFilter.value.toLowerCase()) : true;
+        // 카테고리 이름 매칭
+        const matchesCategoryName =
+            !selectedcategoryName.value || 
+            selectedcategoryName.value.categoryName === '전체' ||
+            education.categoryName === selectedcategoryName.value.categoryName;
 
-        return matchesCategoryName && matchesDate && matchesGlobalFilter;
+        // 글로벌 필터 매칭
+        const matchesGlobalFilter = globalFilter.value
+            ? education.educationName.toLowerCase().includes(globalFilter.value.toLowerCase())
+            : true;
+
+        return matchesCategoryName && matchesGlobalFilter;
     });
 }
 
