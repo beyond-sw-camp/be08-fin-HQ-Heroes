@@ -232,6 +232,7 @@ public class NotificationServiceImpl implements NotificationService {
         if ("근태".equals(category) && data instanceof Vacation vacation) {
             String startDate = vacation.getVacationStartDate().toString();
             String endDate = vacation.getVacationEndDate().toString();
+            String comment = vacation.getComment();
 
             message = switch (notificationType) {
                 case VACATION_APPLICATION -> "<html>\n" +
@@ -239,6 +240,7 @@ public class NotificationServiceImpl implements NotificationService {
                         "        <p>[<strong>휴가</strong>] " + vacation.getApplicant().getEmployeeName() + "님의 휴가 승인 요청</p>\n" +
                         "        <p><strong>시작일:</strong> " + startDate + "</p>\n" +
                         "        <p><strong>종료일:</strong> " + endDate + "</p>\n" +
+                        "        <p><strong>사유:</strong> " + comment + "</p>\n" +
                         "    </body>\n" +
                         "</html>\n";
                 case VACATION_APPROVAL -> "<html>\n" +
@@ -246,11 +248,35 @@ public class NotificationServiceImpl implements NotificationService {
                         "        <p>[<strong>휴가</strong>] " + vacation.getApplicant().getEmployeeName() + "님의 휴가 승인</p>\n" +
                         "        <p><strong>시작일:</strong> " + startDate + "</p>\n" +
                         "        <p><strong>종료일:</strong> " + endDate + "</p>\n" +
+                        "        <p><strong>사유:</strong> " + comment + "</p>\n" +
                         "    </body>\n" +
                         "</html>\n";
                 case VACATION_REJECTION -> "<html>\n" +
                         "    <body>\n" +
                         "        <p>[<strong>휴가</strong>] " + vacation.getApplicant().getEmployeeName() + "님의 휴가 반려</p>\n" +
+                        "        <p><strong>시작일:</strong> " + startDate + "</p>\n" +
+                        "        <p><strong>종료일:</strong> " + endDate + "</p>\n" +
+                        "        <p><strong>사유:</strong> " + comment + "</p>\n" +
+                        "    </body>\n" +
+                        "</html>\n";
+                case VACATION_CANCEL_REQUEST -> "<html>\n" +
+                        "    <body>\n" +
+                        "        <p>[<strong>휴가</strong>] " + vacation.getApprover().getEmployeeName() + "님의 휴가 취소 신청이 있습니다.</p>\n" +
+                        "        <p><strong>시작일:</strong> " + startDate + "</p>\n" +
+                        "        <p><strong>종료일:</strong> " + endDate + "</p>\n" +
+                        "        <p><strong>사유:</strong> " + comment + "</p>\n" +
+                        "    </body>\n" +
+                        "</html>\n";
+                case VACATION_CANCELLATION_APPROVAL -> "<html>\n" +
+                        "    <body>\n" +
+                        "        <p>[<strong>휴가</strong>] " + vacation.getApplicant().getEmployeeName() + "님의 휴가 취소 신청이 승인 되었습니다.</p>\n" +
+                        "        <p><strong>시작일:</strong> " + startDate + "</p>\n" +
+                        "        <p><strong>종료일:</strong> " + endDate + "</p>\n" +
+                        "    </body>\n" +
+                        "</html>\n";
+                case VACATION_CANCELLATION_REJECTION -> "<html>\n" +
+                        "    <body>\n" +
+                        "        <p>[<strong>휴가</strong>] " + vacation.getApplicant().getEmployeeName() + "님의 휴가 취소 신청이 반려되었습니다.</p>\n" +
                         "        <p><strong>시작일:</strong> " + startDate + "</p>\n" +
                         "        <p><strong>종료일:</strong> " + endDate + "</p>\n" +
                         "    </body>\n" +
