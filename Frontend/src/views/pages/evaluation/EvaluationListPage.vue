@@ -1,12 +1,12 @@
 <template>
-    <div class="card">
+    <div class="card" style="max-height: 44.1rem;">
         <div class="flex items-center justify-center text-xl mb-4">
             <label class="font-semibold">{{ evaluationPeriod }} - {{ authStore.employeeData.teamName }} 팀원 평가</label>
         </div>
         <DataTable
             :value="filteredEmployees"
             :paginator="true"
-            :rows="10"
+            :rows="6"
             removableSort
             dataKey="employeeNo"
             :rowHover="true"

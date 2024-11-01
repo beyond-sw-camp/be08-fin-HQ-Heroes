@@ -1,5 +1,5 @@
 <template>
-    <div class="card">
+    <div class="card" style="max-height: 44.1rem;">
         <div class="font-semibold text-xl mb-4">평가 결과</div>
 
         <!-- DataTable for listing evaluations -->
