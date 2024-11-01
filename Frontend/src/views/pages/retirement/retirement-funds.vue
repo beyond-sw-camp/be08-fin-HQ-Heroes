@@ -70,6 +70,10 @@ const calculateAnnualLeave = (date) => {
     yearsOfService--;
   }
 
+  if(yearsOfService == 0) {
+    yearsOfService ++;
+  }
+
   return yearsOfService;
 };
 
