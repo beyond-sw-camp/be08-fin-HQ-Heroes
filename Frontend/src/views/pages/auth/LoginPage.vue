@@ -31,8 +31,6 @@
 
                     <!-- 비밀번호 재발급 링크 -->
                     <div class="flex items-center justify-end gap-1">
-                        <a @click="goToSignUp" class="text-sm text-surface-600 font-medium leading-normal cursor-pointer hover:text-primary">회원가입</a>
-                        <span>/</span>
                         <a @click="goToResetPassword" class="text-sm text-surface-600 font-medium leading-normal cursor-pointer hover:text-primary">비밀번호 재발급</a>
                     </div>
 
@@ -69,7 +67,6 @@ onMounted(() => {
     authStore.initializeAuth();
 });
 
-const goToSignUp = () => router.push('/signup');
 const goToResetPassword = () => router.push('/reset-password');
 const goToAdminLogin = () => router.push('/admin-login');
 
