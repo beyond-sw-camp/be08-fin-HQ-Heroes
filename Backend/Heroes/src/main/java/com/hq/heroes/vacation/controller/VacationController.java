@@ -62,11 +62,7 @@ public class VacationController {
     @PostMapping("/cancel")
     public ResponseEntity<String> requestVacationCancel(@RequestBody VacationDTO vacationDTO) {
         try {
-            vacationService.cancelVacation(vacationDTO);
-
-            // 자동 알림 발송
-            Vacation vacation = vacationRepository.findById(vacationDTO.getVacationId())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 휴가 요청을 찾을 수 없습니다."));
+            Vacation vacation = vacationService.cancelVacation(vacationDTO);
 
             Map<String, Object> params = new HashMap<>();
             params.put("receiverId", vacation.getApprover().getEmployeeId()); // 결재자 ID
