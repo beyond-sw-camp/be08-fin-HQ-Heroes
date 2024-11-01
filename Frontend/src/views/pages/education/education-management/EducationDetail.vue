@@ -1,28 +1,26 @@
 <template>
     <div class="card">
         <div class="education-detail">
-            <h2>[ {{ categoryName }} ] {{ educationName }} </h2>
+            <h2>[ {{ categoryName }} ] {{ educationName }}</h2>
             <hr />
             <!-- education-info 테이블로 수정 -->
             <table class="education-info">
                 <tr>
-                    <th style="text-align: left;">교육 일정</th>
+                    <th style="text-align: left">교육 일정</th>
                     <td>
                         <template v-if="editMode">
-                            <input type="date" v-model="educationStart" /> ~ 
+                            <input type="date" v-model="educationStart" /> ~
                             <input type="date" v-model="educationEnd" />
                         </template>
-                        <template v-else>
-                            {{ formatDate(educationStart) }} ~ {{ formatDate(educationEnd) }}
-                        </template>
+                        <template v-else> {{ formatDate(educationStart) }} ~ {{ formatDate(educationEnd) }} </template>
                     </td>
                 </tr>
                 <tr>
-                    <th style="text-align: left;">수료 기준</th>
+                    <th style="text-align: left">수료 기준</th>
                     <td>수강일 기준 80% 이상</td>
                 </tr>
                 <tr>
-                    <th style="text-align: left;">수강 정원</th>
+                    <th style="text-align: left">수강 정원</th>
                     <td>
                         <template v-if="editMode">
                             <input v-model.number="participants" type="number" />
@@ -33,7 +31,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th style="text-align: left;">교육 기관</th>
+                    <th style="text-align: left">교육 기관</th>
                     <td>
                         <template v-if="editMode">
                             <input v-model="institution" type="text" />
@@ -44,7 +42,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th style="text-align: left; vertical-align: top;">교육 커리큘럼</th>
+                    <th style="text-align: left; vertical-align: top">교육 커리큘럼</th>
                     <td>
                         <div v-html="educationCurriculum" class="curriculum-content"></div>
                     </td>
@@ -54,7 +52,6 @@
                 <Button label="신청하기" icon="pi pi-pencil" @click="handleApplyClick" />
                 <Button label="목록" icon="pi pi-fw pi-book" @click="goBackToList" class="gray-button" />
             </div>
-
         </div>
     </div>
 </template>
@@ -104,8 +101,8 @@ const handleApplyClick = async () => {
     // 신청 인원이 초과하는지 확인
     if (newParticipantCount > participants.value) {
         await Swal.fire({
-            title: "신청 인원이 초과하였습니다.",
-            icon: "warning",
+            title: '신청 인원이 초과하였습니다.',
+            icon: 'warning'
         });
         return;
     }
@@ -114,30 +111,34 @@ const handleApplyClick = async () => {
 
     try {
         // 교육 신청 요청
-        await fetchPost(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
-        
+        const result = await fetchPost(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
         // 성공 메시지 표시
-        await Swal.fire({
-            title: "교육이 추가되었습니다",
-            icon: "success",
-        });
-        
-        currentParticipant.value = newParticipantCount; // 새로 신청한 인원 수 업데이트
-        isApplied.value = true; // 신청 상태 업데이트
-        router.push('/education-history'); // 신청 완료 후 "/education-history" 페이지로 이동
-    } catch (error) {
-        // 오류 메시지 검사
-        if (error.message.includes("서버 오류: 409")) {
+
+        console.log('result', result);
+        if (result.message.includes('교육이 신청되었습니다.')) {
             await Swal.fire({
-                title: "이미 신청한 교육입니다.",
-                icon: "warning",
+                title: '교육이 추가되었습니다',
+                icon: 'success'
+            });
+            currentParticipant.value = newParticipantCount; // 새로 신청한 인원 수 업데이트
+            isApplied.value = true; // 신청 상태 업데이트
+            router.push('/education-history'); // 신청 완료 후 "/education-history" 페이지로 이동
+        } else if (result.message.includes('409')) {
+            await Swal.fire({
+                title: '이미 신청한 교육입니다.',
+                icon: 'warning'
             });
         } else {
             await Swal.fire({
-                title: "신청 중 오류가 발생했습니다.",
+                title: '신청 중 오류가 발생했습니다.',
                 text: error.message,
-                icon: "error",
+                icon: 'error'
             });
+        }
+    } catch (error) {
+        // 오류 메시지 검사
+        if (error.message.includes('서버 오류: 409')) {
+        } else {
         }
     }
 };
@@ -146,9 +147,9 @@ const handleApplyClick = async () => {
 const handleCancelClick = async () => {
     const employeeId = window.localStorage.getItem('employeeId'); // 로컬스토리지에서 ID 가져오기
     const courseId = route.params.courseId; // 현재 코스 ID 가져오기
-    
-    const confirmCancel = confirm("교육을 취소하시겠습니까?"); // 취소 확인
-    
+
+    const confirmCancel = confirm('교육을 취소하시겠습니까?'); // 취소 확인
+
     if (confirmCancel) {
         try {
             // 서버에 DELETE 요청 보내기
@@ -158,17 +159,17 @@ const handleCancelClick = async () => {
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             if (response.ok) {
-                alert("신청이 취소되었습니다."); // 취소 메시지
+                alert('신청이 취소되었습니다.'); // 취소 메시지
                 currentParticipant.value--; // 참가자 수 감소
                 isApplied.value = false; // 신청 상태 업데이트
             } else {
-                alert("취소에 실패했습니다. 다시 시도해 주세요.");
+                alert('취소에 실패했습니다. 다시 시도해 주세요.');
             }
         } catch (error) {
             console.error('취소 중 오류 발생:', error);
-            alert("오류가 발생했습니다. 나중에 다시 시도해 주세요.");
+            alert('오류가 발생했습니다. 나중에 다시 시도해 주세요.');
         }
     }
 };
@@ -183,7 +184,7 @@ onMounted(() => {
         fetchEducationDetails(courseId);
     } else {
         console.error('courseId가 정의되지 않았습니다.');
-        alert("교육 ID가 정의되지 않았습니다. 올바른 링크를 사용해 주세요.");
+        alert('교육 ID가 정의되지 않았습니다. 올바른 링크를 사용해 주세요.');
     }
 });
 
@@ -192,7 +193,6 @@ function formatDate(date) {
     const formattedDate = new Date(date);
     return `${formattedDate.getFullYear()}-${String(formattedDate.getMonth() + 1).padStart(2, '0')}-${String(formattedDate.getDate()).padStart(2, '0')}`;
 }
-
 </script>
 
 <style scoped>

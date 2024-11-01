@@ -37,7 +37,7 @@
                 :globalFilterFields="['certificationName', 'deptName', 'institution']"
                 removableSort
                 selectionMode="single"
-                @row-click="showCertificationDetails(data)"
+                @row-click="showCertificationDetails"
             >
                 <Column field="deptName" sortable header="부서 명" />
                 <Column field="certificationName" sortable header="자격증 명" />
