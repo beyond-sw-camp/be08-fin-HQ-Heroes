@@ -281,7 +281,6 @@ public class NotificationServiceImpl implements NotificationService {
                         "        <p><strong>종료일:</strong> " + endDate + "</p>\n" +
                         "    </body>\n" +
                         "</html>\n";
-                case MONTHLY_VACATION_GRANTED -> "<html><body><p>월차가 지급되었습니다.</p></body></html>";   // 배치 작업에서 보내줘야함.
                 default -> throw new IllegalArgumentException("알 수 없는 근태 알림 타입입니다: " + notificationType);
             };
         } else if ("급여".equals(category) && data instanceof SalaryHistoryDTO salaryHistoryDTO) {

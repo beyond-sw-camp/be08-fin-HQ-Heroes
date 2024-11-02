@@ -7,7 +7,6 @@ public enum AutoNotificationType {
     VACATION_APPLICATION("근태", "휴가 승인 요청이 있습니다."),           // 휴가 승인 요청 -> 결재자
     VACATION_APPROVAL("근태", "휴가가 승인되었습니다."),                 // 휴가 승인 알림 발송 -> 신청자
     VACATION_REJECTION("근태", "휴가가 반려되었습니다."),               // 휴가 반려 알림 발송 -> 신청자
-    MONTHLY_VACATION_GRANTED("근태", "월차가 지급되었습니다."),           // 월차 지급 알림 -> 지급받은 사원
     VACATION_CANCEL_REQUEST("근태", "휴가 취소 요청이 있습니다."),       // 휴가 취소 요청 -> 결재자
     VACATION_CANCELLATION_APPROVAL("근태", "휴가 취소가 승인되었습니다."), // 휴가 취소 승인 알림 발송 -> 신청자
     VACATION_CANCELLATION_REJECTION("근태", "휴가 취소가 반려되었습니다."), // 휴가 취소 반려 알림 발송 -> 신청자
