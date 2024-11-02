@@ -66,20 +66,26 @@ public class CertificationController {
         return new ResponseEntity<>(certificationResponseDTOS, HttpStatus.OK);
     }
 
-    // 자격증 정보 등록 - 테스트
     @PostMapping("/certification")
     @Operation(summary = "자격증 등록", description = "자격증 정보를 받아서 등록한다.")
     public ResponseEntity<CertificationResponseDTO> create(@RequestBody CertificationRequestDTO requestDTO) {
         CertificationResponseDTO certificationResponseDTO = certificationService.createCertification(requestDTO);
 
-        List<EmployeeDTO> employeeList = employeeService.getAllEmployeesByDepartment(certificationResponseDTO.getDeptId());
+        if (certificationResponseDTO != null) { // 성공적으로 자격증 생성된 경우
+            List<EmployeeDTO> employeeList = employeeService.getAllEmployeesByDepartment(certificationResponseDTO.getDeptId());
 
-        for (EmployeeDTO employeeDTO : employeeList) {
-            notificationService.sendNotificationAsync(employeeDTO.getEmployeeId(), AutoNotificationType.COMPANY_CERTIFICATION_REGISTRATION, certificationResponseDTO);
+            for (EmployeeDTO employeeDTO : employeeList) {
+                System.out.println("employeeDTO.getEmployeeName() = " + employeeDTO.getEmployeeName());
+                notificationService.sendNotificationAsync(employeeDTO.getEmployeeId(), AutoNotificationType.COMPANY_CERTIFICATION_REGISTRATION, certificationResponseDTO);
+            }
+
+            return new ResponseEntity<>(certificationResponseDTO, HttpStatus.CREATED);
+        } else {
+            // 자격증 생성 실패 시, 적절한 오류 메시지와 상태 코드 반환
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return new ResponseEntity<>(certificationResponseDTO, HttpStatus.CREATED);
     }
+
 
     // 자격증 정보 수정 - 테스트
     @PutMapping("/certification/{certification-id}")

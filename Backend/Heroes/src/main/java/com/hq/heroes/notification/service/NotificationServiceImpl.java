@@ -2,6 +2,7 @@ package com.hq.heroes.notification.service;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
+import com.hq.heroes.certification.dto.CertificationResponseDTO;
 import com.hq.heroes.certification.dto.EmployeeCertificationResponseDTO;
 import com.hq.heroes.certification.entity.Certification;
 import com.hq.heroes.certification.entity.EmployeeCertification;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.NumberFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -261,7 +263,7 @@ public class NotificationServiceImpl implements NotificationService {
                         "</html>\n";
                 case VACATION_CANCEL_REQUEST -> "<html>\n" +
                         "    <body>\n" +
-                        "        <p>[<strong>휴가</strong>] " + vacation.getApprover().getEmployeeName() + "님의 휴가 취소 신청이 있습니다.</p>\n" +
+                        "        <p>[<strong>휴가</strong>] " + vacation.getApplicant().getEmployeeName() + "님의 휴가 취소 신청이 있습니다.</p>\n" +
                         "        <p><strong>시작일:</strong> " + startDate + "</p>\n" +
                         "        <p><strong>종료일:</strong> " + endDate + "</p>\n" +
                         "        <p><strong>사유:</strong> " + comment + "</p>\n" +
@@ -348,18 +350,18 @@ public class NotificationServiceImpl implements NotificationService {
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
             };
-        } else if ("교육".equals(category) && data instanceof Certification certification) {
+        } else if ("교육".equals(category) && data instanceof CertificationResponseDTO certificationResponseDTO) {
             // 교육 - 회사 자격증 카테고리 알림
-            String deptName = certification.getDepartment().getDeptName();
+            String deptName = certificationResponseDTO.getDeptName();
 
             message = switch (notificationType) {
                 case COMPANY_CERTIFICATION_REGISTRATION -> "<html>\n" +
                         "    <body>\n" +
                         "        <p>[<strong>자격증</strong>] 추천 자격증이 등록되었습니다.</p>\n" +
                         "        <p><strong>부서명:</strong> " + deptName + "</p>\n" +
-                        "        <p><strong>자격증명:</strong> " + certification.getCertificationName() + "</p>\n" +
-                        "        <p><strong>발급기관:</strong> " + certification.getInstitution() + "</p>\n" +
-                        "        <p><strong>혜택:</strong> " + certification.getBenefit() + "</p>\n" +
+                        "        <p><strong>자격증명:</strong> " + certificationResponseDTO.getCertificationName() + "</p>\n" +
+                        "        <p><strong>발급기관:</strong> " + certificationResponseDTO.getInstitution() + "</p>\n" +
+                        "        <p><strong>혜택:</strong> " + certificationResponseDTO.getBenefit() + "</p>\n" +
                         "    </body>\n" +
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
@@ -388,14 +390,17 @@ public class NotificationServiceImpl implements NotificationService {
                 default -> throw new IllegalArgumentException("알 수 없는 교육 알림 타입입니다: " + notificationType);
             };
         } else if ("평가".equals(category) && data instanceof Evaluation evaluation) {
-            // 배치 작업에서 보내줘야함.
+            // DateTimeFormatter를 사용해 날짜 형식을 yy-MM-dd로 설정
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd");
+            String formattedDate = evaluation.getUpdatedAt().format(formatter);
+
             message = switch (notificationType) {
                 case EVALUATION_RESULT -> "<html>\n" +
                         "    <body>\n" +
                         "        <p>[<strong>평가</strong>] " + evaluation.getEmployee().getEmployeeName() + "님의 평가 결과 입니다.</p>\n" +
                         "        <p><strong>평가 점수:</strong> " + evaluation.getScore() + "</p>\n" +
-                        "        <p><strong>평가일:</strong> " + evaluation.getUpdatedAt() + "</p>\n" +
-                        "    aa</body>\n" +
+                        "        <p><strong>평가일:</strong> " + formattedDate + "</p>\n" +
+                        "    </body>\n" +
                         "</html>\n";
                 default -> throw new IllegalArgumentException("알 수 없는 평가 알림 타입입니다: " + notificationType);
             };

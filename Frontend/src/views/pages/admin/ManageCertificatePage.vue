@@ -137,6 +137,8 @@ import Swal from 'sweetalert2';
 const certifications = ref([]);
 const filteredCertifications = ref([]);
 const selectedDepartment = ref(null);
+const selectedAddDepartment = ref(null);
+const selectedEditDepartment = ref(null);
 const departments = ref([]);
 const globalFilter = ref('');
 const router = useRouter();
@@ -262,17 +264,18 @@ async function saveCertification() {
     try {
         const response = await fetchPost('http://localhost:8080/api/v1/certification-service/certification', addCertificationData.value);
 
-        // 모달 닫기
-        isAddDialogVisible.value = false;
+        if (response) { // response가 null이 아닌 경우에만 성공 처리
+            console.log(response);
+            isAddDialogVisible.value = false;
 
-        // 자격증 추가 완료 알림
-        await Swal.fire('추가 완료', '자격증 추가가 완료되었습니다.', 'success');
-
-        // 페이지 새로 고침
-        location.reload(); // 페이지를 새로 고침합니다.
+            await Swal.fire('추가 완료', '자격증 추가가 완료되었습니다.', 'success');
+            location.reload(); // 페이지 새로 고침
+        } else {
+            // 오류 알림
+            Swal.fire('추가 실패', '자격증 추가 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+        }
     } catch (error) {
         console.error('자격증 추가 중 오류:', error);
-        // 오류 알림
         Swal.fire('추가 실패', '자격증 추가 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
     }
 }
