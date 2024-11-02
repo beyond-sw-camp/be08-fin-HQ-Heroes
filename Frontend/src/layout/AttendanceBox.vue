@@ -27,6 +27,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useNotificationStore } from '@/stores/notificationStore';
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
 import Avatar from 'primevue/avatar'; // PrimeVue Avatar 가져오기
+import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchGet, fetchPost } from '../views/pages/auth/service/AuthApiService';
@@ -49,7 +50,6 @@ const getKoreanDate = () => {
     currentDay.value = `${year}/${month}/${dayOfMonth}(${day})`;
 };
 
-
 // 대한민국 현재 시간을 업데이트하는 함수
 const updateCurrentTime = () => {
     const date = new Date();
@@ -61,25 +61,42 @@ const handleAttendance = async () => {
     const attendanceTime = new Date(); // 현재 시간을 저장하기 위한 변수
 
     try {
-        if (!isCheckedIn.value) {
-            // 출근 처리
-            const response = await fetchPost('http://localhost:8080/api/v1/attendance/check-in', { checkInTime: attendanceTime });
-            if (response && response.attendanceId) {
-                isCheckedIn.value = true; // 출근 상태로 변경
+        const result = await Swal.fire({
+            title: isCheckedIn.value ? '정말 퇴근 처리 하시겠습니까?' : '정말 출근 처리 하시겠습니까?',
+            text: isCheckedIn.value ? '로그아웃 됩니다.' : '출근 시간으로 기록됩니다.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '확인',
+            cancelButtonText: '취소'
+        });
 
-                // 페이지 새로고침
-                window.location.reload(); // 페이지를 다시 로드
+        if (result.isConfirmed) {
+            if (!isCheckedIn.value) {
+                // 출근 처리
+                const response = await fetchPost('http://localhost:8080/api/v1/attendance/check-in', { checkInTime: attendanceTime });
+                if (response && response.attendanceId) {
+                    isCheckedIn.value = true; // 출근 상태로 변경
+                    window.location.reload(); // 페이지를 다시 로드
+                } else {
+                    console.error('출근 처리 실패');
+                }
             } else {
-                console.error('출근 처리 실패');
+                // 퇴근 처리
+                const response = await fetchPost('http://localhost:8080/api/v1/attendance/check-out', { checkOutTime: attendanceTime });
+                await handleLogout();
             }
         } else {
-            // 퇴근 처리
-            const response = await fetchPost('http://localhost:8080/api/v1/attendance/check-out', { checkOutTime: attendanceTime });
-            await handleLogout();
-            // 퇴근 상태로 변경
+            // 사용자가 취소를 선택한 경우, 아무 작업도 수행하지 않습니다.
+            console.log('사용자가 출근/퇴근 처리를 취소했습니다.');
         }
     } catch (error) {
         console.error('오류 발생', error);
+        Swal.fire({
+            icon: 'error',
+            title: '처리 오류',
+            text: '출근/퇴근 처리 중 오류가 발생했습니다. 다시 시도해주세요.',
+            confirmButtonText: '확인'
+        });
     }
 };
 
