@@ -35,7 +35,7 @@ public interface EmployeeRepository extends JpaRepository<Employee,String> {
             "e.email, e.job.jobRoleId, e.job.jobRoleName, e.position.positionId, e.position.positionName, " +
             "e.joinDate, e.annualLeave, e.status, e.birthDate, e.phoneNumber, e.roadAddress, e.lotAddress, e.detailedAddress, e.profileImageUrl) " +
             "FROM Employee e WHERE e.team.department.deptId = :departmentId")
-    List<Employee> findEmployeesByDepartmentId(@Param("departmentId") Long departmentId);
+    List<EmployeeDTO> findEmployeesByDepartmentId(@Param("departmentId") Long departmentId);
 
     Boolean existsByEmail(String email);
 

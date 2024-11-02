@@ -41,12 +41,12 @@ const fetchPost = async (url, data) => {
             const reissueSuccess = await fetchReissue();
             if (reissueSuccess) {
                 reissueAttempted = true;
-                return await fetchPost(url, data);
+                return await fetchPost(url, data); // 토큰 재발급 후 재요청
             }
         }
     } catch (error) {
         console.error('Error fetching authorized page:', error);
-        return error;
+        return null; // 오류 발생 시 null 반환
     }
     return null;
 };

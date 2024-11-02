@@ -55,18 +55,26 @@ public class CertificationServiceImpl implements CertificationService {
     @Override
     @Transactional
     public CertificationResponseDTO createCertification(CertificationRequestDTO requestDTO) {
-        Department department = departmentRepository.findById(requestDTO.getDeptId())
-                .orElseThrow(() -> new IllegalArgumentException("Department not found"));
+        // 예외가 발생할 수 있는 부분에 대해 예외 처리
+        try {
+            Department department = departmentRepository.findById(requestDTO.getDeptId())
+                    .orElseThrow(() -> new IllegalArgumentException("Department not found"));
 
-        Certification certification = Certification.builder()
-                .certificationName(requestDTO.getCertificationName())
-                .institution(requestDTO.getInstitution())
-                .benefit(requestDTO.getBenefit())
-                .department(department)
-                .build();
+            Certification certification = Certification.builder()
+                    .certificationName(requestDTO.getCertificationName())
+                    .institution(requestDTO.getInstitution())
+                    .benefit(requestDTO.getBenefit())
+                    .department(department)
+                    .build();
 
-        return convertToDTO(certificationRepository.save(certification));
+            return convertToDTO(certificationRepository.save(certification));
+        } catch (Exception e) {
+            // 로그 기록 및 null 반환
+            System.err.println("Certification creation failed: " + e.getMessage());
+            return null;
+        }
     }
+
 
     @Override
     @Transactional
