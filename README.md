@@ -146,10 +146,11 @@
 <br>
 
 ## 📑 통합 테스트
-![통합 테스트](https://www.notion.so/playdatacademy/69a4e1b2079546d1bf5a0f56214882fc)
+[통합 테스트](https://www.notion.so/playdatacademy/69a4e1b2079546d1bf5a0f56214882fc)
 
 ## 📑 CI/CD 계획서
-![CI/CD 계획서](https://www.notion.so/playdatacademy/69a4e1b2079546d1bf5a0f56214882fc)
+[CI/CD 계획서](https://www.notion.so/playdatacademy/CI-CD-e63235a2c456455f9852ae393fd53e67)
+
 <br>
 
 
