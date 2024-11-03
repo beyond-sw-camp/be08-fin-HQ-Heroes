@@ -9,6 +9,7 @@ import com.hq.heroes.vacation.entity.Vacation;
 import com.hq.heroes.vacation.entity.enums.VacationStatus;
 import com.hq.heroes.vacation.entity.enums.VacationType;
 import com.hq.heroes.vacation.repository.VacationRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -248,6 +249,21 @@ public class VacationServiceImpl implements VacationService {
         return vacations.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public void deleteVacation(Long vacationId) {
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 휴가 요청을 찾을 수 없습니다."));
+
+        // 휴가 상태가 '대기 중'이 아닌 경우 예외 발생
+        if (vacation.getVacationStatus() != VacationStatus.PENDING) {
+            throw new IllegalStateException("대기 중 상태가 아닌 휴가는 삭제할 수 없습니다.");
+        }
+
+        // '대기 중' 상태인 경우 삭제
+        vacationRepository.delete(vacation);
     }
 
 }

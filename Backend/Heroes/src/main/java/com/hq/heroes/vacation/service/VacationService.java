@@ -34,6 +34,7 @@ public interface VacationService {
     // 같은 팀 휴가 목록 조회
     List<VacationDTO> getTeamVacations(String employeeId);
 
-
+    // 대기 중인 휴가 삭제
+    void deleteVacation(Long vacationId);
 
 }

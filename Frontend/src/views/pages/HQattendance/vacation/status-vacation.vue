@@ -30,7 +30,7 @@
                             v-if="!isPastDate(slotProps.data.vacationStart) && slotProps.data.vacationStatus !== '반려됨' && slotProps.data.vacationStatus !== '취소됨' && slotProps.data.vacationStatus !== '취소 대기중'"
                             label="취소"
                             class="p-button-danger"
-                            @click="openCancelModal(slotProps.data)"
+                            @click="confirmCancel(slotProps.data)"
                         />
                         <div v-else style="height: 2.5rem"></div>
                         <!-- 빈 div로 높이 맞추기 -->
@@ -96,19 +96,34 @@
                 <Button label="닫기" icon="pi pi-times" class="p-button-secondary" @click="cancelDialogVisible = false" />
             </template>
         </Dialog>
+
+        <!-- 대기 중인 휴가 취소 확인 모달 -->
+        <Dialog v-model:visible="confirmDialogVisible" :style="{ width: '450px' }" header="휴가 취소" :modal="true">
+            <div class="flex flex-col gap-4">
+                <p>정말로 이 휴가를 취소하시겠습니까?</p>
+                <p><strong>휴가 종류:</strong> {{ selectedEmployee.vacationType }}</p>
+                <p><strong>시작일:</strong> {{ selectedEmployee.vacationStart }}</p>
+                <p><strong>종료일:</strong> {{ selectedEmployee.vacationEnd }}</p>
+            </div>
+            <template #footer>
+                <Button label="확인" icon="pi pi-check" class="p-button-success" @click="submitImmediateCancelRequest" />
+                <Button label="취소" icon="pi pi-times" class="p-button-secondary" @click="confirmDialogVisible = false" />
+            </template>
+        </Dialog>
     </div>
 </template>
 
 <script setup>
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
-import { fetchGet, fetchPost } from '../../auth/service/AuthApiService'; // 수정된 fetch 함수 사용
+import { fetchDelete, fetchGet, fetchPost } from '../../auth/service/AuthApiService'; // 수정된 fetch 함수 사용
 
 const employees = ref([]);
 const filters = ref({ global: { value: null } });
 const selectedEmployee = ref({});
 const infoDialog = ref(false);
 const cancelDialogVisible = ref(false);
+const confirmDialogVisible = ref(false);
 const cancelReason = ref('');
 const toast = useToast();
 
@@ -186,6 +201,18 @@ function isPastDate(date) {
     return formattedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0);
 }
 
+// 취소 모달 또는 확인 모달 열기
+function confirmCancel(employee) {
+    selectedEmployee.value = employee;
+
+    // 대기 중 상태인 경우 확인 모달을 띄움, 그 외에는 기존 취소 모달 띄움
+    if (employee.vacationStatus === '대기 중') {
+        confirmDialogVisible.value = true;
+    } else {
+        cancelDialogVisible.value = true;
+    }
+}
+
 // 취소 요청 제출
 async function submitCancelRequest() {
     try {
@@ -206,6 +233,28 @@ async function submitCancelRequest() {
         window.location.reload();
     } catch (error) {
         toast.add({ severity: 'error', summary: 'Error', detail: '휴가 취소 요청 실패.' });
+    }
+}
+
+// 즉시 취소 요청 제출 (대기 중 상태용)
+async function submitImmediateCancelRequest() {
+    try {
+        // vacationId를 URL에 쿼리 파라미터로 포함하여 삭제 요청
+        const url = `http://localhost:8080/api/v1/vacation/delete?vacationId=${selectedEmployee.value.vacationId}`;
+        const response = await fetchDelete(url);
+
+        if (response) {
+            toast.add({ severity: 'success', summary: 'Success', detail: '대기 중인 휴가가 취소되었습니다.' });
+            confirmDialogVisible.value = false;
+
+            // 삭제된 휴가를 employees 리스트에서 제거
+            employees.value = employees.value.filter((employee) => employee.vacationId !== selectedEmployee.value.vacationId);
+            window.location.reload();
+        } else {
+            toast.add({ severity: 'error', summary: 'Error', detail: '휴가 취소 요청 실패.' });
+        }
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: '대기 중인 휴가 취소 실패.' });
     }
 }
 </script>
