@@ -85,7 +85,7 @@ public class VacationServiceImpl implements VacationService {
                 .orElseThrow(() -> new RuntimeException("Invalid vacation ID"));
 
         // 휴가 상태를 CANCELED로 업데이트
-        vacation.setVacationStatus(VacationStatus.CANCELED);
+        vacation.setVacationStatus(VacationStatus.CANCEL_APPROVED);
 
         Employee employee = vacation.getEmployee();
         long refundAmount;
@@ -116,7 +116,7 @@ public class VacationServiceImpl implements VacationService {
     public void rejectCancelVacation(Long vacationId) {
         Vacation vacation = vacationRepository.findById(vacationId)
                 .orElseThrow(() -> new RuntimeException("휴가를 찾을 수 없습니다."));
-        vacation.setVacationStatus(VacationStatus.REJECTED); // 상태를 반려로 변경
+        vacation.setVacationStatus(VacationStatus.CANCEL_REJECTED); // 상태를 반려로 변경
         vacationRepository.save(vacation);
     }
 

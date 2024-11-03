@@ -5,5 +5,6 @@ public enum VacationStatus {
     REJECTED,
     PENDING,
     CANCEL,
-    CANCELED
+    CANCEL_APPROVED,
+    CANCEL_REJECTED
 }

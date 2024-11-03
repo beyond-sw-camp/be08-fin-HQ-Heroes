@@ -27,7 +27,13 @@
                     <template #body="slotProps">
                         <!-- 현재 날짜보다 시작일이 이후이면서 상태가 '반려됨', '취소됨', '취소 대기중'이 아닌 경우에만 취소 버튼 보이기 -->
                         <Button
-                            v-if="!isPastDate(slotProps.data.vacationStart) && slotProps.data.vacationStatus !== '반려됨' && slotProps.data.vacationStatus !== '취소됨' && slotProps.data.vacationStatus !== '취소 대기중'"
+                            v-if="
+                                !isPastDate(slotProps.data.vacationStart) &&
+                                slotProps.data.vacationStatus !== '반려됨' &&
+                                slotProps.data.vacationStatus !== '취소됨' &&
+                                slotProps.data.vacationStatus !== '취소 대기중' &&
+                                slotProps.data.vacationStatus !== '취소 반려됨'
+                            "
                             label="취소"
                             class="p-button-danger"
                             @click="confirmCancel(slotProps.data)"
@@ -164,8 +170,10 @@ function mapStatus(status) {
             return '대기 중';
         case 'CANCEL':
             return '취소 대기중';
-        case 'CANCELED':
+        case 'CANCEL_APPROVED':
             return '취소됨';
+        case 'CANCEL_REJECTED':
+            return '취소 반려됨';
         default:
             return '알 수 없음';
     }
