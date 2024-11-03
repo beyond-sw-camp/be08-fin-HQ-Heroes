@@ -198,7 +198,7 @@ async function rejectCancelVacation(vacationId) {
 
     try {
         await fetchPost(`http://localhost:8080/api/v1/vacation/rejectCancel/${vacationId}`);
-        employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '반려됨' } : emp));
+        employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '취소 반려됨' } : emp));
         toast.add({ severity: 'success', summary: 'Success', detail: '휴가 취소가 반려되었습니다.' });
         window.location.reload(); // 새로고침
     } catch (error) {
@@ -219,8 +219,10 @@ function mapStatus(status) {
             return '대기 중';
         case 'CANCEL':
             return '취소 대기중';
-        case 'CANCELED':
+        case 'CANCEL_APPROVED':
             return '취소됨';
+        case 'CANCEL_REJECTED':
+            return '취소 반려됨';
         default:
             return '알 수 없음';
     }

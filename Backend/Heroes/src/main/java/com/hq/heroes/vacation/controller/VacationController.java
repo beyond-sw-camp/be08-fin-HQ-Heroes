@@ -204,4 +204,17 @@ public class VacationController {
         List<VacationDTO> teamVacations = vacationService.getTeamVacations(employeeId);
         return ResponseEntity.ok(teamVacations);
     }
+
+    // 대기 중인 휴가 요청 삭제
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteVacation(@RequestParam Long vacationId) {
+        try {
+            vacationService.deleteVacation(vacationId);
+            return ResponseEntity.ok("대기 중인 휴가 요청이 성공적으로 삭제되었습니다.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body("삭제할 수 없는 상태입니다: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("휴가 삭제 중 오류가 발생했습니다.");
+        }
+    }
 }

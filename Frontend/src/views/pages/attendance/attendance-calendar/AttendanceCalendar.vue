@@ -178,7 +178,7 @@ export default {
                 ? personalResponse
                       .filter((event) => {
                           if (['월차', '반차', '병가', '경조'].includes(event.category)) {
-                              return event.vacationStatus === 'APPROVED';
+                              return ['APPROVED', 'CANCEL', 'CANCEL_REJECTED'].includes(event.vacationStatus);
                           }
                           return true;
                       })
@@ -206,7 +206,7 @@ export default {
             const teamVacations = [];
 
             teamResponse.forEach((vacation) => {
-                if (vacation.vacationStatus === 'APPROVED') {
+                if (vacation.vacationStatus === 'APPROVED' || vacation.vacationStatus === 'CANCEL' || vacation.vacationStatus === 'CANCEL_REJECTED') {
                     const vacationEvent = {
                         id: vacation.vacationId,
                         title: `${this.translateVacationType(vacation.vacationType)} - ${vacation.employeeName}`,
