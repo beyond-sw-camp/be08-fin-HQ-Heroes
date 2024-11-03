@@ -4,6 +4,7 @@ HELP.md
 
 # Firebase admin SDK JSON 파일 무시
 **/heroes-570c1-firebase-adminsdk-pza7v-d1605af878.json
+**/heroes-firebase-secret.json
 
 build/
 !gradle/wrapper/gradle-wrapper.jar
