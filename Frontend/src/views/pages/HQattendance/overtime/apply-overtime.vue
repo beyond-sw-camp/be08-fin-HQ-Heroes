@@ -104,7 +104,10 @@ import Avatar from 'primevue/avatar';
 import TreeSelect from 'primevue/treeselect';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
+
+const router = useRouter();
 
 const form = ref({
     overtimeStartDate: '', // 기본값: 오늘 날짜
@@ -386,6 +389,8 @@ const submitForm = async () => {
             showConfirmButton: false,
             timer: 1500
         });
+
+        await router.push('/status-overtime');
     } catch (error) {
         console.error('연장 근로 신청 중 오류가 발생했습니다:', error);
         Swal.fire({
