@@ -30,6 +30,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -77,52 +78,41 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .httpBasic((basic) -> basic.disable())
-                .csrf((csrf) -> csrf.disable())
-
-                // login
-                .formLogin((form) -> form
+                .httpBasic(basic -> basic.disable())
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .successHandler(new CustomFormSuccessHandler(jwtUtil, redisTemplate, refreshTokenService, employeeRepository))
                         .failureHandler(authenticationFailureHandler())
                         .permitAll())
-
-                // logout
-                .logout((auth) -> auth
+                .logout(auth -> auth
                         .logoutSuccessUrl("/")
                         .permitAll())
-
-                // cors
                 .cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration configuration = new CorsConfiguration();
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173/"));
-                        configuration.setAllowedMethods(Collections.singletonList("*"));
-                        configuration.setAllowCredentials(true);
+                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));  // 특정 도메인으로 제한
+                        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                        configuration.setAllowCredentials(true);  // credentials: true 설정
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
                         configuration.setMaxAge(3600L);
                         configuration.setExposedHeaders(Collections.singletonList("access"));
-
                         return configuration;
                     }
                 }))
-                .authorizeHttpRequests((auth) -> auth
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/", "/join", "/reissue", "/reset-password", "/logout", "/mails/**", "/api/v1/upload-image").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
-
-                // 인가되지 않은 사용자에 대한 exception -> 프론트엔드로 코드 응답
-                .exceptionHandling((exception) ->
-                        exception
-                                .authenticationEntryPoint((request, response, authException) -> {
-                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                                }))
-
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        }))
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, redisTemplate), LogoutFilter.class)
-                .sessionManagement((session) -> session
+                .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();

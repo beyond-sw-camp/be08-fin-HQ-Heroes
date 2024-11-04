@@ -2,12 +2,8 @@ Spring:
   application:
     name: Heroes
 
-  # @Value("${spring.jwt.secret}")
-  # OR
-  # application.yml
   config:
     import: optional:file:.env[.properties]
-
 
   datasource:
     url: ${DB_URL}
@@ -23,7 +19,6 @@ Spring:
     username: ${BATCH_DB_USERNAME}
     password: ${BATCH_DB_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
-
 
   batch:
     job:
@@ -55,8 +50,6 @@ Spring:
         enable_lazy_load_no_trans: true
     open-in-view: true
 
-
-  security:
   jwt:
     secret: ${JWT_SECRET}
 
@@ -71,6 +64,10 @@ Spring:
           max-idle: 8
           min-idle: 0
           max-wait: -1
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
 
 logging:
   level:

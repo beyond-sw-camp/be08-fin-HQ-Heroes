@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heroes-frontend-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: heroes-frontend
+  template:
+    metadata:
+      labels:
+        app: heroes-frontend
+    spec:
+      containers:
+      - name: heroes-frontend
+        image: jjjwww8802/heroes-frontend:1.0
+        ports:
+        - containerPort: 80
