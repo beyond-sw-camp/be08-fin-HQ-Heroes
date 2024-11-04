@@ -40,7 +40,7 @@
                 <!-- 수정 및 삭제 -->
                 <Column v-if="isAdmin()" field="action" header="수정 / 삭제">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click="goToNoticeUpdate(slotProps.data.noticeId)" />
+                        <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click.stop="goToNoticeUpdate(slotProps.data.noticeId)" />
                         <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" />
                     </template>
                 </Column>
@@ -191,9 +191,9 @@ const showNoticeDetail = (noticeId) => {
 };
 
 // 수정 관련 함수 주석 처리
-// const goToNoticeUpdate = (noticeId) => {
-//     router.push({ name: 'notice-update', params: { id: noticeId } });
-// };
+const goToNoticeUpdate = (noticeId) => {
+    router.push({ name: 'notice-update', params: { id: noticeId } });
+};
 
 // 컴포넌트가 제거되기 전에 인터벌 정리
 onBeforeUnmount(() => {
