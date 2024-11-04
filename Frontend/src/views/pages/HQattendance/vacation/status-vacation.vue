@@ -146,9 +146,9 @@ onMounted(async () => {
                 vacationId: record.vacationId,
                 applicantName: record.applicantName,
                 vacationType: mapVacationType(record.vacationType),
-                vacationStart: new Date(record.vacationStartDate).toLocaleDateString(),
+                vacationStart: record.vacationStartDate.split('T')[0],
                 vacationStartTime: record.vacationStartTime.substring(0, 5),
-                vacationEnd: new Date(record.vacationEndDate).toLocaleDateString(),
+                vacationEnd: record.vacationEndDate.split('T')[0],
                 vacationEndTime: record.vacationEndTime.substring(0, 5),
                 approverName: record.approverName,
                 vacationStatus: mapStatus(record.vacationStatus)
