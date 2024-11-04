@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heroes-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: heroes
+  template:
+    metadata:
+      labels:
+        app: heroes
+    spec:
+      containers:
+        - name: heroes
+          image: jjjwww8802/heroes:1.0
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: heroes-config
+                  key: DB_URL
+            - name: BATCH_DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: heroes-config
+                  key: BATCH_DB_URL
+            - name: FIREBASE_JSON_NAME
+              value: /secrets/heroes-firebase-secret.json
+            - name: FIREBASE_BUCKET_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: heroes-config
+                  key: FIREBASE_BUCKET_NAME
+            - name: JWT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: heroes-config
+                  key: JWT_SECRET
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: heroes-secrets
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: heroes-secrets
+                  key: DB_PASSWORD
+            - name: BATCH_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: heroes-secrets
+                  key: BATCH_DB_USERNAME
+            - name: BATCH_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: heroes-secrets
+                  key: BATCH_DB_PASSWORD
+            - name: MAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: heroes-secrets
+                  key: MAIL_USERNAME
+            - name: MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: heroes-secrets
+                  key: MAIL_PASSWORD
+          volumeMounts:
+            - name: firebase-secret
+              mountPath: /secrets
+              readOnly:
+                true
+      volumes:
+        - name: firebase-secret
+          secret:
+            secretName: heroes-firebase-secret

@@ -2,6 +2,7 @@ package com.hq.heroes.common.service;
 
 import com.hq.heroes.common.dto.EmailMessage;
 import com.hq.heroes.employee.service.EmployeeService;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
@@ -27,6 +28,22 @@ public class EmailServiceImpl implements EmailService {
     private final SpringTemplateEngine templateEngine;
     private final EmployeeService employeeService;
 
+    // Redis 연결 테스트 메서드
+    @PostConstruct
+    public void testRedisConnection() {
+        String testKey = "testKey";
+        String testValue = "testValue";
+
+        redisTemplate.opsForValue().set(testKey, testValue, 1, TimeUnit.MINUTES);
+        String result = redisTemplate.opsForValue().get(testKey);
+
+        if (testValue.equals(result)) {
+            log.info("✅ Redis 연결 및 데이터 저장/조회 성공: {}", result);
+        } else {
+            log.error("❌ Redis 데이터 저장/조회 실패");
+        }
+    }
+
     @Override
     @Transactional
     public void sendMail(EmailMessage emailMessage, String type) {
@@ -35,18 +52,17 @@ public class EmailServiceImpl implements EmailService {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
         // 비밀번호 재설정 요청 처리
-        if (type.equals("/mails/resetPassword")) {
+        if (type.equals("mails/resetPassword")) {
             employeeService.setTempPassword(emailMessage.getTo(), authCode);
         }
         // 이메일 인증 코드 요청 처리
-        else if (type.equals("/mails/authCode")) {
+        else if (type.equals("mails/authCode")) {
             // Redis에 인증 코드 저장
             String email = emailMessage.getTo();
             redisTemplate.opsForValue().set(email, authCode, 3, TimeUnit.MINUTES);  // 3분 만료 시간 설정
 
             String checkAuthCode = getAuthCode(email); // 인증 코드 조회
-            log.debug("저장된 인증 코드: {}", checkAuthCode);
-
+            log.info("✅ Redis 저장된 인증 코드: {}", checkAuthCode);
         }
 
         try {
