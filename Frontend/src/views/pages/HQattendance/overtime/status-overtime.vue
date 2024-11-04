@@ -85,9 +85,9 @@ onMounted(async () => {
             .map((record) => ({
                 overtimeId: record.overtimeId,
                 employeeName: record.employeeName,
-                overtimeStart: new Date(record.overtimeStartDate).toLocaleDateString(),
+                overtimeStart: record.overtimeStartDate.split('T')[0],
                 overtimeStartTime: record.overtimeStartTime.substring(0, 5),
-                overtimeEnd: new Date(record.overtimeEndDate).toLocaleDateString(),
+                overtimeEnd: record.overtimeEndDate.split('T')[0],
                 overtimeEndTime: record.overtimeEndTime.substring(0, 5),
                 approverName: record.approverName,
                 overtimeStatus: mapStatus(record.overtimeStatus)
