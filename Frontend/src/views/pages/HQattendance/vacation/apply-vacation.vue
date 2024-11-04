@@ -103,7 +103,7 @@ import TreeSelect from 'primevue/treeselect'; // TreeSelect 컴포넌트
 import Swal from 'sweetalert2';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
+import { fetchGet, fetchPostThrowError } from '../../auth/service/AuthApiService';
 
 const router = useRouter();
 
@@ -257,45 +257,49 @@ const calculateRequestedDays = () => {
 
     // 날짜 차이 계산
     const timeDifference = Math.abs(endDate - startDate);
-    
+
     // 동일한 날짜일 경우
     const totalDays = timeDifference === 0 ? 1 : Math.ceil(timeDifference / (1000 * 60 * 60 * 24)) + 1;
 
-    console.log("startDate:", startDate);
-    console.log("endDate:", endDate);
-    console.log("timeDifference:", timeDifference);
-    console.log("totalDays:", totalDays);
+    console.log('startDate:', startDate);
+    console.log('endDate:', endDate);
+    console.log('timeDifference:', timeDifference);
+    console.log('totalDays:', totalDays);
 
     // 쿼터 계산 로직
     let requestedQuarters = 0;
 
-    if (totalDays === 1) { // 하루일 경우
+    if (totalDays === 1) {
+        // 하루일 경우
         // 시작 및 종료 시간에 따라 쿼터 계산
-        const startHour = parseInt(startTime.split(":")[0]);
-        const endHour = parseInt(endTime.split(":")[0]);
+        const startHour = parseInt(startTime.split(':')[0]);
+        const endHour = parseInt(endTime.split(':')[0]);
 
         // 쿼터 계산
-        if (startHour < 11) { // 1쿼터 (09:00 ~ 11:00)
+        if (startHour < 11) {
+            // 1쿼터 (09:00 ~ 11:00)
             requestedQuarters++;
         }
-        if (startHour < 13 && endHour > 11) { // 2쿼터 (11:00 ~ 13:00)
+        if (startHour < 13 && endHour > 11) {
+            // 2쿼터 (11:00 ~ 13:00)
             requestedQuarters++;
         }
-        if (startHour < 16 && endHour > 13) { // 3쿼터 (14:00 ~ 16:00)
+        if (startHour < 16 && endHour > 13) {
+            // 3쿼터 (14:00 ~ 16:00)
             requestedQuarters++;
         }
-        if (endHour > 16) { // 4쿼터 (16:00 ~ 18:00)
+        if (endHour > 16) {
+            // 4쿼터 (16:00 ~ 18:00)
             requestedQuarters++;
         }
     } else {
         requestedQuarters = totalDays * 4; // 1일 = 4쿼터로 계산
     }
 
-    console.log("신청한 휴가 일 수(쿼터):", requestedQuarters);
+    console.log('신청한 휴가 일 수(쿼터):', requestedQuarters);
 
     return requestedQuarters; // 쿼터로 변환된 요청한 일 수 반환
 };
-
 
 const submitForm = async () => {
     // 날짜 오류가 있는 경우 경고창 표시
@@ -310,7 +314,7 @@ const submitForm = async () => {
     }
 
     const requestedQuarters = calculateRequestedDays(); // 요청한 쿼터 계산
-    console.log("보유한 휴가 일 수(쿼터):", employeeData.value.annualLeave);
+    console.log('보유한 휴가 일 수(쿼터):', employeeData.value.annualLeave);
 
     // 연차는 쿼터로 비교
     if (requestedQuarters > employeeData.value.annualLeave) {
@@ -351,7 +355,7 @@ const submitForm = async () => {
 
         console.log(requestBody); // 전송 데이터 확인
 
-        await fetchPost('http://localhost:8080/api/v1/vacation/submit', requestBody);
+        const response = await fetchPostThrowError('http://localhost:8080/api/v1/vacation/submit', requestBody);
 
         Swal.fire({
             icon: 'success',
@@ -361,13 +365,34 @@ const submitForm = async () => {
         });
         await router.push('/status-vacation');
     } catch (error) {
-        console.error('휴가 신청 중 오류가 발생했습니다:', error);
-        Swal.fire({
-            icon: 'error',
-            title: '오류',
-            text: '휴가 신청 중 오류가 발생했습니다. 다시 시도해주세요.',
-            confirmButtonText: '확인'
-        });
+
+        if (error.response && error.response.status) {
+            // 서버로부터 받은 상태 코드가 409일 때의 처리
+            if (error.response.status === 409) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '중복 오류',
+                    html: `${error.response.data || '선택한 기간에 이미 휴가가 존재합니다.'}<br>휴가 신청 현황을 확인해주세요.`,
+                    confirmButtonText: '확인'
+                });
+            } else {
+                // 그 외의 상태 코드에 대한 처리
+                Swal.fire({
+                    icon: 'error',
+                    title: '오류',
+                    text: '휴가 신청 중 오류가 발생했습니다. 다시 시도해주세요.',
+                    confirmButtonText: '확인'
+                });
+            }
+        } else {
+            // 서버 응답이 없을 때의 처리
+            Swal.fire({
+                icon: 'error',
+                title: '오류',
+                text: '서버와 통신하는 동안 오류가 발생했습니다.',
+                confirmButtonText: '확인'
+            });
+        }
     }
 };
 </script>

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,17 +45,19 @@ public class VacationController {
             // 휴가 신청 처리
             Vacation vacation = vacationService.submitVacation(vacationDTO);
 
-            System.out.println("vacation.toString() = " + vacation.toString());
             // 자동 알림 발송
             Map<String, Object> params = new HashMap<>();
             params.put("receiverId", vacation.getApprover().getEmployeeId()); // 승인자 ID
             notificationService.sendAutomaticNotification(AutoNotificationType.VACATION_APPLICATION, params, vacation);
 
             return ResponseEntity.ok("휴가 신청이 성공적으로 제출되었습니다.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (ResponseStatusException e) {
+            // ResponseStatusException을 별도로 처리하여 409 상태 코드 전달
+            System.out.println("Conflict error: " + e.getReason());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getReason());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("휴가 신청 중 오류가 발생했습니다: " + e.getMessage());
+            System.out.println("Internal server error: " + e.getMessage());
+            return ResponseEntity.status(500).body("휴가 신청 중 오류가 발생했습니다.");
         }
     }
 
