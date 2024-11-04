@@ -51,6 +51,34 @@ const fetchPost = async (url, data) => {
     return null;
 };
 
+const fetchPostThrowError = async (url, data) => {
+    let reissueAttempted = false;
+
+    try {
+        const response = await axios.post(url, data, {
+            withCredentials: true,
+            headers: {
+                access: window.localStorage.getItem('access')
+            }
+        });
+
+        if (response.status === 201 || response.status === 200) {
+            return response.data;
+        } else if (!reissueAttempted) {
+            const reissueSuccess = await fetchReissue();
+            if (reissueSuccess) {
+                reissueAttempted = true;
+                return await fetchPost(url, data); // 토큰 재발급 후 재요청
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching authorized page:', error);
+        throw error; // 오류 발생 시 예외를 던짐
+    }
+    throw new Error('Unexpected response status'); // 예상치 못한 응답 상태 처리
+};
+
+
 const fetchPut = async (url, data) => {
     try {
         const response = await axios.put(url, data, {
@@ -126,4 +154,4 @@ const fetchDelete = async (url) => {
     return null;
 };
 
-export { fetchDelete, fetchGet, fetchPost, fetchPut, fetchPutEmployee };
+export { fetchDelete, fetchGet, fetchPost, fetchPut, fetchPutEmployee, fetchPostThrowError };

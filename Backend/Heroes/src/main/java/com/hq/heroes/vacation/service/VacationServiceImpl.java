@@ -11,7 +11,9 @@ import com.hq.heroes.vacation.entity.enums.VacationType;
 import com.hq.heroes.vacation.repository.VacationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -48,6 +50,19 @@ public class VacationServiceImpl implements VacationService {
         // 날짜 비교 전 null 체크
         if (vacationDTO.getVacationStartDate().isAfter(vacationDTO.getVacationEndDate())) {
             throw new IllegalArgumentException("휴가 시작일은 종료일보다 빠를 수 없습니다.");
+        }
+
+        // 겹치는 휴가 여부 확인 (CANCEL_APPROVED 상태가 아닌 경우에만 체크)
+        boolean isOverlap = vacationRepository.existsByEmployeeAndVacationStartDateLessThanEqualAndVacationEndDateGreaterThanEqualAndVacationStatusNot(
+                employee,
+                vacationDTO.getVacationEndDate(),
+                vacationDTO.getVacationStartDate(),
+                VacationStatus.CANCEL_APPROVED
+        );
+
+        // 중복 휴가 검증 코드 내
+        if (isOverlap) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "선택한 기간에 이미 휴가가 존재합니다.");
         }
 
         Vacation vacation = Vacation.builder()

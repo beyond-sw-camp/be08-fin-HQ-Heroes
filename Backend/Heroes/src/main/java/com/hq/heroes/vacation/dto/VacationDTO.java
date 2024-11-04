@@ -10,7 +10,6 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class VacationDTO {
