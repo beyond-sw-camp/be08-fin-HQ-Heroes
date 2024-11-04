@@ -250,10 +250,52 @@ const handleApproverChange = (selectedApprover) => {
 const calculateRequestedDays = () => {
     const startDate = new Date(form.value.vacationStartDate);
     const endDate = new Date(form.value.vacationEndDate);
+
+    // 시작 시간과 종료 시간을 가져옴
+    const startTime = form.value.vacationStartTime;
+    const endTime = form.value.vacationEndTime;
+
+    // 날짜 차이 계산
     const timeDifference = Math.abs(endDate - startDate);
-    const totalDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-    return totalDays + 1;
+    
+    // 동일한 날짜일 경우
+    const totalDays = timeDifference === 0 ? 1 : Math.ceil(timeDifference / (1000 * 60 * 60 * 24)) + 1;
+
+    console.log("startDate:", startDate);
+    console.log("endDate:", endDate);
+    console.log("timeDifference:", timeDifference);
+    console.log("totalDays:", totalDays);
+
+    // 쿼터 계산 로직
+    let requestedQuarters = 0;
+
+    if (totalDays === 1) { // 하루일 경우
+        // 시작 및 종료 시간에 따라 쿼터 계산
+        const startHour = parseInt(startTime.split(":")[0]);
+        const endHour = parseInt(endTime.split(":")[0]);
+
+        // 쿼터 계산
+        if (startHour < 11) { // 1쿼터 (09:00 ~ 11:00)
+            requestedQuarters++;
+        }
+        if (startHour < 13 && endHour > 11) { // 2쿼터 (11:00 ~ 13:00)
+            requestedQuarters++;
+        }
+        if (startHour < 16 && endHour > 13) { // 3쿼터 (14:00 ~ 16:00)
+            requestedQuarters++;
+        }
+        if (endHour > 16) { // 4쿼터 (16:00 ~ 18:00)
+            requestedQuarters++;
+        }
+    } else {
+        requestedQuarters = totalDays * 4; // 1일 = 4쿼터로 계산
+    }
+
+    console.log("신청한 휴가 일 수(쿼터):", requestedQuarters);
+
+    return requestedQuarters; // 쿼터로 변환된 요청한 일 수 반환
 };
+
 
 const submitForm = async () => {
     // 날짜 오류가 있는 경우 경고창 표시
@@ -267,12 +309,15 @@ const submitForm = async () => {
         return; // 날짜 오류가 있으면 함수 종료
     }
 
-    const requestedDays = calculateRequestedDays();
-    if (requestedDays > employeeData.value.annualLeave / 4) {
+    const requestedQuarters = calculateRequestedDays(); // 요청한 쿼터 계산
+    console.log("보유한 휴가 일 수(쿼터):", employeeData.value.annualLeave);
+
+    // 연차는 쿼터로 비교
+    if (requestedQuarters > employeeData.value.annualLeave) {
         Swal.fire({
             icon: 'error',
             title: '휴가 일수 초과',
-            text: `신청하려는 휴가 일수(${requestedDays}일)가 잔여 휴가 일수를 초과합니다.`,
+            text: `신청하려는 휴가 일수(${requestedQuarters}쿼터)가 잔여 휴가 일수를 초과합니다.`,
             confirmButtonText: '확인'
         });
         return;
