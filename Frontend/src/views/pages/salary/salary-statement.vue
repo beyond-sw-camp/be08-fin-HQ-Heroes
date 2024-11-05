@@ -61,8 +61,8 @@
                 <template #header>
                     <div class="modal-header">
                         <span class="header-text"> {{ authStore.employeeData.employeeName }} 님의 {{ monthNumber }}월 급여 내역 </span>
-                        <button @click="closeSalaryModal" class="x-btn">X</button>
                     </div>
+                    <button @click="closeSalaryModal" class="x-btn">X</button>
                 </template>
 
                 <div class="salary-modal">
@@ -475,10 +475,13 @@ onMounted(async () => {
     font-size: 1.2rem; /* 글자 크기 조정 */
     font-weight: bold; /* 글씨를 진하게 설정 */
     margin-left: 2rem;
+    white-space: nowrap; /* 줄 바꿈 방지 */
+    padding-right: 2rem; /* 오른쪽 여백 추가 */
 }
 
 .x-btn {
-    margin-left: 56rem;
+    margin-left: auto; /* 자동 마진을 통해 오른쪽으로 밀기 */
+    margin-right: 2rem; /* 오른쪽에서 3rem 띄우기 */
     background: none; /* 배경 제거 */
     border: none; /* 테두리 제거 */
     font-size: 1rem; /* 버튼 크기 */
