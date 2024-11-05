@@ -92,7 +92,7 @@ const isEvaluationComplete = computed(() => {
 // 직원 평가 데이터를 로드하는 함수
 async function fetchEmployeeEvaluationData() {
     try {
-        const employeeData = await fetchGet(`http://localhost:8080/api/v1/employee/employees/${employeeId}`);
+        const employeeData = await fetchGet(`https://hq-heroes-api.com/api/v1/employee/employees/${employeeId}`);
         employeeName.value = employeeData.employeeName;
         employeePosition.value = employeeData.positionName || '팀원';
         employeeDept.value = employeeData.deptName;
@@ -108,7 +108,7 @@ async function fetchEmployeeEvaluationData() {
 // Fetch evaluation criteria by department
 async function fetchEvaluationCriteria(deptName) {
     try {
-        const criteriaData = await fetchGet(`http://localhost:8080/api/v1/evaluation-criteria/by-department?deptName=${deptName}`);
+        const criteriaData = await fetchGet(`https://hq-heroes-api.com/api/v1/evaluation-criteria/by-department?deptName=${deptName}`);
         evaluationCriteriaList.value = criteriaData;
 
         criteriaScores.value = criteriaData.map((criteria) => {
@@ -166,12 +166,12 @@ async function saveEvaluation() {
         const evaluationPeriod = getKoreanEvaluationPeriod();
 
         // 기존 평가 기록 조회 API 호출
-        const existingEvaluations = await fetchGet(`http://localhost:8080/api/v1/evaluation-service/evaluations/existing?employeeId=${evaluationData.employeeId}&evaluatorId=${evaluationData.evaluatorId}&period=${evaluationPeriod}`);
+        const existingEvaluations = await fetchGet(`https://hq-heroes-api.com/api/v1/evaluation-service/evaluations/existing?employeeId=${evaluationData.employeeId}&evaluatorId=${evaluationData.evaluatorId}&period=${evaluationPeriod}`);
 
         if (existingEvaluations.length > 0) {
             // 기존 기록이 있을 경우 수정(평가 ID를 이용해 PUT 요청)
             const existingEvaluationId = existingEvaluations[0].evaluationId;
-            const response = await fetchPut(`http://localhost:8080/api/v1/evaluation-service/evaluation/${existingEvaluationId}`, evaluationData, 'PUT');
+            const response = await fetchPut(`https://hq-heroes-api.com/api/v1/evaluation-service/evaluation/${existingEvaluationId}`, evaluationData, 'PUT');
             if (response) {
                 await Swal.fire({
                     title: '평가를 수정하였습니다.',
@@ -181,7 +181,7 @@ async function saveEvaluation() {
             }
         } else {
             // 기존 기록이 없을 경우 새 평가 생성
-            const response = await fetchPost('http://localhost:8080/api/v1/evaluation-service/evaluation', evaluationData, 'POST');
+            const response = await fetchPost('https://hq-heroes-api.com/api/v1/evaluation-service/evaluation', evaluationData, 'POST');
             if (response) {
                 await Swal.fire({
                     title: '평가를 완료하였습니다.',

@@ -107,7 +107,7 @@ function handleDepartmentChange(event) {
 // 사원 목록을 가져오는 함수
 async function fetchEmployeeList() {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees'); // API 호출
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/employees'); // API 호출
         console.log('직원 데이터 응답:', response); // 응답 로그 추가
         employees.value = Array.isArray(response) ? response : [];
     } catch (error) {
@@ -121,7 +121,7 @@ async function fetchEmployeeList() {
 // 부서 목록을 가져오는 함수
 async function fetchDepartments() {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/departments'); // 부서 API 호출
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/departments'); // 부서 API 호출
         departments.value = [{ deptId: null, deptName: '전체 부서' }, ...response]; // '전체 부서'에 deptId 추가
     } catch (error) {
         console.error('부서 데이터를 가져오는 중 오류 발생:', error);
@@ -132,7 +132,7 @@ async function fetchDepartments() {
 // 선택된 부서 ID에 따라 팀 목록을 가져오는 함수
 async function fetchTeams(deptId) {
     try {
-        const teamsData = await fetchGet(`http://localhost:8080/api/v1/employee/teams?deptId=${deptId}`, router.push, router.currentRoute.value);
+        const teamsData = await fetchGet(`https://hq-heroes-api.com/api/v1/employee/teams?deptId=${deptId}`, router.push, router.currentRoute.value);
 
         if (teamsData) {
             teams.value = [{ teamId: null, teamName: '전체 팀' }, ...teamsData]; // JSON.parse 제거

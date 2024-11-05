@@ -223,7 +223,7 @@ const convertToTreeModel = (data) => {
 // 신청인 목록 로드
 const loadEmployeeTreeData = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/employees');
 
         // 로그인된 사용자의 팀 이름으로 필터링
         const filteredEmployees = response.filter((employee) => employee.teamName === employeeData.value.teamName);
@@ -238,7 +238,7 @@ const loadEmployeeTreeData = async () => {
 // 팀장만 포함된 결재자 목록 로드
 const loadApproverTreeData = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/employees');
         if (response) {
             // 부서명이 같고 "팀장"인 경우만 필터링 (팀장만 포함)
             const filteredApprovers = response.filter(
@@ -273,7 +273,7 @@ const calculateTimeInMinutes = (time) => {
 const loadTotalOvertimeHours = async (employeeId) => {
     const yearMonth = new Date().toISOString().slice(0, 7); // 현재 연도와 월을 yyyy-MM 형식으로 추출
     try {
-        const url = `http://localhost:8080/api/v1/overtime/total-overtime?employeeId=${employeeId}&yearMonth=${yearMonth}`;
+        const url = `https://hq-heroes-api.com/api/v1/overtime/total-overtime?employeeId=${employeeId}&yearMonth=${yearMonth}`;
         const responseData = await fetchGet(url);
 
         // 응답 데이터가 유효하지 않으면 오류 발생
@@ -299,7 +299,7 @@ const loadTotalOvertimeHours = async (employeeId) => {
 const loadRemainingOvertimeHours = async (employeeId) => {
     const yearMonth = new Date().toISOString().slice(0, 7);
     try {
-        const url = `http://localhost:8080/api/v1/overtime/remaining-overtime?employeeId=${employeeId}&yearMonth=${yearMonth}`;
+        const url = `https://hq-heroes-api.com/api/v1/overtime/remaining-overtime?employeeId=${employeeId}&yearMonth=${yearMonth}`;
         const responseData = await fetchGet(url);
 
         // 응답 데이터가 유효하지 않으면 오류 발생
@@ -381,7 +381,7 @@ const submitForm = async () => {
 
         console.log('Sending request body:', requestBody); // 전송 데이터 확인
 
-        await fetchPost('http://localhost:8080/api/v1/overtime/submit', requestBody);
+        await fetchPost('https://hq-heroes-api.com/api/v1/overtime/submit', requestBody);
 
         Swal.fire({
             icon: 'success',

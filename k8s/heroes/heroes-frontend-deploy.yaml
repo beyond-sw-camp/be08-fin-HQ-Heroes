@@ -13,7 +13,7 @@ spec:
         app: heroes-frontend
     spec:
       containers:
-      - name: heroes-frontend
-        image: jjjwww8802/heroes-frontend:1.0
-        ports:
-        - containerPort: 80
+        - name: heroes-frontend
+          image: jjjwww8802/heroes-frontend:10.0
+          ports:
+            - containerPort: 80

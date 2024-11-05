@@ -80,7 +80,7 @@ const months = ref([
 async function fetchAttendanceRecords() {
     try {
         const employeeId = authStore.employeeData.employeeId;
-        const response = await fetchGet(`http://localhost:8080/api/v1/attendance/my-attendance?employeeId=${employeeId}`);
+        const response = await fetchGet(`https://hq-heroes-api.com/api/v1/attendance/my-attendance?employeeId=${employeeId}`);
 
         if (Array.isArray(response)) {
             attendanceRecords.value = response.map((record) => ({

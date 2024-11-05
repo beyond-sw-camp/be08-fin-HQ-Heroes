@@ -248,7 +248,7 @@ const submitPasswordChange = async () => {
     }
 
     try {
-        const response = await fetchPost('http://localhost:8080/api/v1/employee/update-password', passwordUpdate.value);
+        const response = await fetchPost('https://hq-heroes-api.com/api/v1/employee/update-password', passwordUpdate.value);
         console.log('response', response);
 
         if (response.includes('비밀번호가 변경되었습니다.')) {

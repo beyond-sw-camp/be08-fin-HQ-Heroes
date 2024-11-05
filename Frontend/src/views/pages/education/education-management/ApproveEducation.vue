@@ -5,15 +5,15 @@
         </div>
         <div class="flex flex-wrap gap-2 items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-                <Button 
-                    label="교육" 
-                    :class="['p-button-outlined', { 'active-button': showEducation }]" 
-                    @click="loadEducationRequests" 
+                <Button
+                    label="교육"
+                    :class="['p-button-outlined', { 'active-button': showEducation }]"
+                    @click="loadEducationRequests"
                 />
-                <Button 
-                    label="자격증" 
-                    :class="['p-button-outlined', { 'active-button': !showEducation }]" 
-                    @click="loadCertificationRequests" 
+                <Button
+                    label="자격증"
+                    :class="['p-button-outlined', { 'active-button': !showEducation }]"
+                    @click="loadCertificationRequests"
                 />
             </div>
             <div class="flex items-center search-input-container">
@@ -48,21 +48,21 @@
             <!-- 승인/반려 버튼 -->
             <Column v-if="showEducation" field="courseStatus" header="이수 상태" sortable style="min-width: 5rem">
                 <template #body="slotProps">
-                    <Button 
-                        label="이수" 
-                        :disabled="isLoading || slotProps.data.courseStatus === '이수'" 
-                        @click="completeCourse(slotProps.data)" 
-                        class="p-button-info" 
+                    <Button
+                        label="이수"
+                        :disabled="isLoading || slotProps.data.courseStatus === '이수'"
+                        @click="completeCourse(slotProps.data)"
+                        class="p-button-info"
                     />
                 </template>
             </Column>
             <Column v-if="!showEducation" field="courseStatus" header="등록 상태" sortable style="min-width: 5rem">
                 <template #body="slotProps">
-                    <Button 
-                        label="등록" 
-                        :disabled="isLoading || slotProps.data.courseStatus === 'APPROVE'" 
-                        @click="completeCourse(slotProps.data)" 
-                        class="p-button-info" 
+                    <Button
+                        label="등록"
+                        :disabled="isLoading || slotProps.data.courseStatus === 'APPROVE'"
+                        @click="completeCourse(slotProps.data)"
+                        class="p-button-info"
                     />
                 </template>
             </Column>
@@ -93,7 +93,7 @@ const filteredRequests = computed(() => {
 const loadEducationRequests = async () => {
     showEducation.value = true; // 교육 요청 표시
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/course-service/list');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/course-service/list');
         console.log("교육 요청 응답 데이터:", response); // 응답 데이터 로그 추가
         requests.value = response
             .map((record) => ({
@@ -116,7 +116,7 @@ const loadEducationRequests = async () => {
 const loadCertificationRequests = async () => {
     showEducation.value = false; // 자격증 요청 표시
     try {
-        const response = await fetchGet("http://localhost:8080/api/v1/employee-certification/certification-list");
+        const response = await fetchGet("https://hq-heroes-api.com/api/v1/employee-certification/certification-list");
         requests.value = response
             .map((record) => ({
                 registrationId: record.registrationId,
@@ -140,20 +140,20 @@ onMounted(async () => {
 const completeCourse = async (request) => {
     if (isLoading.value) return;
     isLoading.value = true;
-    
+
     try {
         // `showEducation` 값에 따라 다른 URL 사용
         let url;
         if (showEducation.value) {
             // 교육 요청에 대한 이수 API
-            url = `http://localhost:8080/api/v1/course-service/complete/${request.courseId}`;
+            url = `https://hq-heroes-api.com/api/v1/course-service/complete/${request.courseId}`;
         } else {
             // 자격증 요청에 대한 승인 API
-            url = `http://localhost:8080/api/v1/employee-certification/complete/${request.registrationId}`;
+            url = `https://hq-heroes-api.com/api/v1/employee-certification/complete/${request.registrationId}`;
         }
-        
+
         await fetchPost(url);
-        
+
         // 요청의 상태를 업데이트
         if (showEducation.value) {
             request.courseStatus = '이수';
@@ -172,7 +172,7 @@ const completeCourse = async (request) => {
         }
 
         // 목록에서 해당 요청 제거
-        requests.value = requests.value.filter(req => 
+        requests.value = requests.value.filter(req =>
             showEducation.value ? req.courseId !== request.courseId : req.registrationId !== request.registrationId
         );
     } catch (error) {

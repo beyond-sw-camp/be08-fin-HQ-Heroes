@@ -1,6 +1,6 @@
 import { fetchDelete, fetchGet, fetchPost, fetchPut } from '../../auth/service/AuthApiService';
 
-const API_URL = 'http://localhost:8080/api/v1/notice-service';
+const API_URL = 'https://hq-heroes-api.com/api/v1/notice-service';
 
 // 공지사항 등록
 export const createNotice = async (noticeData) => {

@@ -181,7 +181,7 @@ const delelteCertificationData = ref({
 
 async function fetchCertifications() {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/certification-service/certification');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/certification-service/certification');
         certifications.value = response.reverse(); // 역순으로 정렬
         console.log(response);
         filteredCertifications.value = certifications.value;
@@ -192,7 +192,7 @@ async function fetchCertifications() {
 
 async function fetchDepartments() {
     try {
-        const departmentsData = await fetchGet('http://localhost:8080/api/v1/employee/departments');
+        const departmentsData = await fetchGet('https://hq-heroes-api.com/api/v1/employee/departments');
         departments.value = [{ deptId: null, deptName: '전체 부서' }, ...departmentsData]; // departmentsData는 이미 JSON 형태라고 가정
     } catch (error) {
         console.error('부서 데이터를 가져오는 중 오류 발생:', error);
@@ -204,14 +204,14 @@ async function fetchDepartments() {
 function filterCertifications() {
     filteredCertifications.value = certifications.value.filter((certification) => {
         // 부서 매칭
-        const matchesDept = 
-            !selectedDepartment.value || 
-            selectedDepartment.value.deptName === '전체 부서' || 
+        const matchesDept =
+            !selectedDepartment.value ||
+            selectedDepartment.value.deptName === '전체 부서' ||
             certification.deptName === selectedDepartment.value.deptName;
 
         // 글로벌 필터 매칭
-        const matchesGlobalFilter = globalFilter.value 
-            ? certification.certificationName.toLowerCase().includes(globalFilter.value.toLowerCase()) 
+        const matchesGlobalFilter = globalFilter.value
+            ? certification.certificationName.toLowerCase().includes(globalFilter.value.toLowerCase())
             : true;
 
         return matchesDept && matchesGlobalFilter;
@@ -262,7 +262,7 @@ const changeSelectedEditDeptId = (deptId) => {
 // 자격증 추가하기
 async function saveCertification() {
     try {
-        const response = await fetchPost('http://localhost:8080/api/v1/certification-service/certification', addCertificationData.value);
+        const response = await fetchPost('https://hq-heroes-api.com/api/v1/certification-service/certification', addCertificationData.value);
 
         if (response) { // response가 null이 아닌 경우에만 성공 처리
             console.log(response);
@@ -291,7 +291,7 @@ async function editCertification() {
     };
 
     try {
-        const response = await fetchPut(`http://localhost:8080/api/v1/certification-service/certification/${editCertificationData.value.certificationId}`, editRequestData);
+        const response = await fetchPut(`https://hq-heroes-api.com/api/v1/certification-service/certification/${editCertificationData.value.certificationId}`, editRequestData);
 
         // 모달 닫기
         isEditDialogVisible.value = false;
@@ -331,7 +331,7 @@ async function deleteCertification(certification) {
     const certificationId = certification.certificationId; // 인자로 받은 certification 객체에서 certificationId 추출
 
     try {
-        await fetchDelete(`http://localhost:8080/api/v1/certification-service/certification/${certificationId}`);
+        await fetchDelete(`https://hq-heroes-api.com/api/v1/certification-service/certification/${certificationId}`);
 
         // 삭제 완료 알림
         await Swal.fire({

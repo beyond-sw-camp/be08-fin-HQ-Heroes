@@ -1,6 +1,6 @@
 import { fetchGet } from '../../auth/service/AuthApiService';
 
-const API_URL = 'http://localhost:8080/api/v1/category-service';
+const API_URL = 'https://hq-heroes-api.com/api/v1/category-service';
 
 // 모든 카테고리 조회
 export const fetchCategories = async () => {

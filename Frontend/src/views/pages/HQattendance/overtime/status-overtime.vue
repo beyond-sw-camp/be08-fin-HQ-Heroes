@@ -75,11 +75,11 @@ const toast = useToast();
 
 onMounted(async () => {
     try {
-        const roleResponse = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
+        const roleResponse = await fetchGet('https://hq-heroes-api.com/api/v1/employee/role-check');
         const loggedInEmployeeId = roleResponse.employeeId;
 
         // 연장 근로 목록 불러오기
-        const response = await fetchGet('http://localhost:8080/api/v1/overtime/list');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/overtime/list');
         employees.value = response
             .filter((record) => record.employeeId === loggedInEmployeeId)
             .map((record) => ({

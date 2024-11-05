@@ -1,6 +1,6 @@
 import { fetchGet } from '../../auth/service/AuthApiService';
 
-const baseUrl = 'http://localhost:8080/api/v1/notification-service';
+const baseUrl = 'https://hq-heroes-api.com/api/v1/notification-service';
 
 const getReceiveNotificationsByEmployeeId = async (employeeId) => {
   try {

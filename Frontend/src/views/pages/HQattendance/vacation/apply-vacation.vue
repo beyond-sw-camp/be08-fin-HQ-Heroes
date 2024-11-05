@@ -157,7 +157,7 @@ const loadEmployeeData = async () => {
 // 전체 사원 목록을 트리 구조로 변환하는 함수
 const loadEmployeeTreeData = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/employees');
         // 로그인된 사용자의 부서명을 기준으로 필터링
         const filteredEmployees = response.filter(
             (employee) => employee.teamName === employeeData.value.teamName // 부서명이 같은 직원만 포함
@@ -171,7 +171,7 @@ const loadEmployeeTreeData = async () => {
 // 결재자 목록을 팀장으로만 필터링하는 함수
 const loadApproverTreeData = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/employees');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/employees');
         if (response) {
             // 부서명이 같고 "팀장"인 경우만 필터링 (팀장만 포함)
             const filteredApprovers = response.filter(
@@ -317,7 +317,7 @@ const submitForm = async () => {
     console.log('보유한 휴가 일 수(쿼터):', employeeData.value.annualLeave);
 
     // PENDING 상태 휴가 쿼터 조회
-    const pendingQuarters = await fetchGet(`http://localhost:8080/api/v1/vacation/pending-quarters/${employeeData.value.employeeId}`);
+    const pendingQuarters = await fetchGet(`https://hq-heroes-api.com/api/v1/vacation/pending-quarters/${employeeData.value.employeeId}`);
     console.log('PENDING 상태 휴가의 총 쿼터 수:', pendingQuarters);
 
     const totalRequestedQuarters = Number(pendingQuarters) + Number(requestedQuarters);
@@ -373,7 +373,7 @@ const submitForm = async () => {
 
         console.log(requestBody); // 전송 데이터 확인
 
-        const response = await fetchPostThrowError('http://localhost:8080/api/v1/vacation/submit', requestBody);
+        const response = await fetchPostThrowError('https://hq-heroes-api.com/api/v1/vacation/submit', requestBody);
 
         Swal.fire({
             icon: 'success',

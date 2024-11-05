@@ -78,7 +78,7 @@ const isApplied = ref(false); // 신청 여부 상태
 
 const fetchEducationDetails = async (courseId) => {
     try {
-        const education = await fetchGet(`http://localhost:8080/api/v1/education-service/education/${courseId}`);
+        const education = await fetchGet(`https://hq-heroes-api.com/api/v1/education-service/education/${courseId}`);
         educationName.value = education.educationName;
         categoryName.value = education.categoryName;
         educationStart.value = education.educationStart;
@@ -111,7 +111,7 @@ const handleApplyClick = async () => {
 
     try {
         // 교육 신청 요청
-        const result = await fetchPostThrowError(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
+        const result = await fetchPostThrowError(`https://hq-heroes-api.com/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
         // 성공 메시지 표시
 
         console.log('result : ', result);
@@ -123,7 +123,7 @@ const handleApplyClick = async () => {
             currentParticipant.value = newParticipantCount; // 새로 신청한 인원 수 업데이트
             isApplied.value = true; // 신청 상태 업데이트
             router.push('/education-history'); // 신청 완료 후 "/education-history" 페이지로 이동
-        } 
+        }
     } catch (error) {
         if (error.response.status === 409) {
             await Swal.fire({
@@ -150,7 +150,7 @@ const handleCancelClick = async () => {
     if (confirmCancel) {
         try {
             // 서버에 DELETE 요청 보내기
-            const response = await fetch(`http://localhost:8080/api/v1/course-service/cancel/${courseId}`, {
+            const response = await fetch(`https://hq-heroes-api.com/api/v1/course-service/cancel/${courseId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

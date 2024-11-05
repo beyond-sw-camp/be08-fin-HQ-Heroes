@@ -124,7 +124,7 @@ watch(selectNotificationsList, async () => {
 // 읽지 않은 알림 개수 가져오기
 const fetchUnreadNotificationCount = async () => {
     try {
-        const response = await fetchGet(`http://localhost:8080/api/v1/notification-service/unread-count/${localStorage.getItem('employeeId')}`);
+        const response = await fetchGet(`https://hq-heroes-api.com/api/v1/notification-service/unread-count/${localStorage.getItem('employeeId')}`);
         if (response) {
             console.log(response);
             notificationStore.setUnreadCount(response); // 여기서 바로 업데이트
@@ -144,7 +144,7 @@ const openNotificationModal = async (data) => {
 
     try {
         // 백엔드로 알림 상태 변경 요청
-        const url = `http://localhost:8080/api/v1/notification-service/notification/${notificationId}/read?employeeId=${employeeId}`;
+        const url = `https://hq-heroes-api.com/api/v1/notification-service/notification/${notificationId}/read?employeeId=${employeeId}`;
         await fetchPut(url, {});
 
         // 성공적으로 업데이트된 경우 UI에 반영
@@ -234,7 +234,7 @@ const deleteNotifications = async () => {
     if (userConfirmed) {
         try {
             // 선택된 알림들에 대해 삭제 API 호출
-            const url = `http://localhost:8080/api/v1/notification-service/notification/delete`;
+            const url = `https://hq-heroes-api.com/api/v1/notification-service/notification/delete`;
             // 서버에 삭제 요청 (receiveDelete 또는 sendDelete 값 변경)
             const response = await fetchPut(url, selectedNotificationIds);
             // 삭제가 성공하면 알림 목록을 다시 가져와 화면 갱신

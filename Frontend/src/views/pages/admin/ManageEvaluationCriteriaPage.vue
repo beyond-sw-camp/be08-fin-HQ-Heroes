@@ -52,7 +52,7 @@ const criteriaQuestions = ref([]); // 각 평가 항목의 질문을 저장할 �
 // 부서 목록을 가져오는 함수
 async function fetchDepartments() {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/departments');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/departments');
         departments.value = response;
     } catch (error) {
         console.error('부서 목록을 가져오는 중 오류 발생:', error);
@@ -64,7 +64,7 @@ async function fetchEvaluationCriteria() {
     if (!selectedDepartment.value) return;
 
     try {
-        const response = await fetchGet(`http://localhost:8080/api/v1/evaluation-criteria/by-department?deptName=${selectedDepartment.value.deptName}`);
+        const response = await fetchGet(`https://hq-heroes-api.com/api/v1/evaluation-criteria/by-department?deptName=${selectedDepartment.value.deptName}`);
         evaluationCriteriaList.value = response;
 
         // 각 평가 항목의 질문을 기준으로 데이터를 초기화
@@ -86,7 +86,7 @@ async function saveEvaluationCriteria() {
             updateEvaluationCriteriaList.value.deptId = criteria.deptId;
 
             // PUT 요청 URL에 평가 기준 ID를 추가하여 각 항목별로 수정
-            const url = `http://localhost:8080/api/v1/evaluation-criteria/${criteria.evaluationCriteriaId}`;
+            const url = `https://hq-heroes-api.com/api/v1/evaluation-criteria/${criteria.evaluationCriteriaId}`;
 
             // 수정된 평가 기준 데이터를 저장하는 API 호출
             const response = await fetchPut(url, updateEvaluationCriteriaList.value, {

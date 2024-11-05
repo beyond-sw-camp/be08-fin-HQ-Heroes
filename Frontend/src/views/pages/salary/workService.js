@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useRoute, useRouter } from 'vue-router';
 import fetchReissue from '../auth/service/fetchReissue';
 
-const API_URL = 'http://localhost:8080/api/v1';
+const API_URL = 'https://hq-heroes-api.com/api/v1';
 
 export const fetchTotalWorkHours = async (year, month) => {
     const router = useRouter();

@@ -99,11 +99,11 @@ const filteredEmployees = computed(() => {
 onMounted(async () => {
     try {
         // 로그인한 사용자의 employeeId와 이름 가져오기
-        const roleResponse = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
+        const roleResponse = await fetchGet('https://hq-heroes-api.com/api/v1/employee/role-check');
         const loggedInEmployeeName = roleResponse.employeeName; // 이름 가져오기
 
         // 연장 근로 목록 불러오기
-        const response = await fetchGet('http://localhost:8080/api/v1/overtime/list');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/overtime/list');
 
         // approverName이 로그인한 사용자의 이름과 일치하는 항목만 필터링
         employees.value = response
@@ -131,7 +131,7 @@ async function approveOvertime(overtimeId) {
     isLoading.value = true;
 
     try {
-        await fetchPost(`http://localhost:8080/api/v1/overtime/approve/${overtimeId}`);
+        await fetchPost(`https://hq-heroes-api.com/api/v1/overtime/approve/${overtimeId}`);
         employees.value = employees.value.map((emp) => (emp.overtimeId === overtimeId ? { ...emp, overtimeStatus: '승인됨' } : emp));
         toast.add({ severity: 'success', summary: 'Success', detail: '연장 근로가 승인되었습니다.' });
         window.location.reload(); // 새로고침
@@ -148,7 +148,7 @@ async function rejectOvertime(overtimeId) {
     isLoading.value = true;
 
     try {
-        await fetchPost(`http://localhost:8080/api/v1/overtime/reject/${overtimeId}`);
+        await fetchPost(`https://hq-heroes-api.com/api/v1/overtime/reject/${overtimeId}`);
         employees.value = employees.value.map((emp) => (emp.overtimeId === overtimeId ? { ...emp, overtimeStatus: '반려됨' } : emp));
         toast.add({ severity: 'success', summary: 'Success', detail: '연장 근로가 반려되었습니다.' });
         window.location.reload();

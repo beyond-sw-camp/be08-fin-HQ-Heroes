@@ -32,6 +32,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -78,6 +79,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                        CorsConfiguration configuration = new CorsConfiguration();
+                        configuration.setAllowedOriginPatterns(Arrays.asList("https://hq-heroes-web.com", "http://localhost:5173")); // setAllowedOriginPatterns 사용
+                        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                        configuration.setAllowCredentials(true);  // credentials: true 설정
+                        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "access")); // 필요한 헤더 설정
+                        configuration.setExposedHeaders(Arrays.asList("Authorization", "access"));  // 쿠키와 관련된 헤더 노출
+                        configuration.setMaxAge(3600L);
+                        return configuration;
+                    }
+                }))
+
+
                 .httpBasic(basic -> basic.disable())
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form
@@ -89,19 +105,6 @@ public class SecurityConfig {
                 .logout(auth -> auth
                         .logoutSuccessUrl("/")
                         .permitAll())
-                .cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration configuration = new CorsConfiguration();
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));  // 특정 도메인으로 제한
-                        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                        configuration.setAllowCredentials(true);  // credentials: true 설정
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
-                        configuration.setExposedHeaders(Collections.singletonList("access"));
-                        return configuration;
-                    }
-                }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/", "/join", "/reissue", "/reset-password", "/logout", "/mails/**", "/api/v1/upload-image").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")

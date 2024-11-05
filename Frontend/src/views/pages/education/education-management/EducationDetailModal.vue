@@ -100,8 +100,8 @@ async function confirmCancelEducation() {
 async function cancelEducation() {
     const courseId = props.courseDetail.courseId;
     try {
-        await fetchDelete(`http://localhost:8080/api/v1/course-service/cancel/${courseId}`);
-        
+        await fetchDelete(`https://hq-heroes-api.com/api/v1/course-service/cancel/${courseId}`);
+
         await Swal.fire({
             title: '교육 취소가 완료되었습니다.',
             icon: 'success'

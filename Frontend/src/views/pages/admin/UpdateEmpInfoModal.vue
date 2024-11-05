@@ -264,7 +264,7 @@ const enableEditing = () => {
 // 부서, 팀, 직무, 직책 데이터를 불러오는 함수
 const fetchDepartments = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/departments');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/departments');
         departments.value = response;
     } catch (error) {
         console.error('부서 데이터를 가져오는 중 오류 발생:', error);
@@ -273,7 +273,7 @@ const fetchDepartments = async () => {
 
 const fetchTeams = async (deptId) => {
     try {
-        const response = await fetchGet(`http://localhost:8080/api/v1/employee/teams?deptId=${deptId}`);
+        const response = await fetchGet(`https://hq-heroes-api.com/api/v1/employee/teams?deptId=${deptId}`);
         teams.value = response;
     } catch (error) {
         console.error('팀 데이터를 가져오는 중 오류 발생:', error);
@@ -282,7 +282,7 @@ const fetchTeams = async (deptId) => {
 
 const fetchJobs = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/jobs');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/jobs');
         jobs.value = response;
     } catch (error) {
         console.error('직무 데이터를 가져오는 중 오류 발생:', error);
@@ -291,7 +291,7 @@ const fetchJobs = async () => {
 
 const fetchPositions = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/positions');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/positions');
         positions.value = response;
     } catch (error) {
         console.error('직책 데이터를 가져오는 중 오류 발생:', error);

@@ -1,6 +1,6 @@
 import { fetchGet } from '../../auth/service/AuthApiService'; // Use the existing fetchGet from AuthApiService.js
 
-const baseUrl = 'http://localhost:8080/api/v1/attendance'; // Replace with your actual backend URL
+const baseUrl = 'https://hq-heroes-api.com/api/v1/attendance'; // Replace with your actual backend URL
 
 // 특정 employeeId의 출근 및 퇴근 시간을 가져오는 함수
 export const getAttendanceTimes = async (employeeId) => {

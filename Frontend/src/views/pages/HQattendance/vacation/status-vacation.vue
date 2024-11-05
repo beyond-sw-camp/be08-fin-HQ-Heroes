@@ -135,11 +135,11 @@ const toast = useToast();
 
 onMounted(async () => {
     try {
-        const roleResponse = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
+        const roleResponse = await fetchGet('https://hq-heroes-api.com/api/v1/employee/role-check');
         const loggedInEmployeeId = roleResponse.employeeId;
 
         // 휴가 목록 불러오기
-        const response = await fetchGet('http://localhost:8080/api/v1/vacation/list');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/vacation/list');
         employees.value = response
             .filter((record) => record.applicantId === loggedInEmployeeId)
             .map((record) => ({
@@ -229,7 +229,7 @@ async function submitCancelRequest() {
             approverId: selectedEmployee.value.approverId // 결재자 ID 전달
         };
         console.log(requestBody);
-        await fetchPost('http://localhost:8080/api/v1/vacation/cancel', requestBody);
+        await fetchPost('https://hq-heroes-api.com/api/v1/vacation/cancel', requestBody);
         console.log(requestBody);
 
         toast.add({ severity: 'success', summary: 'Success', detail: '휴가 취소 요청이 제출되었습니다.' });
@@ -248,7 +248,7 @@ async function submitCancelRequest() {
 async function submitImmediateCancelRequest() {
     try {
         // vacationId를 URL에 쿼리 파라미터로 포함하여 삭제 요청
-        const url = `http://localhost:8080/api/v1/vacation/delete?vacationId=${selectedEmployee.value.vacationId}`;
+        const url = `https://hq-heroes-api.com/api/v1/vacation/delete?vacationId=${selectedEmployee.value.vacationId}`;
         const response = await fetchDelete(url);
 
         if (response) {

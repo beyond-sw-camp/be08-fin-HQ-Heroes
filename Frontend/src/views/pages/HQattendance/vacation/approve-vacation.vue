@@ -113,11 +113,11 @@ const filteredEmployees = computed(() => {
 onMounted(async () => {
     try {
         // 로그인한 사용자의 employeeId와 이름 가져오기
-        const roleResponse = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
+        const roleResponse = await fetchGet('https://hq-heroes-api.com/api/v1/employee/role-check');
         const loggedInEmployeeName = roleResponse.employeeName; // 이름 가져오기
 
         // 휴가 목록 불러오기
-        const response = await fetchGet('http://localhost:8080/api/v1/vacation/list');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/vacation/list');
 
         // approverName이 로그인한 사용자의 이름과 일치하는 항목만 필터링
         employees.value = response
@@ -146,7 +146,7 @@ async function approveVacation(vacationId) {
     isLoading.value = true;
 
     try {
-        await fetchPost(`http://localhost:8080/api/v1/vacation/approve/${vacationId}`);
+        await fetchPost(`https://hq-heroes-api.com/api/v1/vacation/approve/${vacationId}`);
         employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '승인됨' } : emp));
         toast.add({ severity: 'success', summary: 'Success', detail: '휴가가 승인되었습니다.' });
         window.location.reload(); // 새로고침
@@ -163,7 +163,7 @@ async function rejectVacation(vacationId) {
     isLoading.value = true;
 
     try {
-        await fetchPost(`http://localhost:8080/api/v1/vacation/reject/${vacationId}`);
+        await fetchPost(`https://hq-heroes-api.com/api/v1/vacation/reject/${vacationId}`);
         employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '반려됨' } : emp));
         toast.add({ severity: 'success', summary: 'Success', detail: '휴가가 반려되었습니다.' });
         window.location.reload();
@@ -180,7 +180,7 @@ async function approveCancelVacation(vacationId) {
     isLoading.value = true;
 
     try {
-        await fetchPost(`http://localhost:8080/api/v1/vacation/approveCancel/${vacationId}`);
+        await fetchPost(`https://hq-heroes-api.com/api/v1/vacation/approveCancel/${vacationId}`);
         employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '취소됨' } : emp));
         toast.add({ severity: 'success', summary: 'Success', detail: '휴가 취소가 승인되었습니다.' });
         window.location.reload(); // 새로고침
@@ -197,7 +197,7 @@ async function rejectCancelVacation(vacationId) {
     isLoading.value = true;
 
     try {
-        await fetchPost(`http://localhost:8080/api/v1/vacation/rejectCancel/${vacationId}`);
+        await fetchPost(`https://hq-heroes-api.com/api/v1/vacation/rejectCancel/${vacationId}`);
         employees.value = employees.value.map((emp) => (emp.vacationId === vacationId ? { ...emp, vacationStatus: '취소 반려됨' } : emp));
         toast.add({ severity: 'success', summary: 'Success', detail: '휴가 취소가 반려되었습니다.' });
         window.location.reload(); // 새로고침

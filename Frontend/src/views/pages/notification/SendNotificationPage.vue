@@ -98,7 +98,7 @@ onMounted(() => {
 async function fetchEmployeeList() {
     try {
         const loggedInEmployeeId = window.localStorage.getItem('employeeId'); // 로그인한 사용자의 employeeId 가져오기
-        const data = await fetchGet('http://localhost:8080/api/v1/employee/employees');
+        const data = await fetchGet('https://hq-heroes-api.com/api/v1/employee/employees');
 
         // 로그인한 사용자를 제외한 데이터만 필터링
         const filteredData = data.filter((employee) => employee.employeeId !== loggedInEmployeeId);
@@ -111,7 +111,7 @@ async function fetchEmployeeList() {
 
 async function fetchCategories() {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/notification-service/categories');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/notification-service/categories');
         categories.value = response;
     } catch (error) {
         console.error('Error fetching categories:', error);
@@ -247,7 +247,7 @@ const onSearchEnter = () => {
 // 단일 알림 발송
 const sendNotification = async (notificationPayload) => {
     try {
-        const response = await fetchPost('http://localhost:8080/api/v1/notification-service/notification', notificationPayload);
+        const response = await fetchPost('https://hq-heroes-api.com/api/v1/notification-service/notification', notificationPayload);
         if (response) {
             console.log('Notification sent successfully:', response);
         } else {

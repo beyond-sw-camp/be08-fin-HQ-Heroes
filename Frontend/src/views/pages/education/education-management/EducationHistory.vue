@@ -102,8 +102,8 @@ const employeeData = ref({
 // API 호출해서 교육 목록 가져오기
 async function fetchCourseList() {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/course-service/my-courses');
-        
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/course-service/my-courses');
+
         if (Array.isArray(response)) {
             courseList.value = response.reverse();  // API로부터 받은 데이터를 courseList에 저장하고 반전
             filteredCourses.value = [...courseList.value];  // filteredCourses 업데이트
@@ -186,8 +186,8 @@ onBeforeMount(() => {
 
 // 컴포넌트가 마운트된 후 실행될 코드
 onMounted(async () => {
-    const employeeId = window.localStorage.getItem('employeeId'); 
-    const data = await getLoginEmployeeInfo(employeeId); 
+    const employeeId = window.localStorage.getItem('employeeId');
+    const data = await getLoginEmployeeInfo(employeeId);
 
     if (data) {
         employeeData.value = data;

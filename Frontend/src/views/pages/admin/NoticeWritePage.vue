@@ -63,7 +63,7 @@ const authStore = useAuthStore();
 
 // Quill 에디터 초기화
 onMounted(async () => {
-    
+
     // 카테고리 데이터 로드
     const fetchedCategories = await fetchCategories();
     categories.value = [...fetchedCategories];
@@ -118,7 +118,7 @@ const imageHandler = () => {
 
         try {
             // 이미지 업로드 API 호출
-            const response = await fetch('http://localhost:8080/api/v1/upload-image', {
+            const response = await fetch('https://hq-heroes-api.com/api/v1/upload-image', {
                 method: 'POST',
                 body: formData
             });
@@ -211,7 +211,7 @@ const sendMessage = async () => {
         console.log('requestData = ', requestBody); // 추가: 요청 데이터 출력
 
         // fetchPost 함수를 사용하여 데이터 전송
-        const result = await fetchPost('http://localhost:8080/api/v1/notice-service/notice', requestBody);
+        const result = await fetchPost('https://hq-heroes-api.com/api/v1/notice-service/notice', requestBody);
 
         if (result) {
             // SweetAlert2를 사용하여 성공 알림 표시
