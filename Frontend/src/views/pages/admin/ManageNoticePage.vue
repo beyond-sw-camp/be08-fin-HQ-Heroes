@@ -3,13 +3,13 @@
         <div class="card">
             <div class="flex flex-row justify-between mb-4">
                 <label class="text-xl font-bold">공지사항 목록</label>
-                <Button v-if="isAdmin()" label="추가하기" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
+                <Button v-if="isAdmin" label="추가하기" icon="pi pi-plus" class="custom-button" @click="showWriteNoticePage" />
             </div>
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                     <Dropdown class="mr-2" v-model="selectedCategory" :options="categories" optionLabel="categoryName" placeholder="카테고리 선택" @change="filterNotices" />
                 </div>
-                <div class="relative search-container"> 
+                <div class="relative search-container">
                     <InputText placeholder="검색" v-model="globalFilter" @input="filterNotices" class="search-input" />
                     <i class="pi pi-search search-icon" />
                 </div>
@@ -38,7 +38,7 @@
                 <Column field="employeeName" header="작성자" sortable />
 
                 <!-- 수정 및 삭제 -->
-                <Column v-if="isAdmin()" field="action" header="수정 / 삭제">
+                <Column v-if="isAdmin" field="action" header="수정 / 삭제">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" class="p-button p-button-sm p-button-warning mr-2" @click.stop="goToNoticeUpdate(slotProps.data.noticeId)" />
                         <Button icon="pi pi-trash" class="p-button p-button-sm p-button-danger" @click.stop="confirmDeleteNotice(slotProps.data)" />
@@ -60,6 +60,7 @@ import InputText from 'primevue/inputtext';
 import Swal from 'sweetalert2';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { fetchGet } from '../auth/service/AuthApiService';
 import { fetchCategories } from './service/adminNoticeCategoryService';
 import { deleteNotice, fetchNotices } from './service/adminNoticeService';
 
@@ -76,25 +77,33 @@ const updaterDate = ref(''); // 수정 시간 관리를 위한 ref
 const isEditMode = ref(false);
 const selectedNotice = ref(null); // 선택된 공지사항
 const router = useRouter();
+const isAdmin = ref(false);
 
 // 관리자인지 확인
-const isAdmin = () => {
-    // return authStore.employeeData.isAdmin === 'ROLE_ADMIN';
-    return true;
+const roleCheck = async () => {
+    try {
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
+        console.log(response); // 응답 데이터 확인 // API 경로
+        if (response.role === 'ROLE_ADMIN') {
+            isAdmin.value = true;
+        }
+        console.log('isAdmin', isAdmin);
+        console.log('.value', isAdmin.value);
+    } catch (error) {
+        console.error('Error fetching role and position:', error);
+    }
+    // return true;
 };
 
 // 공지사항 데이터 필터링
 const filterNotices = () => {
     filteredNotices.value = notices.value.filter((notice) => {
         const matchesCategory =
-            !selectedCategory.value || 
+            !selectedCategory.value ||
             selectedCategory.value.categoryName === '전체' || // 기본 '전체' 처리
             notice.categoryId === selectedCategory.value.categoryId;
 
-        const matchesGlobalFilter =
-            notice.title.includes(globalFilter.value) || 
-            notice.employeeName.includes(globalFilter.value) ||
-            notice.categoryName.includes(globalFilter.value);
+        const matchesGlobalFilter = notice.title.includes(globalFilter.value) || notice.employeeName.includes(globalFilter.value) || notice.categoryName.includes(globalFilter.value);
 
         return matchesCategory && matchesGlobalFilter;
     });
@@ -195,12 +204,15 @@ const goToNoticeUpdate = (noticeId) => {
     router.push({ name: 'notice-update', params: { id: noticeId } });
 };
 
+onMounted(() => {
+    roleCheck();
+});
+
 // 컴포넌트가 제거되기 전에 인터벌 정리
 onBeforeUnmount(() => {
     if (updaterInterval.value) {
         clearInterval(updaterInterval.value);
     }
-    isAdmin();
 });
 </script>
 

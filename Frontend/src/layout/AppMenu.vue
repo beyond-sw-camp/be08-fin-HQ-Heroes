@@ -1,6 +1,8 @@
 <script setup>
-import { ref } from 'vue';
+import { fetchGet } from '@/views/pages/auth/service/AuthApiService';
+import { computed, onMounted, ref } from 'vue';
 import AppMenuItem from './AppMenuItem.vue';
+
 const model = ref([
     {
         label: '관리자',
@@ -43,7 +45,7 @@ const model = ref([
                         items: [
                             { label: '휴가 신청', icon: 'pi pi-fw pi-calendar-times', to: '/apply-vacation' },
                             { label: '휴가 신청 현황', icon: 'pi pi-fw pi-calendar-times', to: '/status-vacation' },
-                            { label: '휴가 승인', icon: 'pi pi-fw pi-check-square', to: '/approve-vacation' }
+                            { label: '휴가 결재', icon: 'pi pi-fw pi-check-square', to: '/approve-vacation' }
                         ]
                     },
                     {
@@ -52,7 +54,7 @@ const model = ref([
                         items: [
                             { label: '연장 근로 신청', icon: 'pi pi-fw pi-calendar-times', to: '/apply-overtime' },
                             { label: '연장 근로 신청 현황', icon: 'pi pi-fw pi-calendar-times', to: '/status-overtime' },
-                            { label: '연장 근로 승인', icon: 'pi pi-fw pi-check-square', to: '/approve-overtime' }
+                            { label: '연장 근로 결재', icon: 'pi pi-fw pi-check-square', to: '/approve-overtime' }
                         ]
                     },
                     { label: '월 근태 현황', icon: 'pi pi-fw pi-chart-line', to: '/monthly-attendance-status' }
@@ -74,7 +76,7 @@ const model = ref([
                 items: [
                     { label: '교육 신청', icon: 'pi pi-fw pi-calendar-plus', to: '/education-apply' },
                     { label: '교육 이력', icon: 'pi pi-fw pi-calendar-minus', to: '/education-history' },
-                    { label: '자격증 목록', icon: 'pi pi-fw pi-id-card', to: '/certificate-management' },
+                    { label: '자격증 목록', icon: 'pi pi-fw pi-id-card', to: '/certificate-management' }
                 ]
             },
             {
@@ -88,11 +90,75 @@ const model = ref([
         ]
     }
 ]);
+const role = ref('');
+const positionId = ref(0);
+
+// 사용자 role과 positionId를 가져오는 함수
+const fetchUserRoleAndPosition = async () => {
+    try {
+        const response = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
+        role.value = response.role;
+        positionId.value = response.positionId;
+    } catch (error) {
+        console.error('Error fetching role and position:', error);
+    }
+};
+
+// 메뉴 항목을 필터링하는 함수
+const isMenuItemVisible = (item) => {
+    // 관리자 메뉴: 관리자만 접근 가능
+    if (item.label === '관리자' && role.value !== 'ROLE_ADMIN') {
+        return false;
+    }
+
+    // // 휴가 결재 및 연장 근로 결재 항목은 ROLE_ADMIN이거나 positionId가 1 이상인 경우만 표시
+    // if (item.label === '휴가 결재' || item.label === '연장 근로 결재') {
+    //     return positionId.value >= 1 || role.value === 'ROLE_ADMIN';
+    // }
+
+    // // 하위 항목이 있을 경우, 하위 항목도 필터링
+    // if (item.items && item.items.length) {
+    //     item.items = item.items.filter(isMenuItemVisible); // 재귀 호출로 하위 항목 필터링
+    //     return item.items.length > 0; // 필터링된 하위 항목이 남아있는 경우만 부모 항목 표시
+    // }
+
+    return true;
+};
+// 재귀적으로 메뉴 항목을 필터링하는 함수
+const filterMenuItems = (items) => {
+    return items
+        .filter((item) => {
+            if (item.label === '관리자') {
+                return role.value === 'ROLE_ADMIN';
+            }
+            // '휴가 결재', '연장 근로 결재', '팀원 평가' 항목에 대한 특정 조건 추가
+            if (item.label === '휴가 결재' || item.label === '연장 근로 결재' || item.label === '팀원 평가') {
+                return positionId.value === 1;
+            }
+
+            return true;
+        })
+        .map((item) => {
+            if (item.items) {
+                return { ...item, items: filterMenuItems(item.items) };
+            }
+            return item;
+        })
+        .filter((item) => !item.items || item.items.length > 0); // 하위 항목이 없는 경우 항목 숨기기
+};
+
+// 계산된 속성으로 필터링된 메뉴 항목 반환
+const filteredModel = computed(() => filterMenuItems(model.value));
+
+// 컴포넌트가 마운트될 때 role과 positionId를 가져옴
+onMounted(() => {
+    fetchUserRoleAndPosition();
+});
 </script>
 
 <template>
     <ul class="layout-menu">
-        <template v-for="(item, i) in model" :key="item">
+        <template v-for="(item, i) in filteredModel" :key="item.label">
             <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
             <li v-if="item.separator" class="menu-separator"></li>
         </template>
