@@ -64,15 +64,20 @@ async function fetchDepartments() {
 async function fetchTeams(selectedDeptId) {
     deptId.value = selectedDeptId;
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/teams', {
-            params: { deptId: selectedDeptId }
-        });
-        teams.value = [...response];
+        const response = await fetchGet(`http://localhost:8080/api/v1/employee/teams?deptId=${selectedDeptId}`);
+        teams.value = response;
         isTeamSelectable.value = true;
     } catch (error) {
         console.error('팀 데이터를 가져오는 중 오류 발생:', error);
         isTeamSelectable.value = false;
+        teams.value = []; // 오류 발생 시 빈 배열로 설정
     }
+}
+
+
+// 부서 및 팀에 따라 직원 목록 필터링
+function filterByDepartmentAndTeam() {
+    fetchTeams(selectedDepartment.value.deptId); // 선택한 부서 ID 전달
 }
 
 async function fetchJobRoles() {
@@ -372,7 +377,7 @@ onMounted(() => {
 
             <div class="form-group ml-4">
                 <label for="selectedTeam">팀</label>
-                <Select v-model="selectedTeam" :options="teams" id="teamId" optionLabel="teamName" placeholder="팀을 선택하세요" :disabled="!isTeamSelectable" />
+                <Select v-model="selectedTeam" :options="teams" id="teamId" optionLabel="teamName" placeholder="팀을 선택하세요" @change="filterByDepartmentAndTeam" :disabled="!isTeamSelectable" />
                 <small v-if="errors.selectedTeam" class="error-text">{{ errors.selectedTeam }}</small>
             </div>
         </div>
