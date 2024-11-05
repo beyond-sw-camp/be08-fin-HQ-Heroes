@@ -110,7 +110,7 @@ const imageHandler = () => {
         formData.append('file', resizedImage);
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/upload-image', {
+            const response = await fetch('https://hq-heroes-api.com/api/v1/upload-image', {
                 method: 'POST',
                 body: formData
             });

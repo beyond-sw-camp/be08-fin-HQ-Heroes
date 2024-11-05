@@ -93,7 +93,7 @@ const loadEducationData = async () => {
     const educationId = route.params.id;
     console.log('educationId', educationId);
     try {
-        const result = await fetchGet(`http://localhost:8080/api/v1/education-service/education/${educationId}`);
+        const result = await fetchGet(`https://hq-heroes-api.com/api/v1/education-service/education/${educationId}`);
         education.value = { ...result };
     } catch (error) {
         console.error('교육 데이터 조회 오류:', error);
@@ -142,7 +142,7 @@ const imageHandler = () => {
         formData.append('file', resizedImage);
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/upload-image', {
+            const response = await fetch('https://hq-heroes-api.com/api/v1/upload-image', {
                 method: 'POST',
                 body: formData
             });
@@ -208,7 +208,7 @@ onMounted(async () => {
 // 카테고리 목록 가져오기 함수
 const fetchCategories = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/educationCategory-service/categories');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/educationCategory-service/categories');
         categories.value = response;
     } catch (error) {
         console.error('카테고리 목록을 불러오지 못했습니다.', error);
@@ -244,7 +244,7 @@ const updateEducationContent = async () => {
 // 공지사항 수정
 const updateEducation = async (educationId, updatedData) => {
     try {
-        const response = await fetchPut(`http://localhost:8080/api/v1/education-service/education/${educationId}`, updatedData);
+        const response = await fetchPut(`https://hq-heroes-api.com/api/v1/education-service/education/${educationId}`, updatedData);
         return response;
     } catch (error) {
         throw error;

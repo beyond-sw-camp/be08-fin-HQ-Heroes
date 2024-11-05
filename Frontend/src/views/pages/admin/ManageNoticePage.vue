@@ -82,7 +82,7 @@ const isAdmin = ref(false);
 // 관리자인지 확인
 const roleCheck = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/role-check');
         console.log(response); // 응답 데이터 확인 // API 경로
         if (response.role === 'ROLE_ADMIN') {
             isAdmin.value = true;

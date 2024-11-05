@@ -133,7 +133,7 @@ const imageHandler = () => {
 
         try {
             // 이미지 업로드 API 호출
-            const response = await fetch('http://localhost:8080/api/v1/upload-image', {
+            const response = await fetch('https://hq-heroes-api.com/api/v1/upload-image', {
                 method: 'POST',
                 body: formData
             });
@@ -210,7 +210,7 @@ const getCategoryById = (categoryName) => {
 // 카테고리 목록 가져오기 함수
 const fetchCategories = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/educationCategory-service/categories');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/educationCategory-service/categories');
         categories.value = response;
     } catch (error) {
         console.error('카테고리 목록을 불러오지 못했습니다.', error);
@@ -246,7 +246,7 @@ const sendMessage = async () => {
             participants: capacity.value
         };
 
-        const result = await fetchPost('http://localhost:8080/api/v1/education-service/education', requestBody);
+        const result = await fetchPost('https://hq-heroes-api.com/api/v1/education-service/education', requestBody);
 
         if (result) {
             await Swal.fire({

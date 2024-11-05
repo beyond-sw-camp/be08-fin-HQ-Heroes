@@ -73,7 +73,7 @@ const handleAttendance = async () => {
         if (result.isConfirmed) {
             if (!isCheckedIn.value) {
                 // 출근 처리
-                const response = await fetchPost('http://localhost:8080/api/v1/attendance/check-in', { checkInTime: attendanceTime });
+                const response = await fetchPost('https://hq-heroes-api.com/api/v1/attendance/check-in', { checkInTime: attendanceTime });
                 if (response && response.attendanceId) {
                     isCheckedIn.value = true; // 출근 상태로 변경
                     window.location.reload(); // 페이지를 다시 로드
@@ -82,7 +82,7 @@ const handleAttendance = async () => {
                 }
             } else {
                 // 퇴근 처리
-                const response = await fetchPost('http://localhost:8080/api/v1/attendance/check-out', { checkOutTime: attendanceTime });
+                const response = await fetchPost('https://hq-heroes-api.com/api/v1/attendance/check-out', { checkOutTime: attendanceTime });
                 await handleLogout();
             }
         } else {
@@ -124,7 +124,7 @@ onMounted(async () => {
 
     // 서버에서 출근 상태 확인
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/attendance/status');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/attendance/status');
         if (response && response.isCheckedIn) {
             isCheckedIn.value = true; // 서버 응답에 따라 출근 상태 설정
         } else {

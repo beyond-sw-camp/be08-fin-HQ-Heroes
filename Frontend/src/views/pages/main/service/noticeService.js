@@ -1,6 +1,6 @@
 import { fetchGet } from '../../auth/service/AuthApiService';
 
-const API_URL = 'http://localhost:8080';
+const API_URL = 'https://hq-heroes-api.com';
 
 export const getNotices = async () => {
     try {

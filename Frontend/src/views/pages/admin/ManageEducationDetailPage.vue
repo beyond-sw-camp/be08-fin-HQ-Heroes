@@ -16,7 +16,7 @@
                     <th style="text-align: left;">교육 일정</th>
                     <td>
                         <template v-if="editMode">
-                            <input type="date" v-model="educationStart" /> ~ 
+                            <input type="date" v-model="educationStart" /> ~
                             <input type="date" v-model="educationEnd" />
                         </template>
                         <template v-else>
@@ -90,7 +90,7 @@ const educationId = ref(0);
 
 const fetchEducationDetails = async (educationId) => {
     try {
-        const education = await fetchGet(`http://localhost:8080/api/v1/education-service/education/${educationId}`);
+        const education = await fetchGet(`https://hq-heroes-api.com/api/v1/education-service/education/${educationId}`);
         educationName.value = education.educationName;
         categoryName.value = education.categoryName;
         applicationStartDate.value = education.applicationStartDate;
@@ -136,7 +136,7 @@ const deleteEducation = async () => {
 
         // 예를 선택한 경우 삭제 진행
         if (result.isConfirmed) {
-            const response = await fetchDelete(`http://localhost:8080/api/v1/education-service/education/${educationId.value}`);
+            const response = await fetchDelete(`https://hq-heroes-api.com/api/v1/education-service/education/${educationId.value}`);
 
             console.log(response);
             // 삭제 성공 시 알림 표시

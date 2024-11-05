@@ -102,7 +102,7 @@ function filterEmployeesByTeam() {
 // 직원 목록 데이터 가져오기
 async function fetchEmployeeList() {
     try {
-        const employeesData = await fetchGet('http://localhost:8080/api/v1/employee/employees', router.push, router.currentRoute.value);
+        const employeesData = await fetchGet('https://hq-heroes-api.com/api/v1/employee/employees', router.push, router.currentRoute.value);
         console.log('가져온 직원 데이터:', employeesData);
 
         employees.value = employeesData || [];
@@ -117,7 +117,7 @@ async function fetchEmployeeList() {
 // 평가 데이터를 가져오는 함수
 async function fetchEvaluationsByEmployeeId() {
     try {
-        const evaluationData = await fetchGet('http://localhost:8080/api/v1/evaluation-service/evaluations/by-evaluatorId', router.push, router.currentRoute.value);
+        const evaluationData = await fetchGet('https://hq-heroes-api.com/api/v1/evaluation-service/evaluations/by-evaluatorId', router.push, router.currentRoute.value);
         evaluations.value = evaluationData || [];
     } catch (error) {
         console.error('평가 데이터를 가져오는 중 오류 발생:', error);

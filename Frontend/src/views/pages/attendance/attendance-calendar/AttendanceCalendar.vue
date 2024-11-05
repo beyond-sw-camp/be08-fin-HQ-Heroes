@@ -173,7 +173,7 @@ export default {
 
         // 개인 일정 및 휴가 데이터를 가져오는 메서드
         async fetchPersonalEvents(employeeId) {
-            const personalResponse = await fetchGet(`http://localhost:8080/api/v1/event/my-events?employeeId=${employeeId}`);
+            const personalResponse = await fetchGet(`https://hq-heroes-api.com/api/v1/event/my-events?employeeId=${employeeId}`);
             return Array.isArray(personalResponse)
                 ? personalResponse
                       .filter((event) => {
@@ -199,7 +199,7 @@ export default {
 
         // 나의 휴가와 팀원의 휴가를 분리하여 가져오는 메서드
         async fetchTeamAndPersonalVacations(employeeId) {
-            const teamResponse = await fetchGet(`http://localhost:8080/api/v1/vacation/team-vacations?employeeId=${employeeId}`);
+            const teamResponse = await fetchGet(`https://hq-heroes-api.com/api/v1/vacation/team-vacations?employeeId=${employeeId}`);
             if (!Array.isArray(teamResponse)) return { myVacations: [], teamVacations: [] };
 
             const myVacations = [];
@@ -247,7 +247,7 @@ export default {
         async handleEventDrop(eventInfo) {
             const { id, start, end } = eventInfo.event;
             try {
-                await fetchPut(`http://localhost:8080/api/v1/event/update/${id}`, {
+                await fetchPut(`https://hq-heroes-api.com/api/v1/event/update/${id}`, {
                     start: start.toISOString(),
                     end: end ? end.toISOString() : null
                 });
@@ -261,7 +261,7 @@ export default {
         async handleEventResize(eventInfo) {
             const { id, start, end } = eventInfo.event;
             try {
-                await fetchPut(`http://localhost:8080/api/v1/event/update/${id}`, {
+                await fetchPut(`https://hq-heroes-api.com/api/v1/event/update/${id}`, {
                     start: start.toISOString(),
                     end: end.toISOString()
                 });
@@ -276,7 +276,7 @@ export default {
             this.submitted = true;
             if (this.eventData.title.trim()) {
                 const employeeId = window.localStorage.getItem('employeeId');
-                fetchPost('http://localhost:8080/api/v1/event/create', {
+                fetchPost('https://hq-heroes-api.com/api/v1/event/create', {
                     title: this.eventData.title,
                     start: this.eventData.start,
                     end: this.eventData.end,

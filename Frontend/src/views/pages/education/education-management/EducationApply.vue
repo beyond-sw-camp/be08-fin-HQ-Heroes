@@ -89,7 +89,7 @@ const statusOptions = ref([{ status: '전체' }, { status: '신청 가능' }, { 
 
 async function fetchEducations() {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/education-service/education');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/education-service/education');
 
         // API 응답을 console에 출력
         console.log('FetchEducations 응답:', response);
@@ -127,7 +127,7 @@ async function fetchEducations() {
 
 async function fetchCategories() {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/educationCategory-service/categories');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/educationCategory-service/categories');
 
         // 응답 데이터의 구조를 콘솔에 출력하여 확인
         console.log('fetchCategories 응답:', response);

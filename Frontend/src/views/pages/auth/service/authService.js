@@ -3,7 +3,7 @@ import { fetchGet, fetchPutEmployee } from '@/views/pages/auth/service/AuthApiSe
 import axios from 'axios';
 import { useCookies } from 'vue3-cookies';
 
-const API_URL = 'http://localhost:8080';
+const API_URL = 'https://hq-heroes-api.com';
 const { cookies } = useCookies(); // Initialize the cookies
 
 // 회원가입 메서드

@@ -26,7 +26,7 @@ async function sendResetPasswordRequest() {
     isLoading.value = true; // 비밀번호 발급 요청 시작
 
     try {
-        const response = await axios.post('http://localhost:8080/mails/password', {
+        const response = await axios.post('https://hq-heroes-api.com/mails/password', {
             name: employeeName.value,
             employeeId: employeeId.value
         });

@@ -138,7 +138,7 @@ const requestAuthCode = async () => {
     isLoading.value = true;
 
     try {
-        await axios.post('http://localhost:8080/mails/email', {
+        await axios.post('https://hq-heroes-api.com/mails/email', {
             employeeId: employeeId.value
         });
 

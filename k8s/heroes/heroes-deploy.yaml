@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: heroes
-          image: jjjwww8802/heroes:1.0
+          image: jjjwww8802/heroes:14.0
           ports:
             - containerPort: 8080
           env:
@@ -73,8 +73,7 @@ spec:
           volumeMounts:
             - name: firebase-secret
               mountPath: /secrets
-              readOnly:
-                true
+              readOnly: true
       volumes:
         - name: firebase-secret
           secret:

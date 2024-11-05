@@ -96,7 +96,7 @@ const positionId = ref(0);
 // 사용자 role과 positionId를 가져오는 함수
 const fetchUserRoleAndPosition = async () => {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/employee/role-check');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee/role-check');
         role.value = response.role;
         positionId.value = response.positionId;
     } catch (error) {

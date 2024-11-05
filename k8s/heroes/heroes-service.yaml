@@ -3,11 +3,10 @@ kind: Service
 metadata:
   name: heroes-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: heroes
   ports:
-  - port: 8080
-    targetPort: 8080
-    nodePort: 31001
-    protocol: TCP
+    - port: 8080           # 서비스에서 사용하는 포트
+      targetPort: 8080      # 컨테이너에서 사용하는 포트
+      protocol: TCP

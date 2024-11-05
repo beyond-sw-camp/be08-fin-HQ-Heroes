@@ -79,7 +79,7 @@ function filterEducations() {
     filteredEducations.value = educations.value.filter((education) => {
         // 카테고리 이름 매칭
         const matchesCategoryName =
-            !selectedcategoryName.value || 
+            !selectedcategoryName.value ||
             selectedcategoryName.value.categoryName === '전체' ||
             education.categoryName === selectedcategoryName.value.categoryName;
 
@@ -112,7 +112,7 @@ function formatDate(date) {
 // 카테고리 목록 가져오기 함수
 async function fetchCategories() {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/educationCategory-service/categories');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/educationCategory-service/categories');
         categories.value = [{ categoryName: '전체' }, ...response];
     } catch (error) {
         console.error('카테고리 목록을 불러오지 못했습니다.', error);
@@ -127,7 +127,7 @@ onBeforeMount(() => {
 
 async function fetchEducations() {
     try {
-        const response = await fetchGet('http://localhost:8080/api/v1/education-service/education');
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/education-service/education');
         educations.value = response.reverse(); // 데이터 역순 정렬
         filteredEducations.value = educations.value;
     } catch (error) {

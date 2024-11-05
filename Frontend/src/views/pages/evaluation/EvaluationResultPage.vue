@@ -101,8 +101,8 @@ const displayDialog = ref(false); // Dialog 표시 여부
 // 사원 ID로 평가 목록 가져오기 (로그인된 사용자)
 async function fetchEvaluationsByEmployeeId() {
     try {
-        const evaluationData = await fetchGet('http://localhost:8080/api/v1/evaluation-service/evaluations/by-employeeId', router.push, router.currentRoute.value);
-        
+        const evaluationData = await fetchGet('https://hq-heroes-api.com/api/v1/evaluation-service/evaluations/by-employeeId', router.push, router.currentRoute.value);
+
         evaluations.value = (evaluationData || []).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     } catch (error) {
         console.error('사원 ID로 평가 데이터를 가져오는 중 오류 발생:', error);
@@ -120,7 +120,7 @@ function showEvaluationDetails(event) {
 // 평가 ID로 평가 상세 정보 가져오기
 async function fetchEvaluationById(evaluationId) {
     try {
-        const evaluation = await fetchGet(`http://localhost:8080/api/v1/evaluation-service/evaluation/${evaluationId}`, router.push, router.currentRoute.value);
+        const evaluation = await fetchGet(`https://hq-heroes-api.com/api/v1/evaluation-service/evaluation/${evaluationId}`, router.push, router.currentRoute.value);
         if (evaluation) {
             selectedEvaluation.value = evaluation;
             displayDialog.value = true;

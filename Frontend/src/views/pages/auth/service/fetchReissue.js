@@ -7,13 +7,13 @@ const fetchReissue = async () => {
   const authStore = useAuthStore();
 
   try {
-    const response = await axios.post("http://localhost:8080/reissue", {}, {
+    const response = await axios.post("https://hq-heroes-api.com/reissue", {}, {
       withCredentials: true
     });
 
     if (response.status === 200) { // 토큰 재발급 성공
       const accessTime = Date.now();
-      
+
       const newAccessToken = response.headers['access'];
       authStore.setAccessToken(newAccessToken); // Pinia에 access 토큰 저장
       window.localStorage.setItem('access', newAccessToken)

@@ -219,7 +219,7 @@ onMounted(async () => {
 // 읽지 않은 알림 개수 가져오기
 const fetchUnreadNotificationCount = async () => {
     try {
-        const response = await fetchGet(`http://localhost:8080/api/v1/notification-service/unread-count/${localStorage.getItem('employeeId')}`);
+        const response = await fetchGet(`https://hq-heroes-api.com/api/v1/notification-service/unread-count/${localStorage.getItem('employeeId')}`);
         if (response) {
             console.log(response);
             notificationStore.setUnreadCount(response); // 여기서 바로 업데이트
@@ -264,7 +264,7 @@ const openNotificationModal = async (event) => {
 
     try {
         // 백엔드로 알림 상태 변경 요청
-        const url = `http://localhost:8080/api/v1/notification-service/notification/${notificationId}/read?employeeId=${employeeId}`;
+        const url = `https://hq-heroes-api.com/api/v1/notification-service/notification/${notificationId}/read?employeeId=${employeeId}`;
         await fetchPut(url, {});
 
         // 성공적으로 업데이트된 경우 UI에 반영

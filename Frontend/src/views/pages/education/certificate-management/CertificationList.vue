@@ -104,8 +104,8 @@ async function fetchRecommendedCertifications() {
     }
 
     try {
-        const allCertifications = await fetchGet(`http://localhost:8080/api/v1/certification-service/by-department?deptName=${employeeData.value.deptName}`);
-        const employeeCertificationsData = await fetchGet('http://localhost:8080/api/v1/employee-certification/my-certification/by-employeeId');
+        const allCertifications = await fetchGet(`https://hq-heroes-api.com/api/v1/certification-service/by-department?deptName=${employeeData.value.deptName}`);
+        const employeeCertificationsData = await fetchGet('https://hq-heroes-api.com/api/v1/employee-certification/my-certification/by-employeeId');
 
         const employeeCertificationNames = new Set(employeeCertificationsData.map((cert) => cert.certificationName));
 
@@ -118,7 +118,7 @@ async function fetchRecommendedCertifications() {
 // 사원 자격증 목록 가져오기
 async function fetchEmployeeCertifications() {
     try {
-        const data = await fetchGet('http://localhost:8080/api/v1/employee-certification/my-certification/by-employeeId');
+        const data = await fetchGet('https://hq-heroes-api.com/api/v1/employee-certification/my-certification/by-employeeId');
         certifications.value = data.filter((cert) => cert.employeeCertificationStatus === 'APPROVE');
         filteredCertifications.value = [...certifications.value];
     } catch (error) {
@@ -133,7 +133,7 @@ async function saveCertification() {
             ...newCertification.value,
             employeeId: currentEmployeeId.value
         };
-        const { registrationId } = await fetchPost('http://localhost:8080/api/v1/employee-certification/my-certification', requestBody);
+        const { registrationId } = await fetchPost('https://hq-heroes-api.com/api/v1/employee-certification/my-certification', requestBody);
 
         if (registrationId) {
             await fetchEmployeeCertifications();
