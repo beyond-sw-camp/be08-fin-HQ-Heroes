@@ -50,26 +50,23 @@ public class ReissueService {
         String username = jwtUtil.getUsername(refresh);
         String role = jwtUtil.getRole(refresh);
 
-        // Redis에서 refresh 토큰 존재 여부 확인
         String storedRefresh = refreshTokenService.checkRefresh(request);
         if (storedRefresh == null) {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
-        // 새로운 토큰 생성
-        // access 30분
         String newAccess = jwtUtil.createJwt("access", username, role, 30 * 60 * 1000L);
 
-        // refresh 1일
         Integer expiredS = 60 * 60 * 24;
         String newRefresh = jwtUtil.createJwt("refresh", username, role, expiredS * 1000L);
 
-        // 기존 토큰 삭제 및 새로운 토큰 저장
         refreshTokenService.deleteRefresh(refresh);
         refreshTokenService.saveRefresh(username, expiredS, newRefresh);
 
         response.setHeader("access", newAccess);
-        response.addCookie(CookieUtil.createCookie("refresh", newRefresh, expiredS));
+
+        Cookie newRefreshCookie = CookieUtil.createCookie("refresh", newRefresh, expiredS);
+        CookieUtil.addSameSiteCookie(newRefreshCookie, response);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

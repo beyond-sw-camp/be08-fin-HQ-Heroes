@@ -30,13 +30,11 @@ public class CustomLogoutFilter extends GenericFilterBean {
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
 
-        // 로그아웃이 아닌 요청은 다음 필터로 전달
         if (!"/logout".equals(requestURI) || !"POST".equalsIgnoreCase(request.getMethod())) {
             chain.doFilter(request, response);
             return;
         }
 
-        // 쿠키에서 refresh 토큰 추출
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -49,25 +47,21 @@ public class CustomLogoutFilter extends GenericFilterBean {
                 .map(Cookie::getValue)
                 .orElse(null);
 
-        // Refresh 토큰 검증
         if (refresh == null || !jwtUtil.getCategory(refresh).equals("refresh")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        // Redis에서 해당 refresh 토큰 존재 여부 확인
         Boolean isExist = redisTemplate.hasKey(refresh);
         if (!isExist) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        // Redis에서 refresh 토큰 삭제
         redisTemplate.delete(refresh);
 
-        // 쿠키에서 refresh 삭제
         Cookie cookie = CookieUtil.createCookie("refresh", null, 0);
-        response.addCookie(cookie);
+        CookieUtil.addSameSiteCookie(cookie, response);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 }

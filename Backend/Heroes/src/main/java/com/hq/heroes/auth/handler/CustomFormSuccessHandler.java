@@ -7,6 +7,7 @@ import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.auth.service.RefreshTokenService;
 import com.hq.heroes.auth.util.CookieUtil;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,6 @@ public class CustomFormSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         if (role.equals("ROLE_ADMIN")) {
             String authCode = request.getParameter("authCode"); // 인증 코드 파라미터에서 가져오기
             if (authCode == null || authCode.isEmpty()) {
-                // 인증 코드가 없을 경우
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"message\": \"관리자 로그인을 이용해주세요.\"}");
                 return;
@@ -54,7 +54,6 @@ public class CustomFormSuccessHandler extends SimpleUrlAuthenticationSuccessHand
             String email = employee.getEmail();
             String storedCode = redisTemplate.opsForValue().get(email);
             if (storedCode == null || !storedCode.equals(authCode)) {
-                // 인증 코드가 유효하지 않을 경우
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("{\"message\": \"Invalid auth code.\"}");
                 return;
@@ -72,7 +71,10 @@ public class CustomFormSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         // refresh 1일
         Integer expireS = 24 * 60 * 60;
         String refresh = jwtUtil.createJwt("refresh", username, role, expireS * 1000L);
-        response.addCookie(CookieUtil.createCookie("refresh", refresh, expireS));
+
+        // SameSite=None 설정과 함께 refresh 쿠키 추가
+        Cookie refreshCookie = CookieUtil.createCookie("refresh", refresh, expireS);
+        CookieUtil.addSameSiteCookie(refreshCookie, response);
 
         // refresh 토큰 DB 저장
         refreshTokenService.saveRefresh(username, expireS, refresh);
@@ -85,4 +87,3 @@ public class CustomFormSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         new ObjectMapper().writeValue(response.getWriter(), responseData);
     }
 }
-
