@@ -321,7 +321,7 @@ const submitForm = async () => {
         Swal.fire({
             icon: 'error',
             title: '휴가 일수 초과',
-            text: `신청하려는 휴가 일수(${requestedQuarters}쿼터)가 잔여 휴가 일수를 초과합니다.`,
+            text: `신청하려는 휴가 일수가 ${Math.floor((requestedQuarters - employeeData.value.annualLeave) / 4)}일 ${(requestedQuarters - employeeData.value.annualLeave) % 4}쿼터 부족합니다.`,
             confirmButtonText: '확인'
         });
         return;
@@ -365,7 +365,6 @@ const submitForm = async () => {
         });
         await router.push('/status-vacation');
     } catch (error) {
-
         if (error.response && error.response.status) {
             // 서버로부터 받은 상태 코드가 409일 때의 처리
             if (error.response.status === 409) {
