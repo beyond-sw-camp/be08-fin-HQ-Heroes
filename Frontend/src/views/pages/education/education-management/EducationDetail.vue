@@ -59,7 +59,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
+import { fetchGet, fetchPost, fetchPostThrowError } from '../../auth/service/AuthApiService';
 import Swal from 'sweetalert2';
 
 const route = useRoute();
@@ -111,10 +111,10 @@ const handleApplyClick = async () => {
 
     try {
         // 교육 신청 요청
-        const result = await fetchPost(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
+        const result = await fetchPostThrowError(`http://localhost:8080/api/v1/education-service/apply/${route.params.courseId}/${employeeId}`, data);
         // 성공 메시지 표시
 
-        console.log('result', result);
+        console.log('result : ', result);
         if (result.message.includes('교육이 신청되었습니다.')) {
             await Swal.fire({
                 title: '교육이 추가되었습니다',
@@ -123,7 +123,9 @@ const handleApplyClick = async () => {
             currentParticipant.value = newParticipantCount; // 새로 신청한 인원 수 업데이트
             isApplied.value = true; // 신청 상태 업데이트
             router.push('/education-history'); // 신청 완료 후 "/education-history" 페이지로 이동
-        } else if (result.message.includes('409')) {
+        } 
+    } catch (error) {
+        if (error.response.status === 409) {
             await Swal.fire({
                 title: '이미 신청한 교육입니다.',
                 icon: 'warning'
@@ -134,11 +136,6 @@ const handleApplyClick = async () => {
                 text: error.message,
                 icon: 'error'
             });
-        }
-    } catch (error) {
-        // 오류 메시지 검사
-        if (error.message.includes('서버 오류: 409')) {
-        } else {
         }
     }
 };
