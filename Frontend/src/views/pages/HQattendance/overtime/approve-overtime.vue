@@ -13,7 +13,7 @@
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0 title">연장 근로 관리</h4>
+                        <h4 class="m-0 title">연장 근로 결재</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />

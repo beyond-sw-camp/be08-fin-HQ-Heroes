@@ -21,11 +21,7 @@
                 </div>
             </div>
 
-            <EmployeeCertificationDetail
-                :visible="showDetailModal"
-                :certificationDetail="selectedCertification"
-                @update:visible="showDetailModal = $event"
-            />
+            <EmployeeCertificationDetail :visible="showDetailModal" :certificationDetail="selectedCertification" @update:visible="showDetailModal = $event" />
         </div>
     </div>
 
@@ -52,7 +48,7 @@
     </Dialog>
 
     <div class="card">
-        <h2 class="font-semibold text-xl my-6">회사가 추천하는 자격증</h2>
+        <h2 class="font-semibold text-xl my-6">추천 자격증</h2>
         <div class="grid grid-cols-12 gap-4">
             <div class="col-span-12 lg:col-span-6 xl:col-span-3" v-for="cert in recommendedCertifications" :key="cert.registrationId">
                 <div class="card mb-1 border border-gray-300 p-4" @click="showCertificationDetails(cert)">
@@ -70,20 +66,17 @@
             </div>
         </div>
 
-        <CertificationDetail
-            v-model:visible="isDialogVisible"
-            :certification-detail="selectedCertification"
-        />
+        <CertificationDetail v-model:visible="isDialogVisible" :certification-detail="selectedCertification" />
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
-import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
-import CertificationDetail from './CertificationDetail.vue';  
-import EmployeeCertificationDetail from './EmployeeCertificationDetail.vue'; 
 import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
+import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
+import CertificationDetail from './CertificationDetail.vue';
+import EmployeeCertificationDetail from './EmployeeCertificationDetail.vue';
 
 const certifications = ref([]);
 const filteredCertifications = ref([...certifications.value]);
@@ -106,21 +99,19 @@ function showEmployeeCertificationDetails(cert) {
 // 추천 자격증 목록 가져오기
 async function fetchRecommendedCertifications() {
     if (!employeeData.value.deptName) {
-        console.error("부서명이 없습니다.");
+        console.error('부서명이 없습니다.');
         return;
     }
 
     try {
         const allCertifications = await fetchGet(`http://localhost:8080/api/v1/certification-service/by-department?deptName=${employeeData.value.deptName}`);
         const employeeCertificationsData = await fetchGet('http://localhost:8080/api/v1/employee-certification/my-certification/by-employeeId');
-        
-        const employeeCertificationNames = new Set(employeeCertificationsData.map(cert => cert.certificationName));
 
-        recommendedCertifications.value = allCertifications.filter(cert => 
-            cert.deptName === employeeData.value.deptName && !employeeCertificationNames.has(cert.certificationName)
-        );
+        const employeeCertificationNames = new Set(employeeCertificationsData.map((cert) => cert.certificationName));
+
+        recommendedCertifications.value = allCertifications.filter((cert) => cert.deptName === employeeData.value.deptName && !employeeCertificationNames.has(cert.certificationName));
     } catch (error) {
-        console.error("추천 자격증 목록을 불러오는 중 오류 발생:", error);
+        console.error('추천 자격증 목록을 불러오는 중 오류 발생:', error);
     }
 }
 
@@ -128,7 +119,7 @@ async function fetchRecommendedCertifications() {
 async function fetchEmployeeCertifications() {
     try {
         const data = await fetchGet('http://localhost:8080/api/v1/employee-certification/my-certification/by-employeeId');
-        certifications.value = data.filter(cert => cert.employeeCertificationStatus === 'APPROVE');
+        certifications.value = data.filter((cert) => cert.employeeCertificationStatus === 'APPROVE');
         filteredCertifications.value = [...certifications.value];
     } catch (error) {
         console.error('사원 자격증 목록을 불러오지 못했습니다.', error);
@@ -143,28 +134,28 @@ async function saveCertification() {
             employeeId: currentEmployeeId.value
         };
         const { registrationId } = await fetchPost('http://localhost:8080/api/v1/employee-certification/my-certification', requestBody);
-        
+
         if (registrationId) {
             await fetchEmployeeCertifications();
             addDialogVisible.value = false;
             newCertification.value = {};
-            
+
             // 성공 메시지 표시
             await Swal.fire({
                 title: '자격증이 성공적으로 추가되었습니다.',
-                icon: 'success',
+                icon: 'success'
             });
         } else {
             throw new Error('등록 실패');
         }
     } catch (error) {
         console.error('자격증 추가 중 오류:', error);
-        
+
         // 오류 메시지 표시
         await Swal.fire({
             title: '자격증 추가 중 오류가 발생했습니다.',
             text: '다시 시도해주세요.',
-            icon: 'error',
+            icon: 'error'
         });
     }
 }
@@ -184,7 +175,7 @@ function formatDate(date) {
 // 자격증 추가하기 또는 수정하기 모달 보여주기
 function showAddOrUpdateDialog(certification) {
     isEditing.value = false;
-    newCertification.value = {}; 
+    newCertification.value = {};
 
     if (certification) {
         isEditing.value = true;
@@ -202,12 +193,12 @@ function closeDialog() {
 
 // 컴포넌트가 마운트된 후 실행될 코드
 onMounted(async () => {
-    const employeeId = window.localStorage.getItem('employeeId'); 
-    const data = await getLoginEmployeeInfo(employeeId); 
+    const employeeId = window.localStorage.getItem('employeeId');
+    const data = await getLoginEmployeeInfo(employeeId);
 
     if (data) {
         employeeData.value = data;
-        currentEmployeeId.value = data.employeeId; 
+        currentEmployeeId.value = data.employeeId;
     }
 
     await fetchEmployeeCertifications();

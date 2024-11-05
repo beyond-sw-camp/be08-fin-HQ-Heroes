@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <div class="flex justify-end mb-4">
-            <Button label="목록" icon="pi pi-bars" @click="goBackToList" outlined style="margin-right: 5rem;"/>
+            <Button label="목록" icon="pi pi-bars" @click="goBackToList" outlined style="margin-right: 5rem" />
         </div>
         <div class="notice-detail">
             <div class="text-lg flex justify-between">
@@ -35,12 +35,6 @@
                     </td>
                 </tr>
             </table>
-
-            <div v-if="isAdmin()" field="action" class="button-group">
-                <Button v-if="editMode" label="저장" icon="pi pi-save" @click="saveChanges" />
-                <Button v-if="!editMode" label="수정" icon="pi pi-pencil" @click.stop="goToNoticeUpdate(editableNotice.noticeId)" />
-                <Button v-if="!editMode" label="삭제" severity="danger" icon="pi pi-trash" @click.stop="confirmDeleteNotice(editableNotice)" />
-            </div>
         </div>
     </div>
 </template>
@@ -63,12 +57,6 @@ const categories = ref([]);
 const editor = ref(null);
 const quillInstance = ref(null);
 const selectedNotice = ref(null); // selectedNotice 변수를 정의하여 초기화
-
-// 관리자인지 확인
-const isAdmin = () => {
-    // return authStore.employeeData.isAdmin === 'ROLE_ADMIN';
-    return true;
-};
 
 const goBackToList = () => {
     router.push('/manage-notices');
