@@ -32,6 +32,12 @@ public class VacationController {
     private final NotificationService notificationService;  // NotificationService 주입
     private final VacationRepository vacationRepository;
 
+    @GetMapping("/pending-quarters/{employeeId}")
+    public ResponseEntity<Long> getPendingVacationQuarters(@PathVariable String employeeId) {
+        Long pendingQuarters = vacationService.getPendingVacationQuarters(employeeId);
+        return ResponseEntity.ok(pendingQuarters);
+    }
+
     // 휴가 신청
     @PostMapping("/submit")
     public ResponseEntity<String> submitVacation(@RequestBody VacationDTO vacationDTO) {

@@ -2,8 +2,6 @@ package com.hq.heroes.vacation.service;
 
 import com.hq.heroes.auth.entity.Employee;
 import com.hq.heroes.auth.repository.EmployeeRepository;
-import com.hq.heroes.notification.entity.enums.AutoNotificationType;
-import com.hq.heroes.notification.service.NotificationService;
 import com.hq.heroes.vacation.dto.VacationDTO;
 import com.hq.heroes.vacation.entity.Vacation;
 import com.hq.heroes.vacation.entity.enums.VacationStatus;
@@ -19,7 +17,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +28,61 @@ public class VacationServiceImpl implements VacationService {
 
     private final VacationRepository vacationRepository;
     private final EmployeeRepository employeeRepository;
+
+    @Override
+    public Long getPendingVacationQuarters(String employeeId) {
+        List<Vacation> pendingVacations = vacationRepository.findByEmployeeEmployeeIdAndVacationStatus(employeeId, VacationStatus.PENDING);
+        return pendingVacations.stream()
+                .mapToLong(this::calculateRequestedQuarters)  // mapToLong으로 변경
+                .sum();
+    }
+
+
+    //  휴가 시작 시간과 종료 시간을 기준으로 쿼터 수를 계산하는 메서드
+
+    private int calculateRequestedQuarters(Vacation vacation) {
+        LocalTime[] quarterTimes = {
+                LocalTime.of(9, 0),
+                LocalTime.of(11, 0),
+                LocalTime.of(14, 0),
+                LocalTime.of(16, 0)
+        };
+
+        int requestedQuarters = 0;
+
+        if (vacation.getVacationStartDate().equals(vacation.getVacationEndDate())) {
+            // 같은 날짜인 경우 쿼터 계산
+            for (int i = 0; i < quarterTimes.length; i++) {
+                if (vacation.getVacationStartTime().isBefore(quarterTimes[i].plus(2, ChronoUnit.HOURS)) &&
+                        vacation.getVacationEndTime().isAfter(quarterTimes[i])) {
+                    requestedQuarters++;
+                }
+            }
+        } else {
+            // 시작일과 종료일이 다를 경우 계산
+            long totalDays = ChronoUnit.DAYS.between(vacation.getVacationStartDate(), vacation.getVacationEndDate()) + 1;
+
+            // 첫째 날 계산
+            for (LocalTime quarterTime : quarterTimes) {
+                if (vacation.getVacationStartTime().isBefore(quarterTime.plus(2, ChronoUnit.HOURS))) {
+                    requestedQuarters++;
+                }
+            }
+
+            // 마지막 날 계산
+            for (LocalTime quarterTime : quarterTimes) {
+                if (vacation.getVacationEndTime().isAfter(quarterTime)) {
+                    requestedQuarters++;
+                }
+            }
+
+            // 중간 날짜는 하루 4쿼터로 계산
+            requestedQuarters += (totalDays - 2) * 4;
+        }
+
+        System.out.println("계산된 쿼터 수: " + requestedQuarters);
+        return requestedQuarters;
+    }
 
     @Override
     public Vacation submitVacation(VacationDTO vacationDTO) {
