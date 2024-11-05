@@ -25,4 +25,6 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
     // 사원 아이디로 휴가 기간과 상태를 확인해서 존재하는지 판단
     boolean existsByEmployeeAndVacationStartDateLessThanEqualAndVacationEndDateGreaterThanEqualAndVacationStatusNot(
             Employee employee, LocalDate vacationEndDate, LocalDate vacationStartDate, VacationStatus cancelApproved);
+
+    List<Vacation> findByEmployeeEmployeeIdAndVacationStatus(String employeeId, VacationStatus vacationStatus);
 }

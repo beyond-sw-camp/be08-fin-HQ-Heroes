@@ -302,6 +302,37 @@ const calculateRequestedDays = () => {
 };
 
 const submitForm = async () => {
+    // 연차 일수가 0일 경우 경고 메시지 출력 후 함수 종료
+    if (employeeData.value.annualLeave <= 0) {
+        Swal.fire({
+            icon: 'error',
+            title: '휴가 일수가 부족합니다.',
+            text: '남은 연차가 없습니다. 관리자에게 문의하세요.',
+            confirmButtonText: '확인'
+        });
+        return; // 연차가 부족하므로 함수 종료
+    }
+    // 요청한 쿼터 수 계산
+    const requestedQuarters = calculateRequestedDays(); // 요청한 쿼터 계산
+    console.log('보유한 휴가 일 수(쿼터):', employeeData.value.annualLeave);
+
+    // PENDING 상태 휴가 쿼터 조회
+    const pendingQuarters = await fetchGet(`http://localhost:8080/api/v1/vacation/pending-quarters/${employeeData.value.employeeId}`);
+    console.log('PENDING 상태 휴가의 총 쿼터 수:', pendingQuarters);
+
+    const totalRequestedQuarters = Number(pendingQuarters) + Number(requestedQuarters);
+    console.log('총 신청하려는 쿼터 수:', totalRequestedQuarters);
+
+    // 잔여 휴가 일수와 비교
+    if (totalRequestedQuarters > employeeData.value.annualLeave) {
+        Swal.fire({
+            icon: 'error',
+            title: '휴가 일수 초과',
+            text: `잔여 휴가가 부족합니다. 부족한 휴가 일수: ${Math.floor((totalRequestedQuarters - employeeData.value.annualLeave) / 4)}일 ${(totalRequestedQuarters - employeeData.value.annualLeave) % 4}쿼터`,
+            confirmButtonText: '확인'
+        });
+        return;
+    }
     // 날짜 오류가 있는 경우 경고창 표시
     if (isDateInvalid.value) {
         Swal.fire({
@@ -313,9 +344,6 @@ const submitForm = async () => {
         return; // 날짜 오류가 있으면 함수 종료
     }
 
-    const requestedQuarters = calculateRequestedDays(); // 요청한 쿼터 계산
-    console.log('보유한 휴가 일 수(쿼터):', employeeData.value.annualLeave);
-
     // 연차는 쿼터로 비교
     if (requestedQuarters > employeeData.value.annualLeave) {
         Swal.fire({
@@ -325,16 +353,6 @@ const submitForm = async () => {
             confirmButtonText: '확인'
         });
         return;
-    }
-    // 연차 일수가 0일 경우 경고 메시지 출력 후 함수 종료
-    if (employeeData.value.annualLeave <= 0) {
-        Swal.fire({
-            icon: 'error',
-            title: '휴가 일수가 부족합니다.',
-            text: '남은 연차가 없습니다. 관리자에게 문의하세요.',
-            confirmButtonText: '확인'
-        });
-        return; // 연차가 부족하므로 함수 종료
     }
 
     try {

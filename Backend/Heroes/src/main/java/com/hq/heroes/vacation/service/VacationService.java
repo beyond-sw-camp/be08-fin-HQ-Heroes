@@ -37,4 +37,7 @@ public interface VacationService {
     // 대기 중인 휴가 삭제
     void deleteVacation(Long vacationId);
 
+    // 대기중인 휴가 쿼더수 계산
+    Long getPendingVacationQuarters(String employeeId);
+
 }
