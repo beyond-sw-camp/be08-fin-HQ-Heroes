@@ -89,7 +89,7 @@
                                 <span>연장 근로 수당 :</span>
                                 <span>{{ formatCurrency(selectedMonth?.overSalary) }} </span>
                             </div>
-                            <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '1월' || getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '7월')" class="info-item">
+                            <div v-if="selectedMonth?.salaryMonth && (getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '12월' || getMonthLabel(new Date(selectedMonth.salaryMonth).getMonth()) === '6월')" class="info-item">
                                 <span>성과급 :</span>
                                 <span>{{ formatCurrency(selectedMonth?.bonus) }}</span>
                             </div>
