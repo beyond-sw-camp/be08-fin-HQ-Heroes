@@ -34,7 +34,6 @@ pipeline {
                     script {
                         sh 'chmod +x ./gradlew'
                         sh './gradlew clean bootJar'
-                        sh "pwd"
                         sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} -f Dockerfile ."
                     }
                 }
@@ -88,25 +87,22 @@ pipeline {
             }
             steps {
                 script {
-                    // 파일 수정 작업을 로그로 출력하여 디버깅
+                    def frontendFilePath = 'k8s/heroes/heroes-frontend-deploy.yaml'
+                    def backendFilePath = 'k8s/heroes/heroes-deploy.yaml'
+
                     if (env.BUILD_FRONTEND == "true") {
-                        sh 'echo "Updating frontend image tag in heroes-frontend-deploy.yaml"'
-                        sh 'sed -i "s|image:.*heroes-frontend:.*|image: ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}|g" k8s/heroes/heroes-frontend-deploy.yaml'
-                        sh 'cat k8s/heroes/heroes-frontend-deploy.yaml' // 변경 후 파일 출력
+                        sh 'sed -i "s|image:.*heroes-frontend:.*|image: ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}|g" ' + frontendFilePath
                     }
                     if (env.BUILD_BACKEND == "true") {
-                        sh 'echo "Updating backend image tag in heroes-deploy.yaml"'
-                        sh 'sed -i "s|image:.*heroes:.*|image: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}|g" k8s/heroes/heroes-deploy.yaml'
-                        sh 'cat k8s/heroes/heroes-deploy.yaml' // 변경 후 파일 출력
+                        sh 'sed -i "s|image:.*heroes:.*|image: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}|g" ' + backendFilePath
                     }
-                    
-                    // 변경 사항이 있을 경우에만 커밋 및 푸시
+
                     withCredentials([usernamePassword(credentialsId: 'github-https-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh 'git config user.name "growjong8802"'
                         sh 'git config user.email "growjong8802@gmail.com"'
                         
-                        // 변경 사항이 있는지 확인 후 커밋
-                        sh 'git add k8s/heroes/heroes-frontend-deploy.yaml k8s/heroes/heroes-deploy.yaml'
+                        // 변경 사항 커밋 및 푸시
+                        sh 'git add ' + frontendFilePath + ' ' + backendFilePath
                         def changes = sh(script: 'git diff --cached --exit-code || echo "has_changes"', returnStdout: true).trim()
                         
                         if (changes == "has_changes") {
