@@ -13,7 +13,7 @@
                     <Dropdown v-model="selectedDepartment" :options="departments" optionLabel="deptName" placeholder="부서를 선택하세요" @change="filterCertifications" class="mr-2" />
                 </div>
                 <div class="relative search-container">
-                    <InputText v-model="globalFilter" placeholder="검색" @input="filterCertifications" class="pl-8 search-input" />
+                    <InputText v-model="globalFilter" placeholder="검색어를 입력해주세요" @input="filterCertifications" class="pl-8 search-input" />
                     <i class="pi pi-search search-icon"></i>
                 </div>
             </div>
@@ -128,11 +128,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { fetchGet, fetchPost, fetchPut, fetchDelete } from '../auth/service/AuthApiService';
 import Dialog from 'primevue/dialog';
 import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { fetchDelete, fetchGet, fetchPost, fetchPut } from '../auth/service/AuthApiService';
 
 const certifications = ref([]);
 const filteredCertifications = ref([]);
@@ -204,15 +204,10 @@ async function fetchDepartments() {
 function filterCertifications() {
     filteredCertifications.value = certifications.value.filter((certification) => {
         // 부서 매칭
-        const matchesDept =
-            !selectedDepartment.value ||
-            selectedDepartment.value.deptName === '전체 부서' ||
-            certification.deptName === selectedDepartment.value.deptName;
+        const matchesDept = !selectedDepartment.value || selectedDepartment.value.deptName === '전체 부서' || certification.deptName === selectedDepartment.value.deptName;
 
         // 글로벌 필터 매칭
-        const matchesGlobalFilter = globalFilter.value
-            ? certification.certificationName.toLowerCase().includes(globalFilter.value.toLowerCase())
-            : true;
+        const matchesGlobalFilter = globalFilter.value ? certification.certificationName.toLowerCase().includes(globalFilter.value.toLowerCase()) : true;
 
         return matchesDept && matchesGlobalFilter;
     });
@@ -233,7 +228,7 @@ const showCertificationDetails = (event) => {
 // 모달을 닫을 때 선택된 항목 초기화
 const closeDialog = () => {
     isDetailDialogVisible.value = false; // 모달 닫기
-    selectedCertification.value = null;  // 선택된 자격증 정보 초기화
+    selectedCertification.value = null; // 선택된 자격증 정보 초기화
 };
 
 // 자격증 추가 Dialog 띄우기
@@ -264,7 +259,8 @@ async function saveCertification() {
     try {
         const response = await fetchPost('https://hq-heroes-api.com/api/v1/certification-service/certification', addCertificationData.value);
 
-        if (response) { // response가 null이 아닌 경우에만 성공 처리
+        if (response) {
+            // response가 null이 아닌 경우에만 성공 처리
             console.log(response);
             isAddDialogVisible.value = false;
 
@@ -369,6 +365,7 @@ onMounted(() => {
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
+    color: #aaa;
 }
 
 .education-info {

@@ -7,11 +7,11 @@
         <Transition name="slide">
             <div v-if="isSidebarOpen" class="sidebar">
                 <h3 class="sidebar-header">필터 옵션</h3>
-                <Button label="전체 보기" @click="setCategoryFilter(null)" class="filter-btn all-btn" />
-                <Button label="월차" @click="setCategoryFilter('DAY_OFF')" class="filter-btn day-off-btn" />
-                <Button label="반차" @click="setCategoryFilter('HALF_DAY_OFF')" class="filter-btn half-day-btn" />
-                <Button label="병가" @click="setCategoryFilter('SICK_LEAVE')" class="filter-btn sick-leave-btn" />
-                <Button label="경조" @click="setCategoryFilter('EVENT_LEAVE')" class="filter-btn event-leave-btn" />
+                <Button label="전체 보기" :class="['filter-btn', 'all-btn', { active: activeFilter === null }]" @click="setCategoryFilter(null)" />
+                <Button label="월차" :class="['filter-btn', 'day-off-btn', { active: activeFilter === 'DAY_OFF' }]" @click="setCategoryFilter('DAY_OFF')" />
+                <Button label="반차" :class="['filter-btn', 'half-day-btn', { active: activeFilter === 'HALF_DAY_OFF' }]" @click="setCategoryFilter('HALF_DAY_OFF')" />
+                <Button label="병가" :class="['filter-btn', 'sick-leave-btn', { active: activeFilter === 'SICK_LEAVE' }]" @click="setCategoryFilter('SICK_LEAVE')" />
+                <Button label="경조" :class="['filter-btn', 'event-leave-btn', { active: activeFilter === 'EVENT_LEAVE' }]" @click="setCategoryFilter('EVENT_LEAVE')" />
                 <Button :label="isPersonalView ? '전체 일정 보기' : '개인 일정만 보기'" @click="togglePersonalView" class="filter-btn personal-btn" />
 
                 <!-- 사이드바 닫기 버튼 -->
@@ -84,6 +84,7 @@ export default {
     components: { FullCalendar },
     data() {
         return {
+            activeFilter: null,
             isSidebarOpen: false, // 사이드바 열고 닫기 상태
             calendarOptions: {
                 plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -130,6 +131,7 @@ export default {
         // 카테고리 필터를 설정하는 메서드
         setCategoryFilter(category) {
             this.categoryFilter = category;
+            this.activeFilter = category;
             this.fetchAllEvents();
         },
 
@@ -431,29 +433,34 @@ export default {
     border-radius: 4px;
 }
 
-/* 카테고리별 버튼 색상 */
-.all-btn {
-    background-color: #888888;
+.filter-btn {
+    background-color: #6366f1; /* 기본 색상 */
+    color: black;
 }
 
-.day-off-btn {
+/* 카테고리별 버튼 색상 */
+.all-btn {
+    background-color: #6366f1;
+}
+
+.filter-btn.active.day-off-btn {
     background-color: #ffcccc;
 }
 
-.half-day-btn {
+.filter-btn.active.half-day-btn {
     background-color: #ffeb99;
 }
 
-.sick-leave-btn {
+.filter-btn.active.sick-leave-btn {
     background-color: #ccffcc;
 }
 
-.event-leave-btn {
+.filter-btn.active.event-leave-btn {
     background-color: #ccccff;
 }
 
 .personal-btn {
-    background-color: #6c757d;
+    background-color: #6366f1;
 }
 
 .close-sidebar-btn {

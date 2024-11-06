@@ -136,6 +136,10 @@ const filterMenuItems = (items) => {
                 return positionId.value === 1;
             }
 
+            if (item.label === '평가 수행 결과') {
+                return positionId.value === 2;
+            }
+
             return true;
         })
         .map((item) => {

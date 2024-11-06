@@ -1,5 +1,5 @@
 <template>
-    <div class="card" style="max-height: 44.1rem;">
+    <div class="card" style="max-height: 44.1rem">
         <div class="flex items-center justify-center text-xl mb-4">
             <label class="font-semibold">{{ evaluationPeriod }} - {{ authStore.employeeData.teamName }} 팀원 평가</label>
         </div>
@@ -22,7 +22,7 @@
                         <InputGroupAddon>
                             <i class="pi pi-search"></i>
                         </InputGroupAddon>
-                        <InputText v-model="filters['global'].value" placeholder="검색어를 입력하세요" />
+                        <InputText v-model="filters['global'].value" placeholder="검색어를 입력해주세요" />
                     </InputGroup>
                 </div>
             </template>
@@ -155,7 +155,6 @@ function formatDate(date) {
     const day = String(date.getDate()).padStart(2, '0'); // 두 자리 형식
     return `${year}-${month}-${day}`;
 }
-
 
 // 로그인한 사용자의 팀명이 변경될 때마다 직원 목록을 필터링
 watch(
