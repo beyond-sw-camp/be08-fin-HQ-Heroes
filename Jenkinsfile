@@ -62,7 +62,7 @@ pipeline {
             steps {
                 dir('Frontend') {  
                     script {
-                        sh "docker build --progress=plain -t ${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG} -f Frontend/Dockerfile ."
+                        sh "docker build --progress=plain -t ${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG} -f Dockerfile ."
                     }
                 }
             }
