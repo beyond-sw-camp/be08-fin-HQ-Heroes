@@ -90,27 +90,25 @@ pipeline {
                     def frontendFilePath = 'k8s/heroes/heroes-frontend-deploy.yaml'
                     def backendFilePath = 'k8s/heroes/heroes-deploy.yaml'
 
+                    // 이미지 태그 변경 작업
                     if (env.BUILD_FRONTEND == "true") {
+                        sh 'echo "Updating frontend image tag in heroes-frontend-deploy.yaml"'
                         sh 'sed -i "s|image:.*heroes-frontend:.*|image: ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}|g" ' + frontendFilePath
                     }
                     if (env.BUILD_BACKEND == "true") {
+                        sh 'echo "Updating backend image tag in heroes-deploy.yaml"'
                         sh 'sed -i "s|image:.*heroes:.*|image: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}|g" ' + backendFilePath
                     }
 
+                    // 항상 커밋 및 푸시 수행
                     withCredentials([usernamePassword(credentialsId: 'github-https-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh 'git config user.name "growjong8802"'
                         sh 'git config user.email "growjong8802@gmail.com"'
                         
-                        // 변경 사항 커밋 및 푸시
+                        // 변경된 파일을 Git에 추가 및 커밋
                         sh 'git add ' + frontendFilePath + ' ' + backendFilePath
-                        def changes = sh(script: 'git diff --cached --exit-code || echo "has_changes"', returnStdout: true).trim()
-                        
-                        if (changes == "has_changes") {
-                            sh 'git commit -m "Update image tags for frontend and backend"'
-                            sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git main'
-                        } else {
-                            echo "No changes to commit."
-                        }
+                        sh 'git commit -m "Update image tags for frontend and backend with latest build"'
+                        sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git main'
                     }
                 }
             }
