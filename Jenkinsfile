@@ -100,8 +100,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'github-https-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh 'git add .'
                         sh 'git commit -m "Update image tags for frontend and backend"'
-                        // 자격 증명 사용하여 git push
-                        sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git main'
+                        sh 'git push https://${GIT_USERNAME}@github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git main'
                     }
                 }
             }
