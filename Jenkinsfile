@@ -30,13 +30,16 @@ pipeline {
                 expression { env.BUILD_BACKEND == "true" }
             }
             steps {
-                script {
-                    sh 'chmod +x ./gradlew'
-                    sh './gradlew clean bootJar'
-                    
-                    // Docker 빌드를 Jenkins 서버에서 직접 실행
-                    sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} -f ./Backend/Heroes/Dockerfile ./Backend/Heroes"
-                }
+                dir('Backend/Heroes') {  
+                    script {
+                        sh 'chmod +x ./gradlew'
+                        sh './gradlew clean bootJar'
+                        
+                        // Docker 빌드를 Jenkins 서버에서 직접 실행
+                        sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} -f ./Backend/Heroes/Dockerfile ./Backend/Heroes"
+
+                    }
+                
             }
         }
         
