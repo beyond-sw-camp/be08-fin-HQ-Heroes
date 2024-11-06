@@ -95,7 +95,7 @@ pipeline {
                     if (env.BUILD_BACKEND == "true") {
                         sh 'sed -i "s|backend-image:.*|backend-image: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}|g" k8s/heroes/heroes-deploy.yaml'
                     }
-                    sh 'git add k8s/heroes/*.yaml'
+                    sh 'git add .'
                     sh 'git commit -m "Update image tags for frontend and backend"'
                     sh 'git push origin main'
                 }
