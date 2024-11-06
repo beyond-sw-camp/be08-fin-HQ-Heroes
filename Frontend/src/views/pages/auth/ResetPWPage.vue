@@ -57,14 +57,14 @@ async function sendResetPasswordRequest() {
 
             <!-- 성명 입력 -->
             <div class="mb-6 w-full">
-                <label for="employeeName" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">성명</label>
+                <label for="employeeName" class="block font-semibold text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">성명</label>
                 <InputText id="employeeName" v-model="employeeName" class="w-full md:w-[30rem]" placeholder="성명을 입력해주세요." />
             </div>
 
             <!-- 사번 입력 -->
             <div class="mb-8 w-full">
-                <label for="employeeId" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">사번</label>
-                <InputText id="employeeId" v-model="employeeId" class="w-full md:w-[30rem]" placeholder="사번을 입력해주세요." />
+                <label for="employeeId" class="block font-semibold text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">사원 번호</label>
+                <InputText id="employeeId" v-model="employeeId" class="w-full md:w-[30rem]" placeholder="사원 번호를 입력해주세요." />
             </div>
 
             <!-- 비밀번호 재발급 버튼 -->
