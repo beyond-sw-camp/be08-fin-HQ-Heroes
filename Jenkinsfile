@@ -90,12 +90,11 @@ pipeline {
             steps {
                 script {
                     if (env.BUILD_FRONTEND == "true") {
-                        sh 'sed -i "s|frontend-image:.*|frontend-image: ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}|g" k8s/heroes/heroes-frontend-deploy.yaml'
+                        sh 'sed -i "s|image:.*heroes-frontend:.*|image: ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}|g" k8s/heroes/heroes-frontend-deploy.yaml'
                     }
                     if (env.BUILD_BACKEND == "true") {
-                        sh 'sed -i "s|backend-image:.*|backend-image: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}|g" k8s/heroes/heroes-deploy.yaml'
+                        sh 'sed -i "s|image:.*heroes:.*|image: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}|g" k8s/heroes/heroes-deploy.yaml'
                     }
-                    
                     // GitHub에 변경 사항 푸시
                     withCredentials([usernamePassword(credentialsId: 'github-https-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh 'git config user.name "growjong8802"'
