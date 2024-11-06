@@ -98,8 +98,8 @@ pipeline {
                     
                     // GitHub에 변경 사항 푸시
                     withCredentials([usernamePassword(credentialsId: 'github-https-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                        sh 'git config user.name "growjong8802"'      // GitHub 사용자 이름으로 변경
-                        sh 'git config user.email "growjong8802@gmail.com"'  // GitHub에 등록된 이메일로 변경
+                        sh 'git config user.name "growjong8802"'
+                        sh 'git config user.email "growjong8802@gmail.com"'
                         sh 'git add .'
                         sh 'git commit -m "Update image tags for frontend and backend"'
                         sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git main'
