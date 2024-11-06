@@ -36,7 +36,7 @@ pipeline {
                         sh './gradlew clean bootJar'
                         
                         // Docker 빌드를 Jenkins 서버에서 직접 실행
-                        sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} -f Backend/Heroes/Dockerfile ."
+                        sh "docker build --progress=plain -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} -f Backend/Heroes/Dockerfile ."
                     }
                 }
             }
@@ -62,7 +62,7 @@ pipeline {
             steps {
                 dir('Frontend') {  
                     script {
-                        sh "docker build -t ${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG} -f Frontend/Dockerfile ."
+                        sh "docker build --progress=plain -t ${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG} -f Frontend/Dockerfile ."
                     }
                 }
             }

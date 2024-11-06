@@ -13,5 +13,5 @@ onMounted(() => {
   <router-view />
 </template>
 
-<!-- 젠킨스 테스트 12 -->
+<!-- 젠킨스 테스트 13 -->
 <style scoped></style>
