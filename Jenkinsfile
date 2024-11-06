@@ -108,33 +108,27 @@ pipeline {
     
     post {
         success {
-            discordSend description: "ArgoCD 배포 파이프라인이 성공적으로 완료되었습니다.",
+            discordSend description: "ArgoCD 배포 파이프라인이 성공적으로 완료되었습니다.\n\n" +
+                        "**Build ID**: ${BUILD_ID}\n" +
+                        "**Frontend Image**: ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}\n" +
+                        "**Backend Image**: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}\n" +
+                        "**소요 시간**: ${currentBuild.durationString}",
                 footer: "빌드 성공: ${currentBuild.displayName}",
                 link: env.BUILD_URL,
                 result: currentBuild.currentResult,
                 title: "Jenkins 빌드 성공",
-                webhookURL: "https://discord.com/api/webhooks/1303826751524311123/kKGqHJkVMapV1i_TrPuUYlRVVRcCiXtjGC4PeRLq_H5hfi44IcleIwdPFPVS6vZg8TA6",
-                fields: [
-                    [name: "Build ID", value: "${BUILD_ID}", inline: true],
-                    [name: "Frontend Image", value: "${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}", inline: true],
-                    [name: "Backend Image", value: "${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}", inline: true],
-                    [name: "Git Commit", value: "커밋 메시지나 SHA 추가 가능", inline: false],
-                    [name: "소요 시간", value: "${currentBuild.durationString}", inline: false]
-                ]
+                webhookURL: "https://discord.com/api/webhooks/1303826751524311123/kKGqHJkVMapV1i_TrPuUYlRVVRcCiXtjGC4PeRLq_H5hfi44IcleIwdPFPVS6vZg8TA6"
         }
         
         failure {
-            discordSend description: "ArgoCD 배포 파이프라인이 실패했습니다.",
+            discordSend description: "ArgoCD 배포 파이프라인이 실패했습니다.\n\n" +
+                        "**Build ID**: ${BUILD_ID}\n" +
+                        "**소요 시간**: ${currentBuild.durationString}",
                 footer: "빌드 실패: ${currentBuild.displayName}",
                 link: env.BUILD_URL,
                 result: currentBuild.currentResult,
                 title: "Jenkins 빌드 실패",
-                webhookURL: "https://discord.com/api/webhooks/1303826751524311123/kKGqHJkVMapV1i_TrPuUYlRVVRcCiXtjGC4PeRLq_H5hfi44IcleIwdPFPVS6vZg8TA6",
-                fields: [
-                    [name: "Build ID", value: "${BUILD_ID}", inline: true],
-                    [name: "Git Commit", value: "커밋 메시지나 SHA 추가 가능", inline: false],
-                    [name: "소요 시간", value: "${currentBuild.durationString}", inline: false]
-                ]
+                webhookURL: "https://discord.com/api/webhooks/1303826751524311123/kKGqHJkVMapV1i_TrPuUYlRVVRcCiXtjGC4PeRLq_H5hfi44IcleIwdPFPVS6vZg8TA6"
         }
     }
 }
