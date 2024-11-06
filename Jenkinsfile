@@ -95,9 +95,14 @@ pipeline {
                     if (env.BUILD_BACKEND == "true") {
                         sh 'sed -i "s|backend-image:.*|backend-image: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}|g" k8s/heroes/heroes-deploy.yaml'
                     }
-                    sh 'git add .'
-                    sh 'git commit -m "Update image tags for frontend and backend"'
-                    sh 'git push origin main'
+                    
+                    // GitHub에 변경 사항 푸시
+                    withCredentials([usernamePassword(credentialsId: 'github-https-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                        sh 'git add .'
+                        sh 'git commit -m "Update image tags for frontend and backend"'
+                        // 자격 증명 사용하여 git push
+                        sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git main'
+                    }
                 }
             }
         }
