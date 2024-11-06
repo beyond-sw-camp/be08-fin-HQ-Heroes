@@ -14,7 +14,7 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git', credentialsId: 'github-https-credentials'
             }
         }
-        
+
         stage('Determine Changes') {
             steps {
                 script {
@@ -35,7 +35,6 @@ pipeline {
                         sh 'chmod +x ./gradlew'
                         sh './gradlew clean bootJar'
                         sh "pwd"
-                        // Backend/Heroes 디렉터리에서 Docker 빌드 실행
                         sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} -f Dockerfile ."
                     }
                 }
@@ -95,7 +94,6 @@ pipeline {
                     if (env.BUILD_BACKEND == "true") {
                         sh 'sed -i "s|image:.*heroes:.*|image: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}|g" k8s/heroes/heroes-deploy.yaml'
                     }
-                    // GitHub에 변경 사항 푸시
                     withCredentials([usernamePassword(credentialsId: 'github-https-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh 'git config user.name "growjong8802"'
                         sh 'git config user.email "growjong8802@gmail.com"'
@@ -105,6 +103,38 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+    
+    post {
+        success {
+            discordSend description: "ArgoCD 배포 파이프라인이 성공적으로 완료되었습니다.",
+                footer: "빌드 성공: ${currentBuild.displayName}",
+                link: env.BUILD_URL,
+                result: currentBuild.currentResult,
+                title: "Jenkins 빌드 성공",
+                webhookURL: "https://discord.com/api/webhooks/1303826751524311123/kKGqHJkVMapV1i_TrPuUYlRVVRcCiXtjGC4PeRLq_H5hfi44IcleIwdPFPVS6vZg8TA6",
+                fields: [
+                    [name: "Build ID", value: "${BUILD_ID}", inline: true],
+                    [name: "Frontend Image", value: "${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}", inline: true],
+                    [name: "Backend Image", value: "${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}", inline: true],
+                    [name: "Git Commit", value: "커밋 메시지나 SHA 추가 가능", inline: false],
+                    [name: "소요 시간", value: "${currentBuild.durationString}", inline: false]
+                ]
+        }
+        
+        failure {
+            discordSend description: "ArgoCD 배포 파이프라인이 실패했습니다.",
+                footer: "빌드 실패: ${currentBuild.displayName}",
+                link: env.BUILD_URL,
+                result: currentBuild.currentResult,
+                title: "Jenkins 빌드 실패",
+                webhookURL: "https://discord.com/api/webhooks/1303826751524311123/kKGqHJkVMapV1i_TrPuUYlRVVRcCiXtjGC4PeRLq_H5hfi44IcleIwdPFPVS6vZg8TA6",
+                fields: [
+                    [name: "Build ID", value: "${BUILD_ID}", inline: true],
+                    [name: "Git Commit", value: "커밋 메시지나 SHA 추가 가능", inline: false],
+                    [name: "소요 시간", value: "${currentBuild.durationString}", inline: false]
+                ]
         }
     }
 }
