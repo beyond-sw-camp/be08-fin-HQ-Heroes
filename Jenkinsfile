@@ -29,19 +29,14 @@ pipeline {
             when {
                 expression { env.BUILD_BACKEND == "true" }
             }
-            stage('Build Backend Docker Image') {
-                when {
-                    expression { env.BUILD_BACKEND == "true" }
-                }
-                steps {
-                    dir('Backend/Heroes') {  
-                        script {
-                            sh 'chmod +x ./gradlew'
-                            sh './gradlew clean bootJar'
-                            
-                            // Docker 빌드를 Jenkins 서버에서 직접 실행
-                            sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} ."
-                        }
+            steps {
+                dir('Backend/Heroes') {  
+                    script {
+                        sh 'chmod +x ./gradlew'
+                        sh './gradlew clean bootJar'
+                        
+                        // Docker 빌드를 Jenkins 서버에서 직접 실행
+                        sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} ."
                     }
                 }
             }
@@ -65,7 +60,7 @@ pipeline {
                 expression { env.BUILD_FRONTEND == "true" }
             }
             steps {
-                dir('Frontend') {  // 대소문자 정확히 일치
+                dir('Frontend') {  
                     script {
                         sh "docker build -t ${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG} -f Dockerfile ."
                     }
