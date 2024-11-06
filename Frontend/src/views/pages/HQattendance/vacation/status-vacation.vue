@@ -290,10 +290,6 @@ async function submitImmediateCancelRequest() {
     border-color: #dc3545 !important;
 }
 
-.p-button-secondary {
-    background-color: #6c757d !important;
-    border-color: #6c757d !important;
-}
 .full-width {
     width: 100%;
 }
@@ -308,5 +304,17 @@ async function submitImmediateCancelRequest() {
 .bordered-textarea:focus {
     border-color: #6366f1; /* 포커스 시 테두리 색상 변경 */
     outline: none; /* 기본 아웃라인 제거 */
+}
+
+.p-button-success {
+    background-color: #6366f1;
+    border-color: #6366f1;
+    color: white;
+}
+
+.p-button-secondary {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
 }
 </style>
