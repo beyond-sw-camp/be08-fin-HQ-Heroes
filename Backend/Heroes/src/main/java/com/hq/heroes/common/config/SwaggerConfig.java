@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "HeRoes Service",
                 description = "HeRoes Service API",
-                version = "v6.0.0"
+                version = "v7.0.0"
         )
 )
 public class SwaggerConfig {
