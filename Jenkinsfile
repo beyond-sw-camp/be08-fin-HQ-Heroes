@@ -37,11 +37,9 @@ pipeline {
                         sh './gradlew clean bootJar'
 
                         // Docker 컨테이너를 실행하고 그 안에서 명령어 실행
-                        docker.image('debian:wheezy').withRun { c ->
-                            // 이 부분은 컨테이너 내에서 실행될 명령어
-                            sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} ."
-                            sh 'sleep 2'  // 예시로 sleep을 추가
-                        }
+                      docker.image('debian:wheezy').withRun { c ->
+                          sh 'docker exec ${c.id} docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} .'
+                      }
                     }
                 }
             }
