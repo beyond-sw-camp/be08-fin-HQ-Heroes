@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'git@github.com:beyond-sw-camp/be08-fin-HQ-Heroes.git', credentialsId: 'github-ssh-key'
+                git branch: 'main', url: 'https://github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git', credentialsId: 'github-https-credentials'
             }
         }
         
