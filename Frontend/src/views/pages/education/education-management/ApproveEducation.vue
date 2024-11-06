@@ -5,20 +5,12 @@
         </div>
         <div class="flex flex-wrap gap-2 items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-                <Button
-                    label="교육"
-                    :class="['p-button-outlined', { 'active-button': showEducation }]"
-                    @click="loadEducationRequests"
-                />
-                <Button
-                    label="자격증"
-                    :class="['p-button-outlined', { 'active-button': !showEducation }]"
-                    @click="loadCertificationRequests"
-                />
+                <Button label="교육" :class="['p-button-outlined', { 'active-button': showEducation }]" @click="loadEducationRequests" />
+                <Button label="자격증" :class="['p-button-outlined', { 'active-button': !showEducation }]" @click="loadCertificationRequests" />
             </div>
             <div class="flex items-center search-input-container">
                 <i class="pi pi-search search-icon" />
-                <InputText v-model="filters['global'].value" placeholder="검색" class="search-input" />
+                <InputText v-model="filters['global'].value" placeholder="검색어를 입력해주세요" class="search-input" />
             </div>
         </div>
 
@@ -48,22 +40,12 @@
             <!-- 승인/반려 버튼 -->
             <Column v-if="showEducation" field="courseStatus" header="이수 상태" sortable style="min-width: 5rem">
                 <template #body="slotProps">
-                    <Button
-                        label="이수"
-                        :disabled="isLoading || slotProps.data.courseStatus === '이수'"
-                        @click="completeCourse(slotProps.data)"
-                        class="p-button-info"
-                    />
+                    <Button label="이수" :disabled="isLoading || slotProps.data.courseStatus === '이수'" @click="completeCourse(slotProps.data)" class="p-button-info" />
                 </template>
             </Column>
             <Column v-if="!showEducation" field="courseStatus" header="등록 상태" sortable style="min-width: 5rem">
                 <template #body="slotProps">
-                    <Button
-                        label="등록"
-                        :disabled="isLoading || slotProps.data.courseStatus === 'APPROVE'"
-                        @click="completeCourse(slotProps.data)"
-                        class="p-button-info"
-                    />
+                    <Button label="등록" :disabled="isLoading || slotProps.data.courseStatus === 'APPROVE'" @click="completeCourse(slotProps.data)" class="p-button-info" />
                 </template>
             </Column>
         </DataTable>
@@ -71,11 +53,11 @@
 </template>
 
 <script setup>
+import { useAuthStore } from '@/stores/authStore';
 import { useToast } from 'primevue/usetoast';
+import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { fetchGet, fetchPost } from '../../auth/service/AuthApiService';
-import { useAuthStore } from '@/stores/authStore';
-import Swal from 'sweetalert2';
 
 const authStore = useAuthStore();
 
@@ -87,14 +69,14 @@ const showEducation = ref(true); // 상태를 구분하기 위한 ref
 
 const filteredRequests = computed(() => {
     // '이수' 및 'PASS' 상태인 요청을 항상 제외
-    return requests.value.filter(request => request.courseStatus !== '이수');
+    return requests.value.filter((request) => request.courseStatus !== '이수');
 });
 
 const loadEducationRequests = async () => {
     showEducation.value = true; // 교육 요청 표시
     try {
         const response = await fetchGet('https://hq-heroes-api.com/api/v1/course-service/list');
-        console.log("교육 요청 응답 데이터:", response); // 응답 데이터 로그 추가
+        console.log('교육 요청 응답 데이터:', response); // 응답 데이터 로그 추가
         requests.value = response
             .map((record) => ({
                 courseId: record.courseId,
@@ -108,7 +90,7 @@ const loadEducationRequests = async () => {
             .filter((request) => request.courseStatus !== '이수') // 'PASS' 상태 필터링
             .reverse(); // 역순으로 설정
     } catch (error) {
-        console.error("API 요청 오류:", error); // 오류 로그 추가
+        console.error('API 요청 오류:', error); // 오류 로그 추가
         toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.' });
     }
 };
@@ -116,7 +98,7 @@ const loadEducationRequests = async () => {
 const loadCertificationRequests = async () => {
     showEducation.value = false; // 자격증 요청 표시
     try {
-        const response = await fetchGet("https://hq-heroes-api.com/api/v1/employee-certification/certification-list");
+        const response = await fetchGet('https://hq-heroes-api.com/api/v1/employee-certification/certification-list');
         requests.value = response
             .map((record) => ({
                 registrationId: record.registrationId,
@@ -129,7 +111,7 @@ const loadCertificationRequests = async () => {
             .filter((request) => request.employeeCertificationStatus !== '승인') // 'PASS' 상태 필터링
             .reverse(); // 역순으로 설정
     } catch (error) {
-        toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.'});
+        toast.add({ severity: 'error', summary: 'Error', detail: '데이터 로딩 중 문제가 발생했습니다.' });
     }
 };
 
@@ -160,27 +142,25 @@ const completeCourse = async (request) => {
             // 성공 메시지 표시
             await Swal.fire({
                 title: '교육이 이수되었습니다.',
-                icon: 'success',
+                icon: 'success'
             });
         } else {
             request.courseStatus = 'APPROVE';
             // 성공 메시지 표시
             await Swal.fire({
                 title: '자격증이 승인되었습니다.',
-                icon: 'success',
+                icon: 'success'
             });
         }
 
         // 목록에서 해당 요청 제거
-        requests.value = requests.value.filter(req =>
-            showEducation.value ? req.courseId !== request.courseId : req.registrationId !== request.registrationId
-        );
+        requests.value = requests.value.filter((req) => (showEducation.value ? req.courseId !== request.courseId : req.registrationId !== request.registrationId));
     } catch (error) {
         // 오류 메시지 표시
         await Swal.fire({
             title: '처리 실패',
             text: showEducation.value ? '교육 이수 처리 실패' : '자격증 승인 처리 실패',
-            icon: 'error',
+            icon: 'error'
         });
     } finally {
         isLoading.value = false;

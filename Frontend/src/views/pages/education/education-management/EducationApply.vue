@@ -29,7 +29,7 @@
                     </div>
                     <div class="relative search-container ml-auto">
                         <i class="pi pi-search search-icon" />
-                        <InputText v-model="filters['global'].value" placeholder="Keyword Search" class="pl-8 search-input" />
+                        <InputText v-model="filters['global'].value" placeholder="검색어를 입력해주세요" class="pl-8 search-input" />
                     </div>
                 </div>
             </template>
@@ -227,7 +227,7 @@ onBeforeMount(() => {
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    color: #888;
+    color: #aaa;
 }
 
 .search-input {

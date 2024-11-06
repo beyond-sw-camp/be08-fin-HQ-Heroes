@@ -9,17 +9,10 @@
             <!-- 필터 및 검색 섹션 -->
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center">
-                    <Dropdown
-                        v-model="selectedcategoryName"
-                        :options="categories"
-                        optionLabel="categoryName"
-                        placeholder="카테고리를 선택하세요"
-                        @change="filterEducations"
-                        class="mr-2"
-                    />
+                    <Dropdown v-model="selectedcategoryName" :options="categories" optionLabel="categoryName" placeholder="카테고리를 선택하세요" @change="filterEducations" class="mr-2" />
                 </div>
                 <div class="relative search-container">
-                    <InputText v-model="globalFilter" placeholder="검색" @input="filterEducations" class="pl-8 search-input" />
+                    <InputText v-model="globalFilter" placeholder="검색어를 입력해주세요" @input="filterEducations" class="pl-8 search-input" />
                     <i class="pi pi-search search-icon" />
                 </div>
             </div>
@@ -40,9 +33,7 @@
                 <Column field="educationName" sortable header="교육 명" />
                 <Column field="institution" sortable header="교육 기관" />
                 <Column field="educationStart" sortable header="교육 기간">
-                    <template #body="{ data }">
-                        {{ formatDate(data.educationStart) }} ~ {{ formatDate(data.educationEnd) }}
-                    </template>
+                    <template #body="{ data }"> {{ formatDate(data.educationStart) }} ~ {{ formatDate(data.educationEnd) }} </template>
                 </Column>
             </DataTable>
         </div>
@@ -78,15 +69,10 @@ const router = useRouter();
 function filterEducations() {
     filteredEducations.value = educations.value.filter((education) => {
         // 카테고리 이름 매칭
-        const matchesCategoryName =
-            !selectedcategoryName.value ||
-            selectedcategoryName.value.categoryName === '전체' ||
-            education.categoryName === selectedcategoryName.value.categoryName;
+        const matchesCategoryName = !selectedcategoryName.value || selectedcategoryName.value.categoryName === '전체' || education.categoryName === selectedcategoryName.value.categoryName;
 
         // 글로벌 필터 매칭
-        const matchesGlobalFilter = globalFilter.value
-            ? education.educationName.toLowerCase().includes(globalFilter.value.toLowerCase())
-            : true;
+        const matchesGlobalFilter = globalFilter.value ? education.educationName.toLowerCase().includes(globalFilter.value.toLowerCase()) : true;
 
         return matchesCategoryName && matchesGlobalFilter;
     });
@@ -150,6 +136,7 @@ async function fetchEducations() {
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
+    color: #aaa;
 }
 
 .custom-button {

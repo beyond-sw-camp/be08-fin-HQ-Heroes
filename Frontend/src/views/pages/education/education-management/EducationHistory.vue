@@ -26,7 +26,7 @@
                     </div>
                     <div class="relative search-container ml-auto">
                         <i class="pi pi-search search-icon" />
-                        <InputText v-model="globalFilter" placeholder="Keyword Search" class="pl-8 search-input" />
+                        <InputText v-model="globalFilter" placeholder="검색어를 입력해주세요" class="pl-8 search-input" />
                     </div>
                 </div>
             </template>
@@ -34,22 +34,22 @@
             <template #empty> No courses found. </template>
 
             <!-- 테이블 컬럼들 -->
-            <Column field="categoryName" sortable header="카테고리" style="min-width: 6rem; text-align: left;">
+            <Column field="categoryName" sortable header="카테고리" style="min-width: 6rem; text-align: left">
                 <template #body="{ data }">
                     {{ data.categoryName }}
                 </template>
             </Column>
-            <Column field="educationName" sortable header="강의명" style="min-width: 20rem; text-align: left;">
+            <Column field="educationName" sortable header="강의명" style="min-width: 20rem; text-align: left">
                 <template #body="{ data }">
                     {{ data.educationName }}
                 </template>
             </Column>
-            <Column field="startDate" sortable header="교육 시작일" dataType="date" style="min-width: 10rem; text-align: left;">
+            <Column field="startDate" sortable header="교육 시작일" dataType="date" style="min-width: 10rem; text-align: left">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.startDate)) }}
                 </template>
             </Column>
-            <Column field="endDate" sortable header="교육 종료일" dataType="date" style="min-width: 10rem; text-align: left;">
+            <Column field="endDate" sortable header="교육 종료일" dataType="date" style="min-width: 10rem; text-align: left">
                 <template #body="{ data }">
                     {{ formatDate(new Date(data.endDate)) }}
                 </template>
@@ -62,35 +62,31 @@
         </DataTable>
 
         <!-- 모달창 컴포넌트 추가 -->
-        <EducationDetailModal
-            v-model:visible="isDialogVisible"
-            :courseDetail="selectedCourse"
-            @refreshCourses="fetchCourseList"
-        />
+        <EducationDetailModal v-model:visible="isDialogVisible" :courseDetail="selectedCourse" @refreshCourses="fetchCourseList" />
     </div>
 </template>
 
 <script setup>
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { getLoginEmployeeInfo } from '@/views/pages/auth/service/authService';
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
+import { onBeforeMount, onMounted, ref, watch } from 'vue';
 import { fetchGet } from '../../auth/service/AuthApiService';
-import { onBeforeMount, ref, onMounted, watch } from 'vue';
 import EducationDetailModal from '../education-management/EducationDetailModal.vue';
 
-const courseList = ref([]);  // 전체 교육 목록
-const filteredCourses = ref([]);  // 필터링된 교육 목록
-const filters = ref(null);  // 필터 설정
-const selectedCourse = ref(null);  // 선택된 강의
+const courseList = ref([]); // 전체 교육 목록
+const filteredCourses = ref([]); // 필터링된 교육 목록
+const filters = ref(null); // 필터 설정
+const selectedCourse = ref(null); // 선택된 강의
 const status = ref([
-    { name: '전체', value: null },  // 전체 옵션 추가
+    { name: '전체', value: null }, // 전체 옵션 추가
     { name: '이수', value: 'PASS' },
     { name: '미이수', value: 'FAIL' }
-]);  // 상태 목록
-const selectedStatus = ref(null);  // 선택된 상태
+]); // 상태 목록
+const selectedStatus = ref(null); // 선택된 상태
 const globalFilter = ref(''); // 글로벌 필터
 const isDialogVisible = ref(false); // 모달 가시성
 
@@ -105,8 +101,8 @@ async function fetchCourseList() {
         const response = await fetchGet('https://hq-heroes-api.com/api/v1/course-service/my-courses');
 
         if (Array.isArray(response)) {
-            courseList.value = response.reverse();  // API로부터 받은 데이터를 courseList에 저장하고 반전
-            filteredCourses.value = [...courseList.value];  // filteredCourses 업데이트
+            courseList.value = response.reverse(); // API로부터 받은 데이터를 courseList에 저장하고 반전
+            filteredCourses.value = [...courseList.value]; // filteredCourses 업데이트
         } else {
             console.error('응답 데이터가 배열이 아닙니다.', response);
         }
@@ -131,16 +127,15 @@ function filterCourses() {
     let tempCourses = [...courseList.value];
 
     if (selectedStatus.value) {
-        if (selectedStatus.value.value !== null) { // "전체"가 아닐 때
-            tempCourses = tempCourses.filter(course => course.courseStatus === selectedStatus.value.value);
+        if (selectedStatus.value.value !== null) {
+            // "전체"가 아닐 때
+            tempCourses = tempCourses.filter((course) => course.courseStatus === selectedStatus.value.value);
         }
     }
 
     // 글로벌 필터 적용
     if (globalFilter.value) {
-        tempCourses = tempCourses.filter(course =>
-            course.educationName.toLowerCase().includes(globalFilter.value.toLowerCase())
-        );
+        tempCourses = tempCourses.filter((course) => course.educationName.toLowerCase().includes(globalFilter.value.toLowerCase()));
     }
 
     filteredCourses.value = tempCourses; // 필터링된 교육 목록 업데이트
@@ -166,8 +161,8 @@ function mapStatus(status) {
 
 // 교육 클릭 시 상세 정보를 모달로 전달하는 함수
 const showCourseDetails = (course) => {
-    selectedCourse.value = course;  // 선택된 교육 정보 설정
-    isDialogVisible.value = true;  // 모달 표시
+    selectedCourse.value = course; // 선택된 교육 정보 설정
+    isDialogVisible.value = true; // 모달 표시
 };
 
 function onRowSelect(event) {
@@ -212,7 +207,7 @@ watch([selectedStatus, globalFilter], filterCourses);
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    color: #888;
+    color: #aaa;
 }
 
 .search-input {

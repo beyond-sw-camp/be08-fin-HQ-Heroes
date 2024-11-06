@@ -10,7 +10,7 @@
                     <Dropdown class="mr-2" v-model="selectedCategory" :options="categories" optionLabel="categoryName" placeholder="카테고리 선택" @change="filterNotices" />
                 </div>
                 <div class="relative search-container">
-                    <InputText placeholder="검색" v-model="globalFilter" @input="filterNotices" class="search-input" />
+                    <InputText placeholder="검색어를 입력해주세요" v-model="globalFilter" @input="filterNotices" class="search-input" />
                     <i class="pi pi-search search-icon" />
                 </div>
             </div>
@@ -231,7 +231,7 @@ onBeforeUnmount(() => {
     top: 50%;
     transform: translateY(-50%);
     font-size: 1rem; /* 아이콘 크기 조정 (필요시 조정) */
-    color: #888; /* 아이콘 색상 조정 (선택사항) */
+    color: #aaa; /* 아이콘 색상 조정 (선택사항) */
 }
 
 .card {

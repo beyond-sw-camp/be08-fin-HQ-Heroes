@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center mb-4">
             <h2 class="font-semibold text-xl">월 근태 현황</h2>
             <!-- 엑셀 내보내기 버튼을 오른쪽으로 이동 -->
-            <Button label="Excel 내보내기" icon="pi pi-file-excel" class="p-button-success" @click="exportToExcel" />
+            <Button label="CSV 내보내기" icon="pi pi-file-excel" class="p-button-success" @click="exportToExcel" />
         </div>
         <DataTable
             :value="filteredAttendanceRecords"
@@ -27,7 +27,7 @@
                     <!-- 검색 기능을 오른쪽으로 이동 -->
                     <div class="relative search-container">
                         <i class="pi pi-search search-icon" />
-                        <InputText v-model="filters['global'].value" placeholder="검색어 입력" class="pl-8 search-input" />
+                        <InputText v-model="filters['global'].value" placeholder="검색어를 입력해주세요" class="pl-8 search-input" />
                     </div>
                 </div>
             </template>
@@ -190,5 +190,16 @@ onBeforeMount(() => {
 
 .search-input {
     padding-left: 2.5rem;
+}
+
+.p-button-success {
+    background-color: #6366f1;
+    border-color: #6366f1;
+    color: white;
+}
+
+.p-button-success:hover {
+    background-color: #4f46e5 !important; /* 조금 더 짙은 파란색 */
+    border-color: #4f46e5 !important;
 }
 </style>
