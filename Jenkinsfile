@@ -32,12 +32,15 @@ pipeline {
             steps {
                 dir('Backend/Heroes') {  // 대소문자 정확히 일치
                     script {
+                        // 실행 권한 추가
+                        sh 'chmod +x ./gradlew'
                         sh './gradlew clean bootJar'
                         sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} ."
                     }
                 }
             }
         }
+
         
         stage('Push Backend to ECR') {
             when {
