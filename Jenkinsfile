@@ -88,21 +88,33 @@ pipeline {
             }
             steps {
                 script {
+                    // 파일 수정 작업을 로그로 출력하여 디버깅
                     if (env.BUILD_FRONTEND == "true") {
+                        sh 'echo "Updating frontend image tag in heroes-frontend-deploy.yaml"'
                         sh 'sed -i "s|image:.*heroes-frontend:.*|image: ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}|g" k8s/heroes/heroes-frontend-deploy.yaml'
+                        sh 'cat k8s/heroes/heroes-frontend-deploy.yaml' // 변경 후 파일 출력
                     }
                     if (env.BUILD_BACKEND == "true") {
+                        sh 'echo "Updating backend image tag in heroes-deploy.yaml"'
                         sh 'sed -i "s|image:.*heroes:.*|image: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}|g" k8s/heroes/heroes-deploy.yaml'
+                        sh 'cat k8s/heroes/heroes-deploy.yaml' // 변경 후 파일 출력
                     }
+                    
+                    // 변경 사항이 있을 경우에만 커밋 및 푸시
                     withCredentials([usernamePassword(credentialsId: 'github-https-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                         sh 'git config user.name "growjong8802"'
                         sh 'git config user.email "growjong8802@gmail.com"'
-                        sh 'git add .'
                         
-                        // 커밋할 변경 사항이 있는지 확인 후 커밋 수행
-                        sh 'git diff --cached --exit-code || git commit -m "Update image tags for frontend and backend"'
+                        // 변경 사항이 있는지 확인 후 커밋
+                        sh 'git add k8s/heroes/heroes-frontend-deploy.yaml k8s/heroes/heroes-deploy.yaml'
+                        def changes = sh(script: 'git diff --cached --exit-code || echo "has_changes"', returnStdout: true).trim()
                         
-                        sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git main'
+                        if (changes == "has_changes") {
+                            sh 'git commit -m "Update image tags for frontend and backend"'
+                            sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git main'
+                        } else {
+                            echo "No changes to commit."
+                        }
                     }
                 }
             }
