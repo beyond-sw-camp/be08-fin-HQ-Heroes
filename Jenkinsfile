@@ -29,17 +29,19 @@ pipeline {
             when {
                 expression { env.BUILD_BACKEND == "true" }
             }
-            steps {
-                dir('Backend/Heroes') {  // 대소문자 정확히 일치
-                    script {
-                        // 실행 권한 추가
-                        sh 'chmod +x ./gradlew'
-                        sh './gradlew clean bootJar'
-
-                        // Docker 컨테이너를 실행하고 그 안에서 명령어 실행
-                      docker.image('debian:wheezy').withRun { c ->
-                          sh 'docker exec ${c.id} docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} .'
-                      }
+            stage('Build Backend Docker Image') {
+                when {
+                    expression { env.BUILD_BACKEND == "true" }
+                }
+                steps {
+                    dir('Backend/Heroes') {  
+                        script {
+                            sh 'chmod +x ./gradlew'
+                            sh './gradlew clean bootJar'
+                            
+                            // Docker 빌드를 Jenkins 서버에서 직접 실행
+                            sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} ."
+                        }
                     }
                 }
             }
