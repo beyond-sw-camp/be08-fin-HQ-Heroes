@@ -22,7 +22,7 @@
                         <h2>사진업로드(증명사진)</h2>
                     </div>
                     <div class="divider"></div>
-                    <div class="form-group-photo" >
+                    <div class="form-group-photo">
                         <img :src="photoUrl" alt="증명사진 미리보기" width="150" height="150" />
                         <div style="margin-left: 10px">
                             <p class="upload-instruction">증명사진을 첨부해 주세요.</p>
@@ -142,13 +142,12 @@
 </template>
 
 <script setup>
-import { getLoginEmployeeInfo, updateEmployeeInfo } from '@/views/pages/auth/service/authService'; // 서비스 파일에서 메소드 가져오기
+import authservice, { getLoginEmployeeInfo, updateEmployeeInfo } from '@/views/pages/auth/service/authService';
 import Dialog from 'primevue/dialog';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
-import { fetchPost } from '../auth/service/AuthApiService';
-import authservice from '@/views/pages/auth/service/authService';
 import { useRouter } from 'vue-router';
+import { fetchPost } from '../auth/service/AuthApiService';
 
 // 데이터 선언
 const employeeData = ref({
@@ -218,7 +217,6 @@ const enableEditing = () => {
                 title: '수정되었습니다.',
                 icon: 'success'
             });
-            window.location.reload();
         })
         .catch((error) => {
             Swal.fire({
@@ -561,5 +559,4 @@ label {
     align-items: center;
     margin-bottom: 15px;
 }
-
 </style>
