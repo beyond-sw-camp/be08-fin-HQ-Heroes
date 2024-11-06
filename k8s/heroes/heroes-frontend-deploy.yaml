@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: heroes-frontend
-          image: 774305581884.dkr.ecr.ap-northeast-2.amazonaws.com/frontend-repo:40-frontend
+          image: 774305581884.dkr.ecr.ap-northeast-2.amazonaws.com/frontend-repo:43-frontend
           ports:
             - containerPort: 80

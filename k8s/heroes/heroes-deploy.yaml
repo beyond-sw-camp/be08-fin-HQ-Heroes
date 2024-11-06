@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: heroes
-          image: 774305581884.dkr.ecr.ap-northeast-2.amazonaws.com/backend-repo:40-backend
+          image: 774305581884.dkr.ecr.ap-northeast-2.amazonaws.com/backend-repo:43-backend
           ports:
             - containerPort: 8080
           env:
