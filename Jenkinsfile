@@ -12,6 +12,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git', credentialsId: 'github-https-credentials'
+                // 파일 리스트 확인
+                sh "ls -R"
             }
         }
         
@@ -30,14 +32,12 @@ pipeline {
                 expression { env.BUILD_BACKEND == "true" }
             }
             steps {
-                dir('Backend/Heroes') {  
-                    script {
-                        sh 'chmod +x ./gradlew'
-                        sh './gradlew clean bootJar'
-                        
-                        // Docker 빌드를 Jenkins 서버에서 직접 실행
-                        sh "docker build --progress=plain -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} -f Backend/Heroes/Dockerfile ."
-                    }
+                script {
+                    sh 'chmod +x ./gradlew'
+                    sh './gradlew clean bootJar'
+                    
+                    // Docker 빌드를 Jenkins 서버에서 직접 실행
+                    sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} -f Backend/Heroes/Dockerfile Backend/Heroes"
                 }
             }
         }
