@@ -34,12 +34,12 @@ pipeline {
                     script {
                         sh 'chmod +x ./gradlew'
                         sh './gradlew clean bootJar'
-                        
+                        sh "ls -l Backend/Heroes/Dockerfile"
+                        sh "chmod +r Backend/Heroes/Dockerfile"
                         // Docker 빌드를 Jenkins 서버에서 직접 실행
                         sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} -f ./Backend/Heroes/Dockerfile ./Backend/Heroes"
-
                     }
-                
+                }
             }
         }
         
