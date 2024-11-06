@@ -98,7 +98,10 @@ pipeline {
                         sh 'git config user.name "growjong8802"'
                         sh 'git config user.email "growjong8802@gmail.com"'
                         sh 'git add .'
-                        sh 'git commit -m "Update image tags for frontend and backend"'
+                        
+                        // 커밋할 변경 사항이 있는지 확인 후 커밋 수행
+                        sh 'git diff --cached --exit-code || git commit -m "Update image tags for frontend and backend"'
+                        
                         sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git main'
                     }
                 }
