@@ -14,7 +14,7 @@ public interface EventService {
     boolean updateEvent(Long id, LocalDateTime start, LocalDateTime end);
 
     // 일정 삭제
-    boolean deleteEvent(Long id);
+    void deleteEvent(Long eventId);
 
     // 회원 번호로 일정 조회
     List<EventDTO> getEventsByEmployeeId(String employeeId);

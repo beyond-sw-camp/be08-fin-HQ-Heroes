@@ -5,6 +5,8 @@ import com.hq.heroes.auth.repository.EmployeeRepository;
 import com.hq.heroes.event.dto.EventDTO;
 import com.hq.heroes.event.entity.Event;
 import com.hq.heroes.event.repository.EventRepository;
+import com.hq.heroes.vacation.entity.Vacation;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +50,7 @@ public class EventServiceImpl implements EventService {
     public List<EventDTO> getEventsByEmployeeId(String employeeId) {
         return eventRepository.findByEmployee_EmployeeId(employeeId).stream()
                 .map(event -> EventDTO.builder()
+                        .id(event.getEventId())
                         .title(event.getEventTitle())
                         .start(event.getEventStart())
                         .end(event.getEventEnd())
@@ -72,13 +75,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean deleteEvent(Long id) {
-        Optional<Event> eventOptional = eventRepository.findById(id);
-        if (eventOptional.isPresent()) {
-            eventRepository.delete(eventOptional.get());
-            return true;
-        }
-        return false;
+    public void deleteEvent(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 휴가 요청을 찾을 수 없습니다."));
+
+        eventRepository.delete(event);
     }
 
 

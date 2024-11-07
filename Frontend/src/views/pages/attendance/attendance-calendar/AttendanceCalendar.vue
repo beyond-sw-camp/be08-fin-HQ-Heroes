@@ -168,12 +168,13 @@ export default {
 
                 // 캘린더 이벤트를 갱신
                 this.calendarOptions.events = allEvents;
-                this.$refs.calendar.getApi().rerenderEvents();
+                this.$refs.calendar.getApi().refetchEvents();
             } catch (error) {
                 console.error('이벤트 데이터 로드 실패:', error);
             }
         },
 
+        // 개인 일정 및 휴가 데이터를 가져오는 메서드
         // 개인 일정 및 휴가 데이터를 가져오는 메서드
         async fetchPersonalEvents(employeeId) {
             const personalResponse = await fetchGet(`https://hq-heroes-api.com/api/v1/event/my-events?employeeId=${employeeId}`);
@@ -186,7 +187,7 @@ export default {
                           return true;
                       })
                       .map((event) => ({
-                          id: event.eventId || Math.random().toString(),
+                          id: event.id, // 이벤트 ID 추가
                           title: `${event.title || '제목 없음'} - ${event.employeeName}`,
                           start: event.start,
                           end: event.end || null,
@@ -249,11 +250,27 @@ export default {
 
         async handleEventDrop(eventInfo) {
             const { id, start, end } = eventInfo.event;
+
             try {
+                // 기존 시간 유지
+                const originalStart = eventInfo.oldEvent.start;
+                const originalEnd = eventInfo.oldEvent.end;
+
+                // 새로운 시작 시간에 한국 시간대 적용
+                const newStart = new Date(start);
+                newStart.setHours(originalStart.getHours() + 9, originalStart.getMinutes(), originalStart.getSeconds());
+
+                const newEnd = end ? new Date(end) : null;
+                if (newEnd && originalEnd) {
+                    newEnd.setHours(originalEnd.getHours() + 9, originalEnd.getMinutes(), originalEnd.getSeconds());
+                }
+
+                // 서버에 업데이트 요청
                 await fetchPut(`https://hq-heroes-api.com/api/v1/event/update/${id}`, {
-                    start: start.toISOString(),
-                    end: end ? end.toISOString() : null
+                    start: newStart.toISOString(),
+                    end: newEnd ? newEnd.toISOString() : null
                 });
+
                 console.log('일정이 성공적으로 업데이트되었습니다.');
             } catch (error) {
                 console.error('일정 이동 중 오류가 발생했습니다:', error);
@@ -263,18 +280,31 @@ export default {
 
         async handleEventResize(eventInfo) {
             const { id, start, end } = eventInfo.event;
+
             try {
+                // 기존 시간 유지
+                const originalStart = eventInfo.oldEvent.start;
+                const originalEnd = eventInfo.oldEvent.end;
+
+                // 새로운 종료 시간에 한국 시간대 적용
+                const newStart = new Date(start);
+                newStart.setHours(originalStart.getHours() + 9, originalStart.getMinutes(), originalStart.getSeconds());
+
+                const newEnd = new Date(end);
+                newEnd.setHours(originalEnd.getHours() + 9, originalEnd.getMinutes(), originalEnd.getSeconds());
+
+                // 서버에 업데이트 요청
                 await fetchPut(`https://hq-heroes-api.com/api/v1/event/update/${id}`, {
-                    start: start.toISOString(),
-                    end: end.toISOString()
+                    start: newStart.toISOString(),
+                    end: newEnd.toISOString()
                 });
+
                 console.log('일정 크기 조정이 성공적으로 업데이트되었습니다.');
             } catch (error) {
                 console.error('일정 크기 조정 중 오류가 발생했습니다:', error);
                 eventInfo.revert();
             }
         },
-
         saveEvent() {
             this.submitted = true;
             if (this.eventData.title.trim()) {
@@ -302,8 +332,12 @@ export default {
         },
 
         async deleteEvent(event) {
-            if (event && event.id) {
+            const eventId = event.id || this.selectedEvent.id; // event 객체에서 id를 가져오거나 selectedEvent에서 가져오기
+
+            if (eventId) {
+                // 모달을 먼저 닫기
                 this.isDetailModalOpen = false;
+
                 // 삭제 확인 창 표시
                 const result = await Swal.fire({
                     title: '정말 일정을 삭제하시겠습니까?',
@@ -318,13 +352,12 @@ export default {
                 if (result.isConfirmed) {
                     try {
                         // 서버에 삭제 요청
-                        await fetchDelete(`https://hq-heroes-api.com/api/v1/event/delete/${event.id}`);
+                        await fetchDelete(`https://hq-heroes-api.com/api/v1/event/delete/${eventId}`);
 
                         // 성공적으로 삭제되면 이벤트를 화면에서 제거
                         event.remove();
                         this.$toast.add({ severity: 'success', summary: '성공', detail: '이벤트가 삭제되었습니다.' });
                     } catch (error) {
-                        // 에러 발생 시 사용자에게 알림
                         console.error('이벤트 삭제 중 오류가 발생했습니다:', error);
 
                         Swal.fire({
@@ -339,7 +372,12 @@ export default {
                         // 모달 닫기
                         this.isDetailModalOpen = false;
                     }
+                } else {
+                    // 사용자가 삭제를 취소한 경우 모달을 다시 열기
+                    this.isDetailModalOpen = true;
                 }
+            } else {
+                console.error('이벤트 정보가 유효하지 않습니다.');
             }
         },
 

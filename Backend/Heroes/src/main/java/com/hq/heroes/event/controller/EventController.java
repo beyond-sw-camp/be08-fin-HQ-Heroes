@@ -2,6 +2,7 @@ package com.hq.heroes.event.controller;
 
 import com.hq.heroes.event.dto.EventDTO;
 import com.hq.heroes.event.service.EventService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,15 +45,13 @@ public class EventController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteEvent(@PathVariable Long id) {
+    @DeleteMapping("/delete/{eventId}")
+    public ResponseEntity<String> deleteEvent(@PathVariable Long eventId) {
         try {
-            boolean deleted = eventService.deleteEvent(id);
-            if (deleted) {
-                return ResponseEntity.ok("Event deleted successfully");
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
-            }
+            eventService.deleteEvent(eventId);
+            return ResponseEntity.ok("일정시 성공적으로 삭제되었습니다.");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while deleting the event");
