@@ -204,7 +204,6 @@ const cancelEdit = () => {
 };
 
 onMounted(async () => {
-
     const fetchedCategories = await fetchCategories(); // 카테고리 데이터 가져오기
     categories.value = [{ id: null, categoryName: '전체' }, ...fetchedCategories];
 

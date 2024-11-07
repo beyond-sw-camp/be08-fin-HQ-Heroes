@@ -217,7 +217,7 @@ const fetchCategories = async () => {
 
 const updateEducationContent = async () => {
     try {
-        const requestBody = { ...education.value};
+        const requestBody = { ...education.value };
         const result = await updateEducation(route.params.id, requestBody);
 
         if (result) {

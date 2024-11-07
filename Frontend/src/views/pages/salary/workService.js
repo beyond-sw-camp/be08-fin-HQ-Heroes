@@ -13,8 +13,8 @@ export const fetchTotalWorkHours = async (year, month) => {
             params: { year, month },
             withCredentials: true,
             headers: {
-                access: window.localStorage.getItem('access'),
-            },
+                access: window.localStorage.getItem('access')
+            }
         });
 
         if (response.status === 200) {
@@ -49,8 +49,8 @@ export const fetchTotalOverTime = async (employeeId, year, month) => {
             params: { employeeId: employeeId, yearMonth: `${prevYear}-${String(prevMonth).padStart(2, '0')}` },
             withCredentials: true,
             headers: {
-                access: window.localStorage.getItem('access'),
-            },
+                access: window.localStorage.getItem('access')
+            }
         });
 
         if (response.status === 200) {

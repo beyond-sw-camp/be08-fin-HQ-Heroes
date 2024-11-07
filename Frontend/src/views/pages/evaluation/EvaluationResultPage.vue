@@ -1,5 +1,5 @@
 <template>
-    <div class="card" style="max-height: 44.1rem;">
+    <div class="card" style="max-height: 44.1rem">
         <div class="font-semibold text-xl mb-4">평가 결과</div>
 
         <!-- DataTable for listing evaluations -->
@@ -109,7 +109,6 @@ async function fetchEvaluationsByEmployeeId() {
         evaluations.value = [];
     }
 }
-
 
 // 평가 상세 보기 함수
 function showEvaluationDetails(event) {

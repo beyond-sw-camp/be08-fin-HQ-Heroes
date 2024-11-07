@@ -63,7 +63,6 @@ const authStore = useAuthStore();
 
 // Quill 에디터 초기화
 onMounted(async () => {
-
     // 카테고리 데이터 로드
     const fetchedCategories = await fetchCategories();
     categories.value = [...fetchedCategories];
@@ -73,15 +72,7 @@ onMounted(async () => {
         theme: 'snow',
         modules: {
             toolbar: {
-                container: [
-                    [{ font: [] }, { size: [] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ color: [] }, { background: [] }],
-                    [{ list: 'ordered' }, { list: 'bullet' }],
-                    [{ align: [] }],
-                    ['link', 'image', 'blockquote'],
-                    ['clean']
-                ],
+                container: [[{ font: [] }, { size: [] }], ['bold', 'italic', 'underline', 'strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ align: [] }], ['link', 'image', 'blockquote'], ['clean']],
                 handlers: {
                     image: imageHandler
                 }
@@ -98,7 +89,6 @@ onMounted(async () => {
     to.value = authStore.employeeData.employeeName;
     employeeId.value = authStore.loginUserId;
 });
-
 
 // 이미지 핸들러 함수
 const imageHandler = () => {
@@ -183,7 +173,7 @@ const resizeImage = (file, maxWidth, maxHeight) => {
 const loadCategories = async () => {
     try {
         const fetchedCategories = await fetchCategories();
-        categories.value = [ ...fetchedCategories];
+        categories.value = [...fetchedCategories];
     } catch (error) {
         console.error('카테고리 조회 중 오류:', error);
     }
