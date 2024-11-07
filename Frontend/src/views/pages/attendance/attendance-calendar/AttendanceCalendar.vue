@@ -7,7 +7,7 @@
         <Transition name="slide">
             <div v-if="isSidebarOpen" class="sidebar">
                 <h3 class="sidebar-header">필터 옵션</h3>
-                <Button label="전체 보기" :class="['filter-btn', 'all-btn', { active: activeFilter === null }]" @click="setCategoryFilter(null)" />
+                <Button label="전체 보기" :class="['filter-btn', 'all-btn', { active: activeFilter === null }]" @click="setCategoryFilter(null)" style="border-color: gray" />
                 <Button label="월차" :class="['filter-btn', 'day-off-btn', { active: activeFilter === 'DAY_OFF' }]" @click="setCategoryFilter('DAY_OFF')" />
                 <Button label="반차" :class="['filter-btn', 'half-day-btn', { active: activeFilter === 'HALF_DAY_OFF' }]" @click="setCategoryFilter('HALF_DAY_OFF')" />
                 <Button label="병가" :class="['filter-btn', 'sick-leave-btn', { active: activeFilter === 'SICK_LEAVE' }]" @click="setCategoryFilter('SICK_LEAVE')" />
@@ -431,42 +431,68 @@ export default {
     border: none;
     padding: 10px;
     border-radius: 4px;
-}
-
-.filter-btn {
-    background-color: #6366f1; /* 기본 색상 */
-    color: black;
+    background-color: white; /* 기본 색상 */
+    border-color: gray;
 }
 
 /* 카테고리별 버튼 색상 */
 .all-btn {
-    background-color: #6366f1;
+    background-color: white;
+    border-color: gray;
 }
 
 .filter-btn.active.day-off-btn {
     background-color: #ffcccc;
+    border-color: gray;
 }
 
 .filter-btn.active.half-day-btn {
     background-color: #ffeb99;
+    border-color: gray;
 }
 
 .filter-btn.active.sick-leave-btn {
     background-color: #ccffcc;
+    border-color: gray;
 }
 
 .filter-btn.active.event-leave-btn {
     background-color: #ccccff;
+    border-color: gray;
+}
+
+.filter-btn.day-off-btn:hover {
+    background-color: #ffe6e6; /* 살짝 연한 핑크색 */
+    color: black;
+    border-color: gray;
+}
+
+.filter-btn.half-day-btn:hover {
+    background-color: #fff5cc; /* 살짝 연한 노란색 */
+    color: black;
+    border-color: gray;
+}
+
+.filter-btn.sick-leave-btn:hover {
+    background-color: #e6ffe6;
+    color: black; /* 살짝 연한 연두색 */
+    border-color: gray;
+}
+
+.filter-btn.event-leave-btn:hover {
+    background-color: #e6e6ff; /* 살짝 연한 보라색 */
+    color: black;
+    border-color: gray;
 }
 
 .personal-btn {
-    background-color: #6366f1;
+    background-color: white;
+    border-color: gray;
 }
 
 .close-sidebar-btn {
     margin-top: 20px;
     width: 100%;
-    background-color: #555;
     color: #fff;
 }
 

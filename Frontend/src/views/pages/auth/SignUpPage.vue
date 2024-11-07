@@ -74,7 +74,6 @@ async function fetchTeams(selectedDeptId) {
     }
 }
 
-
 // 부서 및 팀에 따라 직원 목록 필터링
 function filterByDepartmentAndTeam() {
     fetchTeams(selectedDepartment.value.deptId); // 선택한 부서 ID 전달
@@ -118,13 +117,12 @@ async function registerEmployee() {
     if (!validateForm()) {
         return; // Stop if form is not valid
     }
-
     try {
         const response = await apiService.register(
             employeeName.value,
             email.value,
             password.value,
-            role.value,
+            role.value.value,
             new Date(joinDate.value).toISOString().split('T')[0],
             new Date(birthDate.value).toISOString().split('T')[0],
             annualLeave.value,
@@ -401,7 +399,16 @@ onMounted(() => {
 
         <div class="form-group">
             <label for="role">역할</label>
-            <Select id="role" v-model="role" :options="['ROLE_USER', 'ROLE_ADMIN']" placeholder="역할을 선택하세요" />
+            <Select
+                id="role"
+                v-model="role"
+                :options="[
+                    { label: '사원', value: 'ROLE_USER' },
+                    { label: '관리자', value: 'ROLE_ADMIN' }
+                ]"
+                optionLabel="label"
+                placeholder="역할을 선택하세요"
+            />
             <small v-if="errors.role" class="error-text">{{ errors.role }}</small>
         </div>
 

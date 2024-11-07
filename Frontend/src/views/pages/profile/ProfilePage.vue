@@ -142,13 +142,12 @@
 </template>
 
 <script setup>
-import { getLoginEmployeeInfo, updateEmployeeInfo } from '@/views/pages/auth/service/authService'; // 서비스 파일에서 메소드 가져오기
+import authservice, { getLoginEmployeeInfo, updateEmployeeInfo } from '@/views/pages/auth/service/authService';
 import Dialog from 'primevue/dialog';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
-import { fetchPost } from '../auth/service/AuthApiService';
-import authservice from '@/views/pages/auth/service/authService';
 import { useRouter } from 'vue-router';
+import { fetchPost } from '../auth/service/AuthApiService';
 
 // 데이터 선언
 const employeeData = ref({
