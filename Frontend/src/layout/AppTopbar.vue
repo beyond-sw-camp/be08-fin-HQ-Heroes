@@ -203,6 +203,7 @@ const toggleButtonStyle = computed(() => {
 });
 
 const goTosendNotificationPage = () => {
+    notificationDrawerVisible.value = false;
     router.push('/send-notifications');
 };
 
