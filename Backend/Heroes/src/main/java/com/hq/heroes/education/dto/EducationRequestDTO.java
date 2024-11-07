@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
+
 public class EducationRequestDTO {
     private String educationName;       // 교육 이름
     private String instructorName;      // 강사 이름

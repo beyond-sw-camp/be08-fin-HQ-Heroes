@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
+
 @Table(name = "tb_employee_certification")
 public class EmployeeCertification {
     // 등록 번호

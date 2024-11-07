@@ -45,8 +45,8 @@
 
                         <div class="form-group">
                             <label for="jobRoleName">직무</label>
-                            <select id="jobRoleName" v-model="selectedJobId" class="form-control" :disabled="isReadonly" :class="{ 'readonly-input': isReadonly }">
-                                <option v-for="job in jobs" :key="job.jobId" :value="job.jobId">{{ job.jobRoleName }}</option>
+                            <select id="jobRoleName" v-model="selectedJobRoleId" class="form-control" :disabled="isReadonly" :class="{ 'readonly-input': isReadonly }">
+                                <option v-for="jobRole in jobs" :key="jobRole.jobRoleId" :value="jobRole.jobRoleId">{{ jobRole.jobRoleName }}</option>
                             </select>
                         </div>
 
@@ -165,7 +165,7 @@ const employeeData = ref({
     employeeId: '',
     deptId: '',
     teamId: '',
-    jobId: '',
+    jobRoleId: '',
     positionId: '',
     employeeName: '',
     teamName: '',
@@ -192,7 +192,7 @@ const positions = ref([]);
 
 const selectedDeptId = ref(null);
 const selectedTeamId = ref(null);
-const selectedJobId = ref(null);
+const selectedJobRoleId = ref(null);
 const selectedPositionId = ref(null);
 const hireDate = ref('');
 
@@ -229,14 +229,14 @@ const searchZipCode = () => {
 const enableEditing = () => {
     employeeData.value.deptId = selectedDeptId.value;
     employeeData.value.teamId = selectedTeamId.value;
-    employeeData.value.jobId = selectedJobId.value;
+    employeeData.value.jobRoleId = selectedJobRoleId.value;
     employeeData.value.positionId = selectedPositionId.value;
 
     const updatedEmployeeData = {
         ...employeeData.value,
         teamName: teams.value.find((team) => team.teamId === selectedTeamId.value)?.teamName || '',
         deptName: departments.value.find((dept) => dept.deptId === selectedDeptId.value)?.deptName || '',
-        jobRoleName: jobs.value.find((job) => job.jobId === selectedJobId.value)?.jobRoleName || '',
+        jobRoleName: jobs.value.find((jobRole) => jobRole.jobRoleId === selectedJobRoleId.value)?.jobRoleName || '',
         positionName: positions.value.find((position) => position.positionId === selectedPositionId.value)?.positionName || ''
     }; // employeeData를 복사하여 별도 객체로 생성
 
@@ -249,6 +249,7 @@ const enableEditing = () => {
             }).then((result) => {
                 if (result.isConfirmed) {
                     handleClose(); // 모달 닫기
+                    window.location.reload();
                 }
             });
         })
@@ -326,7 +327,7 @@ watch(
             // 부모 컴포넌트에서 전달받은 값을 기본값으로 설정
             selectedDeptId.value = newEmployee.deptId;
             selectedTeamId.value = newEmployee.teamId;
-            selectedJobId.value = newEmployee.jobId;
+            selectedJobRoleId.value = newEmployee.jobRoleId;
             selectedPositionId.value = newEmployee.positionId;
             hireDate.value = newEmployee.joinDate;
         }
