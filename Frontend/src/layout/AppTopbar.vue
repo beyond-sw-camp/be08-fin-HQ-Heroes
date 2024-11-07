@@ -50,7 +50,6 @@ const handleLogout = async () => {
     }
 };
 
-// 남은 시간을 mm:ss 형식으로 변환하는 함수
 const formatTime = (timeInMs) => {
     const minutes = Math.floor(timeInMs / (1000 * 60));
     const seconds = Math.floor((timeInMs % (1000 * 60)) / 1000);
