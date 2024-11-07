@@ -86,7 +86,7 @@
 
                     <div class="form-group">
                         <label for="name">성명</label>
-                        <input type="text" id="name" v-model="employeeData.employeeName" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
+                        <input type="text" id="name" v-model="employeeData.employeeName" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }" />
                     </div>
 
                     <div class="form-group">
@@ -96,30 +96,30 @@
 
                     <div class="form-group">
                         <label for="phone">연락처</label>
-                        <input type="text" id="phone" v-model="employeeData.phoneNumber" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
+                        <input type="text" id="phone" v-model="employeeData.phoneNumber" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }" />
                     </div>
 
                     <div class="form-group">
                         <label for="email">이메일</label>
-                        <input type="text" id="email" v-model="employeeData.email" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
+                        <input type="text" id="email" v-model="employeeData.email" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }" />
                     </div>
 
                     <div class="form-group">
                         <label for="employeeAddress">도로명 주소</label>
                         <div class="address-group">
-                            <input type="text" id="employeeAddress" v-model="employeeData.roadAddress" class="form-control address-input" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
+                            <input type="text" id="employeeAddress" v-model="employeeData.roadAddress" class="form-control address-input" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }" />
                             <button @click="searchZipCode" class="btn-zipcode" style="margin-left: 10px">우편번호 검색</button>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="address">지 번</label>
-                        <input type="text" id="address" v-model="employeeData.lotAddress" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
+                        <input type="text" id="address" v-model="employeeData.lotAddress" class="form-control" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }" />
                     </div>
 
                     <div class="form-group">
                         <label for="detailedAddress">상세 주소</label>
-                        <input type="text" id="detailedAddress" v-model="employeeData.detailedAddress" class="form-control detailed-address" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }"/>
+                        <input type="text" id="detailedAddress" v-model="employeeData.detailedAddress" class="form-control detailed-address" :readonly="isReadonly" :class="{ 'readonly-input': isReadonly }" />
                     </div>
                 </div>
             </div>
@@ -135,7 +135,7 @@
 <script setup>
 import { adminUpdateEmployeeInfo } from '@/views/pages/auth/service/authService'; // 서비스 파일에서 메소드 가져오기
 import Swal from 'sweetalert2';
-import { defineEmits, defineProps, ref, watch, computed, readonly } from 'vue';
+import { computed, defineEmits, defineProps, ref, watch } from 'vue';
 import { fetchGet } from '../auth/service/AuthApiService';
 
 const props = defineProps({
@@ -242,7 +242,7 @@ const enableEditing = () => {
 
     console.log('updatedEmployeeData: ', updatedEmployeeData);
     adminUpdateEmployeeInfo(updatedEmployeeData, profileImageFile.value)
-    .then(() => {
+        .then(() => {
             Swal.fire({
                 title: '수정되었습니다.',
                 icon: 'success'
@@ -392,11 +392,11 @@ const handleDepartmentChange = async () => {
 }
 
 select.readonly-input {
-  appearance: none; /* 기본 드롭다운 화살표 제거 */
-  -webkit-appearance: none; /* Safari 브라우저에서 기본 드롭다운 화살표 제거 */
-  -moz-appearance: none; /* Firefox에서 기본 드롭다운 화살표 제거 */
-  cursor: not-allowed; /* 커서를 비활성화로 변경 */
-  background-color: #f0f0f0; /* 회색 배경 */
+    appearance: none; /* 기본 드롭다운 화살표 제거 */
+    -webkit-appearance: none; /* Safari 브라우저에서 기본 드롭다운 화살표 제거 */
+    -moz-appearance: none; /* Firefox에서 기본 드롭다운 화살표 제거 */
+    cursor: not-allowed; /* 커서를 비활성화로 변경 */
+    background-color: #f0f0f0; /* 회색 배경 */
 }
 
 /* 버튼 그룹 스타일 */

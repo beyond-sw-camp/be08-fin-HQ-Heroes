@@ -74,13 +74,13 @@
             <div class="bottom-card">
                 <div class="font-semibold text-xl ml-3 mt-3">공지사항</div>
                 <DataTable :value="announcements" :rows="6" :paginator="true" dataKey="noticeId" responsiveLayout="scroll" :rowHover="true" selectionMode="single" @row-click="(e) => showNoticeDetail(e.data.noticeId)" :metaKeySelection="false">
-                    <Column field="categoryName" header="카테고리" style="width: 20%; text-align: left" headerStyle="text-align: center" />
-                    <Column field="title" header="제목" style="width: 45%; text-align: left" headerStyle="text-align: center">
+                    <Column field="categoryName" header="카테고리" style="width: 24%; text-align: left" headerStyle="text-align: center" />
+                    <Column field="title" header="제목" style="width: 35%; text-align: left" headerStyle="text-align: center">
                         <template #body="slotProps">
                             <span class="truncate-text">{{ slotProps.data.title }}</span>
                         </template>
                     </Column>
-                    <Column field="employeeName" header="작성자" style="width: 15%; text-align: left" headerStyle="text-align: center" />
+                    <Column field="employeeName" header="작성자" style="width: 20%; text-align: left" headerStyle="text-align: center" />
                     <Column style="width: 20%; text-align: left" header="날짜" headerStyle="text-align: center">
                         <template #body="slotProps">
                             <span>{{ DisplayDate(slotProps.data.createdAt) }}</span>

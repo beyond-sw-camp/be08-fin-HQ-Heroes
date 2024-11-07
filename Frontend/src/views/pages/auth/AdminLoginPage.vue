@@ -65,8 +65,8 @@ import axios from 'axios';
 import InputOtp from 'primevue/inputotp';
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
-import adminService from '../auth/service/authService';
 import { useRouter } from 'vue-router';
+import adminService from '../auth/service/authService';
 
 const employeeId = ref('');
 const password = ref('');

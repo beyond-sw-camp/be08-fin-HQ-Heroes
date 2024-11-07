@@ -5,7 +5,7 @@
                 <Button label="목록" icon="pi pi-bars" @click="goBackToList" outlined />
             </div>
             <div class="text-3xl font-bold">
-                <span>[{{ categoryName }}]  {{ educationName }} </span>
+                <span>[{{ categoryName }}] {{ educationName }} </span>
             </div>
 
             <hr />
@@ -13,23 +13,21 @@
             <!-- education-info 테이블로 수정 -->
             <table class="education-info text-lg">
                 <tr>
-                    <th style="text-align: left;">교육 일정</th>
+                    <th style="text-align: left">교육 일정</th>
                     <td>
                         <template v-if="editMode">
                             <input type="date" v-model="educationStart" /> ~
                             <input type="date" v-model="educationEnd" />
                         </template>
-                        <template v-else>
-                            {{ formatDate(educationStart) }} ~ {{ formatDate(educationEnd) }}
-                        </template>
+                        <template v-else> {{ formatDate(educationStart) }} ~ {{ formatDate(educationEnd) }} </template>
                     </td>
                 </tr>
                 <tr>
-                    <th style="text-align: left;">수료 기준</th>
+                    <th style="text-align: left">수료 기준</th>
                     <td>수강일 기준 80% 이상</td>
                 </tr>
                 <tr>
-                    <th style="text-align: left;">수강 정원</th>
+                    <th style="text-align: left">수강 정원</th>
                     <td>
                         <template v-if="editMode">
                             <input v-model.number="participants" type="number" />
@@ -40,7 +38,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th style="text-align: left;">교육 기관</th>
+                    <th style="text-align: left">교육 기관</th>
                     <td>
                         <template v-if="editMode">
                             <input v-model="institution" type="text" />
@@ -51,7 +49,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th style="text-align: left; vertical-align: top;">교육 커리큘럼</th>
+                    <th style="text-align: left; vertical-align: top">교육 커리큘럼</th>
                     <td>
                         <div v-html="educationCurriculum" class="curriculum-content"></div>
                     </td>
@@ -68,9 +66,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { fetchDelete, fetchGet } from '../auth/service/AuthApiService';
 
 const route = useRoute();

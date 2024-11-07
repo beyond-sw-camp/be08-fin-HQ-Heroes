@@ -70,12 +70,12 @@
 </template>
 
 <script setup>
+import router from '@/router';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
+import Swal from 'sweetalert2';
 import { onMounted, ref, watch } from 'vue';
 import { fetchGet, fetchPost } from '../auth/service/AuthApiService'; // fetchPost 사용
-import Swal from 'sweetalert2';
-import router from '@/router';
 
 const institution = ref(''); // 교육기관
 const subject = ref(''); // 교육명

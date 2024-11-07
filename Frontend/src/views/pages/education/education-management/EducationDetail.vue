@@ -57,10 +57,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { fetchGet, fetchPost, fetchPostThrowError } from '../../auth/service/AuthApiService';
 import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { fetchGet, fetchPostThrowError } from '../../auth/service/AuthApiService';
 
 const route = useRoute();
 const router = useRouter();
