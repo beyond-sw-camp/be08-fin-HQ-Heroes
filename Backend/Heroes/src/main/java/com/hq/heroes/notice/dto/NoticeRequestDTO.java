@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
+
 public class NoticeRequestDTO {
 
     private String employeeId;

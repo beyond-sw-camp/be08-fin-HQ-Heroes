@@ -22,7 +22,7 @@
                         <h2>사진업로드(증명사진)</h2>
                     </div>
                     <div class="divider"></div>
-                    <div class="form-group-photo" >
+                    <div class="form-group-photo">
                         <img :src="photoUrl" alt="증명사진 미리보기" width="150" height="150" />
                         <div style="margin-left: 10px">
                             <p class="upload-instruction">증명사진을 첨부해 주세요.</p>
@@ -217,8 +217,11 @@ const enableEditing = () => {
             Swal.fire({
                 title: '수정되었습니다.',
                 icon: 'success'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.reload(); // 확인 버튼 클릭 시 새로고침
+                }
             });
-            window.location.reload();
         })
         .catch((error) => {
             Swal.fire({
@@ -561,5 +564,4 @@ label {
     align-items: center;
     margin-bottom: 15px;
 }
-
 </style>

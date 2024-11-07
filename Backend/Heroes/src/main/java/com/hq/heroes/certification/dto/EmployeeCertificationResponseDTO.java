@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
+
 public class EmployeeCertificationResponseDTO {
     private long registrationId; // 자격증 번호
     private String certificationName; // 자격증 이름
