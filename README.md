@@ -71,12 +71,12 @@
 <br>
 <br>
 
-## 🍀 프로젝트 소개
-
-<br>
-
 ## 🔆 프로젝트 개요 및 기대효과
+HeRoes 프로젝트는 사원들의 업무를 효율적으로 관리하기 위해 근태 관리 데이터를 기반으로 급여를 **자동화**하는 HR관리 시스템입니다. 급여를 계산하는 과정에서 발생하는 오류를 줄이고, 수동 처리에 드는 시간을 절약하는 것을 목표로 하고 있습니다. 또한, 사원들의 일정을 한 눈에 확인 할 수 있는 팀 캘린더 시스템, 회사에서 진행하는 교육 등을 제공하여 사원들의 만족도를 향상시키는 것을 목표로 합니다.
 
+- 아날로그 방식 → 자동화를 통한 업무 효율성 향상
+- 중요 정보 전달 누락 → 의사소통 개선
+- 업무에 필요한 지식·기술 부족 → 직원 역량 강화
 
 <br>
 
@@ -141,32 +141,22 @@
 ## 📑 시스템 아키텍처
 <br>
 
-![시스템 아키텍처](https://github.com/beyond-sw-camp/be08-fin-HQ-Heroes/blob/main/Images/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.png?raw=true)
+![시스템 아키텍처](https://github.com/user-attachments/assets/987dc595-7efb-4ef7-9006-bd64d40930aa)
 
 <br>
 
 ## 📑 통합 테스트
 [통합 테스트](https://www.notion.so/playdatacademy/69a4e1b2079546d1bf5a0f56214882fc)
 
+<br>
+
 ## 📑 CI/CD 계획서
 [CI/CD 계획서](https://www.notion.so/playdatacademy/CI-CD-e63235a2c456455f9852ae393fd53e67)
 
 <br>
 
-
-<br>
-
-## 🩰 CI/CD 명세서
-
-<br>
-
-
-<br>
-<br>
-
 ## 📜 파이프라인(Jenkinsfile)
 
-<br>
 <br>
 
 ## ▶️ CICD 테스트(Jenkinsfile)
