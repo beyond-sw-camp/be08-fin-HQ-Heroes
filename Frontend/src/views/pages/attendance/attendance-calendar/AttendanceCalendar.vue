@@ -77,8 +77,9 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import FullCalendar from '@fullcalendar/vue3';
+import Swal from 'sweetalert2';
 import { ref } from 'vue';
-import { fetchGet, fetchPost, fetchPut } from '../../auth/service/AuthApiService';
+import { fetchDelete, fetchGet, fetchPost, fetchPut } from '../../auth/service/AuthApiService';
 
 export default {
     components: { FullCalendar },
@@ -300,11 +301,46 @@ export default {
             }
         },
 
-        deleteEvent(event) {
-            if (event) {
-                event.remove();
+        async deleteEvent(event) {
+            if (event && event.id) {
+                this.isDetailModalOpen = false;
+                // 삭제 확인 창 표시
+                const result = await Swal.fire({
+                    title: '정말 일정을 삭제하시겠습니까?',
+                    text: '이 작업은 되돌릴 수 없습니다.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '삭제',
+                    cancelButtonText: '취소'
+                });
+
+                // 사용자가 "삭제"를 확인한 경우에만 진행
+                if (result.isConfirmed) {
+                    try {
+                        // 서버에 삭제 요청
+                        await fetchDelete(`https://hq-heroes-api.com/api/v1/event/delete/${event.id}`);
+
+                        // 성공적으로 삭제되면 이벤트를 화면에서 제거
+                        event.remove();
+                        this.$toast.add({ severity: 'success', summary: '성공', detail: '이벤트가 삭제되었습니다.' });
+                    } catch (error) {
+                        // 에러 발생 시 사용자에게 알림
+                        console.error('이벤트 삭제 중 오류가 발생했습니다:', error);
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: '삭제 오류',
+                            html: `${error.response?.data || '삭제 중 오류가 발생했습니다.'}<br>다시 시도해 주세요.`,
+                            confirmButtonText: '확인'
+                        });
+
+                        this.$toast.add({ severity: 'error', summary: '오류', detail: '이벤트 삭제에 실패했습니다.' });
+                    } finally {
+                        // 모달 닫기
+                        this.isDetailModalOpen = false;
+                    }
+                }
             }
-            this.isDetailModalOpen = false;
         },
 
         closeModal() {

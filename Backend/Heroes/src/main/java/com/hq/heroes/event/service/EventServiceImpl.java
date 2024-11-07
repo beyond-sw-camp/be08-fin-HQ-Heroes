@@ -71,4 +71,15 @@ public class EventServiceImpl implements EventService {
         return false;
     }
 
+    @Override
+    public boolean deleteEvent(Long id) {
+        Optional<Event> eventOptional = eventRepository.findById(id);
+        if (eventOptional.isPresent()) {
+            eventRepository.delete(eventOptional.get());
+            return true;
+        }
+        return false;
+    }
+
+
 }
