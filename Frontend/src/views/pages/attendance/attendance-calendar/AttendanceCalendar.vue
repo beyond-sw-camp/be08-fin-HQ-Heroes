@@ -357,6 +357,7 @@ export default {
                         // 성공적으로 삭제되면 이벤트를 화면에서 제거
                         event.remove();
                         this.$toast.add({ severity: 'success', summary: '성공', detail: '이벤트가 삭제되었습니다.' });
+                        window.location.reload(); // 새로고침
                     } catch (error) {
                         console.error('이벤트 삭제 중 오류가 발생했습니다:', error);
 
