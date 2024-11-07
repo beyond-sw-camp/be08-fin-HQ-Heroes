@@ -202,6 +202,7 @@ const toggleButtonStyle = computed(() => {
 });
 
 const goTosendNotificationPage = () => {
+    // 알림 발송 클릭 시 drawer 닫기
     notificationDrawerVisible.value = false;
     router.push('/send-notifications');
 };
