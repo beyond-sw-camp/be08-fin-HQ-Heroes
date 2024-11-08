@@ -144,9 +144,8 @@ HeRoes 프로젝트는 사원들의 업무를 효율적으로 관리하기 위�
 <br>
 
 ## 📑 시스템 아키텍처
-<br>
-
 ![시스템 아키텍처](https://github.com/user-attachments/assets/987dc595-7efb-4ef7-9006-bd64d40930aa)
+<br>
 
 <br>
 
@@ -165,7 +164,7 @@ HeRoes 프로젝트는 사원들의 업무를 효율적으로 관리하기 위�
 <br>
 
 ## ▶️ CICD 테스트(Jenkinsfile)
-[CI/CD 테스트](https://www.youtube.com/watch?v=VdlhfOg5f_k)
+[CI/CD 테스트 영상](https://www.youtube.com/watch?v=VdlhfOg5f_k)
 
 <br>
 
