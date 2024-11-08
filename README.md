@@ -1,12 +1,11 @@
-# be08-4th-HQ-Heroes
-
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Caveat&size=30&letterSpacing=letter-spacing%3A+.2rem;&pause=1000&color=BDA5F7&background=64FF4300&width=435&lines=HQ+HeRoes)](https://git.io/typing-svg)
 
 <div align="center">
   <br><b>:dizzy:한화시스템 BEYOND SW캠프 최종 프로젝트:dizzy:</b></br>
 
  <br>
  
-  [![Typing SVG](https://readme-typing-svg.demolab.com?font=Caveat&size=30&pause=1000&color=BDA5F7&background=64FF4300&center=true&width=435&lines=HQ+HeRoes)](https://git.io/typing-svg)
+  
 
 </div>
   <br>
