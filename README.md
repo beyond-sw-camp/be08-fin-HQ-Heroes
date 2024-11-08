@@ -2,8 +2,13 @@
 
 
 <div align="center">
-  <br><b>:dizzy:한화시스템 BEYOND SW캠프 최종 프로젝트:dizzy:</b></br></div>
+  <br><b>:dizzy:한화시스템 BEYOND SW캠프 최종 프로젝트:dizzy:</b></br>
 
+ <br>
+ 
+  [![Typing SVG](https://readme-typing-svg.demolab.com?font=Caveat&size=30&pause=1000&color=BDA5F7&background=64FF4300&center=true&width=435&lines=HQ+HeRoes)](https://git.io/typing-svg)
+
+</div>
   <br>
 <br>
 <div align="center">
@@ -160,6 +165,7 @@ HeRoes 프로젝트는 사원들의 업무를 효율적으로 관리하기 위�
 <br>
 
 ## ▶️ CICD 테스트(Jenkinsfile)
+[CI/CD 테스트](https://www.youtube.com/watch?v=VdlhfOg5f_k)
 
 <br>
 
