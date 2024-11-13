@@ -1,22 +1,20 @@
 package com.hq.heroes.education.service;
 
 import com.hq.heroes.education.dto.CourseResponseDTO;
-import com.hq.heroes.education.entity.Course;
 
 import java.util.List;
 
 public interface CourseService  {
 
+    // 수강 번호로 조회
     CourseResponseDTO getCourseById(Long id);
 
-    //- 테스트
+    // 사원 번호로 수강 조회
     List<CourseResponseDTO> getCourseByEmployeeId(String employeeId);
 
-    //- 테스트
-    boolean cancelEducation(Long courseId);
-
-    //- 테스트
+    // 이수한 수강
     CourseResponseDTO completeCourse(Long courseId);
 
+    // 모든 수강 조회
     List<CourseResponseDTO> getAllCourses();
 }

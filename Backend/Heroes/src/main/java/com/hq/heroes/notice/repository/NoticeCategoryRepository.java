@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface NoticeCategoryRepository extends JpaRepository<NoticeCategory, Long> {
+
+    // 모든 공지사항 조회
     List<NoticeCategory> findAll();
 }

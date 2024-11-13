@@ -24,15 +24,15 @@ public class Vacation {
     private Long vacationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)  // 대리인
+    @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "approver_id", nullable = true)  // 결재자, Employee 엔티티 재사용
+    @JoinColumn(name = "approver_id", nullable = true)
     private Employee approver;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applicant_id", nullable = true)  // 신청인
+    @JoinColumn(name = "applicant_id", nullable = true)
     private Employee applicant;
 
     @Enumerated(EnumType.STRING)
@@ -40,18 +40,18 @@ public class Vacation {
     private VacationType vacationType;
 
     @Column(name = "vacation_start_date", nullable = false)
-    private LocalDate vacationStartDate;  // 시작 날짜
+    private LocalDate vacationStartDate;
 
     @Column(name = "vacation_start_time", nullable = false)
-    private LocalTime vacationStartTime;  // 시작 시간
+    private LocalTime vacationStartTime;
 
     @Column(name = "vacation_end_date", nullable = false)
-    private LocalDate vacationEndDate;  // 종료 날짜
+    private LocalDate vacationEndDate;
 
     @Column(name = "vacation_end_time", nullable = false)
-    private LocalTime vacationEndTime;  // 종료 시간
+    private LocalTime vacationEndTime;
 
-    @Column(name = "comment", columnDefinition = "TEXT", nullable = true)  // 사유 필드 추가
+    @Column(name = "comment", columnDefinition = "TEXT", nullable = true)
     private String comment;
 
     @Enumerated(EnumType.STRING)

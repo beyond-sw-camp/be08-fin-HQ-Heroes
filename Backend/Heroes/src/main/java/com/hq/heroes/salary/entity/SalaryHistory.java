@@ -1,10 +1,8 @@
 package com.hq.heroes.salary.entity;
 
 import com.hq.heroes.auth.entity.Employee;
-import com.hq.heroes.salary.entity.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -32,33 +30,33 @@ public class SalaryHistory {
     private Double postTaxTotal; // 세후 (세전 - 공제액)
 
     @Column(name = "salary_month", nullable = false)
-    private LocalDateTime salaryMonth; // 지급 일자
+    private LocalDateTime salaryMonth;
 
     @Column(name = "bonus")
-    private Double bonus; // 성과급
+    private Double bonus;
 
     @Column(name = "work_time")
-    private long workTime; // 근로 시간
+    private long workTime;
 
     @Column(name = "over_time")
-    private long overTime; // 연장 근로 시간
+    private long overTime;
 
     // 공제 항목 추가
     @Column(name = "national_pension", nullable = false)
-    private Double nationalPension; // 국민연금
+    private Double nationalPension;
 
     @Column(name = "health_insurance", nullable = false)
-    private Double healthInsurance; // 건강보험
+    private Double healthInsurance;
 
     @Column(name = "long_term_care", nullable = false)
-    private Double longTermCare; // 장기요양
+    private Double longTermCare;
 
     @Column(name = "employment_insurance", nullable = false)
-    private Double employmentInsurance; // 고용보험
+    private Double employmentInsurance;
 
     @Column(name = "income_tax", nullable = false)
-    private Double incomeTax; // 소득세
+    private Double incomeTax;
 
     @Column(name = "local_income_tax", nullable = false)
-    private Double localIncomeTax; // 지방소득세
+    private Double localIncomeTax;
 }

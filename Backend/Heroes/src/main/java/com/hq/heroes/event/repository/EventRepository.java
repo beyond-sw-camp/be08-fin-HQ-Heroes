@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
+    // 사원 번호로 사원의 일정 조회
     List<Event> findByEmployee_EmployeeId(String employeeId);
 
 }

@@ -10,8 +10,6 @@ import java.util.List;
 
 public interface AttendanceService {
 
-    List<AttendanceDTO> getAllAttendances();
-
     // 출근
     Attendance checkIn(Employee employee);
 

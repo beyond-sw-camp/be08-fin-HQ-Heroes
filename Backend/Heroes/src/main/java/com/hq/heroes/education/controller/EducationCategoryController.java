@@ -2,8 +2,6 @@ package com.hq.heroes.education.controller;
 
 import com.hq.heroes.education.entity.EducationCategory;
 import com.hq.heroes.education.repository.EducationCategoryRepository;
-import com.hq.heroes.notice.dto.NoticeCategoryDTO;
-import com.hq.heroes.notice.service.NoticeCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 public class RetireDTO {
     private String employeeId;
-    private LocalDateTime checkInDate;  // 출석 시간
-    private Double postTaxTotal;  // 세후 총액
+    private LocalDateTime checkInDate;
+    private Double postTaxTotal;
 
     public RetireDTO(String employeeId, LocalDateTime checkInDate, Double postTaxTotal) {
         this.employeeId = employeeId;

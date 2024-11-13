@@ -2,6 +2,7 @@ package com.hq.heroes.event.controller;
 
 import com.hq.heroes.event.dto.EventDTO;
 import com.hq.heroes.event.service.EventService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,8 +18,8 @@ public class EventController {
 
     private final EventService eventService;
 
-    // 이벤트 생성 메서드
     @PostMapping("/create")
+    @Operation(summary = "일정 생성")
     public ResponseEntity<String> createEvent(@RequestBody EventDTO eventDTO) {
         try {
             // 이벤트 생성 로직 호출
@@ -31,11 +32,13 @@ public class EventController {
     }
 
     @GetMapping("/my-events")
+    @Operation(summary = "생성된 자신의 일정 조회")
     public List<EventDTO> getMyEvents(@RequestParam String employeeId) {
         return eventService.getEventsByEmployeeId(employeeId);
     }
 
     @PutMapping("/update/{id}")
+    @Operation(summary = "일정 날짜 변경")
     public ResponseEntity<String> updateEvent(@PathVariable Long id, @RequestBody EventDTO eventDTO) {
         boolean updated = eventService.updateEvent(id, eventDTO.getStart(), eventDTO.getEnd());
         if (updated) {
@@ -46,6 +49,7 @@ public class EventController {
     }
 
     @DeleteMapping("/delete/{eventId}")
+    @Operation(summary = "선택한 일정 삭제")
     public ResponseEntity<String> deleteEvent(@PathVariable Long eventId) {
         try {
             eventService.deleteEvent(eventId);
@@ -57,6 +61,5 @@ public class EventController {
                     .body("An error occurred while deleting the event");
         }
     }
-
 
 }

@@ -52,10 +52,10 @@ public class EducationServiceImpl implements EducationService {
                 .instructorName(education.getInstructorName())
                 .educationName(education.getEducationName())
                 .institution(education.getInstitution())
-                .educationStart(education.getStartDate() != null ? LocalDate.from(education.getStartDate()) : null) // 널 체크 추가
-                .educationEnd(education.getEndDate() != null ? LocalDate.from(education.getEndDate()) : null) // 널 체크 추가
+                .educationStart(education.getStartDate() != null ? LocalDate.from(education.getStartDate()) : null)
+                .educationEnd(education.getEndDate() != null ? LocalDate.from(education.getEndDate()) : null)
                 .participants(education.getParticipants())
-                .categoryName(education.getEducationCategory() != null ? education.getEducationCategory().getCategoryName() : null) // 널 체크 추가
+                .categoryName(education.getEducationCategory() != null ? education.getEducationCategory().getCategoryName() : null)
                 .categoryId(education.getEducationCategory() != null ? education.getEducationCategory().getCategoryId() : null)
                 .educationCurriculum(education.getEducationCurriculum())
                 .currentParticipant(education.getCurrentParticipant())
@@ -77,36 +77,31 @@ public class EducationServiceImpl implements EducationService {
 
     @Override
     public CourseResponseDTO incrementCurrentParticipants(Long educationId, String employeeId) {
-        // 교육이 존재하는지 확인
+
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(() -> new IllegalArgumentException("교육을 찾을 수 없습니다."));
 
-        // 사원이 존재하는지 확인
         Employee employee = employeeRepository.findByEmployeeId(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("사원을 찾을 수 없습니다."));
 
-        // 이미 신청한 교육이 있는지 확인
         if (courseRepository.existsByEducation_EducationIdAndEmployee_EmployeeId(educationId, employeeId)) {
-            throw new IllegalStateException("이미 신청한 교육입니다."); // 중복 신청 시 예외 발생
+            throw new IllegalStateException("이미 신청한 교육입니다.");
         }
 
-        // 현재 인원 수 증가
-        education.setCurrentParticipant(education.getCurrentParticipant() + 1); // 참가자 수 증가
-        educationRepository.save(education); // 변경된 교육 정보 저장
+        education.setCurrentParticipant(education.getCurrentParticipant() + 1);
+        educationRepository.save(education);
 
-        // 교육 신청 처리
         Course course = Course.builder()
                 .education(education)
                 .employee(employee)
-                .courseStatus(CourseStatus.FAIL) // 상태를 SUCCESS로 설정
+                .courseStatus(CourseStatus.FAIL)
                 .build();
 
-        courseRepository.save(course); // Course 엔티티 저장
+        courseRepository.save(course);
 
-        return convertToDto(course); // 성공 메시지 반환
+        return convertToDto(course);
     }
 
-    // 교육 등록
     @Override
     @Transactional
     public EducationResponseDTO createEducation(EducationRequestDTO requestDTO) {
@@ -128,7 +123,6 @@ public class EducationServiceImpl implements EducationService {
         return convertToDTO(education);
     }
 
-    // 교육 수정
     @Override
     @Transactional
     public EducationResponseDTO updateEducation(Long educationId, EducationRequestDTO requestDTO) {
@@ -150,7 +144,6 @@ public class EducationServiceImpl implements EducationService {
         return convertToDTO(education);
     }
 
-    // 교육 취소
     @Override
     @Transactional
     public boolean cancelEducation(Long courseId) {
@@ -174,7 +167,6 @@ public class EducationServiceImpl implements EducationService {
         return false;
     }
 
-    // 교육 삭제
     @Override
     @Transactional
     public boolean deleteEducation(Long educationId) {

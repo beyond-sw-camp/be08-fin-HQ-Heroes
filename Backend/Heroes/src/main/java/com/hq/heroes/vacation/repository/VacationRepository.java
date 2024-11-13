@@ -18,7 +18,7 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
     @Query("SELECT v FROM Vacation v WHERE v.employee.employeeId = :employeeId AND v.vacationStatus = 'APPROVED'")
     List<Vacation> findApprovedVacationsByEmployeeId(@Param("employeeId") String employeeId);
 
-    // 팀 ID를 사용하여 해당 팀의 모든 휴가 정보를 조회하는 쿼리
+    // 팀 ID를 사용하여 해당 팀의 모든 휴가 정보를 조회
     @Query("SELECT v FROM Vacation v WHERE v.employee.team.teamId = :teamId")
     List<Vacation> findVacationsByTeamId(@Param("teamId") Long teamId);
 
@@ -26,5 +26,6 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
     boolean existsByEmployeeAndVacationStartDateLessThanEqualAndVacationEndDateGreaterThanEqualAndVacationStatusNot(
             Employee employee, LocalDate vacationEndDate, LocalDate vacationStartDate, VacationStatus cancelApproved);
 
+    // 사원 번호와 휴가 상태로 사원의 휴가 조회
     List<Vacation> findByEmployeeEmployeeIdAndVacationStatus(String employeeId, VacationStatus vacationStatus);
 }

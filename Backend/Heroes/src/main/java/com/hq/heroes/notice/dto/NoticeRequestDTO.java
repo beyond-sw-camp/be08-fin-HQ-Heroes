@@ -1,7 +1,9 @@
 package com.hq.heroes.notice.dto;
 
-import com.hq.heroes.notice.entity.NoticeCategory;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor

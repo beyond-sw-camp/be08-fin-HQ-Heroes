@@ -26,12 +26,10 @@ public class EventServiceImpl implements EventService {
     @Override
     public void createEvent(EventDTO eventDTO) {
 
-        // 유효성 검사 추가: 시작 시간이 종료 시간보다 늦으면 예외 발생
         if (eventDTO.getStart().isAfter(eventDTO.getEnd())) {
             throw new IllegalArgumentException("이벤트 시작 시간이 종료 시간보다 늦을 수 없습니다.");
         }
 
-        // employeeId로 Employee를 조회하여 설정
         Employee employee = employeeRepository.findById(eventDTO.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사원 ID입니다."));
 
@@ -40,7 +38,7 @@ public class EventServiceImpl implements EventService {
                 .eventStart(eventDTO.getStart())
                 .eventEnd(eventDTO.getEnd())
                 .description(eventDTO.getDescription())
-                .employee(employee) // 조회된 Employee 설정
+                .employee(employee)
                 .build();
 
         eventRepository.save(event);

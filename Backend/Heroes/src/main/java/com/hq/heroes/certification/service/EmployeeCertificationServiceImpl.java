@@ -60,7 +60,7 @@ public class EmployeeCertificationServiceImpl implements EmployeeCertificationSe
         EmployeeCertification employeeCertification = employeeCertificationRepository.findById(registrationId)
                 .orElseThrow(() -> new IllegalArgumentException("등록한 자격증을 찾을 수 없습니다."));
 
-        employeeCertification.setEmployeeCertificationStatus(EmployeeCertificationStatus.APPROVE); // 상태를 승인으로 변경
+        employeeCertification.setEmployeeCertificationStatus(EmployeeCertificationStatus.APPROVE);
         employeeCertificationRepository.save(employeeCertification);
         return convertToResponseDTO(employeeCertification);
     }

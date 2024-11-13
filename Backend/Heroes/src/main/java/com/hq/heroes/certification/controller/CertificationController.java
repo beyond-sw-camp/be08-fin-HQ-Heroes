@@ -26,7 +26,6 @@ public class CertificationController {
     private final NotificationService notificationService;
     private final EmployeeService employeeService;
 
-    // 자격증 목록 조회하기
     @GetMapping("/certification")
     @Operation(summary = "자격증 목록 조회", description = "전체 자격증의 목록을 조회한다.")
     public ResponseEntity<List<CertificationResponseDTO>> getCertifications() {
@@ -39,7 +38,6 @@ public class CertificationController {
         }
     }
 
-    // 자격증 상세 조회 - 테스트
     @GetMapping("/certification/{certification-id}")
     @Operation(summary = "자격증 상세 조회", description = "자격증 ID로 해당 자격증의 정보를 조회한다.")
     public ResponseEntity<CertificationResponseDTO> getCertificationById(
@@ -54,7 +52,6 @@ public class CertificationController {
         }
     }
 
-    // 부서 이름으로 자격증 목록 조회
     @GetMapping("/by-department")
     @Operation(summary = "부서별 자격증 목록 조회", description = "부서 이름으로 자격증 목록을 조회한다.")
     public ResponseEntity<List<CertificationResponseDTO>> getCertificationsByDepartment(
@@ -71,7 +68,7 @@ public class CertificationController {
     public ResponseEntity<CertificationResponseDTO> create(@RequestBody CertificationRequestDTO requestDTO) {
         CertificationResponseDTO certificationResponseDTO = certificationService.createCertification(requestDTO);
 
-        if (certificationResponseDTO != null) { // 성공적으로 자격증 생성된 경우
+        if (certificationResponseDTO != null) {
             List<EmployeeDTO> employeeList = employeeService.getAllEmployeesByDepartment(certificationResponseDTO.getDeptId());
 
             for (EmployeeDTO employeeDTO : employeeList) {
@@ -81,7 +78,6 @@ public class CertificationController {
 
             return new ResponseEntity<>(certificationResponseDTO, HttpStatus.CREATED);
         } else {
-            // 자격증 생성 실패 시, 적절한 오류 메시지와 상태 코드 반환
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -104,7 +100,6 @@ public class CertificationController {
         }
     }
 
-    // 자격증 삭제 - 테스트
     @DeleteMapping("/certification/{certification-id}")
     @Operation(summary = "자격증 삭제", description = "자격증 ID로 해당 자격증을 삭제한다.")
     public ResponseEntity<Void> delete(
