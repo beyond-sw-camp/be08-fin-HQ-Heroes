@@ -1,81 +1,65 @@
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Caveat&size=60&letterSpacing=letter-spacing%3A+.2rem;&pause=1000&color=BDA5F7&background=64FF4300&center=true&width=1000&height=100&lines=HQ+HeRoes)](https://git.io/typing-svg)
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&height=125&color=gradient&text=HQ%20-%20HeRoes&section=header&reversal=false&fontAlign=50&fontAlignY=50" width="100%">
+</div>
 
 <div align="center">
-  <br><b>:dizzy:한화시스템 BEYOND SW캠프 최종 프로젝트:dizzy:</b></br>
-
- <br>
- 
-  
-
-</div>
-  <br>
-<br>
-<div align="center">
-<table>
-  <tbody>
-    <tr> 
-      <td align="center"><a href="https://github.com/jongwon-kr"><img src="https://avatars.githubusercontent.com/u/76871947?v=4"width="140px;" height="140px" alt=""/><br /><b>👑김종원</b></a><br /></td>
-      <td align="center"><a href="https://github.com/tyeong1102"><img src="https://avatars.githubusercontent.com/u/97294927?s=96&v=4" width="140px;" height="140px" alt=""/><br /><b>🍙김태영</b></a><br /></td>
-      <td align="center"><a href="https://github.com/tkckdnjs"><img src="https://avatars.githubusercontent.com/u/170069568?v=4" width="140px;" height="140px"  alt=""/><br /><b>🐶이은서</b></a><br /></td>
-      <td align="center"><a href="https://github.com/eunhee78"><img src="https://avatars.githubusercontent.com/u/82626246?v=4" width="140px;" height="140px" alt=""/><br /><b>🍉조은희</b></a><br /></td>
-      <td align="center"><a href="https://github.com/mmvne"><img src="https://avatars.githubusercontent.com/u/45449480?v=4" width="140px;" height="140px" alt=""/><br /><b>🧁홍석민</b></a><br /></td>
-  </tbody>
-</table>
-</div>
-<br>
-<br>
-
-<div align=center>
-
-## 🛠️ Tech Stack 🛠️
-<h4> [ FrontEnd ] </h4>
-<div class="stack-container">
-	<img src="https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white">
-	<img src="https://img.shields.io/badge/vite-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white">
-	<img src="https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white">
-	<img src="https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D">
-	<img src="https://img.shields.io/badge/bootstrap-%23563D7C?style=for-the-badge&logo=bootstrap&logoColor=white">
-	<img src="https://img.shields.io/badge/PrimeVue-%23639a67?style=for-the-badge&logo=vue.js&logoColor=white">
-
-<h4> [ DataBase ] </h4>
-	<img src="https://img.shields.io/badge/mariadb-003545?style=for-the-badge&logo=mariadb&logoColor=white">
-	<img src="https://img.shields.io/badge/Amazon%20RDS-527FFF?style=for-the-badge&logo=Amazon%20RDS&logoColor=white">
-	<img src="https://img.shields.io/badge/firebase-DD2C00?style=for-the-badge&logo=firebase&logoColor=white">
-
-<h4> [ BackEnd ] </h4>
-	<img src="https://img.shields.io/badge/java-F7DF1E?style=for-the-badge&logo=java&logoColor=white">
-	<img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
-	<img src="https://img.shields.io/badge/springsecurity-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">
- 	<img src="https://img.shields.io/badge/gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white">
-
-<h4> [ CI/CD ] </h4>
-	<img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=Jenkins&logoColor=white">
- 	<img src="https://img.shields.io/badge/argo-EF7B4D?style=for-the-badge&logo=argo&logoColor=white">
-	<img src="https://img.shields.io/badge/kubernetes-%231572B6?style=for-the-badge&logo=kubernetes&logoColor=white">
- 	<img src="https://img.shields.io/badge/amazonec2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">
-	<img src="https://img.shields.io/badge/docker-002260?style=for-the-badge&logo=docker&logoColor=white">
- 	 <img src="https://img.shields.io/badge/ngrok-%233A0CA3?style=for-the-badge&logo=ngrok&logoColor=white">
-
-<h4> [ VCS ] </h4>
-	<img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white"/>
- 	<img src="https://img.shields.io/badge/sourcetree-0052CC?style=for-the-badge&logo=sourcetree&logoColor=white"/>
-
-<h4> [ 협업 툴 ] </h4>
-	<img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white"/>
-	<img src="https://img.shields.io/badge/googledocs-4285F4?style=for-the-badge&logo=googledocs&logoColor=white"/>
-	<img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white"/>
-	<img src="https://img.shields.io/badge/IntelliJ%20IDEA-000000.svg?style=for-the-badge&logo=intellij-idea&logoColor=white">
-	<img src="https://img.shields.io/badge/Visual%20Studio%20Code-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white">
- 	<img src="https://img.shields.io/badge/discord-5865F2?style=for-the-badge&logo=discord&logoColor=white">
-
-
-
-
+  <h3>한화시스템 BEYOND SW 캠프 최종 프로젝트 - 1조 HQ</h3>
+  <h3>👨‍💻 인사 관리 시스템 - HeRoes 👨‍💻</h3>
 </div>
 
+## 🛠️ 기술 스택 🛠️
+
+### FrontEnd
+<div>
+  <img src="https://img.shields.io/badge/HTML5-%23E34F26?style=for-the-badge&logo=html5&logoColor=white">
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white">
+  <img src="https://img.shields.io/badge/CSS3-%231572B6?style=for-the-badge&logo=css3&logoColor=white">
+  <img src="https://img.shields.io/badge/Vue.js-%2335495e?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D">
+  <img src="https://img.shields.io/badge/Bootstrap-%23563D7C?style=for-the-badge&logo=bootstrap&logoColor=white">
+  <img src="https://img.shields.io/badge/PrimeVue-%23639a67?style=for-the-badge&logo=vue.js&logoColor=white">
 </div>
-<br>
-<br>
+
+### BackEnd
+<div>
+  <img src="https://img.shields.io/badge/Java-%23F7DF1E?style=for-the-badge&logo=java&logoColor=white">
+  <img src="https://img.shields.io/badge/Spring%20Boot-%236DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+  <img src="https://img.shields.io/badge/Spring%20Security-%236DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">
+  <img src="https://img.shields.io/badge/Gradle-%2302303A?style=for-the-badge&logo=gradle&logoColor=white">
+</div>
+
+### DataBase
+<div>
+  <img src="https://img.shields.io/badge/MariaDB-%23003545?style=for-the-badge&logo=mariadb&logoColor=white">
+  <img src="https://img.shields.io/badge/Amazon%20RDS-%23527FFF?style=for-the-badge&logo=Amazon%20RDS&logoColor=white">
+  <img src="https://img.shields.io/badge/Firebase-%23DD2C00?style=for-the-badge&logo=firebase&logoColor=white">
+</div>
+
+### CI/CD
+<div>
+  <img src="https://img.shields.io/badge/Jenkins-%23D24939?style=for-the-badge&logo=Jenkins&logoColor=white">
+  <img src="https://img.shields.io/badge/ArgoCD-%23EF7B4D?style=for-the-badge&logo=argo&logoColor=white">
+  <img src="https://img.shields.io/badge/Kubernetes-%231572B6?style=for-the-badge&logo=kubernetes&logoColor=white">
+  <img src="https://img.shields.io/badge/Amazon%20EC2-%23FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">
+  <img src="https://img.shields.io/badge/Docker-%23002260?style=for-the-badge&logo=docker&logoColor=white">
+  <img src="https://img.shields.io/badge/Ngrok-%233A0CA3?style=for-the-badge&logo=ngrok&logoColor=white">
+</div>
+
+### VCS
+<div>
+  <img src="https://img.shields.io/badge/Git-%23F05032?style=for-the-badge&logo=git&logoColor=white">
+  <img src="https://img.shields.io/badge/SourceTree-%230052CC?style=for-the-badge&logo=sourcetree&logoColor=white">
+</div>
+
+### 협업 툴
+<div>
+  <img src="https://img.shields.io/badge/Notion-%23000000?style=for-the-badge&logo=notion&logoColor=white">
+  <img src="https://img.shields.io/badge/Google%20Docs-%234285F4?style=for-the-badge&logo=googledocs&logoColor=white">
+  <img src="https://img.shields.io/badge/GitHub-%23181717?style=for-the-badge&logo=github&logoColor=white">
+  <img src="https://img.shields.io/badge/IntelliJ%20IDEA-%23000000?style=for-the-badge&logo=intellij-idea&logoColor=white">
+  <img src="https://img.shields.io/badge/VS%20Code-%23007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white">
+  <img src="https://img.shields.io/badge/Discord-%235865F2?style=for-the-badge&logo=discord&logoColor=white">
+</div>
+
 <br>
 
 ## 🔆 프로젝트 개요 및 기대효과
@@ -467,6 +451,23 @@ HeRoes 프로젝트는 사원들의 업무를 효율적으로 관리하기 위�
 
 <br>
 
+## 🧑‍💻 팀 구성
+<br>
+<div align="center">
+<br>
+<table>
+  <tbody>
+    <tr> 
+      <td align="center"><a href="https://github.com/jongwon-kr"><img src="https://avatars.githubusercontent.com/u/76871947?v=4"width="140px;" height="140px" alt=""/><br /><b>👑김종원</b></a><br /></td>
+      <td align="center"><a href="https://github.com/tyeong1102"><img src="https://avatars.githubusercontent.com/u/97294927?s=96&v=4" width="140px;" height="140px" alt=""/><br /><b>🍙김태영</b></a><br /></td>
+      <td align="center"><a href="https://github.com/tkckdnjs"><img src="https://avatars.githubusercontent.com/u/170069568?v=4" width="140px;" height="140px"  alt=""/><br /><b>🐶이은서</b></a><br /></td>
+      <td align="center"><a href="https://github.com/eunhee78"><img src="https://avatars.githubusercontent.com/u/82626246?v=4" width="140px;" height="140px" alt=""/><br /><b>🍉조은희</b></a><br /></td>
+      <td align="center"><a href="https://github.com/mmvne"><img src="https://avatars.githubusercontent.com/u/45449480?v=4" width="140px;" height="140px" alt=""/><br /><b>🧁홍석민</b></a><br /></td>
+  </tbody>
+</table>
+</div>
+
+<br>
 
 ## 🐻 한줄 회고록
 |&nbsp;&nbsp;&nbsp;&nbsp;팀&nbsp;원&nbsp;&nbsp;&nbsp;&nbsp;|회고|
