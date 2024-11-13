@@ -161,9 +161,144 @@ HeRoes 프로젝트는 사원들의 업무를 효율적으로 관리하기 위�
 
 <br>
 
-## 📜 파이프라인(Jenkinsfile)
+## 🚀 CI/CD 파이프라인
+
+이 **CI/CD 파이프라인**은 AWS 환경에서 애플리케이션 배포를 자동화하여 안정적이고 확장 가능한 환경을 구축하는 데 중점을 두고 있습니다. **Jenkins**를 통한 지속적 통합(CI)과 **ArgoCD**를 통한 지속적 배포(CD)를 결합하여, 코드에서 배포까지의 과정을 효율적이고 빠르게 관리합니다.
+
+
+### CI/CD 환경 구성 개요 🌐
+
+- **AWS EKS**: 웹 애플리케이션 및 ArgoCD 서버 호스팅
+- **AWS EC2**: Jenkins 서버 호스팅
+- **AWS ECR**: Docker 이미지를 저장하고 관리하는 레지스트리
+
+### CI/CD 파이프라인 흐름 📈
+
+1. **개발자가 GitHub의 main 브랜치에 코드 푸시**: 웹훅을 통해 CI 파이프라인 트리거
+2. **Jenkins 서버에서 코드 변경 사항 감지**: GitHub에서 변경 사항을 감지하여 애플리케이션 빌드
+3. **AWS ECR에 Docker 이미지 푸시**: 빌드된 Docker 이미지를 AWS ECR에 푸시
+4. **ArgoCD에 배포 파일 업데이트**: 변경된 이미지를 반영하여 배포 파일을 수정하고 GitHub에 푸시
+5. **ArgoCD 자동 배포**: GitHub의 변경 사항을 감지하여 자동 배포 수행 또는 수동 배포 옵션
+### Jenkins CI 단계 ⚙️
 <details>
-	<summary>파이프라인</summary>
+	<summary>1. 환경 변수 설정 (Environment)</summary>
+	
+	Jenkins 파이프라인에서 사용할 환경 변수들을 설정
+	AWS_REGION: AWS 리전 설정 (ap-northeast-2)
+	ECR_REGISTRY: ECR 레지스트리 주소
+	FRONTEND_REPOSITORY: 프론트엔드 Docker 이미지 레포지토리
+	BACKEND_REPOSITORY: 백엔드 Docker 이미지 레포지토리
+	FRONTEND_IMAGE_TAG: 프론트엔드 이미지 태그
+	BACKEND_IMAGE_TAG: 백엔드 이미지 태그
+ 	
+</details>
+
+<details>
+	<summary>2. Checkout Stage (코드 체크아웃)</summary>
+	
+ 	GitHub에서 main 브랜치를 체크아웃합니다. GitHub 인증 정보(github-https-credentials)를 사용합니다.
+	
+ 	git branch: 'main', url: 'https://github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git', credentialsId: 'github-https-credentials'
+</details>
+
+<details>
+	<summary>3. Determine Changes Stage (변경 사항 확인)</summary>
+	
+	1. git diff를 사용하여 마지막 커밋과 현재 커밋 간의 파일 변경 사항을 확인합니다.
+	2. Frontend/와 Backend/Heroes/ 디렉토리 내 파일이 변경된 경우, 해당 영역에 대한 빌드를 설정합니다.
+
+ 	def changedFiles = sh(script: 'git diff --name-only HEAD~1', returnStdout: true).trim().split("\n")
+	env.BUILD_FRONTEND = changedFiles.any { it.startsWith("Frontend/") } ? "true" : "false"
+	env.BUILD_BACKEND = changedFiles.any { it.startsWith("Backend/Heroes/") } ? "true" : "false"
+</details>
+
+<details>
+	<summary>4. Build Backend Docker Image Stage (백엔드 Docker 이미지 빌드)</summary>
+	
+	1. Backend/Heroes 디렉토리로 이동하여 Gradle을 사용해 백엔드 프로젝트를 빌드합니다 (./gradlew clean bootJar).
+	2. Dockerfile을 사용하여 Docker 이미지를 빌드합니다.
+
+ 	dir('Backend/Heroes') {
+	    sh 'chmod +x ./gradlew'
+	    sh './gradlew clean bootJar'
+	    sh "docker build -t ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} -f Dockerfile ."
+	}
+</details>
+
+<details>
+	<summary>5. Push Backend to ECR Stage (백엔드 이미지 ECR 푸시)</summary>
+	
+	1. AWS CLI를 사용하여 ECR에 로그인합니다.
+	2. 빌드한 백엔드 이미지를 ECR로 푸시합니다.
+
+ 	sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+	sh "docker tag ${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG} ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}"
+	sh "docker push ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}"
+</details>
+
+<details>
+	<summary>6. Build Frontend Docker Image Stage (프론트엔드 Docker 이미지 빌드)</summary>
+	
+	Frontend 디렉토리로 이동하여 프론트엔드 Docker 이미지를 빌드합니다.
+
+ 	dir('Frontend') {
+	    sh "docker build -t ${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG} -f Dockerfile ."
+	}
+</details>
+
+<details>
+	<summary>7. Push Frontend to ECR Stage (프론트엔드 이미지 ECR 푸시)</summary>
+	
+	빌드한 프론트엔드 이미지를 ECR에 푸시합니다.
+
+ 	sh "docker tag ${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG} ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}"
+	sh "docker push ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}"
+</details>
+
+<details>
+	<summary>8. Update ArgoCD Stage (ArgoCD 업데이트)</summary>
+	
+	1. Kubernetes 배포 파일(heroes-frontend-deploy.yaml, heroes-deploy.yaml)에서 이미지 태그를 업데이트합니다.
+	2. 변경된 파일들을 Git에 커밋하고 푸시하여 ArgoCD가 자동으로 배포하도록 합니다.
+
+ 	def frontendFilePath = 'k8s/heroes/heroes-frontend-deploy.yaml'
+	def backendFilePath = 'k8s/heroes/heroes-deploy.yaml'
+	
+	if (env.BUILD_FRONTEND == "true") {
+	    sh 'sed -i "s|image:.*frontend-repo:.*|image: ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}|g" ' + frontendFilePath
+	}
+	if (env.BUILD_BACKEND == "true") {
+	    sh 'sed -i "s|image:.*backend-repo:.*|image: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}|g" ' + backendFilePath
+	}
+	
+	withCredentials([usernamePassword(credentialsId: 'github-https-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+	    sh 'git add .'
+	    sh 'git commit -m "Update image tags for frontend and backend with latest build" || echo "Nothing to commit, images may be up-to-date."'
+	    sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/beyond-sw-camp/be08-fin-HQ-Heroes.git main'
+	}
+</details>
+
+<details>
+	<summary>9. Post Actions (성공/실패 알림)</summary>
+	
+	성공: Discord 웹훅을 통해 빌드 성공 메시지를 보냅니다.
+	실패: 빌드 실패 시에도 Discord 웹훅을 통해 실패 메시지를 보냅니다.
+
+ 	discordSend description: "ArgoCD 배포 파이프라인이 성공적으로 완료되었습니다.\n\n" +
+             "**Build ID**: ${BUILD_ID}\n" +
+             "**Frontend Image**: ${ECR_REGISTRY}/${FRONTEND_REPOSITORY}:${FRONTEND_IMAGE_TAG}\n" +
+             "**Backend Image**: ${ECR_REGISTRY}/${BACKEND_REPOSITORY}:${BACKEND_IMAGE_TAG}\n" +
+             "**소요 시간**: ${currentBuild.durationString}",
+             footer: "빌드 성공: ${currentBuild.displayName}",
+             link: env.BUILD_URL,
+             result: currentBuild.currentResult,
+             title: "Jenkins 빌드 성공",
+             webhookURL: "YOUR_DISCORD_WEBHOOK_URL"
+</details>
+
+### Jenkinsfile 전체 코드
+<details>
+	<summary>보기</summary>
 
 	pipeline {
 	    agent any
