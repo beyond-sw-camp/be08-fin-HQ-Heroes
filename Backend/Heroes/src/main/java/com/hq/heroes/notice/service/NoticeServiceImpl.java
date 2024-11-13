@@ -47,43 +47,26 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public List<NoticeResponseDTO> getNotices() {
-        // 공지사항 엔티티 리스트 조회
         List<Notice> notices = noticeRepository.findAllByOrderByCreatedAtDesc();
-
-        // 엔티티 리스트를 DTO 리스트로 변환
         return notices.stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Notice> getNoticesByCategory(Long categoryId) {
-        Optional<NoticeCategory> category = noticeCategoryRepository.findById(categoryId);
-
-        if (category.isPresent()) {
-            return noticeRepository.findByCategory(category.get());
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
     public NoticeResponseDTO getNoticeById(Long noticeId) {
-        // 공지사항 엔티티를 ID로 조회
         Notice notice = noticeRepository.findById(noticeId)
                 .orElse(null);
 
-        // 엔티티가 null이 아니면 DTO로 변환하여 반환
         if (notice != null) {
             return convertToResponseDTO(notice);
         }
-        return null; // null일 경우
+        return null;
     }
 
     @Override
     @Transactional
     public NoticeResponseDTO createNotice(NoticeRequestDTO requestDTO) {
-        // 사원 정보를 가져옴
         Optional<Employee> employee = employeeRepository.findById(requestDTO.getEmployeeId());
         if (employee.isEmpty()) {
             throw new IllegalArgumentException("Invalid employee ID");
@@ -91,19 +74,17 @@ public class NoticeServiceImpl implements NoticeService {
 
         Employee employeeEntity = employee.get();
 
-        // 카테고리 정보를 가져옴
         Optional<NoticeCategory> category = noticeCategoryRepository.findById(requestDTO.getCategoryId());
         if (category.isEmpty()) {
             throw new IllegalArgumentException("Invalid category ID");
         }
 
-        // 공지사항 생성
         Notice notice = Notice.builder()
                 .employee(employeeEntity)
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
                 .updater(null)
-                .category(category.get()) // 조회된 카테고리 설정
+                .category(category.get())
                 .build();
 
         noticeRepository.save(notice);
@@ -114,12 +95,12 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     @Transactional
     public NoticeResponseDTO updateNotice(Long noticeId, NoticeUpdateRequestDTO requestDTO) {
-        // 공지사항 조회
+
         Notice notice = noticeRepository.findById(noticeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공지사항 ID : " + noticeId));
 
-        Hibernate.initialize(notice.getEmployee()); // employee 초기화
-        Hibernate.initialize(notice.getUpdater());  // updater 초기화
+        Hibernate.initialize(notice.getEmployee());
+        Hibernate.initialize(notice.getUpdater());
 
         Employee employee = employeeRepository.findByEmployeeId(requestDTO.getEmployeeId())
                 .orElseThrow(() -> new IllegalArgumentException("사원이 존재하지 않습니다"));
@@ -127,13 +108,10 @@ public class NoticeServiceImpl implements NoticeService {
         NoticeCategory category = noticeCategoryRepository.findById(requestDTO.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리 ID : " + requestDTO.getCategoryId()));
 
-        // 공지사항 업데이트
         notice.updateNotice(requestDTO, employee, noticeCategoryRepository);
 
-        // 엔티티를 저장하고 DTO로 변환
         noticeRepository.save(notice);
 
-        // DTO 변환
         return convertToResponseDTO(notice);
     }
 
@@ -141,7 +119,7 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     @Transactional
     public boolean deleteNotice(Long noticeId) {
-        // 공지사항이 존재하는지 확인
+
         if (noticeRepository.existsById(noticeId)) {
             noticeRepository.deleteById(noticeId);
             return true;

@@ -26,15 +26,6 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final EmployeeRepository employeeRepository;
 
-    // 전체 근태 기록 조회
-    @Override
-    public List<AttendanceDTO> getAllAttendances() {
-        List<Attendance> attendances = attendanceRepository.findAll();
-        return attendances.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
     private AttendanceDTO convertToDTO(Attendance attendance) {
         return AttendanceDTO.builder()
                 .attendanceId(attendance.getAttendanceId())

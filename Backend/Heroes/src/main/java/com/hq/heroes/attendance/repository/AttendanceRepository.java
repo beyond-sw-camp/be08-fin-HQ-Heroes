@@ -15,13 +15,13 @@ import java.util.Optional;
 @Repository
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
-    Optional<Attendance> findByEmployeeAndStatus(Employee employee, AttendanceStatus attendanceStatus);
-
     // 직원의 가장 최근 출근 기록 조회
     Optional<Attendance> findTopByEmployeeAndStatusAndCheckOutIsNullOrderByCheckInDesc(Employee employee, AttendanceStatus status);
 
+    // 사원 번호로 사원 조회
     List<Attendance> findByEmployeeEmployeeId(String employeeId);
 
+    // employeeId와 checkIn 시간 범위를 기준으로 출근 기록을 조회
     List<Attendance> findByEmployee_EmployeeIdAndCheckInBetween(String employeeId, LocalDate startDate, LocalDate endDate);
 
     // 특정 사원의 월별 총 근무 시간 조회

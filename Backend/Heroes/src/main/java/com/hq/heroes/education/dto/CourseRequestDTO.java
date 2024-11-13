@@ -13,15 +13,13 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class CourseRequestDTO {
-    private Long educationId; // 교육 번호
-    private String employeeId; // 사원 번호
-    private Long categoryId; // 카테고리 번호
-    private String educationName; // 교육 이름
-    private String employeeName; // 사원 이름
-    private LocalDate startDate; // 교육 시작일
-    private LocalDate endDate; // 교육 종료일
-    private String categoryName; // 카테고리 이름
-
-    // 기본 상태값을 'FAIL (미이수)'로 설정
+    private Long educationId;
+    private String employeeId;
+    private Long categoryId;
+    private String educationName;
+    private String employeeName;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String categoryName;
     private CourseStatus status = CourseStatus.FAIL;
 }

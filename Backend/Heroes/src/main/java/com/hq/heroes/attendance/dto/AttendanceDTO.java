@@ -24,9 +24,9 @@ public class AttendanceDTO {
     public double getWorkHours() {
         if (checkIn != null && checkOut != null) {
             Duration duration = Duration.between(checkIn, checkOut);
-            // 시간 단위로 변환 (hours = duration.toMinutes() / 60.0)
+
             return duration.toMinutes() / 60.0;
         }
-        return 0; // 출근 또는 퇴근 시간이 없는 경우 0시간 반환
+        return 0;
     }
 }

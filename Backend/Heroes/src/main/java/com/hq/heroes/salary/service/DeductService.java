@@ -5,5 +5,7 @@ import com.hq.heroes.salary.dto.DeductDTO;
 import java.util.List;
 
 public interface DeductService {
-    List<DeductDTO> getAllDeducts(); // 모든 공제 조회
+
+    // 모든 공제 조회
+    List<DeductDTO> getAllDeducts();
 }

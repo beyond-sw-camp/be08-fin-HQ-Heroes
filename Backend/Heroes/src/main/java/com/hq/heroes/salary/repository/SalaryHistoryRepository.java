@@ -11,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface SalaryHistoryRepository extends JpaRepository<SalaryHistory, Long> {
+
     // 직원 ID로 급여 기록 조회
     @Query("SELECT sh FROM SalaryHistory sh " +
             "JOIN FETCH sh.employee e " +

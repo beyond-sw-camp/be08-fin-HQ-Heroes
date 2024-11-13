@@ -3,7 +3,6 @@ package com.hq.heroes.certification.controller;
 import com.hq.heroes.auth.dto.form.CustomEmployeeDetails;
 import com.hq.heroes.certification.dto.EmployeeCertificationRequestDTO;
 import com.hq.heroes.certification.dto.EmployeeCertificationResponseDTO;
-import com.hq.heroes.certification.entity.EmployeeCertification;
 import com.hq.heroes.certification.service.EmployeeCertificationService;
 import com.hq.heroes.notification.entity.enums.AutoNotificationType;
 import com.hq.heroes.notification.service.NotificationService;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +30,6 @@ public class EmployeeCertificationController {
     private final EmployeeCertificationService employeeCertificationService;
     private final NotificationService notificationService;
 
-    // 사원 ID로 자격증 조회하기 - 테스트
     @GetMapping("/my-certification/by-employeeId")
     @Operation(summary = "사원 ID로 사원 자격증 목록 조회", description = "해당 사원의 자격증 목록을 조회한다.")
     public ResponseEntity<List<EmployeeCertificationResponseDTO>> getMyCertificationByEmployeeId() {
@@ -56,11 +53,9 @@ public class EmployeeCertificationController {
 
         List<EmployeeCertificationResponseDTO> employeeCertificationResponseDTOs = employeeCertificationService.getMyCertificationByEmployeeId(employeeId);
 
-
         return new ResponseEntity<>(employeeCertificationResponseDTOs, HttpStatus.OK);
     }
 
-    //- 테스트
     @PostMapping("/my-certification")
     @Operation(summary = "사원 자격증 등록", description = "사원 자격증 정보를 받아서 등록한다.")
     public ResponseEntity<EmployeeCertificationResponseDTO> create(@RequestBody EmployeeCertificationRequestDTO requestDTO) {
@@ -74,7 +69,6 @@ public class EmployeeCertificationController {
         return new ResponseEntity<>(employeeCertificationResponseDTO, HttpStatus.CREATED);
     }
 
-    // 자격증 등록 완료
     @PostMapping("/complete/{registrationId}")
     @Operation(summary = "사원 자격증 승인하기", description = "등록 ID로 사원이 신청한 자격증이 등록되도록 한다.")
     public ResponseEntity<String> completeCertification(@PathVariable Long registrationId) {
@@ -88,7 +82,6 @@ public class EmployeeCertificationController {
         return ResponseEntity.ok("사원 자격증 등록이 완료되었습니다.");
     }
 
-    // 사원 자격증 목록
     @GetMapping("/certification-list")
     @Operation(summary = "등록된 사원 자격증 목록 조회")
     public ResponseEntity<List<EmployeeCertificationResponseDTO>> getCertificationList() {

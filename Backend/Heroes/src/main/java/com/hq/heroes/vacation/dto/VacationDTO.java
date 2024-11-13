@@ -14,19 +14,19 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class VacationDTO {
 
-    private Long vacationId; // 휴가 ID
-    private String employeeId; // 대리인 ID
-    private String approverId; // 결재자 ID
-    private String applicantId; // 신청인 ID
-    private String employeeName; // 대리인 이름
-    private String approverName; // 결재자 이름
-    private String applicantName; // 신청인 이름
-    private VacationType vacationType; // 휴가 종류
-    private LocalDate vacationStartDate; // 시작 일시
+    private Long vacationId;
+    private String employeeId;
+    private String approverId;
+    private String applicantId;
+    private String employeeName;
+    private String approverName;
+    private String applicantName;
+    private VacationType vacationType;
+    private LocalDate vacationStartDate;
     private LocalTime vacationStartTime;
     private LocalDate vacationEndDate;
-    private LocalTime vacationEndTime; // 종료 일시
-    private String comment; // 사유 (댓글)
-    private VacationStatus vacationStatus; // 휴가 상태
+    private LocalTime vacationEndTime;
+    private String comment;
+    private VacationStatus vacationStatus;
 
 }

@@ -11,10 +11,10 @@ import java.time.LocalDate;
 @Builder
 
 public class EmployeeCertificationResponseDTO {
-    private long registrationId; // 자격증 번호
-    private String certificationName; // 자격증 이름
-    private String institution; // 발급기관
-    private LocalDate acquisitionDate; // 취득일
+    private long registrationId;
+    private String certificationName;
+    private String institution;
+    private LocalDate acquisitionDate;
     private String employeeId;
     private String employeeName;
 

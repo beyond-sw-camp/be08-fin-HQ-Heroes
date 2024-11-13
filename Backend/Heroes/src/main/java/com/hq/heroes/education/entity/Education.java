@@ -1,11 +1,9 @@
 package com.hq.heroes.education.entity;
 
-import com.hq.heroes.education.dto.EducationResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter

@@ -1,6 +1,5 @@
 package com.hq.heroes.event.dto;
 
-import com.hq.heroes.auth.entity.Employee;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,6 +16,6 @@ public class EventDTO {
     private LocalDateTime end;
     private String category;
     private String description;
-    private String employeeId; // 필요한 정보만 포함
+    private String employeeId;
     private String employeeName;
 }

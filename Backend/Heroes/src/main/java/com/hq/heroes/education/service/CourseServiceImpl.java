@@ -52,7 +52,6 @@ public class CourseServiceImpl implements CourseService {
     @Transactional
     @Override
     public boolean cancelEducation(Long courseId) {
-//        return courseRepository.deleteByCourseId(courseId);
         if (courseRepository.existsById(courseId)) {
             courseRepository.deleteById(courseId);
             return true;
@@ -64,7 +63,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("수강 내역을 찾을 수 없습니다."));
 
-        course.setCourseStatus(CourseStatus.PASS); // 상태를 이수로 변경
+        course.setCourseStatus(CourseStatus.PASS);
         courseRepository.save(course);
         return convertToDto(course);
     }
