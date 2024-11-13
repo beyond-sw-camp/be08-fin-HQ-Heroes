@@ -6,7 +6,6 @@ import com.hq.heroes.education.entity.enums.CourseStatus;
 import com.hq.heroes.education.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,16 +46,6 @@ public class CourseServiceImpl implements CourseService {
                 .stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
-    }
-
-    @Transactional
-    @Override
-    public boolean cancelEducation(Long courseId) {
-        if (courseRepository.existsById(courseId)) {
-            courseRepository.deleteById(courseId);
-            return true;
-        }
-        return false;
     }
 
     public CourseResponseDTO completeCourse(Long courseId) {
