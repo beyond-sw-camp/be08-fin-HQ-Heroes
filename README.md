@@ -12,39 +12,49 @@
 ### FrontEnd
 <div>
   <img src="https://img.shields.io/badge/HTML5-%23E34F26?style=for-the-badge&logo=html5&logoColor=white">
-  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white">
   <img src="https://img.shields.io/badge/CSS3-%231572B6?style=for-the-badge&logo=css3&logoColor=white">
-  <img src="https://img.shields.io/badge/Vue.js-%2335495e?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D">
-  <img src="https://img.shields.io/badge/Bootstrap-%23563D7C?style=for-the-badge&logo=bootstrap&logoColor=white">
-  <img src="https://img.shields.io/badge/PrimeVue-%23639a67?style=for-the-badge&logo=vue.js&logoColor=white">
+  <img src="https://img.shields.io/badge/JavaScript-%23F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+  <img src="https://img.shields.io/badge/Vue.js-%234FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white">
+  <img src="https://img.shields.io/badge/Vite-%23646CFF?style=for-the-badge&logo=vite&logoColor=white">
+  <img src="https://img.shields.io/badge/PrimeVue-%23009c5d?style=for-the-badge&logo=vue.js&logoColor=white">
 </div>
 
 ### BackEnd
 <div>
-  <img src="https://img.shields.io/badge/Java-%23F7DF1E?style=for-the-badge&logo=java&logoColor=white">
+  <img src="https://img.shields.io/badge/Java-%23ED8B00?style=for-the-badge&logo=openjdk&logoColor=white">
   <img src="https://img.shields.io/badge/Spring%20Boot-%236DB33F?style=for-the-badge&logo=springboot&logoColor=white">
   <img src="https://img.shields.io/badge/Spring%20Security-%236DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">
+  <img src="https://img.shields.io/badge/Spring%20Data%20JPA-%236DB33F?style=for-the-badge&logo=spring&logoColor=white">
+  <img src="https://img.shields.io/badge/Spring%20Batch-%236DB33F?style=for-the-badge&logo=spring&logoColor=white">
   <img src="https://img.shields.io/badge/Gradle-%2302303A?style=for-the-badge&logo=gradle&logoColor=white">
 </div>
 
 ### DataBase
 <div>
   <img src="https://img.shields.io/badge/MariaDB-%23003545?style=for-the-badge&logo=mariadb&logoColor=white">
-  <img src="https://img.shields.io/badge/Amazon%20RDS-%23527FFF?style=for-the-badge&logo=Amazon%20RDS&logoColor=white">
-  <img src="https://img.shields.io/badge/Firebase-%23DD2C00?style=for-the-badge&logo=firebase&logoColor=white">
+  <img src="https://img.shields.io/badge/Redis-%23DC382D?style=for-the-badge&logo=redis&logoColor=white">
 </div>
 
 ### CI/CD
 <div>
-  <img src="https://img.shields.io/badge/Jenkins-%23D24939?style=for-the-badge&logo=Jenkins&logoColor=white">
-  <img src="https://img.shields.io/badge/ArgoCD-%23EF7B4D?style=for-the-badge&logo=argo&logoColor=white">
-  <img src="https://img.shields.io/badge/Kubernetes-%231572B6?style=for-the-badge&logo=kubernetes&logoColor=white">
-  <img src="https://img.shields.io/badge/Amazon%20EC2-%23FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">
-  <img src="https://img.shields.io/badge/Docker-%23002260?style=for-the-badge&logo=docker&logoColor=white">
-  <img src="https://img.shields.io/badge/Ngrok-%233A0CA3?style=for-the-badge&logo=ngrok&logoColor=white">
+  <img src="https://img.shields.io/badge/Jenkins-%23D24939?style=for-the-badge&logo=jenkins&logoColor=white">
+  <img src="https://img.shields.io/badge/ArgoCD-%23F85050?style=for-the-badge&logo=argo&logoColor=white">
+  <img src="https://img.shields.io/badge/Docker-%232496ED?style=for-the-badge&logo=docker&logoColor=white">
+  <img src="https://img.shields.io/badge/Kubernetes-%23326CE5?style=for-the-badge&logo=kubernetes&logoColor=white">
 </div>
 
-### VCS
+### Cloud Platforms
+<div>
+  <img src="https://img.shields.io/badge/AWS-%23FF9900?style=for-the-badge&logo=amazonaws&logoColor=white">
+  <img src="https://img.shields.io/badge/EKS-%23FF9900?style=for-the-badge&logo=kubernetes&logoColor=white">
+  <img src="https://img.shields.io/badge/EC2-%23FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">
+  <img src="https://img.shields.io/badge/ECR-%23FF9900?style=for-the-badge&logo=docker&logoColor=white">
+  <img src="https://img.shields.io/badge/Route%2053-%23FF9900?style=for-the-badge&logo=amazonroute53&logoColor=white">
+  <img src="https://img.shields.io/badge/RDS-%23FF9900?style=for-the-badge&logo=amazonrds&logoColor=white">
+  <img src="https://img.shields.io/badge/Firebase-%23FFCA28?style=for-the-badge&logo=firebase&logoColor=black">
+</div>
+
+### Version Control
 <div>
   <img src="https://img.shields.io/badge/Git-%23F05032?style=for-the-badge&logo=git&logoColor=white">
   <img src="https://img.shields.io/badge/SourceTree-%230052CC?style=for-the-badge&logo=sourcetree&logoColor=white">
