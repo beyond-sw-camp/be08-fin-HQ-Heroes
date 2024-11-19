@@ -43,7 +43,7 @@
   <img src="https://img.shields.io/badge/Kubernetes-%23326CE5?style=for-the-badge&logo=kubernetes&logoColor=white">
 </div>
 
-### Cloud Platforms
+### Infrastructure
 <div>
   <img src="https://img.shields.io/badge/AWS-%23FF9900?style=for-the-badge&logo=amazonaws&logoColor=white">
   <img src="https://img.shields.io/badge/EKS-%23FF9900?style=for-the-badge&logo=kubernetes&logoColor=white">
