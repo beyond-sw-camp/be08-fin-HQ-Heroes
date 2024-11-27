@@ -460,6 +460,7 @@ HeRoes 프로젝트는 사원들의 업무를 효율적으로 관리하기 위�
 
 ## ▶️ 시연 영상
 
+[기능 시연 영상](https://youtu.be/OmjTrSzWjGI?si=xQcLTzVwIGNxCubd)
 
 <br>
 
