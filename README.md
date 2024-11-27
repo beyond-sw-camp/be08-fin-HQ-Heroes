@@ -84,7 +84,7 @@ HeRoes 프로젝트는 사원들의 업무를 효율적으로 관리하기 위�
 ## 📑 프로젝트 기획서
 
 
-[프로젝트 기획서](https://playdatacademy.notion.site/fceae5c3219e48a6a0dfb8c45d8950ef)
+[프로젝트 기획서](https://playdatacademy.notion.site/bdf4d060b31a4555b9fb00ef0f98bbfc)
 
 
 <br>
