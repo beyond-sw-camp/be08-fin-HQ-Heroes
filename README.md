@@ -92,7 +92,7 @@ HeRoes 프로젝트는 사원들의 업무를 효율적으로 관리하기 위�
 ## 📑 요구사항 명세서
 
 
-[요구사항 명세서](https://docs.google.com/spreadsheets/d/1gIjLOrHr1-IwU91V1MYbFB8cUNTFC7fKNmpyoDQDz0Y/edit?gid=0#gid=0)
+[요구사항 명세서](https://docs.google.com/spreadsheets/d/1I81YiEOdhIkn-6CAHCcOTzliay9jMC2x0q_v7nGALVs/edit?usp=sharing)
 
 
 <br>
