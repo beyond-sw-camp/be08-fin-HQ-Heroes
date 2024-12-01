@@ -7,6 +7,24 @@
   <h3>👨‍💻 인사 관리 시스템 - HeRoes 👨‍💻</h3>
 </div>
 
+## 🧑‍💻 팀 구성
+<br>
+<div align="center">
+<br>
+<table>
+  <tbody>
+    <tr> 
+      <td align="center"><a href="https://github.com/jongwon-kr"><img src="https://avatars.githubusercontent.com/u/76871947?v=4"width="140px;" height="140px" alt=""/><br /><b>👑김종원</b></a><br /></td>
+      <td align="center"><a href="https://github.com/tyeong1102"><img src="https://avatars.githubusercontent.com/u/97294927?s=96&v=4" width="140px;" height="140px" alt=""/><br /><b>🍙김태영</b></a><br /></td>
+      <td align="center"><a href="https://github.com/tkckdnjs"><img src="https://avatars.githubusercontent.com/u/170069568?v=4" width="140px;" height="140px"  alt=""/><br /><b>🐶이은서</b></a><br /></td>
+      <td align="center"><a href="https://github.com/eunhee78"><img src="https://avatars.githubusercontent.com/u/82626246?v=4" width="140px;" height="140px" alt=""/><br /><b>🍉조은희</b></a><br /></td>
+      <td align="center"><a href="https://github.com/mmvne"><img src="https://avatars.githubusercontent.com/u/45449480?v=4" width="140px;" height="140px" alt=""/><br /><b>🧁홍석민</b></a><br /></td>
+  </tbody>
+</table>
+</div>
+
+<br>
+
 ## 🛠️ 기술 스택 🛠️
 
 ### FrontEnd
@@ -461,34 +479,5 @@ HeRoes 프로젝트는 사원들의 업무를 효율적으로 관리하기 위�
 ## ▶️ 시연 영상
 
 [기능 시연 영상](https://youtu.be/Sv748E1-wsU?si=XH_mQM_Ktn3sHU9r)
-
-<br>
-
-## 🧑‍💻 팀 구성
-<br>
-<div align="center">
-<br>
-<table>
-  <tbody>
-    <tr> 
-      <td align="center"><a href="https://github.com/jongwon-kr"><img src="https://avatars.githubusercontent.com/u/76871947?v=4"width="140px;" height="140px" alt=""/><br /><b>👑김종원</b></a><br /></td>
-      <td align="center"><a href="https://github.com/tyeong1102"><img src="https://avatars.githubusercontent.com/u/97294927?s=96&v=4" width="140px;" height="140px" alt=""/><br /><b>🍙김태영</b></a><br /></td>
-      <td align="center"><a href="https://github.com/tkckdnjs"><img src="https://avatars.githubusercontent.com/u/170069568?v=4" width="140px;" height="140px"  alt=""/><br /><b>🐶이은서</b></a><br /></td>
-      <td align="center"><a href="https://github.com/eunhee78"><img src="https://avatars.githubusercontent.com/u/82626246?v=4" width="140px;" height="140px" alt=""/><br /><b>🍉조은희</b></a><br /></td>
-      <td align="center"><a href="https://github.com/mmvne"><img src="https://avatars.githubusercontent.com/u/45449480?v=4" width="140px;" height="140px" alt=""/><br /><b>🧁홍석민</b></a><br /></td>
-  </tbody>
-</table>
-</div>
-
-<br>
-
-## 🐻 한줄 회고록
-|&nbsp;&nbsp;&nbsp;&nbsp;팀&nbsp;원&nbsp;&nbsp;&nbsp;&nbsp;|회고|
-|:----:|----|
-|👑김종원|<br><br>&nbsp;|
-|🍙김태영|<br><br>&nbsp;|
-|🐶이은서|<br><br>&nbsp;|
-|🧁조은희|<br><br>&nbsp;|
-|🐧홍석민|<br><br>&nbsp;|
 
 <br>
